@@ -73,7 +73,7 @@ test("sanitizeUrls drops javascript:, data: and friends but keeps http(s) and pl
   assert.deepEqual([coins[0].source_url, coins[0].network.hashrate_upstream, coins[0].network.height_source], [null, "explorer", null]);
   assert.deepEqual(coins[0].status_sources.map((l) => l.url), ["https://y.example"]);
   assert.equal(warn.length, 5);
-  for (const bad of ["javascript:alert(1)", "data:x", "https://", "https://a b", "https://x/<", "ftp://x", "/relative"]) assert.equal(snap.safeUrl(bad), false, bad);
+  for (const bad of ["javascript:alert(1)", "data:x", "https://", "https://a b", "https://x/<", "https://user:pass@example.com/x", "https://token@example.com/", "ftp://x", "/relative"]) assert.equal(snap.safeUrl(bad), false, bad);
 });
 
 test("rollback points current.json at the previous snapshot; prune keeps current and previous", async () => {

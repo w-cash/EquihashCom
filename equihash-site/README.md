@@ -347,7 +347,7 @@ Rendering rules (`verified_links` in `src/data.rs`, `src/views/links.rs`, the dr
 - Icons are a monochrome SVG sprite, `static/icons.svg`, with a text label next to each icon. X, Discord, Telegram, GitHub and Reddit are from Simple Icons (CC0 1.0). The other glyphs are drawn for this site.
 - Unknown extra fields such as `note` are accepted and ignored.
 
-**Manual override, keep it.** The Wcash X link (`coins.wcash`, kind `x`) is set by hand to `https://x.com/WcashProject`, with a `note` explaining it was chosen by the maintainer. If the links regeneration script (`/workspace/links-work/build.py`, outside this repo) is ever re-run, it must keep this entry and not revert it to a different account. Re-apply it after any regeneration. A unit test (`links_tolerate_a_note_field_and_the_wcash_x_override_loads`) fails if the loaded Wcash X link is anything else.
+**Manual override, keep it.** The Wcash X link (`coins.wcash`, kind `x`) is set by hand to `https://x.com/WcashProject`, with a `note` explaining it was chosen by the maintainer. If the external links-regeneration script is ever re-run, it must keep this entry and not revert it to a different account. Re-apply it after any regeneration. A unit test (`links_tolerate_a_note_field_and_the_wcash_x_override_loads`) fails if the loaded Wcash X link is anything else.
 
 ## Logos
 

@@ -10,6 +10,15 @@ const S = require("../static/shared.js");
 // Same literal as calc.rs (GUARD_840), so the server and the browser say the same thing.
 const GUARD_840 = "Your hashrate is 1.61× the network estimate. At 10% or more of the network a share-based estimate isn't meaningful: adding it would itself move the network hashrate and difficulty. Coins per day, revenue and profit are shown as n/a.";
 
+test("HTML formatters escape upstream units and links reject embedded credentials", () => {
+  const got = S.fmtHash(1234, '<img src=x onerror="alert(1)">/s');
+  assert.equal(got, "1.23 k&lt;img src=x onerror=&quot;alert(1)&quot;&gt;/s");
+  assert.ok(!got.includes("<img"));
+  assert.equal(S.safeUrl("https://pool.example/path"), true);
+  assert.equal(S.safeUrl("https://user:pass@pool.example/path"), false);
+  assert.equal(S.safeUrl("javascript:alert(1)"), false);
+});
+
 test("rankOrder follows the server's order and keeps unknown ids, stably, at the end", () => {
   assert.deepEqual(S.rankOrder(["zcash", "piratechain", "komodo", "wcash"], ["zcash", "piratechain", "wcash", "komodo"]), ["zcash", "piratechain", "wcash", "komodo"]);
   assert.deepEqual(S.rankOrder(["a", "x", "b", "y"], ["b", "a"]), ["b", "a", "x", "y"]);

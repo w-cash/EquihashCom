@@ -709,7 +709,11 @@ pub fn safe_url(u: &str) -> Option<String> {
     let lower = t.to_ascii_lowercase();
     let rest = lower.strip_prefix("https://").or_else(|| lower.strip_prefix("http://"))?;
     let authority = rest.split(['/', '?', '#']).next().unwrap_or("");
-    let host = authority.rsplit('@').next().unwrap_or("");
+    // Userinfo can conceal credentials in a link and is never needed by this site.
+    if authority.contains('@') {
+        return None;
+    }
+    let host = authority;
     if host.is_empty() || host.starts_with('.') || host.starts_with(':') {
         return None;
     }
@@ -2327,7 +2331,7 @@ mod tests {
         for ok in ["https://z.cash/", "http://pool.example:8080/a?b=1&c=\"2\"", "HTTPS://Example.com"] {
             assert!(safe_url(ok).is_some(), "{ok}");
         }
-        for bad in ["javascript:alert(1)", " JavaScript:alert(1)", "data:text/html,<b>", "vbscript:x", "//evil.example", "/relative", "ftp://x.example", "https://", "https://:80", "https://a b", "https://x/<script>", "https://x/\u{2028}y", "http://x\\y", ""] {
+        for bad in ["javascript:alert(1)", " JavaScript:alert(1)", "data:text/html,<b>", "vbscript:x", "//evil.example", "/relative", "ftp://x.example", "https://", "https://:80", "https://a b", "https://x/<script>", "https://x/\u{2028}y", "http://x\\y", "https://user:pass@example.com/x", "https://token@example.com/", ""] {
             assert!(safe_url(bad).is_none(), "{bad:?}");
         }
         let mut p = Pool { id: "p".into(), url: Some("javascript:alert(1)".into()), source_url: Some("https://ok.example/".into()), data_url: Some("data:x".into()), ..Default::default() };

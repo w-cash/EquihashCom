@@ -109,7 +109,7 @@ fn health(d: &data::Data, now: chrono::DateTime<chrono::Utc>, max_age: i64, relo
     let live_sources: Vec<serde_json::Value> = d
         .live
         .iter()
-        .map(|s| serde_json::json!({"id": s.id, "status": s.status, "age_secs": s.age_secs, "stale": s.stale, "error": s.error, "last_ok_at": s.last_ok_at}))
+        .map(|s| serde_json::json!({"id": s.id, "status": s.status, "age_secs": s.age_secs, "stale": s.stale, "error": s.error.as_ref().map(|_| "source unavailable"), "last_ok_at": s.last_ok_at}))
         .collect();
     let live_ok = !live_enabled || d.live.iter().all(|s| s.status == "ok" && !s.stale);
     let status = if !data_ok { "error" } else if reload_error.is_some() || !live_ok { "degraded" } else { "ok" };
@@ -125,7 +125,7 @@ fn health(d: &data::Data, now: chrono::DateTime<chrono::Utc>, max_age: i64, relo
             "fresh": data_ok,
             "pools": d.pools.len(),
             "coins": d.coins.len(),
-            "reload_error": reload_error,
+            "reload_error": reload_error.map(|_| "data reload failed"),
         },
         "live": { "enabled": live_enabled, "ok": live_ok, "sources": live_sources },
     });
@@ -407,6 +407,8 @@ mod tests {
         assert_eq!(body["status"], "error");
         let (code, body) = health(&d, gen + chrono::Duration::minutes(30), HEALTH_MAX_DATA_AGE_SECS, Some("pools.json: bad"), false);
         assert_eq!((code, body["status"].as_str()), (200, Some("degraded")), "a failing reload is visible but the old data still serves");
+        assert_eq!(body["data"]["reload_error"], "data reload failed");
+        assert!(!body.to_string().contains("pools.json: bad"), "internal reload details are not public");
         // Live sources that have not answered yet make it degraded, never down.
         let (code, body) = health(&d, gen + chrono::Duration::minutes(30), HEALTH_MAX_DATA_AGE_SECS, None, true);
         assert_eq!(code, 200);

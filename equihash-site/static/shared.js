@@ -7,6 +7,32 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
+  // ---------- output and URL safety ----------
+  /** Escape untrusted text before it is joined into an HTML fragment. */
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  /** Format a hashrate for an HTML fragment. The unit may come from upstream data. */
+  function fmtHash(value, unit = "Sol/s") {
+    if (value == null || !Number.isFinite(Number(value))) return "n/a";
+    const h = Number(value), a = Math.abs(h);
+    const [scaled, prefix] = a >= 1e15 ? [h / 1e15, "P"] : a >= 1e12 ? [h / 1e12, "T"] : a >= 1e9 ? [h / 1e9, "G"] : a >= 1e6 ? [h / 1e6, "M"] : a >= 1e3 ? [h / 1e3, "k"] : [h, ""];
+    const number = scaled === 0 ? "0" : Math.abs(scaled) >= 100 ? scaled.toFixed(0) : Math.abs(scaled) >= 10 ? scaled.toFixed(1) : scaled.toFixed(2);
+    return `${number} ${prefix}${escapeHtml(String(unit ?? "Sol/s").replace("/s", ""))}/s`;
+  }
+
+  /** Only public HTTP(S) links without embedded credentials are renderable. */
+  function safeUrl(value) {
+    if (typeof value !== "string") return false;
+    const text = value.trim();
+    if (!text || text.length > 2048 || /[\s\u0000-\u001f\u007f<>\\`]/.test(text)) return false;
+    try {
+      const u = new URL(text);
+      return (u.protocol === "http:" || u.protocol === "https:") && !!u.hostname && !u.hostname.startsWith(".") && !u.username && !u.password;
+    } catch (_) { return false; }
+  }
+
   // ---------- calculator (mirrors src/views/calc.rs) ----------
   // At this share of the network estimate or more, a share-based figure isn't meaningful.
   const OUTWEIGH_SHARE = 0.1;
@@ -140,5 +166,5 @@
     return ok;
   }
 
-  return { OUTWEIGH_SHARE, shareGuard, estimate, rankOrder, applyRank, applyShareModes, mergeSharePool, copyText };
+  return { escapeHtml, fmtHash, safeUrl, OUTWEIGH_SHARE, shareGuard, estimate, rankOrder, applyRank, applyShareModes, mergeSharePool, copyText };
 });

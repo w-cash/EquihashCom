@@ -3,3 +3,12 @@
 .DS_Store
 *.log
 .env*
+*.pem
+*.key
+*.p12
+*.pfx
+*.bak
+*.tmp
+*.swp
+.idea/
+.vscode/

@@ -73,7 +73,8 @@ export function safeUrl(u) {
   if (!t || t.length > 2048 || /[\s\u0000-\u001f\u007f<>\\`]/.test(t)) return false;
   const m = t.match(/^https?:\/\/([^/?#]*)/i);
   if (!m) return false;
-  const host = m[1].split("@").pop();
+  if (m[1].includes("@")) return false;
+  const host = m[1];
   return host !== "" && !host.startsWith(".") && !host.startsWith(":");
 }
 const POOL_URLS = ["url", "source_url", "data_url", "hashrate_source", "fee_source", "miners_source", "blocks_source", "min_payout_source"];

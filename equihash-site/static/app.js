@@ -11,7 +11,7 @@
   // ---------- formatting (mirrors src/fmt.rs) ----------
   const trim = (v) => (v === 0 ? "0" : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2));
   const scale = (h) => { const a = Math.abs(h); return a >= 1e15 ? [h / 1e15, "P"] : a >= 1e12 ? [h / 1e12, "T"] : a >= 1e9 ? [h / 1e9, "G"] : a >= 1e6 ? [h / 1e6, "M"] : a >= 1e3 ? [h / 1e3, "k"] : [h, ""]; };
-  const fmtHash = (v, unit = "Sol/s") => { if (v == null || !isFinite(v)) return NA; const [x, p] = scale(v); return `${trim(x)} ${p}${unit.replace("/s", "")}/s`; };
+  const fmtHash = (v, unit = "Sol/s") => S ? S.fmtHash(v, unit) : (v == null || !isFinite(v) ? NA : (() => { const [x, p] = scale(v); return `${trim(x)} ${p}${esc(String(unit ?? "Sol/s").replace("/s", ""))}/s`; })());
   const fmtPct = (p) => (p == null || !isFinite(p) ? NA : p === 0 ? "0%" : p < 0.01 ? "<0.01%" : p < 10 ? p.toFixed(2) + "%" : p.toFixed(1) + "%");
   const fmtInt = (v) => (v == null || !isFinite(v) ? NA : Math.round(v).toLocaleString("en-US"));
   const short = (v) => String(+(+v).toFixed(4));
@@ -162,7 +162,7 @@
   let lastFocus = null;
   const kv = (label, value) => `<tr><th scope="row">${esc(label)}</th><td>${value}</td></tr>`;
   // Only http(s) URLs become links (the server drops anything else at load time, too).
-  const safeUrl = (u) => typeof u === "string" && /^https?:\/\/[^\s<>\\`]+$/i.test(u.trim());
+  const safeUrl = (u) => S ? S.safeUrl(u) : (() => { try { const x = new URL(String(u).trim()); return /^https?:$/.test(x.protocol) && !!x.hostname && !x.username && !x.password; } catch { return false; } })();
   const link = (u, l) => (u ? (safeUrl(u) ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer nofollow">${esc(l || host(u))}</a>` : esc(l || NA)) : NA);
   // Per-field provenance: where a figure came from and when that figure (not the row) was observed.
   const prov = (src, at) => (src || at ? `<br><span class="prov">${src ? link(src, host(src).split("/")[0]) : ""}${src && at ? " · " : ""}${at ? `<time class="ago" datetime="${esc(at)}">${esc(fmtUtc(at))}</time>` : ""}</span>` : "");

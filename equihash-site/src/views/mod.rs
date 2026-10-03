@@ -80,6 +80,17 @@ pub fn share_json(c: Option<&Coin>, p: &Pool) -> serde_json::Value {
 /// Body of /api/live: each poller's status, plus the figures it feeds, already formatted the way
 /// the server renders them, so the page can swap text in place without its own formatting rules.
 pub fn live_json(d: &Data, now: chrono::DateTime<chrono::Utc>) -> serde_json::Value {
+    let sources: Vec<serde_json::Value> = d
+        .live
+        .iter()
+        .map(|s| {
+            let mut value = serde_json::to_value(s).unwrap_or_else(|_| serde_json::json!({"id": s.id, "status": "unavailable"}));
+            if s.error.is_some() {
+                value["error"] = "source unavailable".into();
+            }
+            value
+        })
+        .collect();
     // Coins with a live figure. Every pool on them is listed: a new network reading moves all of
     // their shares, and can switch what the shares are measured against.
     let live_coins: Vec<&Coin> = d.coins.iter().filter(|c| c.network.live_source.is_some() || d.pools.iter().any(|p| p.coin_id == c.id && p.live_source.is_some())).collect();
@@ -149,7 +160,7 @@ pub fn live_json(d: &Data, now: chrono::DateTime<chrono::Utc>) -> serde_json::Va
     }
     serde_json::json!({
         "now": now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
-        "sources": d.live,
+        "sources": sources,
         "pools": pools,
         "coins": coins,
         "concentration_all_html": home::concentration_view(d, None).into_string(),
@@ -440,5 +451,17 @@ mod tests {
                 assert_eq!(p["share_basis"], "network");
             }
         }
+    }
+
+    #[test]
+    fn api_live_redacts_poll_error_details() {
+        let t = Tmp::new("live-errors");
+        let mut d = crate::data::load(&t.0).unwrap();
+        assert!(!d.live.is_empty(), "fixture has live sources");
+        d.live[0].error = Some("PRIVATE_DETAIL_SENTINEL".into());
+        let j = live_json(&d, chrono::Utc::now());
+        assert_eq!(j["sources"][0]["error"], "source unavailable");
+        let text = j.to_string();
+        assert!(!text.contains("PRIVATE_DETAIL_SENTINEL"));
     }
 }
