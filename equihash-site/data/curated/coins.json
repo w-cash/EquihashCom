@@ -1,0 +1,4 @@
+{
+  "_doc": "Hand-added Equihash coins that miningpoolstats does not cover. Each object uses the same shape as a coin in data/network.json (id, name, symbol, equihash {n,k}, hardware, network {...}, source_url, fetched_at). Unknown values: null (shown as n/a). Coins already present in network.json are ignored. Pools for a coin go in manual-pools.json with \"coin\": \"<SYMBOL>\".",
+  "coins": []
+}

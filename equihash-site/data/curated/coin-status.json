@@ -1,0 +1,23 @@
+{
+  "_doc": "Coins whose proof-of-work mining has ended. Shown greyed out with citations; their pools move to the archive.",
+  "coins": [
+    {
+      "id": "horizen",
+      "status": "ended",
+      "note": "Proof-of-work mining ended: the legacy Horizen chain stopped at block 1,807,300 (23 Jul 2025) when ZEN migrated to Base.",
+      "sources": [
+        { "label": "Horizen blog: final mainnet node upgrade (ZEN 6.0.0)", "url": "https://blog.horizen.io/the-final-horizen-mainnet-node-software-upgrade-zen-6-0-0-eon-1-5-0-are-available-to-download" },
+        { "label": "2Miners: ZEN shutdown (Jul 2025)", "url": "https://2miners.com/blog/july-2025-work-progress-zen-shutdown/" }
+      ]
+    },
+    {
+      "id": "flux",
+      "status": "ended",
+      "note": "PoW (ZelHash, Equihash 125,4) mining ended at block 2,020,000 (Oct 2025) when Flux moved to PoUW v2 / Proof of Nodes; pools are no longer used.",
+      "sources": [
+        { "label": "fluxd v9.0.0 release notes", "url": "https://github.com/RunOnFlux/fluxd/releases/tag/v9.0.0" },
+        { "label": "2Miners: the end of Flux mining (Oct 2025)", "url": "https://2miners.com/blog/october-2025-work-progress-the-end-of-flux-mining/" }
+      ]
+    }
+  ]
+}

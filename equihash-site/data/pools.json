@@ -1,0 +1,5480 @@
+{
+  "generated_at": "2026-10-02T23:40:48.880Z",
+  "pools": [
+    {
+      "id": "zcash:viabtc.com:16",
+      "name": "ViaBTC",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://www.viabtc.com",
+      "hashrate": 10356475033,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 32.3624026089421,
+      "miners": 34340,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "PPS+",
+          "fee_pct": 4
+        },
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "PPS+",
+        "PPLNS"
+      ],
+      "min_payout": 0.001,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 367,
+      "last_block_height": 3504270,
+      "last_block_time": "2026-10-02T23:35:59.000Z",
+      "region": "Global",
+      "regions": [
+        "Global"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:foundrydigital.com:94",
+      "name": "Foundry",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://foundrydigital.com",
+      "hashrate": 4868229038,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 15.212472160487744,
+      "miners": null,
+      "workers": 10090,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": null
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 174,
+      "last_block_height": 3504265,
+      "last_block_time": "2026-10-02T23:27:50.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:f2pool.com:3",
+      "name": "F2Pool",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://www.f2pool.com",
+      "hashrate": 4688792904,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 14.651761649179926,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 3,
+      "schemes": [
+        {
+          "scheme": "PPS",
+          "fee_pct": 3
+        },
+        {
+          "scheme": "PPS+",
+          "fee_pct": 3
+        }
+      ],
+      "payout_schemes": [
+        "PPS",
+        "PPS+"
+      ],
+      "min_payout": 0.1,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 125,
+      "last_block_height": 3504260,
+      "last_block_time": "2026-10-02T23:21:08.000Z",
+      "region": "Global",
+      "regions": [
+        "Global"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:luxor.tech:65",
+      "name": "Luxor",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://luxor.tech/mining",
+      "hashrate": 3432850691,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 10.727134068737834,
+      "miners": null,
+      "workers": 4634,
+      "fee_pct": 3,
+      "schemes": [
+        {
+          "scheme": "FPPS",
+          "fee_pct": 3
+        }
+      ],
+      "payout_schemes": [
+        "FPPS"
+      ],
+      "min_payout": 0.1,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 103,
+      "last_block_height": 3504266,
+      "last_block_time": "2026-10-02T23:30:10.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:antpool.com:4",
+      "name": "AntPool",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://antpool.com",
+      "hashrate": 1700000000,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 5.312240338522291,
+      "miners": null,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "PPS",
+          "fee_pct": 3
+        },
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0
+        },
+        {
+          "scheme": "PPS+",
+          "fee_pct": 3
+        }
+      ],
+      "payout_schemes": [
+        "PPS",
+        "PPLNS",
+        "PPS+"
+      ],
+      "min_payout": 0.001,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 52,
+      "last_block_height": 3504269,
+      "last_block_time": "2026-10-02T23:35:21.000Z",
+      "region": "Global",
+      "regions": [
+        "Global"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:2miners.com:11",
+      "name": "2Miners",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://zec.2miners.com",
+      "hashrate": 1636441493,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 5.113629712203672,
+      "miners": 1071,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 0.1,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 70,
+      "last_block_height": 3504263,
+      "last_block_time": "2026-10-02T23:26:34.000Z",
+      "region": "ASIA, US, EU",
+      "regions": [
+        "ASIA",
+        "US",
+        "EU"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:sluicey.xyz:141",
+      "name": "sluicey.xyz",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://sluicey.xyz",
+      "hashrate": 1340152698,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 4.187772483585342,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 40,
+      "last_block_height": 3504233,
+      "last_block_time": "2026-10-02T22:43:57.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:binance.com:66",
+      "name": "Binance Pool",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://pool.binance.com",
+      "hashrate": 492958879,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 1.54042120132737,
+      "miners": null,
+      "workers": 1500,
+      "fee_pct": 3,
+      "schemes": [
+        {
+          "scheme": "FPPS",
+          "fee_pct": 3
+        }
+      ],
+      "payout_schemes": [
+        "FPPS"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": 3405273,
+      "last_block_time": "2026-07-08T15:31:04.000Z",
+      "region": "Global",
+      "regions": [
+        "Global"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:placepool.pro:135",
+      "name": "placepool.pro",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://placepool.pro",
+      "hashrate": 322931808,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 1.0091125747350207,
+      "miners": 13,
+      "workers": null,
+      "fee_pct": 0.9,
+      "schemes": [
+        {
+          "scheme": "PPS",
+          "fee_pct": 0.9
+        }
+      ],
+      "payout_schemes": [
+        "PPS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "Russia",
+      "regions": [
+        "Russia"
+      ],
+      "country_code": "RU",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:trustpool.cc:10",
+      "name": "TrustPool",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://trustpool.cc",
+      "hashrate": 306110925,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.9565498846161008,
+      "miners": 1138,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PPS+",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PPS+"
+      ],
+      "min_payout": 0.001,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "EU, Asia",
+      "regions": [
+        "EU",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:pool.kryptex.com:79",
+      "name": "Kryptex",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://pool.kryptex.com/zec",
+      "hashrate": 304660262,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.952016784318335,
+      "miners": 445,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "PPS+",
+          "fee_pct": 3
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "PPS+",
+        "SOLO"
+      ],
+      "min_payout": 0.025,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 8,
+      "last_block_height": 3504219,
+      "last_block_time": "2026-10-02T22:28:56.000Z",
+      "region": "Global, Europe, North America, South America, Singapore, Hong Kong, Russia, Middle East",
+      "regions": [
+        "Global",
+        "Europe",
+        "North America",
+        "South America",
+        "Singapore",
+        "Hong Kong",
+        "Russia",
+        "Middle East"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": "miningpoolstats lists merge type \"DUAL\" with no merged coin"
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:poolin.com:1",
+      "name": "Poolin",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://www.poolin.com",
+      "hashrate": 296159000,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.9254516390684842,
+      "miners": null,
+      "workers": 99365,
+      "fee_pct": 3,
+      "schemes": [
+        {
+          "scheme": "PPS",
+          "fee_pct": 3
+        }
+      ],
+      "payout_schemes": [
+        "PPS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 11,
+      "last_block_height": 3504192,
+      "last_block_time": "2026-10-02T21:52:49.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:tpool.io:82",
+      "name": "TPool",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://tpool.io",
+      "hashrate": 186900647,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.5840359742878325,
+      "miners": 244,
+      "workers": 499,
+      "fee_pct": 0.9,
+      "schemes": [
+        {
+          "scheme": "PPS",
+          "fee_pct": 0.9
+        }
+      ],
+      "payout_schemes": [
+        "PPS"
+      ],
+      "min_payout": 0.1,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "Global",
+      "regions": [
+        "Global"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:kupool.com:107",
+      "name": "KuPool",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://kupool.com",
+      "hashrate": 181134389,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.5660172987878754,
+      "miners": null,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "FPPS",
+          "fee_pct": null
+        }
+      ],
+      "payout_schemes": [
+        "FPPS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "Hong Kong",
+      "regions": [
+        "Hong Kong"
+      ],
+      "country_code": "HK",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:mining-dutch.nl:38",
+      "name": "Mining-Dutch",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://www.mining-dutch.nl/pools/zcash.php",
+      "hashrate": 91694994,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.28653285056903494,
+      "miners": null,
+      "workers": 241,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "D-PPS",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "D-PPS",
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": 0.01875,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": 3503205,
+      "last_block_time": "2026-10-02T01:16:03.000Z",
+      "region": "EU, US, Asia",
+      "regions": [
+        "EU",
+        "US",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:pool.zecminingpool.com:95",
+      "name": "pool.zecminingpool.com",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://pool.zecminingpool.com",
+      "hashrate": 83351879,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.2604618905384876,
+      "miners": 3,
+      "workers": null,
+      "fee_pct": 0.1,
+      "schemes": [
+        {
+          "scheme": "PPS",
+          "fee_pct": 0.1
+        }
+      ],
+      "payout_schemes": [
+        "PPS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": 3503228,
+      "last_block_time": "2026-10-02T01:34:53.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:2miners.com:13",
+      "name": "2Miners (solo)",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://solo-zec.2miners.com",
+      "hashrate": 54874312,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.17147384338532812,
+      "miners": 50,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 0.1,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 4,
+      "last_block_height": 3503861,
+      "last_block_time": "2026-10-02T14:53:52.000Z",
+      "region": "ASIA, EU, US",
+      "regions": [
+        "ASIA",
+        "EU",
+        "US"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "vdimension:666pool.com:1",
+      "name": "666pool.com",
+      "coin": "VOLLAR",
+      "coin_id": "vdimension",
+      "url": "https://www.666pool.com",
+      "hashrate": 4310000,
+      "hashrate_unit": "H/s",
+      "network_share_pct": 24.83244803321946,
+      "miners": 64,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "PPS",
+          "fee_pct": null
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS",
+        "PPS"
+      ],
+      "min_payout": 2,
+      "min_payout_unit": "VOLLAR",
+      "blocks_last_1000": 217,
+      "last_block_height": 3724868,
+      "last_block_time": "2026-10-02T23:31:19.000Z",
+      "region": "Hong Kong",
+      "regions": [
+        "Hong Kong"
+      ],
+      "country_code": "HK",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/vdimension",
+      "data_url": "https://data.miningpoolstats.stream/data/vdimension.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:09.265Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:fenixpool.com:128",
+      "name": "fenixpool.com (solo)",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://fenixpool.com/pools/mps-zecsolo",
+      "hashrate": 3930413,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.01228194028567789,
+      "miners": 6,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 0,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 1,
+      "last_block_height": 3503769,
+      "last_block_time": "2026-10-02T13:11:34.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:molepool.com:70",
+      "name": "molepool.com",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://zec.molepool.com",
+      "hashrate": 3229318,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.010091125497362427,
+      "miners": 8,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": 3497668,
+      "last_block_time": "2026-09-27T05:11:59.000Z",
+      "region": "Russia",
+      "regions": [
+        "Russia"
+      ],
+      "country_code": "RU",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:grandpool.io:87",
+      "name": "grandpool.io",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://grandpool.io/pools/zcash",
+      "hashrate": 2158135,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.006743842237045179,
+      "miners": 3,
+      "workers": null,
+      "fee_pct": 0,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 0.01
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS",
+        "SOLO"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "EU, US, Asia",
+      "regions": [
+        "EU",
+        "US",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "piratechain:zpool.ca:13",
+      "name": "zpool",
+      "coin": "ARRR",
+      "coin_id": "piratechain",
+      "url": "https://zpool.ca",
+      "hashrate": 2063550,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 48.95368929276666,
+      "miners": null,
+      "workers": 25,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.05,
+      "min_payout_unit": "ARRR",
+      "blocks_last_1000": 553,
+      "last_block_height": 4159970,
+      "last_block_time": "2026-10-02T23:32:07.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/piratechain",
+      "data_url": "https://data.miningpoolstats.stream/data/piratechain.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:11.179Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:rabidmining.com:137",
+      "name": "rabidmining.com",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://pool.rabidmining.com/zec",
+      "hashrate": 1560115,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.004875121079843355,
+      "miners": 2,
+      "workers": 1,
+      "fee_pct": 0.25,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0.25
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "EU, US, Asia",
+      "regions": [
+        "EU",
+        "US",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "piratechain:coolmine.top:4",
+      "name": "coolmine.top",
+      "coin": "ARRR",
+      "coin_id": "piratechain",
+      "url": "https://coolmine.top/?coin=6",
+      "hashrate": 1121119,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 26.596356369468765,
+      "miners": 4,
+      "workers": 4,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 30,
+      "min_payout_unit": "ARRR",
+      "blocks_last_1000": 299,
+      "last_block_height": 4159975,
+      "last_block_time": "2026-10-02T23:36:09.000Z",
+      "region": "US, EU, Asia",
+      "regions": [
+        "US",
+        "EU",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/piratechain",
+      "data_url": "https://data.miningpoolstats.stream/data/piratechain.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:11.179Z",
+      "notes": null
+    },
+    {
+      "id": "piratechain:coolmine.top:1",
+      "name": "coolmine.top",
+      "coin": "ARRR",
+      "coin_id": "piratechain",
+      "url": "https://coolmine.top/?coin=1",
+      "hashrate": 1030130,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 24.4378202375313,
+      "miners": 9,
+      "workers": 9,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PPLNT",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PPLNT"
+      ],
+      "min_payout": 5,
+      "min_payout_unit": "ARRR",
+      "blocks_last_1000": 126,
+      "last_block_height": 4159972,
+      "last_block_time": "2026-10-02T23:34:22.000Z",
+      "region": "US, EU, Asia",
+      "regions": [
+        "US",
+        "EU",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/piratechain",
+      "data_url": "https://data.miningpoolstats.stream/data/piratechain.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:11.179Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:zecwec.com",
+      "name": "ZecWec",
+      "coin": "ZEC",
+      "url": "https://pool.zecwec.com/",
+      "hashrate": 440000,
+      "hashrate_unit": "Sol/s",
+      "hashrate_is_reported": true,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 0,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": null,
+      "regions": [],
+      "country_code": null,
+      "merged_mining": {
+        "supported": true,
+        "coins": [
+          "WEC"
+        ],
+        "note": "Merged-mines Wcash (WEC) on top of Zcash: one Equihash 200,9 connection, separate ZEC and WEC balances."
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "ZecWec pool page + public overview API",
+      "source_url": "https://pool.zecwec.com/",
+      "from_miningpoolstats": false,
+      "notes": "Hashrate \u22480.44 MSol/s as reported by the pool operator; ZecWec's public API does not expose pool hashrate without signing in, so the figure is cited as reported, not independently measured. Fee (0 bps) comes from the public /api/v1/overview endpoint; the dashboard describes 'Independent PPLNS allocation' per chain.",
+      "coin_id": "zcash",
+      "fetched_at": "2026-10-02T23:40:48.340Z",
+      "data_url": "https://pool.zecwec.com/api/v1/overview",
+      "network_share_pct": 0.001374932793499887
+    },
+    {
+      "id": "wcash:zecwec.com",
+      "name": "ZecWec",
+      "coin": "WEC",
+      "coin_id": "wcash",
+      "url": "https://pool.zecwec.com/",
+      "hashrate": 440000,
+      "hashrate_unit": "Sol/s",
+      "hashrate_is_reported": true,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 0,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "WEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": null,
+      "regions": [],
+      "country_code": null,
+      "merged_mining": {
+        "supported": true,
+        "coins": [
+          "ZEC"
+        ],
+        "note": "Aux chain of a Zcash (parent) merged-mining setup."
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "ZecWec pool page + public overview API",
+      "source_url": "https://pool.zecwec.com/",
+      "from_miningpoolstats": false,
+      "notes": "Currently the only pool mining WEC. Hashrate \u22480.44 MSol/s as reported by the pool operator (not exposed by the public API).",
+      "fetched_at": "2026-10-02T23:40:48.340Z",
+      "data_url": "https://pool.zecwec.com/api/v1/overview",
+      "network_share_pct": 100
+    },
+    {
+      "id": "zcash:mysolopool.com:140",
+      "name": "mysolopool.com",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://zcash.mysolopool.com",
+      "hashrate": 393216,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.0012287399393837537,
+      "miners": 1,
+      "workers": null,
+      "fee_pct": 3,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 3
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": 3479731,
+      "last_block_time": null,
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash:pooly.ca:8",
+      "name": "pooly.ca",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash",
+      "url": "https://pooly.ca",
+      "hashrate": 357982,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 100,
+      "miners": 1,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": 19,
+      "last_block_height": 159099,
+      "last_block_time": "2026-10-02T23:33:19.000Z",
+      "region": "Canada",
+      "regions": [
+        "Canada"
+      ],
+      "country_code": "CA",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:30.188Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:himpool.com:101",
+      "name": "himpool.com (solo)",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://himpool.com/pools/zec-solo",
+      "hashrate": 203226,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.0006350502088450183,
+      "miners": 3,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "EU, IN",
+      "regions": [
+        "EU",
+        "IN"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "komodo:himpool.com:7",
+      "name": "himpool.com",
+      "coin": "KMD",
+      "coin_id": "komodo",
+      "url": "https://himpool.com/pools/kmd",
+      "hashrate": 148375,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 40.40669491617738,
+      "miners": 2,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 369,
+      "min_payout_unit": "KMD",
+      "blocks_last_1000": 295,
+      "last_block_height": 5128944,
+      "last_block_time": "2026-10-02T23:33:27.000Z",
+      "region": "EU, IN",
+      "regions": [
+        "EU",
+        "IN"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/komodo",
+      "data_url": "https://data.miningpoolstats.stream/data/komodo.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:07.604Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:kardanpool.com:129",
+      "name": "kardanpool.com",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://kardanpool.com/zec",
+      "hashrate": 76896,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.000240288254747653,
+      "miners": 1,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": 3499169,
+      "last_block_time": "2026-09-28T12:33:05.000Z",
+      "region": "Russia",
+      "regions": [
+        "Russia"
+      ],
+      "country_code": "RU",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoingold:2miners.com:6",
+      "name": "2Miners",
+      "coin": "BTG",
+      "coin_id": "bitcoingold",
+      "url": "https://btg.2miners.com",
+      "hashrate": 42853,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 94.51167131913839,
+      "miners": 91,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 0.1,
+      "min_payout_unit": "BTG",
+      "blocks_last_1000": 954,
+      "last_block_height": 967149,
+      "last_block_time": "2026-10-02T23:34:54.000Z",
+      "region": "ASIA, EU, US",
+      "regions": [
+        "ASIA",
+        "EU",
+        "US"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoingold",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoingold.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:36.848Z",
+      "notes": null
+    },
+    {
+      "id": "ycash:ninjaraider.com:19",
+      "name": "ninjaraider.com",
+      "coin": "YEC",
+      "coin_id": "ycash",
+      "url": "https://ninjaraider.com",
+      "hashrate": 20598,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 44.08724128336294,
+      "miners": 41,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS",
+        "SOLO"
+      ],
+      "min_payout": 10,
+      "min_payout_unit": "YEC",
+      "blocks_last_1000": 592,
+      "last_block_height": 3052388,
+      "last_block_time": "2026-10-02T23:34:58.000Z",
+      "region": "Czech Republic",
+      "regions": [
+        "Czech Republic"
+      ],
+      "country_code": "CZ",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/ycash",
+      "data_url": "https://data.miningpoolstats.stream/data/ycash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:41.078Z",
+      "notes": null
+    },
+    {
+      "id": "ycash:zpool.ca:5",
+      "name": "zpool",
+      "coin": "YEC",
+      "coin_id": "ycash",
+      "url": "https://zpool.ca",
+      "hashrate": 17288,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 37.00263264912994,
+      "miners": null,
+      "workers": 298,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.05,
+      "min_payout_unit": "YEC",
+      "blocks_last_1000": 271,
+      "last_block_height": 3052387,
+      "last_block_time": "2026-10-02T23:34:23.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/ycash",
+      "data_url": "https://data.miningpoolstats.stream/data/ycash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:41.078Z",
+      "notes": null
+    },
+    {
+      "id": "zclassic:zpool.ca:7",
+      "name": "zpool",
+      "coin": "ZCL",
+      "coin_id": "zclassic",
+      "url": "https://zpool.ca",
+      "hashrate": 15412,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 95.69698851288419,
+      "miners": null,
+      "workers": 195,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.05,
+      "min_payout_unit": "ZCL",
+      "blocks_last_1000": 927,
+      "last_block_height": 3271412,
+      "last_block_time": "2026-10-02T23:32:26.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zclassic",
+      "data_url": "https://data.miningpoolstats.stream/data/zclassic.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:43.199Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoinz:zpool.ca:7",
+      "name": "zpool",
+      "coin": "BTCZ",
+      "coin_id": "bitcoinz",
+      "url": "https://zpool.ca",
+      "hashrate": 8080,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 77.79658503802213,
+      "miners": null,
+      "workers": 5,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 10,
+      "min_payout_unit": "BTCZ",
+      "blocks_last_1000": 889,
+      "last_block_height": 1849532,
+      "last_block_time": "2026-10-02T23:34:25.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:51.746Z",
+      "notes": null
+    },
+    {
+      "id": "ycash:mining-dutch.nl:9",
+      "name": "Mining-Dutch",
+      "coin": "YEC",
+      "coin_id": "ycash",
+      "url": "https://www.mining-dutch.nl/pools/ycash.php",
+      "hashrate": 6299,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 13.48216005650564,
+      "miners": null,
+      "workers": 71,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "D-PPS",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "D-PPS",
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": 0.02227,
+      "min_payout_unit": "YEC",
+      "blocks_last_1000": 92,
+      "last_block_height": 3052385,
+      "last_block_time": "2026-10-02T23:33:11.000Z",
+      "region": "EU, US, Asia",
+      "regions": [
+        "EU",
+        "US",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/ycash",
+      "data_url": "https://data.miningpoolstats.stream/data/ycash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:41.078Z",
+      "notes": null
+    },
+    {
+      "id": "gemlink:zpool.ca:6",
+      "name": "zpool",
+      "coin": "GLINK",
+      "coin_id": "gemlink",
+      "url": "https://zpool.ca",
+      "hashrate": 4421,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 98.70506809555705,
+      "miners": null,
+      "workers": 59,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.05,
+      "min_payout_unit": "GLINK",
+      "blocks_last_1000": 872,
+      "last_block_height": 4552937,
+      "last_block_time": "2026-10-02T23:31:50.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/gemlink",
+      "data_url": "https://data.miningpoolstats.stream/data/gemlink.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:45.311Z",
+      "notes": null
+    },
+    {
+      "id": "buck:myvnc.com:1",
+      "name": "myvnc.com",
+      "coin": "BUCK",
+      "coin_id": "buck",
+      "url": "http://buckpool.myvnc.com",
+      "hashrate": 3720,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 100,
+      "miners": 1,
+      "workers": 1,
+      "fee_pct": 1,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": "BUCK",
+      "blocks_last_1000": 289,
+      "last_block_height": 2923641,
+      "last_block_time": "2026-10-02T18:59:45.000Z",
+      "region": "Hungary",
+      "regions": [
+        "Hungary"
+      ],
+      "country_code": "HU",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/buck",
+      "data_url": "https://data.miningpoolstats.stream/data/buck.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:21.662Z",
+      "notes": null
+    },
+    {
+      "id": "exchangecoin:pool.excc.co:1",
+      "name": "pool.excc.co",
+      "coin": "EXCC",
+      "coin_id": "exchangecoin",
+      "url": "https://pool.excc.co",
+      "hashrate": 3037,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 96.47395171537484,
+      "miners": 8,
+      "workers": null,
+      "fee_pct": 3,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 3
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 50,
+      "min_payout_unit": "EXCC",
+      "blocks_last_1000": 782,
+      "last_block_height": 1696489,
+      "last_block_time": "2026-10-02T23:36:19.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/exchangecoin",
+      "data_url": "https://data.miningpoolstats.stream/data/exchangecoin.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:58.155Z",
+      "notes": null
+    },
+    {
+      "id": "ycash:dapool.io:1",
+      "name": "dapool.io",
+      "coin": "YEC",
+      "coin_id": "ycash",
+      "url": "https://dapool.io/coin/yec",
+      "hashrate": 2536,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 5.427966011001477,
+      "miners": 22,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": 0.1,
+      "min_payout_unit": "YEC",
+      "blocks_last_1000": 45,
+      "last_block_height": 3052365,
+      "last_block_time": "2026-10-02T23:10:05.000Z",
+      "region": "Canada",
+      "regions": [
+        "Canada"
+      ],
+      "country_code": "CA",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/ycash",
+      "data_url": "https://data.miningpoolstats.stream/data/ycash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:41.078Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoingold:2miners.com:7",
+      "name": "2Miners (solo)",
+      "coin": "BTG",
+      "coin_id": "bitcoingold",
+      "url": "https://solo-btg.2miners.com",
+      "hashrate": 2263,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 4.991013749217329,
+      "miners": 8,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 0.1,
+      "min_payout_unit": "BTG",
+      "blocks_last_1000": 41,
+      "last_block_height": 967143,
+      "last_block_time": "2026-10-02T22:18:47.000Z",
+      "region": "ASIA, EU, US",
+      "regions": [
+        "ASIA",
+        "EU",
+        "US"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoingold",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoingold.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:36.848Z",
+      "notes": null
+    },
+    {
+      "id": "bitmark-equihash:openmarks.com:25",
+      "name": "openmarks.com",
+      "coin": "MARKS",
+      "coin_id": "bitmark-equihash",
+      "url": "https://pool.openmarks.com",
+      "hashrate": 1891,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 1.8448932952103335e-05,
+      "miners": null,
+      "workers": 4,
+      "fee_pct": 0.5,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 0.5
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": 0.001,
+      "min_payout_unit": "MARKS",
+      "blocks_last_1000": 113,
+      "last_block_height": 2468229,
+      "last_block_time": "2026-10-02T23:13:35.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitmark-equihash",
+      "data_url": "https://data.miningpoolstats.stream/data/bitmark-equihash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:13.068Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoinz:himpool.com:22",
+      "name": "himpool.com (solo)",
+      "coin": "BTCZ",
+      "coin_id": "bitcoinz",
+      "url": "https://himpool.com/pools/bitcoinz-solo",
+      "hashrate": 1188,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 11.438408790243846,
+      "miners": 2,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 250,
+      "min_payout_unit": "BTCZ",
+      "blocks_last_1000": 42,
+      "last_block_height": 1849494,
+      "last_block_time": "2026-10-02T22:00:48.000Z",
+      "region": "EU, IN",
+      "regions": [
+        "EU",
+        "IN"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:51.746Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoinz:swgroupe.fr:3",
+      "name": "swgroupe.fr",
+      "coin": "BTCZ",
+      "coin_id": "bitcoinz",
+      "url": "https://swgroupe.fr",
+      "hashrate": 785.92,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 7.567065855579498,
+      "miners": 5,
+      "workers": 6,
+      "fee_pct": 0.5,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0.5
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "BTCZ",
+      "blocks_last_1000": 32,
+      "last_block_height": 1849529,
+      "last_block_time": "2026-10-02T23:24:34.000Z",
+      "region": "France",
+      "regions": [
+        "France"
+      ],
+      "country_code": "FR",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:51.746Z",
+      "notes": null
+    },
+    {
+      "id": "zclassic:mining-dutch.nl:21",
+      "name": "Mining-Dutch",
+      "coin": "ZCL",
+      "coin_id": "zclassic",
+      "url": "https://www.mining-dutch.nl/pools/zclassic.php",
+      "hashrate": 693,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 4.3030114871158025,
+      "miners": null,
+      "workers": 10,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "D-PPS",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "D-PPS",
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": 0.00586,
+      "min_payout_unit": "ZCL",
+      "blocks_last_1000": 71,
+      "last_block_height": 3271413,
+      "last_block_time": "2026-10-02T23:34:10.000Z",
+      "region": "EU, US, Asia",
+      "regions": [
+        "EU",
+        "US",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zclassic",
+      "data_url": "https://data.miningpoolstats.stream/data/zclassic.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:43.199Z",
+      "notes": null
+    },
+    {
+      "id": "piratechain:mining-dutch.nl:7",
+      "name": "Mining-Dutch",
+      "coin": "ARRR",
+      "coin_id": "piratechain",
+      "url": "https://www.mining-dutch.nl/pools/pirate.php",
+      "hashrate": 511.49,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.012134100233266566,
+      "miners": null,
+      "workers": 1,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "D-PPS",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "D-PPS",
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": 0.00375,
+      "min_payout_unit": "ARRR",
+      "blocks_last_1000": 6,
+      "last_block_height": 4159958,
+      "last_block_time": "2026-10-02T23:21:55.000Z",
+      "region": "EU, US, Asia",
+      "regions": [
+        "EU",
+        "US",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/piratechain",
+      "data_url": "https://data.miningpoolstats.stream/data/piratechain.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:11.179Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash192:himpool.com:7",
+      "name": "himpool.com (solo)",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash192",
+      "url": "https://himpool.com/pools/kerrigan-equihash192-solo",
+      "hashrate": 372.58,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 24.996812373430398,
+      "miners": 1,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": 87,
+      "last_block_height": 159097,
+      "last_block_time": "2026-10-02T23:28:11.000Z",
+      "region": "EU, IN, CA",
+      "regions": [
+        "EU",
+        "IN",
+        "CA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash192",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash192.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:02.483Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoinz:darkfibermines.com:2",
+      "name": "darkfibermines.com",
+      "coin": "BTCZ",
+      "coin_id": "bitcoinz",
+      "url": "https://btcz.darkfibermines.com",
+      "hashrate": 332.14,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 3.1979403161545377,
+      "miners": 5,
+      "workers": 7,
+      "fee_pct": 0,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "BTCZ",
+      "blocks_last_1000": 35,
+      "last_block_height": 1849522,
+      "last_block_time": "2026-10-02T23:07:22.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:51.746Z",
+      "notes": null
+    },
+    {
+      "id": "anonymous:195.3.222.105:6",
+      "name": "195.3.222.105",
+      "coin": "ANON",
+      "coin_id": "anonymous",
+      "url": "http://195.3.222.105:3380",
+      "hashrate": 306.89,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 98.36217948717947,
+      "miners": 1,
+      "workers": 1,
+      "fee_pct": 3,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": "ANON",
+      "blocks_last_1000": 1000,
+      "last_block_height": 1351824,
+      "last_block_time": "2026-10-02T23:35:14.000Z",
+      "region": "Poland",
+      "regions": [
+        "Poland"
+      ],
+      "country_code": "PL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/anonymous",
+      "data_url": "https://data.miningpoolstats.stream/data/anonymous.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:00.293Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoingold:himpool.com:18",
+      "name": "himpool.com (solo)",
+      "coin": "BTG",
+      "coin_id": "bitcoingold",
+      "url": "https://himpool.com/pools/btg-solo",
+      "hashrate": 225.49,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0.49731493164428436,
+      "miners": 1,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 0.1,
+      "min_payout_unit": "BTG",
+      "blocks_last_1000": 5,
+      "last_block_height": 966996,
+      "last_block_time": "2026-10-01T20:18:28.000Z",
+      "region": "EU, IN, CA",
+      "regions": [
+        "EU",
+        "IN",
+        "CA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoingold",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoingold.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:36.848Z",
+      "notes": null
+    },
+    {
+      "id": "zero:pooly.ca:14",
+      "name": "pooly.ca",
+      "coin": "ZER",
+      "coin_id": "zero",
+      "url": "https://pooly.ca",
+      "hashrate": 130,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 11.648745519713263,
+      "miners": 1,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZER",
+      "blocks_last_1000": 133,
+      "last_block_height": 2556252,
+      "last_block_time": "2026-10-02T23:21:23.000Z",
+      "region": "Canada",
+      "regions": [
+        "Canada"
+      ],
+      "country_code": "CA",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zero",
+      "data_url": "https://data.miningpoolstats.stream/data/zero.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:47.516Z",
+      "notes": null
+    },
+    {
+      "id": "exchangecoin:excc-pplns.techminehub.com:7",
+      "name": "excc-pplns.techminehub.com",
+      "coin": "EXCC",
+      "coin_id": "exchangecoin",
+      "url": "https://excc-pplns.techminehub.com",
+      "hashrate": 111,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 3.5260482846251584,
+      "miners": 1,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 15,
+      "min_payout_unit": "EXCC",
+      "blocks_last_1000": 149,
+      "last_block_height": 1696428,
+      "last_block_time": "2026-10-02T20:30:30.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/exchangecoin",
+      "data_url": "https://data.miningpoolstats.stream/data/exchangecoin.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:58.155Z",
+      "notes": null
+    },
+    {
+      "id": "zero:mining-dutch.nl:5",
+      "name": "Mining-Dutch",
+      "coin": "ZER",
+      "coin_id": "zero",
+      "url": "https://www.mining-dutch.nl/pools/zero.php",
+      "hashrate": 96.15,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 8.615591397849464,
+      "miners": null,
+      "workers": 1,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "D-PPS",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "D-PPS",
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": 0.01164,
+      "min_payout_unit": "ZER",
+      "blocks_last_1000": 67,
+      "last_block_height": 2556253,
+      "last_block_time": "2026-10-02T23:35:54.000Z",
+      "region": "EU, US, Asia",
+      "regions": [
+        "EU",
+        "US",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zero",
+      "data_url": "https://data.miningpoolstats.stream/data/zero.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:47.516Z",
+      "notes": null
+    },
+    {
+      "id": "zero:rockpool.cloud:6",
+      "name": "rockpool.cloud",
+      "coin": "ZER",
+      "coin_id": "zero",
+      "url": "https://rockpool.cloud",
+      "hashrate": 90.2,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 8.082437275985663,
+      "miners": 1,
+      "workers": 1,
+      "fee_pct": 1,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": "ZER",
+      "blocks_last_1000": 130,
+      "last_block_height": 2556202,
+      "last_block_time": "2026-10-02T22:28:56.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zero",
+      "data_url": "https://data.miningpoolstats.stream/data/zero.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:47.516Z",
+      "notes": null
+    },
+    {
+      "id": "zero:zpool.ca:3",
+      "name": "zpool",
+      "coin": "ZER",
+      "coin_id": "zero",
+      "url": "https://zpool.ca",
+      "hashrate": 58.65,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 5.255376344086021,
+      "miners": null,
+      "workers": 2,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.05,
+      "min_payout_unit": "ZER",
+      "blocks_last_1000": 604,
+      "last_block_height": 2556250,
+      "last_block_time": "2026-10-02T23:08:30.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zero",
+      "data_url": "https://data.miningpoolstats.stream/data/zero.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:47.516Z",
+      "notes": null
+    },
+    {
+      "id": "gemlink:pooly.ca:21",
+      "name": "pooly.ca",
+      "coin": "GLINK",
+      "coin_id": "gemlink",
+      "url": "https://pooly.ca",
+      "hashrate": 58,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 1.294931904442956,
+      "miners": 1,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "GLINK",
+      "blocks_last_1000": 31,
+      "last_block_height": 4552816,
+      "last_block_time": "2026-10-02T21:35:09.000Z",
+      "region": "Canada",
+      "regions": [
+        "Canada"
+      ],
+      "country_code": "CA",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/gemlink",
+      "data_url": "https://data.miningpoolstats.stream/data/gemlink.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:45.311Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash192:kerriganpool.com:17",
+      "name": "kerriganpool.com",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash192",
+      "url": "https://kerriganpool.com/#krgn-equihash-192-7",
+      "hashrate": 34,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 2.281098343165585,
+      "miners": 1,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": 15,
+      "last_block_height": 159085,
+      "last_block_time": "2026-10-02T23:06:19.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash192",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash192.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:02.483Z",
+      "notes": null
+    },
+    {
+      "id": "litecoinz:rockpool.cloud:21",
+      "name": "rockpool.cloud",
+      "coin": "LTZ",
+      "coin_id": "litecoinz",
+      "url": "https://rockpool.cloud",
+      "hashrate": 28.3,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 4.327217125382263,
+      "miners": 1,
+      "workers": 1,
+      "fee_pct": 1,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": "LTZ",
+      "blocks_last_1000": 36,
+      "last_block_height": 1216314,
+      "last_block_time": "2026-10-02T22:58:36.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/litecoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/litecoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:53.966Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoincandy:bitcdy.com:14",
+      "name": "bitcdy.com",
+      "coin": "CDY",
+      "coin_id": "bitcoincandy",
+      "url": "https://mainpool.bitcdy.com",
+      "hashrate": 20.11,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 83.59937133789063,
+      "miners": 1,
+      "workers": 1,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "CDY",
+      "blocks_last_1000": 1000,
+      "last_block_height": 2643040,
+      "last_block_time": "2026-10-02T23:36:27.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoincandy",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoincandy.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:56.057Z",
+      "notes": null
+    },
+    {
+      "id": "zeroclassic:eternalzero.io:15",
+      "name": "eternalzero.io",
+      "coin": "ZERC",
+      "coin_id": "zeroclassic",
+      "url": "https://eternalzero.io",
+      "hashrate": 19.47,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 36.05555555555555,
+      "miners": 1,
+      "workers": 1,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": null
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZERC",
+      "blocks_last_1000": 382,
+      "last_block_height": 2499933,
+      "last_block_time": "2026-10-02T23:31:31.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zeroclassic",
+      "data_url": "https://data.miningpoolstats.stream/data/zeroclassic.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:49.647Z",
+      "notes": null
+    },
+    {
+      "id": "zeroclassic:swgroupe.fr:13",
+      "name": "swgroupe.fr",
+      "coin": "ZERC",
+      "coin_id": "zeroclassic",
+      "url": "https://swgroupe.fr",
+      "hashrate": 18.33,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 33.94444444444444,
+      "miners": 2,
+      "workers": 2,
+      "fee_pct": 1.5,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": "ZERC",
+      "blocks_last_1000": 478,
+      "last_block_height": 2499932,
+      "last_block_time": "2026-10-02T23:29:20.000Z",
+      "region": "France",
+      "regions": [
+        "France"
+      ],
+      "country_code": "FR",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zeroclassic",
+      "data_url": "https://data.miningpoolstats.stream/data/zeroclassic.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:49.647Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:solominers.space:143",
+      "name": "solominers.space",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://solominers.space/zec",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": null
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:himpool.com:99",
+      "name": "himpool.com",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://himpool.com/pools/zec",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "EU, IN",
+      "regions": [
+        "EU",
+        "IN"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:smoozypool.es:136",
+      "name": "smoozypool.es",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://smoozypool.es",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": null,
+      "workers": 0,
+      "fee_pct": null,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "France",
+      "regions": [
+        "France"
+      ],
+      "country_code": "FR",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:hashbay.io:89",
+      "name": "hashbay.io",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://hashbay.io",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": 0,
+      "fee_pct": 0.5,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": 0.001,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:bitmernsolo.com:138",
+      "name": "bitmernsolo.com",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "http://bitmernsolo.com",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:pooly.ca:81",
+      "name": "pooly.ca",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://pooly.ca",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "Canada",
+      "regions": [
+        "Canada"
+      ],
+      "country_code": "CA",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:solopool.site:90",
+      "name": "solopool.site",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://solopool.site",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "Germany",
+      "regions": [
+        "Germany"
+      ],
+      "country_code": "DE",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:letsmine.it:127",
+      "name": "letsmine.it",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://letsmine.it/coin/zec",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "Germany",
+      "regions": [
+        "Germany"
+      ],
+      "country_code": "DE",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": null
+    },
+    {
+      "id": "komodo:coolmine.top:2",
+      "name": "coolmine.top",
+      "coin": "KMD",
+      "coin_id": "komodo",
+      "url": "https://coolmine.top/?coin=4",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PPLNT",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PPLNT"
+      ],
+      "min_payout": 0.1,
+      "min_payout_unit": "KMD",
+      "blocks_last_1000": 267,
+      "last_block_height": 5128451,
+      "last_block_time": "2026-10-02T15:14:08.000Z",
+      "region": "US, EU, Asia",
+      "regions": [
+        "US",
+        "EU",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/komodo",
+      "data_url": "https://data.miningpoolstats.stream/data/komodo.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:07.604Z",
+      "notes": null
+    },
+    {
+      "id": "komodo:himpool.com:9",
+      "name": "himpool.com (solo)",
+      "coin": "KMD",
+      "coin_id": "komodo",
+      "url": "https://himpool.com/pools/kmd-solo",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 369,
+      "min_payout_unit": "KMD",
+      "blocks_last_1000": null,
+      "last_block_height": 5120489,
+      "last_block_time": "2026-09-26T23:26:21.000Z",
+      "region": "EU, IN",
+      "regions": [
+        "EU",
+        "IN"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/komodo",
+      "data_url": "https://data.miningpoolstats.stream/data/komodo.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:07.604Z",
+      "notes": null
+    },
+    {
+      "id": "komodo:mining-dutch.nl:3",
+      "name": "Mining-Dutch",
+      "coin": "KMD",
+      "coin_id": "komodo",
+      "url": "https://www.mining-dutch.nl/pools/komodo.php",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": null,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "D-PPS",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "D-PPS",
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": 0.015,
+      "min_payout_unit": "KMD",
+      "blocks_last_1000": null,
+      "last_block_height": 5107795,
+      "last_block_time": "2026-09-18T01:27:28.000Z",
+      "region": "EU, US, Asia",
+      "regions": [
+        "EU",
+        "US",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/komodo",
+      "data_url": "https://data.miningpoolstats.stream/data/komodo.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:07.604Z",
+      "notes": null
+    },
+    {
+      "id": "komodo:zpool.ca:4",
+      "name": "zpool",
+      "coin": "KMD",
+      "coin_id": "komodo",
+      "url": "https://zpool.ca",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": null,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.05,
+      "min_payout_unit": "KMD",
+      "blocks_last_1000": 437,
+      "last_block_height": 5128937,
+      "last_block_time": "2026-10-02T23:19:06.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/komodo",
+      "data_url": "https://data.miningpoolstats.stream/data/komodo.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:07.604Z",
+      "notes": null
+    },
+    {
+      "id": "komodo:solopool.site:10",
+      "name": "solopool.site",
+      "coin": "KMD",
+      "coin_id": "komodo",
+      "url": "https://solopool.site",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "KMD",
+      "blocks_last_1000": null,
+      "last_block_height": 4992102,
+      "last_block_time": "2026-06-28T03:07:20.000Z",
+      "region": "Germany",
+      "regions": [
+        "Germany"
+      ],
+      "country_code": "DE",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/komodo",
+      "data_url": "https://data.miningpoolstats.stream/data/komodo.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:07.604Z",
+      "notes": null
+    },
+    {
+      "id": "hush:coolmine.top:12",
+      "name": "coolmine.top",
+      "coin": "HUSH",
+      "coin_id": "hush",
+      "url": "https://coolmine.top/?coin=8",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": null,
+      "miners": 0,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PPLNT",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PPLNT"
+      ],
+      "min_payout": 30,
+      "min_payout_unit": "HUSH",
+      "blocks_last_1000": 6,
+      "last_block_height": 0,
+      "last_block_time": null,
+      "region": "US, EU, Asia",
+      "regions": [
+        "US",
+        "EU",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/hush",
+      "data_url": "https://data.miningpoolstats.stream/data/hush.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:09.391Z",
+      "notes": null
+    },
+    {
+      "id": "piratechain:smoozypool.es:46",
+      "name": "smoozypool.es",
+      "coin": "ARRR",
+      "coin_id": "piratechain",
+      "url": "https://smoozypool.es",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": null,
+      "workers": 0,
+      "fee_pct": null,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": "ARRR",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "France",
+      "regions": [
+        "France"
+      ],
+      "country_code": "FR",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/piratechain",
+      "data_url": "https://data.miningpoolstats.stream/data/piratechain.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:11.179Z",
+      "notes": null
+    },
+    {
+      "id": "piratechain:himpool.com:39",
+      "name": "himpool.com",
+      "coin": "ARRR",
+      "coin_id": "piratechain",
+      "url": "https://himpool.com/pools/arrr",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 2,
+      "min_payout_unit": "ARRR",
+      "blocks_last_1000": null,
+      "last_block_height": 3880550,
+      "last_block_time": "2026-03-21T05:45:09.000Z",
+      "region": "EU, IN, CA",
+      "regions": [
+        "EU",
+        "IN",
+        "CA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/piratechain",
+      "data_url": "https://data.miningpoolstats.stream/data/piratechain.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:11.179Z",
+      "notes": null
+    },
+    {
+      "id": "piratechain:himpool.com:40",
+      "name": "himpool.com (solo)",
+      "coin": "ARRR",
+      "coin_id": "piratechain",
+      "url": "https://himpool.com/pools/arrr-solo",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 2,
+      "min_payout_unit": "ARRR",
+      "blocks_last_1000": 14,
+      "last_block_height": 4159501,
+      "last_block_time": "2026-10-02T15:36:11.000Z",
+      "region": "EU, IN, CA",
+      "regions": [
+        "EU",
+        "IN",
+        "CA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/piratechain",
+      "data_url": "https://data.miningpoolstats.stream/data/piratechain.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:11.179Z",
+      "notes": null
+    },
+    {
+      "id": "buck:rockpool.cloud:2",
+      "name": "rockpool.cloud",
+      "coin": "BUCK",
+      "coin_id": "buck",
+      "url": "https://rockpool.cloud",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": "BUCK",
+      "blocks_last_1000": 711,
+      "last_block_height": 2923352,
+      "last_block_time": "2026-10-02T12:58:19.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/buck",
+      "data_url": "https://data.miningpoolstats.stream/data/buck.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:21.662Z",
+      "notes": null
+    },
+    {
+      "id": "marmara:zpool.ca:1",
+      "name": "zpool",
+      "coin": "MCL",
+      "coin_id": "marmara",
+      "url": "https://zpool.ca",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": null,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.05,
+      "min_payout_unit": "MCL",
+      "blocks_last_1000": 142,
+      "last_block_height": 3502921,
+      "last_block_time": "2026-10-02T23:18:39.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/marmara",
+      "data_url": "https://data.miningpoolstats.stream/data/marmara.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:27.987Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash:himpool.com:4",
+      "name": "himpool.com",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash",
+      "url": "https://himpool.com/pools/kerrigan-equihash200",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": null,
+      "last_block_height": 74598,
+      "last_block_time": "2026-06-21T08:44:07.000Z",
+      "region": "EU, IN, CA",
+      "regions": [
+        "EU",
+        "IN",
+        "CA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:30.188Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash:himpool.com:5",
+      "name": "himpool.com (solo)",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash",
+      "url": "https://himpool.com/pools/kerrigan-equihash200-solo",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": null,
+      "last_block_height": 155954,
+      "last_block_time": "2026-09-28T04:29:37.000Z",
+      "region": "EU, IN, CA",
+      "regions": [
+        "EU",
+        "IN",
+        "CA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:30.188Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash:nitopool.online:44",
+      "name": "nitopool.online (solo)",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash",
+      "url": "https://pool.nitopool.online/#krgnequihash200solo",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 0.9,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 0.9
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": null,
+      "last_block_height": 154962,
+      "last_block_time": "2026-09-26T14:21:47.000Z",
+      "region": "Germany",
+      "regions": [
+        "Germany"
+      ],
+      "country_code": "DE",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:30.188Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash:nitopool.online:46",
+      "name": "nitopool.online",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash",
+      "url": "https://pool.nitopool.online/#krgnequihash200pplnsbf",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 0.9,
+      "schemes": [
+        {
+          "scheme": "PPLNSBF",
+          "fee_pct": 0.9
+        }
+      ],
+      "payout_schemes": [
+        "PPLNSBF"
+      ],
+      "min_payout": 0.001,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": null,
+      "last_block_height": 126458,
+      "last_block_time": "2026-08-16T23:33:58.000Z",
+      "region": "Germany",
+      "regions": [
+        "Germany"
+      ],
+      "country_code": "DE",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:30.188Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash:kerriganpool.com:11",
+      "name": "kerriganpool.com",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash",
+      "url": "https://kerriganpool.com/#krgn-equihash-200-9",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": null,
+      "last_block_height": 154082,
+      "last_block_time": "2026-09-25T07:36:16.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:30.188Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash:kerriganpool.com:18",
+      "name": "kerriganpool.com (solo)",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash",
+      "url": "https://kerriganpool.com/#krgn-equihash-200-9-solo",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": 3,
+      "last_block_height": 158131,
+      "last_block_time": "2026-10-01T12:08:38.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:30.188Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash:mining-dutch.nl:43",
+      "name": "Mining-Dutch",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash",
+      "url": "https://www.mining-dutch.nl/pools/kerrigan_equihash.php",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": null,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "D-PPS",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "D-PPS",
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": 0.075,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": 40,
+      "last_block_height": 159016,
+      "last_block_time": "2026-10-02T20:26:51.000Z",
+      "region": "EU, US, Asia",
+      "regions": [
+        "EU",
+        "US",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:30.188Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash:zpool.ca:9",
+      "name": "zpool",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash",
+      "url": "https://zpool.ca",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": null,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.05,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": 212,
+      "last_block_height": 159061,
+      "last_block_time": "2026-10-02T22:49:39.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:30.188Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoingold:miningpoolhub.com:5",
+      "name": "miningpoolhub.com",
+      "coin": "BTG",
+      "coin_id": "bitcoingold",
+      "url": "https://bitcoin-gold.miningpoolhub.com",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": null,
+      "workers": 0,
+      "fee_pct": 0.9,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0.9
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 0.001,
+      "min_payout_unit": "BTG",
+      "blocks_last_1000": null,
+      "last_block_height": 845866,
+      "last_block_time": "2024-06-04T05:02:47.000Z",
+      "region": "US, EU, Asia",
+      "regions": [
+        "US",
+        "EU",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoingold",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoingold.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:36.848Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoingold:himpool.com:17",
+      "name": "himpool.com",
+      "coin": "BTG",
+      "coin_id": "bitcoingold",
+      "url": "https://himpool.com/pools/btg",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.1,
+      "min_payout_unit": "BTG",
+      "blocks_last_1000": null,
+      "last_block_height": 949549,
+      "last_block_time": "2026-06-01T09:53:02.000Z",
+      "region": "EU, IN, CA",
+      "regions": [
+        "EU",
+        "IN",
+        "CA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoingold",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoingold.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:36.848Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoingold:zpool.ca:4",
+      "name": "zpool",
+      "coin": "BTG",
+      "coin_id": "bitcoingold",
+      "url": "https://zpool.ca",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": null,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.05,
+      "min_payout_unit": "BTG",
+      "blocks_last_1000": null,
+      "last_block_height": 965895,
+      "last_block_time": "2026-09-24T04:59:50.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoingold",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoingold.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:36.848Z",
+      "notes": null
+    },
+    {
+      "id": "ycash:darkfibermines.com:2",
+      "name": "darkfibermines.com",
+      "coin": "YEC",
+      "coin_id": "ycash",
+      "url": "https://xsg.darkfibermines.com",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": 0,
+      "fee_pct": 0,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 0.9
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 0.9
+        }
+      ],
+      "payout_schemes": [
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "YEC",
+      "blocks_last_1000": null,
+      "last_block_height": 2656758,
+      "last_block_time": "2025-10-22T02:58:59.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/ycash",
+      "data_url": "https://data.miningpoolstats.stream/data/ycash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:41.078Z",
+      "notes": null
+    },
+    {
+      "id": "ycash:swgroupe.fr:4",
+      "name": "swgroupe.fr",
+      "coin": "YEC",
+      "coin_id": "ycash",
+      "url": "https://swgroupe.fr",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": 0,
+      "fee_pct": 0.5,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0.5
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "YEC",
+      "blocks_last_1000": null,
+      "last_block_height": 3039664,
+      "last_block_time": "2026-09-21T20:59:54.000Z",
+      "region": "France",
+      "regions": [
+        "France"
+      ],
+      "country_code": "FR",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/ycash",
+      "data_url": "https://data.miningpoolstats.stream/data/ycash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:41.078Z",
+      "notes": null
+    },
+    {
+      "id": "ycash:pooly.ca:17",
+      "name": "pooly.ca",
+      "coin": "YEC",
+      "coin_id": "ycash",
+      "url": "https://pooly.ca",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "YEC",
+      "blocks_last_1000": null,
+      "last_block_height": 2783001,
+      "last_block_time": "2026-02-09T20:41:24.000Z",
+      "region": "Canada",
+      "regions": [
+        "Canada"
+      ],
+      "country_code": "CA",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/ycash",
+      "data_url": "https://data.miningpoolstats.stream/data/ycash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:41.078Z",
+      "notes": null
+    },
+    {
+      "id": "zclassic:tokenxpool.online:40",
+      "name": "tokenxpool.online",
+      "coin": "ZCL",
+      "coin_id": "zclassic",
+      "url": "https://tokenxpool.online/#zclassic",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZCL",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "Canada",
+      "regions": [
+        "Canada"
+      ],
+      "country_code": "CA",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zclassic",
+      "data_url": "https://data.miningpoolstats.stream/data/zclassic.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:43.199Z",
+      "notes": null
+    },
+    {
+      "id": "zeroclassic:rockpool.cloud:10",
+      "name": "rockpool.cloud",
+      "coin": "ZERC",
+      "coin_id": "zeroclassic",
+      "url": "https://rockpool.cloud",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": "ZERC",
+      "blocks_last_1000": null,
+      "last_block_height": 2436079,
+      "last_block_time": "2026-07-15T17:01:58.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zeroclassic",
+      "data_url": "https://data.miningpoolstats.stream/data/zeroclassic.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:49.647Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoinz:himpool.com:20",
+      "name": "himpool.com",
+      "coin": "BTCZ",
+      "coin_id": "bitcoinz",
+      "url": "https://himpool.com/pools/bitcoinz",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 250,
+      "min_payout_unit": "BTCZ",
+      "blocks_last_1000": 2,
+      "last_block_height": 1848787,
+      "last_block_time": "2026-10-01T16:07:32.000Z",
+      "region": "EU, IN",
+      "regions": [
+        "EU",
+        "IN"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:51.746Z",
+      "notes": null
+    },
+    {
+      "id": "bitcoinz:pooly.ca:17",
+      "name": "pooly.ca",
+      "coin": "BTCZ",
+      "coin_id": "bitcoinz",
+      "url": "https://pooly.ca",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "BTCZ",
+      "blocks_last_1000": null,
+      "last_block_height": 1727475,
+      "last_block_time": "2026-03-03T06:24:40.000Z",
+      "region": "Canada",
+      "regions": [
+        "Canada"
+      ],
+      "country_code": "CA",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:51.746Z",
+      "notes": null
+    },
+    {
+      "id": "litecoinz:darkfibermines.com:16",
+      "name": "darkfibermines.com",
+      "coin": "LTZ",
+      "coin_id": "litecoinz",
+      "url": "https://xsg.darkfibermines.com",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": 0,
+      "fee_pct": 0,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 0.9
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 0.9
+        }
+      ],
+      "payout_schemes": [
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "LTZ",
+      "blocks_last_1000": null,
+      "last_block_height": 1212671,
+      "last_block_time": "2026-09-19T20:29:32.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/litecoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/litecoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:53.966Z",
+      "notes": null
+    },
+    {
+      "id": "litecoinz:swgroupe.fr:25",
+      "name": "swgroupe.fr",
+      "coin": "LTZ",
+      "coin_id": "litecoinz",
+      "url": "https://swgroupe.fr",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": 0,
+      "fee_pct": 0.5,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0.5
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "LTZ",
+      "blocks_last_1000": null,
+      "last_block_height": 1214928,
+      "last_block_time": "2026-09-27T10:39:00.000Z",
+      "region": "France",
+      "regions": [
+        "France"
+      ],
+      "country_code": "FR",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/litecoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/litecoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:53.966Z",
+      "notes": null
+    },
+    {
+      "id": "litecoinz:zpool.ca:15",
+      "name": "zpool",
+      "coin": "LTZ",
+      "coin_id": "litecoinz",
+      "url": "https://zpool.ca",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": null,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.05,
+      "min_payout_unit": "LTZ",
+      "blocks_last_1000": 951,
+      "last_block_height": 1216321,
+      "last_block_time": "2026-10-02T23:10:27.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/litecoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/litecoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:53.966Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash192:rplant.xyz:29",
+      "name": "rplant.xyz",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash192",
+      "url": "https://pool.rplant.xyz",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": 102,
+      "last_block_height": 158169,
+      "last_block_time": "2026-10-01T13:25:07.000Z",
+      "region": "RU, EU, US, Asia",
+      "regions": [
+        "RU",
+        "EU",
+        "US",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash192",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash192.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:02.483Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash192:himpool.com:6",
+      "name": "himpool.com",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash192",
+      "url": "https://himpool.com/pools/kerrigan-equihash192",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": null,
+      "last_block_height": 145203,
+      "last_block_time": "2026-09-11T22:23:51.000Z",
+      "region": "EU, IN, CA",
+      "regions": [
+        "EU",
+        "IN",
+        "CA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash192",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash192.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:02.483Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash192:nitopool.online:50",
+      "name": "nitopool.online (solo)",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash192",
+      "url": "https://pool.nitopool.online/#krgnequihash192solo",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 0.9,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 0.9
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": null,
+      "last_block_height": 138982,
+      "last_block_time": "2026-09-03T05:31:46.000Z",
+      "region": "Germany",
+      "regions": [
+        "Germany"
+      ],
+      "country_code": "DE",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash192",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash192.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:02.483Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash192:nitopool.online:51",
+      "name": "nitopool.online",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash192",
+      "url": "https://pool.nitopool.online/#krgnequihash192pplnsbf",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 0.9,
+      "schemes": [
+        {
+          "scheme": "PPLNSBF",
+          "fee_pct": 0.9
+        }
+      ],
+      "payout_schemes": [
+        "PPLNSBF"
+      ],
+      "min_payout": 0.001,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": null,
+      "last_block_height": 153144,
+      "last_block_time": "2026-09-23T21:19:36.000Z",
+      "region": "Germany",
+      "regions": [
+        "Germany"
+      ],
+      "country_code": "DE",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash192",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash192.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:02.483Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash192:pooly.ca:8",
+      "name": "pooly.ca",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash192",
+      "url": "https://pooly.ca",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": 19,
+      "last_block_height": 158220,
+      "last_block_time": "2026-10-01T15:32:43.000Z",
+      "region": "Canada",
+      "regions": [
+        "Canada"
+      ],
+      "country_code": "CA",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash192",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash192.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:02.483Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash192:kerriganpool.com:27",
+      "name": "kerriganpool.com (solo)",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash192",
+      "url": "https://kerriganpool.com/#krgn-equihash-192-7-solo",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1.5,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1.5
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": null,
+      "last_block_height": 151376,
+      "last_block_time": "2026-09-20T22:57:21.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash192",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash192.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:02.483Z",
+      "notes": null
+    },
+    {
+      "id": "kerrigan-equihash192:zpool.ca:9",
+      "name": "zpool",
+      "coin": "KRGN",
+      "coin_id": "kerrigan-equihash192",
+      "url": "https://zpool.ca",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": 0,
+      "miners": null,
+      "workers": 0,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP"
+      ],
+      "min_payout": 0.05,
+      "min_payout_unit": "KRGN",
+      "blocks_last_1000": 212,
+      "last_block_height": 158778,
+      "last_block_time": "2026-10-02T12:05:01.000Z",
+      "region": "US, EU, ASIA",
+      "regions": [
+        "US",
+        "EU",
+        "ASIA"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/kerrigan-equihash192",
+      "data_url": "https://data.miningpoolstats.stream/data/kerrigan-equihash192.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:02.483Z",
+      "notes": null
+    },
+    {
+      "id": "flux:cruxpool.com:48",
+      "name": "CruxPool",
+      "coin": "FLUX",
+      "coin_id": "flux",
+      "url": "https://cruxpool.com/flux",
+      "hashrate": 0,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": null,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "FPPS",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "FPPS"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "FLUX",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": "2025-10-26T19:50:23.000Z",
+      "region": "France",
+      "regions": [
+        "France"
+      ],
+      "country_code": "FR",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/flux",
+      "data_url": "https://data.miningpoolstats.stream/data/flux.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:40:13.483Z",
+      "notes": null
+    },
+    {
+      "id": "zcash:nicehash.com:105",
+      "name": "NiceHash",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://nicehash.com",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": null,
+      "miners": null,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": null
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": 3,
+      "last_block_height": 3504196,
+      "last_block_time": "2026-10-02T21:58:32.000Z",
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": "Hashrate not published (MPS reports it as hidden/unknown)."
+    },
+    {
+      "id": "zcash:1miner.net:102",
+      "name": "1miner.net",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://1miner.net/#zec1",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": null,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "United States",
+      "regions": [
+        "United States"
+      ],
+      "country_code": "US",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zcash",
+      "data_url": "https://data.miningpoolstats.stream/data/zcash.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:05.809Z",
+      "notes": "Hashrate not published (MPS reports it as hidden/unknown)."
+    },
+    {
+      "id": "zclassic:aikapool.com:34",
+      "name": "aikapool.com",
+      "coin": "ZCL",
+      "coin_id": "zclassic",
+      "url": "https://aikapool.com/zcl",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": null,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZCL",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "France",
+      "regions": [
+        "France"
+      ],
+      "country_code": "FR",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/zclassic",
+      "data_url": "https://data.miningpoolstats.stream/data/zclassic.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:43.199Z",
+      "notes": "Hashrate not published (MPS reports it as hidden/unknown)."
+    },
+    {
+      "id": "gemlink:aikapool.com:7",
+      "name": "aikapool.com",
+      "coin": "GLINK",
+      "coin_id": "gemlink",
+      "url": "https://aikapool.com/glink",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": null,
+      "miners": null,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": null
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": null
+        }
+      ],
+      "payout_schemes": [
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "GLINK",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "France",
+      "regions": [
+        "France"
+      ],
+      "country_code": "FR",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/gemlink",
+      "data_url": "https://data.miningpoolstats.stream/data/gemlink.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:45.311Z",
+      "notes": "Hashrate not published (MPS reports it as hidden/unknown)."
+    },
+    {
+      "id": "bitcoinz:aikapool.com:6",
+      "name": "aikapool.com",
+      "coin": "BTCZ",
+      "coin_id": "bitcoinz",
+      "url": "https://aikapool.com/btcz",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": null,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "BTCZ",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "France",
+      "regions": [
+        "France"
+      ],
+      "country_code": "FR",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/bitcoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/bitcoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:51.746Z",
+      "notes": "Hashrate not published (MPS reports it as hidden/unknown)."
+    },
+    {
+      "id": "litecoinz:aikapool.com:3",
+      "name": "aikapool.com",
+      "coin": "LTZ",
+      "coin_id": "litecoinz",
+      "url": "https://aikapool.com/ltz",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "network_share_pct": null,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 1,
+      "schemes": [
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "SOLO",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "PROP",
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "LTZ",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "France",
+      "regions": [
+        "France"
+      ],
+      "country_code": "FR",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": false,
+      "source_name": "miningpoolstats.stream",
+      "source_url": "https://miningpoolstats.stream/litecoinz",
+      "data_url": "https://data.miningpoolstats.stream/data/litecoinz.js",
+      "from_miningpoolstats": true,
+      "fetched_at": "2026-10-02T23:39:53.966Z",
+      "notes": "Hashrate not published (MPS reports it as hidden/unknown)."
+    },
+    {
+      "id": "zcash:unmineable.com",
+      "name": "unMineable",
+      "coin": "ZEC",
+      "url": "https://unmineable.com/",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "miners": null,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": null,
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "US, EU, Asia",
+      "regions": [
+        "US",
+        "EU",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "unMineable support article (Equihash ASIC setup)",
+      "source_url": "https://unmineable.com/support/article/how-to-setup-antminer-for-asic-mining",
+      "from_miningpoolstats": false,
+      "notes": "Equihash ASIC pool 'based on Zcash' (stratum+tcp://equihash.unmineable.com:3333, regional equihash-us/eu/asia). Rewards are converted to a payout coin of your choice. Hostname resolved during verification; pool hashrate, fee and scheme are not published in a public API.",
+      "coin_id": "zcash",
+      "fetched_at": "2026-10-02T23:40:00.000Z",
+      "network_share_pct": null
+    }
+  ]
+}
