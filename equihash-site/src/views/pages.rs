@@ -3,6 +3,7 @@ use crate::fmt;
 use crate::views::calc;
 use crate::views::home::schemes_text;
 use crate::views::links;
+use crate::views::logo::{self, At};
 use crate::views::layout::{ext, layout, Page};
 use maud::{html, Markup};
 
@@ -34,6 +35,23 @@ fn basis_text(p: &Pool) -> &'static str {
     }
 }
 
+/// Label of the pool page's share row: what the share is measured against.
+pub fn share_kv_label(p: &Pool) -> &'static str {
+    if p.share_basis == "pools" { "Share of pool-reported hashrate" } else { "Share of network" }
+}
+
+/// Value of the pool page's share row (also sent in /api/live).
+pub fn share_kv_value(p: &Pool) -> Markup {
+    html! {
+        @if let Some(n) = &p.share_note {
+            (crate::views::home::share_text(p)) br; span class="na" { (n) }
+        } @else {
+            span class=[p.share_flag.then_some("red")] { (fmt::pct(p.network_share_pct)) }
+            @if p.share_basis == "pools" { br; span class="na" { "The published network estimate is below the pools' total, so the share is of the listed pools." } }
+        }
+    }
+}
+
 pub fn pool_fields(d: &Data, p: &Pool) -> Markup {
     let unit = p.hashrate_unit.clone().unwrap_or("Sol/s".into());
     let coin = d.coin(&p.coin_id);
@@ -45,14 +63,7 @@ pub fn pool_fields(d: &Data, p: &Pool) -> Markup {
                     (fmt::hashrate(p.hashrate, &unit)) @if p.operator_reported() { span class="dag" { "†" } } " " span class="na" { "(" (basis_text(p)) @if let Some(w) = p.hashrate_window_s { ", accepted work over the previous " (w / 60) " minutes" } ")" }
                     (prov(p.hashrate_source.as_deref(), p.hashrate_observed_at.as_deref()))
                 }))
-                (kv(if p.share_basis == "pools" { "Share of pool-reported hashrate" } else { "Share of network" }, html! {
-                    @if let Some(n) = &p.share_note {
-                        (crate::views::home::share_text(p)) br; span class="na" { (n) }
-                    } @else {
-                        span class=[p.share_flag.then_some("red")] { (fmt::pct(p.network_share_pct)) }
-                        @if p.share_basis == "pools" { br; span class="na" { "The published network estimate is below the pools' total, so the share is of the listed pools." } }
-                    }
-                }))
+                tr data-share-kv=(p.id) { th scope="row" { (share_kv_label(p)) } td { (share_kv_value(p)) } }
                 (kv("Miners", html! { (fmt::int(p.miners)) (prov(p.miners_source.as_deref(), p.miners_observed_at.as_deref())) }))
                 (kv("Workers", html! { (fmt::int(p.workers)) }))
                 (kv("Fee", html! { (fmt::fee(p.fee_range())) (prov(p.fee_source.as_deref(), p.fee_observed_at.as_deref())) }))
@@ -84,13 +95,27 @@ pub fn pool_page(d: &Data, p: &Pool) -> Markup {
         div class="wrap page narrow" {
             p class="crumb" { a href={"/?coin=" (p.coin_id) "#pools"} { "All " (p.coin_label) " pools" } }
             header class="page-head" {
-                h1 { (p.name) " " span class="sym" { (p.coin) } }
+                div class="title-row" {
+                    h1 { (logo::chip(&p.logo, &p.name, At::Head, false)) (p.name) " " span class="sym" { (p.coin) } }
+                    (copy_link(&path, "Copy link to this pool"))
+                }
                 (links::render(&p.links, &format!("{} links", p.name), "pool-links"))
                 @if p.share_flag { p class="alert" { strong { "Concentration. " } "This pool has more than 30% of the hashrate on " (p.coin_label) "." } }
             }
             (pool_fields(d, p))
         }
     })
+}
+
+/// "Copy link" for a permanent URL (needs JavaScript, so hidden without it). The button copies the
+/// absolute URL and confirms with "Copied" in a polite live region.
+pub fn copy_link(path: &str, aria: &str) -> Markup {
+    html! {
+        span class="copy-link-wrap js-only" {
+            button type="button" class="copy-link" data-copy-url=(path) aria-label=(aria) { "Copy link" }
+            span class="copy-status" role="status" aria-live="polite" {}
+        }
+    }
 }
 
 pub fn archive(d: &Data) -> Markup {
@@ -109,7 +134,7 @@ pub fn archive(d: &Data) -> Markup {
                     tbody {
                         @for a in &d.archive {
                             tr {
-                                td { strong { (a.name) } @if let Some(o) = &a.operator { br; span class="na" { (o) } } }
+                                td { (logo::chip(&d.logos.pool(&a.id, &a.name), &a.name, At::Row, true)) strong { (a.name) } @if let Some(o) = &a.operator { br; span class="na" { (o) } } }
                                 td data-label="Coin" { span class="sym" { (a.coin) } }
                                 td class="nowrap" data-label="Retired" { (a.retired_label.clone().unwrap_or("n/a".into())) }
                                 td { @if let Some(r) = &a.reason { (r) } @if let Some(n) = &a.notes { br; span class="na" { (n) } } }
@@ -127,7 +152,7 @@ pub fn archive(d: &Data) -> Markup {
                         @for c in &ended_coins {
                             @let pools: Vec<_> = ended.iter().filter(|p| p.coin_id == c.id).collect();
                             tr {
-                                td { strong { (c.name) } " " span class="sym" { (c.symbol) } }
+                                td { (logo::chip(&c.logo, &c.name, At::Row, true)) strong { (c.name) } " " span class="sym" { (c.symbol) } }
                                 td class="mono" data-label="Equihash" { (c.params()) }
                                 td {
                                     @if let Some(n) = &c.status_note { (n) }
@@ -226,7 +251,7 @@ pub fn miners(d: &Data) -> Markup {
                         tbody data-rank-list { @for c in &z15_coins {
                             @let per = pro.and_then(|m| m.hashrate_ksol).and_then(|h| calc::coins_per_day(c, h, 1.0));
                             tr data-rank-id=(c.id) {
-                                td { a href={"/?coin=" (c.id)} { (c.name) } " " span class="sym" { (c.symbol) } }
+                                td { a href={"/?coin=" (c.id)} { (logo::chip(&c.logo, &c.name, At::List, true)) (c.name) } " " span class="sym" { (c.symbol) } }
                                 td class="num" { @if c.network.hashrate.is_some() { span data-rank-f="network" { (fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s"))) } } @else { span class="na" data-rank-f="network" { "unavailable" } } }
                                 td class="num" { @let (rep, dag) = fmt::reported(c); span data-rank-f="reported" { (rep) } @if dag { span class="dag" { "†" } } }
                                 td class="num" { (c.pool_count) }
@@ -338,6 +363,7 @@ pub fn sources(d: &Data) -> Markup {
                 li { "Figures older than two hours get a visible stale notice." }
                 li { "Social and community links come from " code { "data/curated/links.json" } ". Only entries marked verified are shown, coin links next to the coin and pool links next to the pool."
                     @if let Some(g) = &d.links_generated_at { " That file was last generated " (fmt::utc(Some(g))) "." } }
+                li { (logo::sources_note(d)) }
             }
             h2 { "Research log" }
             div class="table-scroll" {

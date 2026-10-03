@@ -18,6 +18,8 @@ chrono = { version = "0.4", default-features = false, features = ["std", "clock"
 env_logger = "0.11"
 log = "0.4"
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
+# SHA-256 for the snapshot manifest and the CSP script hash (already in the tree via rustls).
+ring = "0.17"
 
 [profile.release]
 opt-level = 3

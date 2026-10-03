@@ -1,0 +1,24 @@
+# /etc/caddy/Caddyfile — TLS (automatic certificates) in front of the app on 127.0.0.1:8080.
+# The app already sends CSP, X-Content-Type-Options, Referrer-Policy, X-Frame-Options and
+# Permissions-Policy (src/main.rs); the "?" lines only fill them in if a response lacks one.
+equihash.com {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:8080
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		?Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+		?X-Content-Type-Options "nosniff"
+		?Referrer-Policy "strict-origin-when-cross-origin"
+		?X-Frame-Options "DENY"
+		-Server
+	}
+
+	log {
+		output file /var/log/caddy/equihash.log
+	}
+}
+
+www.equihash.com {
+	redir https://equihash.com{uri} permanent
+}

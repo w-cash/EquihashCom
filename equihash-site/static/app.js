@@ -30,6 +30,19 @@
     try { await navigator.clipboard.writeText(t); b.textContent = "Copied"; } catch { b.textContent = "Select and copy"; }
     setTimeout(() => (b.textContent = "Copy"), 1800);
   }));
+  // "Copy link" (pool page, drawer, coin header): the absolute permanent URL, with a visible and
+  // announced "Copied". Without clipboard access the link is offered in a prompt to copy by hand.
+  document.addEventListener("click", async (e) => {
+    const b = e.target.closest && e.target.closest(".copy-link[data-copy-url]"); if (!b) return;
+    e.preventDefault();
+    const url = new URL(b.dataset.copyUrl, location.origin).href;
+    const ok = S ? await S.copyText(url) : false;
+    const st = b.parentElement && $(".copy-status", b.parentElement);
+    if (ok) { b.textContent = "Copied"; if (st) st.textContent = "Link copied to the clipboard."; }
+    else { if (st) st.textContent = ""; window.prompt("Copy this link:", url); }
+    b.focus({ preventScroll: true });
+    clearTimeout(b._t); b._t = setTimeout(() => { b.textContent = "Copy link"; if (st) st.textContent = ""; }, 2000);
+  });
 
   // ---------- pool table: filter + sort ----------
   const table = $("#pool-table");
@@ -148,7 +161,9 @@
   // ---------- pool drawer ----------
   let lastFocus = null;
   const kv = (label, value) => `<tr><th scope="row">${esc(label)}</th><td>${value}</td></tr>`;
-  const link = (u, l) => (u ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer nofollow">${esc(l || host(u))}</a>` : NA);
+  // Only http(s) URLs become links (the server drops anything else at load time, too).
+  const safeUrl = (u) => typeof u === "string" && /^https?:\/\/[^\s<>\\`]+$/i.test(u.trim());
+  const link = (u, l) => (u ? (safeUrl(u) ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer nofollow">${esc(l || host(u))}</a>` : esc(l || NA)) : NA);
   // Per-field provenance: where a figure came from and when that figure (not the row) was observed.
   const prov = (src, at) => (src || at ? `<br><span class="prov">${src ? link(src, host(src).split("/")[0]) : ""}${src && at ? " · " : ""}${at ? `<time class="ago" datetime="${esc(at)}">${esc(fmtUtc(at))}</time>` : ""}</span>` : "");
   const KIND = { website: "Website", explorer: "Explorer", docs: "Docs", github: "GitHub", forum: "Forum", x: "X", discord: "Discord", telegram: "Telegram", reddit: "Reddit", status: "Status", support: "Support" };
@@ -165,6 +180,15 @@
   };
   const basisNote = (p) => (p.basis === "operator_reported" || p.hashrate_is_reported ? ' <span class="na">(reported by the operator, not independently measured)</span>'
     : p.basis === "pool_api" ? ` <span class="na">(from the pool's public hashrate API${p.hashrate_window_s ? `, accepted work over the previous ${Math.round(p.hashrate_window_s / 60)} minutes` : ""})</span>` : "");
+  // Pool logo, same markup as src/views/logo.rs (At::Head); only local /static/logos/ files.
+  const logoChip = (l, name) => {
+    if (!l) return "";
+    if (l.src && /^\/static\/logos\/(coins|pools)\/[a-z0-9._-]+\.(svg|webp|png)$/.test(l.src)) {
+      const px = l.tile ? 38 : 30;
+      return `<span class="logo lg-head${l.tile ? " tile" : ""}${l.light ? " light" : ""}" data-kind="${esc(l.kind)}"><img src="${esc(l.src)}" alt="${esc(name)} logo" width="${px}" height="${px}" decoding="async"></span>`;
+    }
+    return `<span class="logo lg-head mono" data-kind="fallback" role="img" aria-label="${esc(name)} (no logo published)" title="No logo found; monogram">${esc(l.mono || "")}</span>`;
+  };
   function openDrawer(slug) {
     const p = bySlug[slug]; if (!p) return;
     const c = coins.find((x) => x.id === p.coin_id) || {};
@@ -179,7 +203,7 @@
           <div class="grab" aria-hidden="true"></div>
           <button class="drawer-close" data-close aria-label="Close">Close</button>
           <div class="sub">${esc(p.coin_label)} <span class="sym">${esc(p.coin)}</span>, Equihash ${esc(c.params || NA)}</div>
-          <h3 id="drawer-title">${esc(p.name)}</h3>
+          <h3 id="drawer-title">${logoChip(p.logo, p.name)}${esc(p.name)}</h3>
           <div class="sub">${link(p.url)}</div>
           ${links(p.links, p.name + " links")}
         </div>
@@ -203,7 +227,7 @@
             ${kv(p.from_miningpoolstats ? "Row fetched" : "Row checked by hand", p.fetched_at ? `<time class="ago" datetime="${esc(p.fetched_at)}">${esc(fmtUtc(p.fetched_at))}</time>` : NA)}
           </tbody></table>
           ${p.notes ? `<p class="small">${esc(p.notes)}</p>` : ""}
-          <p class="perma"><a href="/pool/${esc(p.slug)}">Permanent link to this pool</a></p>
+          <p class="perma"><a href="/pool/${esc(p.slug)}">Open pool page</a><span class="copy-link-wrap"><button type="button" class="copy-link" data-copy-url="/pool/${esc(p.slug)}" aria-label="Copy link to ${esc(p.name)}">Copy link</button><span class="copy-status" role="status" aria-live="polite"></span></span></p>
         </div>
       </aside>`;
     lastFocus = document.activeElement;
@@ -301,8 +325,8 @@
       put("price", c.price); put("reward", c.reward); put("nethash", c.nethash); put("blocktime", c.blocktime);
       const ru = input("reward")?.parentElement.querySelector(".unit"); if (ru) ru.textContent = c.symbol;
       setHint("price", c.price != null ? "miningpoolstats price feed" : "No sourced price for this coin. Enter one.");
-      setHint("reward", c.reward != null ? `Miner share of the block reward, from <a href="${esc(c.reward_source)}" target="_blank" rel="noopener">${esc(host(c.reward_source).split("/")[0])}</a>.${c.reward_note ? ` <span class="reward-note" id="o-reward-note">${esc(c.reward_note)}</span>` : ""}` : "Not sourced for this coin. Enter it from the coin's explorer.");
-      setHint("nethash", c.nethash == null ? "Not published. Enter it." : c.nethash_source && /^https?:/.test(c.nethash_source) ? `Network estimate from <a href="${esc(c.nethash_source)}" target="_blank" rel="noopener">${esc(host(c.nethash_source).split("/")[0])}</a>${c.nethash_blocks ? `, over the previous ${+c.nethash_blocks} blocks` : ""}` : "Network estimate");
+      setHint("reward", c.reward != null ? `Miner share of the block reward, from ${link(c.reward_source, host(c.reward_source).split("/")[0])}.${c.reward_note ? ` <span class="reward-note" id="o-reward-note">${esc(c.reward_note)}</span>` : ""}` : "Not sourced for this coin. Enter it from the coin's explorer.");
+      setHint("nethash", c.nethash == null ? "Not published. Enter it." : safeUrl(c.nethash_source) ? `Network estimate from ${link(c.nethash_source, host(c.nethash_source).split("/")[0])}${c.nethash_blocks ? `, over the previous ${+c.nethash_blocks} blocks` : ""}` : "Network estimate");
       if (!c.z15) { input("hashrate").value = ""; input("watts").value = ""; }
       const qs = new URLSearchParams(location.search); qs.set("coin", c.id); history.replaceState(null, "", "/calculator?" + qs.toString());
       compute();
@@ -338,7 +362,7 @@
   // ---------- live figures (server-polled endpoints; see /api/live) ----------
   // The server renders the latest reading; this only swaps text in place every 60 s while the
   // page is open. Browsers never call the pools' endpoints themselves.
-  const liveEls = () => $$("[data-live-coin], [data-live-pool], [data-live-share], [data-rank-list]");
+  const liveEls = () => $$("[data-live-coin], [data-live-pool], [data-share-pool], [data-share-kv], [data-split-coin], [data-rank-list]");
   // Ranking: /api/live carries the server's order (the same rank_cmp the page was rendered with)
   // and each coin's ranked figures. Lists marked data-rank-list are reordered in the DOM, so the
   // reading order and tab order follow the visual order; a polite status line announces a change.
@@ -389,13 +413,12 @@
       const p = j.pools?.[el.dataset.livePool]; if (!p) continue;
       const f = $('[data-f="hashrate"]', el); if (f && p.hashrate_text) f.textContent = p.hashrate_text;
       if (p.title) el.title = p.title;
-      const m = $(".m-share", el); if (m && p.share_short != null) m.textContent = p.share_short;
-      if (bySlug) for (const row of pools) if (row.id === el.dataset.livePool) { row.hashrate = p.hashrate; row.hashrate_observed_at = p.observed_at; row.network_share_pct = p.share_pct; row.share_note = p.share_note; }
     }
-    for (const el of $$("[data-live-share]")) {
-      const p = j.pools?.[el.dataset.liveShare]; if (!p) continue;
-      const n = $('[data-f="share-note"]', el); if (n && p.share_note) n.textContent = p.share_note;
-      const s = $(".share-note", el); if (s) { s.textContent = p.share_text; if (p.share_note) s.title = p.share_note; }
+    // Shares: switch every share cell, split bar, pool-page share row and alert to the mode the
+    // server now computes (network share, only listed pool, or share of the listed pools).
+    if (S) {
+      S.applyShareModes(document, j, { coin: form?.elements?.coin?.value });
+      for (const row of pools) if (j.pools?.[row.id]) S.mergeSharePool(row, j.pools[row.id]);
     }
     for (const el of $$("[data-live-coin]")) {
       const c = j.coins?.[el.dataset.liveCoin]; if (!c) continue;

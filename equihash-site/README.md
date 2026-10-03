@@ -42,12 +42,18 @@ src/
   main.rs          server, routes, env config, hot reload of data/
   data.rs          serde types + load-time derivations (slugs, regions, shares)
   fmt.rs           number/hashrate/date formatting (unknown → "n/a")
-  views/           maud templates: layout, home, pages, guide, calc
+  views/           maud templates: layout, home, pages, guide, calc; logo.rs (logo chips, checks)
 static/            app.css, app.js, fonts/, icons, og.png (served as /static/*)
-data/              pools.json, network.json, meta.json (generated)
+                   logos/coins/, logos/pools/ (local logo copies, see "Logos")
+data/              current.json (manifest of the live snapshot), snapshots/<id>/ with
+                   pools.json, network.json, meta.json (generated, one directory per refresh)
                    archive.json, miners.json, research.json (hand-maintained)
-data/curated/      manual-pools.json, coins.json, coin-status.json (hand-maintained)
-scripts/           refresh-data.mjs (data refresh), screenshots.mjs (dev only)
+data/curated/      manual-pools.json, coins.json, coin-status.json (hand-maintained),
+                   permalinks.json (pool URLs; new ids added by the refresh, never changed),
+                   logos.json (logo files and sources, written by fetch-logos.mjs)
+scripts/           refresh-data.mjs (data refresh), snapshot.mjs (atomic publish, rollback),
+                   fetch-logos.mjs (logos, run by hand), screenshots.mjs (dev only)
+deploy/            systemd units, Caddy and nginx examples, check-health.sh
 assets/og.html     source of static/og.png
 ```
 
@@ -68,6 +74,8 @@ cargo run --release
 | `STATIC_DIR` | `static`    | CSS/JS/icons                             |
 | `RUST_LOG`   | `info`      | log level (actix request log)            |
 | `LIVE`       | `1`         | `0` turns off the live-source poller     |
+| `HEALTH_MAX_DATA_AGE_SECS` | `10800` | `/healthz` answers 503 when the data is older |
+| `HSTS`       | unset       | `1` sends `Strict-Transport-Security` (only behind TLS; usually the proxy does it) |
 
 Routes:
 
@@ -75,13 +83,18 @@ Routes:
   - `/` shows the pools. `?coin=<id>` picks a coin and `?coin=all` shows every coin. The page also has filters, "How to pick a pool", "What can a Z15 mine?" and all networks.
   - `/pool/{slug}`, `/archive` and `/miners` (the Hardware page).
   - `/calculator`, `/merged-mining`, `/add-pool`, `/about` and `/sources`.
-- Raw data: `/data/{pools,network,miners,archive,meta,research}.json`.
-- Live figures: `/api/live` (JSON; see "Live sources" below). The page polls it every 60 s.
+- Raw data: `/data/{pools,network,miners,archive,meta,research,current}.json`. The generated files come from the same snapshot the pages were rendered from.
+- Live figures: `/api/live` (JSON; see "API" below). The page polls it every 60 s.
+- Health: `/healthz` (JSON; see "Monitoring" under Deploy).
 - Also served: `/sitemap.xml`, `/robots.txt` and `/static/*`.
+- Every route answers `HEAD` as well as `GET` (same status and headers, no body).
+- `/pool/{slug}` uses the pool's permanent slug from `data/curated/permalinks.json`. Old URLs (the slug once computed from coin, name and domain, or an entry in its `aliases`) answer `301` to the permanent one.
 
 ### Hot reload
 
-The server polls `data/` and `data/curated/` every 2 s. It takes a fingerprint of every `*.json` file there: path, mtime, size and a hash of the contents.
+The server polls `data/` and `data/curated/` every 2 s. It takes a fingerprint of every `*.json` file there: path, mtime, size and a hash of the contents. A refresh changes `data/current.json`, so a new snapshot is picked up the same way.
+
+The generated files are read only through `data/current.json`: the snapshot it names, with each file's size and SHA-256 checked against the manifest before it is parsed. The server therefore always serves one complete refresh, never a mix of two. Without `data/current.json` (the layout before snapshots) it reads `data/pools.json` and friends directly.
 
 Any difference triggers a full reload. That covers:
 - an edit
@@ -103,7 +116,27 @@ The exception is fields a live endpoint refreshes. A row marked `"live"` takes `
 npm run refresh          # same as: node scripts/refresh-data.mjs
 ```
 
-The script needs Node 18 or newer and has no dependencies. It takes about 3 minutes because it waits between requests to be polite to the sources. It rewrites `data/pools.json`, `data/network.json` and `data/meta.json`, and the running server picks up the change on its own. If nothing can be fetched, it refuses to write an empty data set.
+The script needs Node 18 or newer and has no dependencies. It takes about 3 minutes because it waits between requests to be polite to the sources. The running server picks up the result on its own.
+
+**Atomic publish** (`scripts/snapshot.mjs`):
+1. The new `pools.json`, `network.json` and `meta.json` are written into `data/snapshots/.staging-<id>/` and fsynced.
+2. What is on disk is validated:
+   - schema: ids present and unique, every pool on a known coin, numbers are numbers, counts match `meta.json`;
+   - every upstream URL is http(s);
+   - no critical source failed (a miningpoolstats coin page; prices, 2Miners, zergpool and live sources are not critical);
+   - nothing dropped sharply against the current snapshot: pool rows below 80%, rows with positive hashrate below 60%, coins below 90%, or a coin losing all of its pool rows.
+3. If anything fails, nothing is published: the staging directory is removed, the previous snapshot stays live, the problems are printed and the script exits with code 2. `--force` publishes anyway and records the problems in the manifest.
+4. Otherwise the directory is renamed to `data/snapshots/<id>/` (the id is the UTC time, e.g. `20261003T141150Z`), and `data/current.json` is replaced by writing a temp file, fsyncing it and renaming it over the old one.
+5. The newest 10 snapshots are kept, plus the current one and the one before it.
+
+The first run on the old flat layout imports the existing `data/pools.json`, `network.json` and `meta.json` as snapshot `<time>-imported` (so you can roll back to it) and removes the flat copies. One refresh runs at a time (`data/.refresh.lock`).
+
+```bash
+node scripts/refresh-data.mjs --list            # snapshots, newest last, with the current one marked
+node scripts/refresh-data.mjs --rollback        # point current.json at the snapshot before the current one
+node scripts/refresh-data.mjs --rollback <id>   # or at a given one
+DATA_DIR=/srv/equihash/data node scripts/refresh-data.mjs   # data somewhere else
+```
 
 What it does, in order:
 
@@ -118,13 +151,15 @@ What it does, in order:
 
 Every value the source does not publish stays `null` and shows as **n/a**.
 
-`node scripts/refresh-data.mjs --live-only` re-reads only the live sources into the existing `pools.json` and `network.json`. It takes about a second and leaves `generated_at` alone.
+`node scripts/refresh-data.mjs --live-only` re-reads only the live sources into a copy of the current snapshot and publishes it the same way. It takes about a second and leaves `generated_at` alone.
+
+The refresh also gives every pool id it hasn't seen before a permanent slug in `data/curated/permalinks.json` (from coin, name and domain, made unique). Existing entries are never changed or removed, so a pool keeps its URL when its name or domain changes, and a retired pool's slug is never reused.
 
 ### Schedule it
 
 Run it as often as you like. The site never promises a refresh interval. It shows the real age of the data instead: per coin, in the masthead, and as a stale notice once the newest pool figures are more than 2 hours old.
 
-Hourly cron, next to the deployed binary:
+With systemd, use `deploy/equihash-refresh.service` and `deploy/equihash-refresh.timer` (see "Deploy"). Or an hourly cron, next to the deployed binary:
 
 ```cron
 7 * * * * cd /srv/equihash && /usr/bin/node scripts/refresh-data.mjs >> /var/log/equihash-refresh.log 2>&1
@@ -215,7 +250,9 @@ The pools' total is never used as the network estimate. When no estimate exists,
 
 - A pool's share is pool ÷ network, capped at 100%.
 - If the listed pools add up to more than the network estimate, shares are of the pools' total instead.
-- If the only listed pool reads above the network estimate (ZecWec's 20-minute pool figure vs. the 120-block network estimate), the share cell says **only listed pool**. Both numbers and the reason go in the coin header, the tooltip and the drawer.
+- If the only listed pool reads above the network estimate (ZecWec's 20-minute pool figure vs. the 120-block network estimate), or there is no network estimate at all, the share cell says **only listed pool**. Both numbers and the reason go in the coin header, the tooltip and the drawer.
+- Each pool carries a `share_status` (`network`, `only_listed_pool`, `pools_exceed_network`, `no_network_estimate` or `unavailable`); `/api/live` exposes it (see "API").
+- On an open page, when a live reading moves a coin across its network estimate, the share cells, the small-screen share, the split bar and its explanation, the Share column tooltip, the concentration alert, the pool page's share row and the drawer all switch mode without a reload. The server sends the markup its own templates render (`share_cell_html`, `split_html`, …), and `static/shared.js` `applyShareModes` swaps it in.
 - Per-machine figures (Z15 coins/day, solo odds) are n/a when one machine would be 10% or more of the network estimate.
 
 ### Freshness
@@ -250,7 +287,49 @@ How it behaves:
 - `fields` maps other field names, for an API that uses different keys. Adding another pool with a similar API is a JSON edit.
 - The poller re-reads the config every round.
 - `/api/live` returns each source's status and last good reading, plus the figures they feed, already formatted (`hashrate_text`, `share_text`, `network_text`, ages).
-- `static/app.js` swaps those values into the coin header, the WEC row and the age line every 60 s. Without JS, the server-rendered page already has the latest reading.
+- `static/app.js` swaps those values into the coin header, the pool rows, the share column, the split bar and the age line every 60 s, and reorders the ranked lists. Without JS, the server-rendered page already has the latest reading.
+
+### API
+
+`GET /api/live` (JSON, `Cache-Control: max-age=15`). Read-only, computed from the server's own last good readings; it never calls an upstream on request.
+
+```jsonc
+{
+  "now": "2026-10-03T14:15:38Z",
+  "sources": [ { "id": "zecwec-pool", "target": "pool", "status": "ok|unavailable|error|pending",
+                 "reading": { "hashrate": 553587, "observed_at": "…", "window_seconds": 1200, … },
+                 "age_secs": 40, "stale": false, "poll_seconds": 45, … } ],
+  "pools": {                       // every pool on a coin with a live figure
+    "wcash:zecwec.com": {
+      "coin_id": "wcash", "live": true,
+      "hashrate": 553587, "hashrate_text": "554 kSol/s", "observed_at": "…", "age_text": "…",
+      "share_pct": null,           // share OF THE NETWORK, or null when it isn't one
+      "share_status": "only_listed_pool", // network | only_listed_pool | pools_exceed_network | no_network_estimate | unavailable
+      "share_basis": "listed_pools",      // network | listed_pools | null
+      "listed_share_pct": null,    // share of the listed pools' total, when that is what the page shows
+      "share_denominator": { "hashrate": 553587, "unit": "Sol/s", "basis": "listed_pools",
+                             "source": "sum of the hashrates the listed pools report", "pools": 1, "observed_at": "…" },
+      "share_text": "only listed pool", "share_note": "…", "share_flag": false, "share_sort": 100,
+      "share_cell_html": "…", "share_kv_label": "…", "share_kv_html": "…"   // server-rendered markup
+    }
+  },
+  "coins": { "wcash": { "network_hashrate": 511000, "network_text": "511 kSol/s", "network_observed_at": "…",
+                        "sample_blocks": 120, "reported_text": "…", "share_basis": "listed_pools",
+                        "share_denominator": { … }, "share_th_title": "…", "split_html": "…", "concentration_html": "…" } },
+  "concentration_all_html": "…",
+  "ranking": [ { "id": "zcash", "name": "Zcash", "group": "Equihash 200,9", "reported_text": "…", … } ]
+}
+```
+
+Rules:
+- `share_pct` is a share of the network estimate or `null`, never a 100% with an unstated denominator. With `share_status: "network"`, `share_denominator` is the network estimate with its source URL and time.
+- `only_listed_pool`: one pool reports hashrate and it reads above the network estimate (or there is none). `share_pct` and `listed_share_pct` are null; the denominator is the listed total.
+- `pools_exceed_network`: the listed pools together read above the network estimate. `listed_share_pct` is each pool's share of their total. (When the pools read at most 2% above the estimate, shares stay against the network and are capped at 100%; a capped pool gets this status with the network as its basis, and `share_pct` is still null.)
+- `no_network_estimate`: several pools, no estimate; `listed_share_pct` as above.
+- `unavailable`: the pool publishes no hashrate.
+- `*_html` fields are rendered by the same templates as the page and are escaped. The rest of the body is data: render it as text.
+
+`GET /healthz` is described under "Monitoring".
 
 ## Social and community links
 
@@ -270,6 +349,49 @@ Rendering rules (`verified_links` in `src/data.rs`, `src/views/links.rs`, the dr
 
 **Manual override, keep it.** The Wcash X link (`coins.wcash`, kind `x`) is set by hand to `https://x.com/WcashProject`, with a `note` explaining it was chosen by the maintainer. If the links regeneration script (`/workspace/links-work/build.py`, outside this repo) is ever re-run, it must keep this entry and not revert it to a different account. Re-apply it after any regeneration. A unit test (`links_tolerate_a_note_field_and_the_wcash_x_override_loads`) fails if the loaded Wcash X link is anything else.
 
+## Logos
+
+Every coin and pool shows a small logo next to its name: 20px in the pool, networks and archive tables, 18px in the coin selector, the Z15 list and the Hardware page, 16px in the sidebar, 40px in the coin header, the pool page and the drawer (32px on phones). Each mark sits in a 1px-bordered paper chip (radius 2px), so brand colours that don't match the ledger still look tidy. The chip stays light in dark mode, so black-on-transparent marks stay visible. White-on-transparent marks get a dark chip, and opaque square icons fill the chip edge to edge.
+
+- **Files:** `static/logos/coins/` and `static/logos/pools/`, local copies only (no hotlinking). The name carries a content hash (`zcash.<hash>.svg`), so `/static/logos/*` is served with `Cache-Control: public, max-age=31536000, immutable`, plus its own `Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; sandbox` in case an SVG is opened directly. Only `coins/` or `pools/` files ending in `.svg`, `.webp` or `.png` are served.
+- **Data:** `data/curated/logos.json`, written by the fetch script and hot-reloaded like the other curated files:
+
+  ```json
+  { "generated_at": "ISO",
+    "coins": { "<coin id>": { "file": "coins/zcash.1a2b3c4d5e.svg", "source_url": "https://…", "fetched_at": "ISO",
+                              "kind": "official|repo|third_party|fallback", "license_note": "…",
+                              "bg": "tile (optional)", "ink": "light (optional)" } },
+    "pools": { "<pool id>": { …same, plus "domain": "himpool.com" } } }
+  ```
+
+  `kind` is `official` (the coin's or pool's own website, or the coin's official GitHub organisation), `repo` (cryptocurrency-icons, CC0-1.0), `third_party` (the CoinGecko image for that exact coin id) or `fallback`. A fallback has `"file": null`, a `monogram` (one or two letters) and `tried`, the URLs that were tried and why each failed. Extra fields (`source_page`, `format`, `bytes`, `source_px`) are informational.
+- **Fallbacks:** a pool or coin with no usable logo, no entry at all (for example a pool added after the last fetch) or a file that fails the server's checks shows a monogram of its initials in the ledger's ink and paper tones. A mark is never drawn or invented.
+- **Checks on load** (`src/views/logo.rs`): the path must be a plain file name in `coins/` or `pools/`, the bytes must match the extension (SVG, PNG or WebP only; size 1 B to 64 KB), and an SVG must pass `svg_is_safe`: no `script`, `foreignObject`, `image`, `iframe`/`embed`/`object`, `style`, animation, DOCTYPE or entities, no `on*=` handlers, no `javascript:` and no `href`/`src`/`url()` except same-document `#id` references. A failing file is logged and replaced by the monogram.
+- **Accessibility and speed:** every logo has `width` and `height` (no layout shift). Small logos sit next to the name, so their `alt` is empty and the name isn't read twice. Header logos say "<name> logo". Rows below the first 12, the networks table, the Z15 list and the archive load lazily.
+
+### Fetch logos for new coins and pools
+
+```bash
+npm i --no-save sharp svgo        # optional, or NODE_PATH=<dir with them>/node_modules
+node scripts/fetch-logos.mjs      # only coins/pools without an entry (or with a missing file)
+node scripts/fetch-logos.mjs --retry-fallbacks   # try the monograms again
+node scripts/fetch-logos.mjs --force --id zcash --id himpool.com   # refetch specific ones
+node scripts/fetch-logos.mjs --dry-run           # report only
+```
+
+The hourly refresh does not run this script. It reads the coins and pools from the current snapshot plus `data/curated/coins.json`, `manual-pools.json` and `archive.json`. It refuses to run if it can't read them, so it never prunes logos because of a missing file.
+
+- **Coins:** each verified `website` in `links.json`, then the coin's official GitHub org avatar (from `links.json`, or failing that an org named after the coin that its own site links to), then cryptocurrency-icons (matched by name and symbol), then CoinGecko (`COINGECKO` map, and the answer's symbol must match). `PINNED` holds hand-picked official assets: Wcash uses the mark w.cash serves, and Zcash uses z.cash's coin mark rather than the Zcash Foundation's.
+- **Pools:** one fetch per operator domain (`zec.2miners.com` and `solo-btg.2miners.com` share `2miners.com`). It reads the pool URL, the origin and the root domain: `<link rel=icon|apple-touch-icon|mask-icon|manifest>`, square `og:image`, `<img>` with "logo" in it, and `/favicon.svg`, `/apple-touch-icon.png` and `/favicon.ico`.
+  - An image named after a coin (`coin.png`, `bitcoin-btc-logo.svg`) is skipped, because that's a coin logo and not the pool's.
+  - If two unrelated operators turn out to share the same mark (a pool-software default theme, such as s-nomp's), both get monograms. So does a pool whose only icon is a coin's logo. `node scripts/fetch-logos.mjs --recheck` re-runs these checks on the files already there, with no network.
+- **Choice:** square marks only (aspect ratio up to 1.6:1, so no wordmarks). An SVG beats a raster of 128px or more, which beats 96px, then 64px, and so on. Rasters under 32px are refused.
+- **Output:**
+  - SVGs are sanitised with an allowlist (`sanitizeSvg`), minified with svgo, then sanitised again.
+  - An SVG that still needs a `<style>` block or uses `<text>` (fonts vary inside `<img>`) is rasterised instead.
+  - Rasters (PNG, ICO including BMP payloads, JPEG, GIF) have transparent margins trimmed, are fitted into 96px and saved as WebP. The script aims for 10 KB or less per file.
+  - Files no entry uses any more are deleted from `static/logos/`.
+
 ## Editing data by hand (no code changes)
 
 All changes in this section only need a JSON edit. The server shows them within about 2 seconds, and the next refresh keeps them.
@@ -284,6 +406,7 @@ All changes in this section only need a JSON edit. The server shows them within 
 - **A pool shut down.** Add an entry to `data/archive.json` with `reason`, `retired` and at least one `sources` link.
 - **A new ASIC.** Add an entry to `data/miners.json` with the manufacturer's spec URL. Efficiency is calculated as watts ÷ kSol/s.
 - **The research log** behind `/sources` lives in `data/research.json`.
+- **Pool URLs** live in `data/curated/permalinks.json` (`"pools": {"<pool id>": "<slug>"}`). Change a slug only on purpose, and add the old one to `"aliases": {"<old slug>": "<new slug>"}` so links keep working (301). An invalid or duplicate slug is ignored with a warning and the pool gets its computed slug.
 
 Filters and normalisation follow the data, so a new value needs no code change:
 - **Payout filter:** built from every scheme that appears in the data, canonicalised to upper case. PPLNT, PPLNSBF, SOLO and the rest appear as soon as a pool uses them.
@@ -308,6 +431,13 @@ The server (`src/views/calc.rs`, the `FIELDS` table) and the browser (`static/ap
 
 Negative numbers, NaN, infinity and text are all rejected.
 
+## Security
+
+- Every page is rendered by maud, which escapes all text and attributes. Data embedded for scripts (`<script type="application/json">`) goes through `views::script_json`, which also escapes `<`, `>`, `&`, U+2028 and U+2029, so no upstream string can close the script element.
+- Upstream URLs are checked twice: by the refresh script before it publishes (`sanitizeUrls` in `scripts/snapshot.mjs`, and validation refuses a snapshot that still has one) and when the server loads data (`data::safe_url`). Only `http:` and `https:` URLs with a host and no whitespace, control characters, `<`, `>`, `\` or backtick are kept. Anything else (`javascript:`, `data:`, `vbscript:`, relative or protocol-relative URLs) is dropped with a warning and the field shows as n/a or plain text, never as a link. The drawer and calculator re-check URLs in the browser.
+- The server sends `Content-Security-Policy` (`default-src 'self'`, scripts only from the site plus the hash of the one inline theme script, `object-src 'none'`, `base-uri 'none'`, `frame-ancestors 'none'`), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`, `Permissions-Policy` and `Cross-Origin-Opener-Policy: same-origin` on every response, and HSTS when `HSTS=1`.
+- The tests feed malicious fixtures (`javascript:` and `data:` URLs, `</script>`, U+2028, quotes and markup in names) through loading and every page.
+
 ## Tests
 
 ```bash
@@ -318,7 +448,7 @@ cargo test
 node --test scripts/   # the refresh script's pure functions
 ```
 
-`cargo test` runs 66 unit tests and `node --test scripts/` runs 14. Tests that need a fixed snapshot read `testdata/snapshot-2026-10-02/`, a frozen copy of `data/` from the 2 Oct refresh, so they don't change when the data does.
+`cargo test` runs 85 tests and `node --test scripts/` runs 36 (the refresh script, snapshot publishing, and the page's live-update and copy-link code against a small fake DOM). Tests that need a fixed snapshot read `testdata/snapshot-2026-10-02/`, a frozen copy of `data/` from the 2 Oct refresh, so they don't change when the data does.
 
 They cover:
 - **Ranking:**
@@ -353,6 +483,12 @@ They cover:
 - **Regions:** every value in `data/` maps to a bucket; RU, CA, IN and similar codes are handled; no substring false positives.
 - **Payout schemes:** PPLNT and PPLNSBF are in the filter, and every filter option matches at least one pool.
 - **Calculator:** fee above 100 % or below zero, negatives, zero hashrate, block-time bounds, NaN and infinity, text, and the boundary values themselves.
+- **Share modes:** `/api/live` gives `share_pct: null` with a status, basis and denominator whenever the share isn't of the network; in the browser, a coin crossing its network estimate either way switches the share cells, split bar, header explanation, drawer and pool page.
+- **Security:** script JSON escaping (`</script>`, `<!--`, U+2028/9), `safe_url`, malicious fixtures through every page, and `sanitizeUrls` in the refresh.
+- **Snapshots:** publish, refusal on a failed critical source or a sharp drop (previous snapshot kept), schema errors, rollback and pruning, importing the flat layout, the lock; the server loads only the snapshot the manifest names, rejects a file whose hash doesn't match, and switches snapshots as one set.
+- **Network estimate:** the coin header and the share denominator show the upstream network figure with its own source, never the listed pools' total or a capped value, whether it reads below or just above the pools' total.
+- **HTTP:** every GET route answers HEAD, security headers are set, `/healthz` turns 503 on stale data, and old pool URLs redirect.
+- **Permalinks:** a renamed pool keeps its URL and the old one redirects; the refresh adds ids only for new pools.
 
 ## Data sources
 
@@ -384,21 +520,47 @@ These show as n/a and are listed on `/sources`:
 - **Block rewards** are sourced only for ZEC, BTG and WEC, so the calculator asks for the others.
 - **Innosilicon A9 / A9+** are omitted because their manufacturer pages return 404.
 
-## Deploy (notes only)
+## Deploy
 
-The site is one self-contained binary plus two folders:
+No containers: one binary, the `static/` and `scripts/` folders, and a data directory. Example files are in `deploy/`.
+
+**Layout** (each release in its own directory, so the previous one is kept for rollback; data is shared):
+
+```text
+/srv/equihash/releases/<version>/   equihash-site, static/, scripts/, package.json, deploy/
+/srv/equihash/current -> releases/<version>
+/srv/equihash/data/                 current.json, snapshots/, curated/, archive.json, miners.json, research.json
+```
+
+**Install** (as root, once):
+
+```bash
+useradd --system --home /srv/equihash --shell /usr/sbin/nologin equihash
+install -d -o equihash -g equihash /srv/equihash/releases /srv/equihash/data
+cp deploy/equihash-site.service deploy/equihash-refresh.service deploy/equihash-refresh.timer /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now equihash-site.service equihash-refresh.timer
+```
+
+**Each release** (build on a machine with Rust, then copy):
 
 ```bash
 cargo build --release
-rsync -a target/release/equihash-site data static scripts package.json server:/srv/equihash/
-# on the server
-cd /srv/equihash && HOST=127.0.0.1 PORT=8080 ./equihash-site
+V=$(date -u +%Y%m%dT%H%M%SZ)
+rsync -a target/release/equihash-site static scripts package.json deploy server:/srv/equihash/releases/$V/
+# first deploy, or when hand-kept data changed (never overwrite the snapshots):
+rsync -a --exclude snapshots/ --exclude current.json --exclude .refresh.lock data/ server:/srv/equihash/data/
+ssh server "ln -sfn releases/$V /srv/equihash/current.new && mv -T /srv/equihash/current.new /srv/equihash/current && systemctl restart equihash-site"
 ```
 
-- **Process manager:** run it under systemd (or similar) with `WorkingDirectory=/srv/equihash` and `Restart=always`.
-- **Reverse proxy:** put Caddy or nginx in front for TLS and `equihash.com`. The app already sends compressed responses and basic security headers.
-- **Scheduled refresh:** the refresh cron needs Node on the same host. Or run the GitHub Action and sync `data/` to the server.
-- **Server needs:** no database and no runtime other than the binary. Node is only needed for refresh.
+- **Service:** `deploy/equihash-site.service` runs as the unprivileged `equihash` user on `127.0.0.1:8080` with a read-only filesystem (`ProtectSystem=strict`, `NoNewPrivileges`, no capabilities) and `Restart=always`. Data edits and new snapshots are picked up without a restart.
+- **Hourly refresh:** `deploy/equihash-refresh.timer` runs `deploy/equihash-refresh.service` (a oneshot `node scripts/refresh-data.mjs`, Node 18+) at 7 minutes past each hour; only `/srv/equihash/data` is writable. A refused snapshot (exit 2) marks the unit as failed and leaves the previous data live. Logs: `journalctl -u equihash-refresh`.
+- **Reverse proxy:** `deploy/Caddyfile` (automatic TLS) or `deploy/nginx.conf` (certbot certificates), proxying to `127.0.0.1:8080` and redirecting `www` and plain HTTP. They add HSTS. CSP (with `frame-ancestors 'none'`), `X-Content-Type-Options`, `Referrer-Policy` and `X-Frame-Options` come from the app, so the CSP keeps matching the page's inline script; Caddy only fills them in if missing. If you change `INLINE_SCRIPT` in `src/views/layout.rs`, the app's CSP hash follows on its own.
+- **Monitoring:** `GET /healthz` returns JSON: `status` (`ok`, `degraded` when a live source is down or stale or the last reload failed, `error` when the data is older than `HEALTH_MAX_DATA_AGE_SECS`), the snapshot id, `published_at`, `generated_at`, data age, counts and each live source's status. It answers 200, or 503 when the data is too old (so a failing refresh shows up within 3 hours). Point an uptime checker at `https://equihash.com/healthz`, or run `deploy/check-health.sh` from cron/a timer. Also watch `systemctl --failed`.
+- **Rollback:**
+  - data: `sudo -u equihash env DATA_DIR=/srv/equihash/data node /srv/equihash/current/scripts/refresh-data.mjs --rollback` (or `--rollback <id>`; `--list` shows them). The server switches within 2 s. The last 10 snapshots are kept.
+  - binary: point `current` at the previous release and restart: `ln -sfn releases/<previous> /srv/equihash/current.new && mv -T /srv/equihash/current.new /srv/equihash/current && systemctl restart equihash-site`. Keep at least the last two release directories.
+- **Server needs:** no database. Node is only needed for the refresh.
 
 ## Dev: screenshots
 

@@ -83,6 +83,9 @@ pub struct Pool {
     /// Verified social/community links for this pool (data/curated/links.json).
     #[serde(skip_deserializing)]
     pub links: Vec<SocialLink>,
+    /// Logo or monogram (data/curated/logos.json, see src/views/logo.rs).
+    #[serde(skip_deserializing)]
+    pub logo: crate::views::logo::Logo,
     #[serde(skip_deserializing)]
     pub slug: String,
     #[serde(skip_deserializing)]
@@ -95,6 +98,12 @@ pub struct Pool {
     /// Above 30% and meaningful (not just the only pool on a coin without a network figure).
     #[serde(skip_deserializing)]
     pub share_flag: bool,
+    /// What the share figure is measured against; see `share_status`.
+    #[serde(skip_deserializing)]
+    pub share_status: String,
+    /// The slug computed from coin, name and domain (the pre-permalink URL). Redirects to `slug`.
+    #[serde(skip)]
+    pub legacy_slug: String,
 }
 
 impl Pool {
@@ -221,7 +230,7 @@ pub fn verified_links(v: &[SocialLink]) -> Vec<SocialLink> {
         if l.status.trim() != "verified" || link_kind_label(&kind).is_none() {
             continue;
         }
-        if !(url.starts_with("https://") || url.starts_with("http://")) || url.contains(char::is_whitespace) {
+        if safe_url(url).is_none() {
             continue;
         }
         if out.iter().any(|o| o.url == url) {
@@ -310,6 +319,9 @@ pub struct Coin {
     pub reported: Reported,
     #[serde(skip_deserializing)]
     pub links: Vec<SocialLink>,
+    /// Logo or monogram (data/curated/logos.json, see src/views/logo.rs).
+    #[serde(skip_deserializing)]
+    pub logo: crate::views::logo::Logo,
 }
 
 /// A network estimate and a listed-pool total this far apart, in either direction, get a visible
@@ -541,10 +553,20 @@ pub struct Data {
     /// Newest fetched_at across pools (what "last updated" shows).
     pub last_updated: Option<String>,
     pub links_generated_at: Option<String>,
+    /// Checked logos (data/curated/logos.json); pools and coins also carry their own `logo`.
+    pub logos: crate::views::logo::Logos,
     /// Live sources config and the state of each poller (for /api/live and the page).
     pub live: Vec<crate::live::LiveStatus>,
     /// `stale_after_seconds` from live-sources.json: past this a live figure is marked stale.
     pub live_stale_after_secs: i64,
+    /// Id of the published snapshot the generated files were read from (None: legacy flat layout).
+    pub snapshot: Option<String>,
+    /// Directory the generated files (pools, network, meta) were read from.
+    pub snapshot_dir: std::path::PathBuf,
+    /// When the refresh published that snapshot (from data/current.json).
+    pub snapshot_published_at: Option<String>,
+    /// Old pool URLs (computed slugs, curated aliases) -> the pool's permanent slug.
+    pub slug_redirects: BTreeMap<String, String>,
 }
 
 /// Data older than this gets a visible stale notice.
@@ -576,6 +598,291 @@ fn read<T: for<'de> Deserialize<'de> + Default>(dir: &Path, file: &str) -> Resul
     let p = dir.join(file);
     let s = std::fs::read_to_string(&p).map_err(|e| format!("{}: {e}", p.display()))?;
     serde_json::from_str(&s).map_err(|e| format!("{}: {e}", p.display()))
+}
+
+// ---------- published snapshots ----------
+//
+// `npm run refresh` builds pools.json, network.json and meta.json in a staging directory,
+// validates them, renames the directory to data/snapshots/<id>/ and then swaps data/current.json
+// (write to a temp file, fsync, rename) to point at it. The server reads the three files through
+// that manifest, and checks each file's size and SHA-256 against it, so it always serves one
+// complete, consistent snapshot. Without data/current.json the files are read from data/ itself
+// (the layout before snapshots existed).
+
+/// Files the refresh generates; they are always published, and loaded, together.
+pub const GENERATED: &[&str] = &["pools.json", "network.json", "meta.json"];
+/// The manifest naming the current snapshot.
+pub const MANIFEST: &str = "current.json";
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ManifestEntry {
+    pub bytes: u64,
+    pub sha256: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Manifest {
+    pub snapshot: String,
+    #[serde(default)]
+    pub published_at: Option<String>,
+    pub files: BTreeMap<String, ManifestEntry>,
+}
+
+/// Where the generated files of the current snapshot live.
+#[derive(Debug, Clone)]
+pub struct Snapshot {
+    pub id: Option<String>,
+    pub dir: std::path::PathBuf,
+    manifest: Option<Manifest>,
+}
+
+/// A snapshot id is one path segment: letters, digits, '.', '_' and '-', not starting with '.'.
+pub fn valid_snapshot_id(id: &str) -> bool {
+    !id.is_empty() && id.len() <= 100 && !id.starts_with('.') && id.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-'))
+}
+
+pub fn sha256_hex(bytes: &[u8]) -> String {
+    ring::digest::digest(&ring::digest::SHA256, bytes).as_ref().iter().map(|b| format!("{b:02x}")).collect()
+}
+
+impl Snapshot {
+    /// Resolve data/current.json. A manifest that is unreadable, names a bad id or a missing
+    /// directory, or lists none of the generated files is an error (the server keeps serving the
+    /// previous data).
+    pub fn current(dir: &Path) -> Result<Snapshot, String> {
+        let mp = dir.join(MANIFEST);
+        let raw = match std::fs::read_to_string(&mp) {
+            Ok(r) => r,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(Snapshot { id: None, dir: dir.to_path_buf(), manifest: None }),
+            Err(e) => return Err(format!("{}: {e}", mp.display())),
+        };
+        let m: Manifest = serde_json::from_str(&raw).map_err(|e| format!("{}: {e}", mp.display()))?;
+        if !valid_snapshot_id(&m.snapshot) {
+            return Err(format!("{}: bad snapshot id {:?}", mp.display(), m.snapshot));
+        }
+        let sdir = dir.join("snapshots").join(&m.snapshot);
+        if !sdir.is_dir() {
+            return Err(format!("{}: snapshot {} not found", mp.display(), sdir.display()));
+        }
+        for f in GENERATED {
+            if !m.files.contains_key(*f) {
+                return Err(format!("{}: snapshot {} does not list {f}", mp.display(), m.snapshot));
+            }
+        }
+        Ok(Snapshot { id: Some(m.snapshot.clone()), dir: sdir, manifest: Some(m) })
+    }
+    pub fn published_at(&self) -> Option<&str> {
+        self.manifest.as_ref().and_then(|m| m.published_at.as_deref())
+    }
+    /// Read one generated file. With a manifest, its size and SHA-256 must match the entry, so a
+    /// half-written or swapped file is never parsed.
+    pub fn read<T: for<'de> Deserialize<'de>>(&self, file: &str) -> Result<T, String> {
+        let p = self.dir.join(file);
+        let bytes = std::fs::read(&p).map_err(|e| format!("{}: {e}", p.display()))?;
+        if let Some(m) = &self.manifest {
+            let e = m.files.get(file).ok_or_else(|| format!("{}: not in the manifest", p.display()))?;
+            if e.bytes != bytes.len() as u64 || !e.sha256.eq_ignore_ascii_case(&sha256_hex(&bytes)) {
+                return Err(format!("{}: does not match {MANIFEST} (size or SHA-256 differs)", p.display()));
+            }
+        }
+        serde_json::from_slice(&bytes).map_err(|e| format!("{}: {e}", p.display()))
+    }
+}
+
+/// Path of a generated file in the current snapshot (or data/ itself in the flat layout).
+#[cfg_attr(not(test), allow(dead_code))]
+pub fn generated_path(dir: &Path, file: &str) -> std::path::PathBuf {
+    Snapshot::current(dir).map(|s| s.dir.join(file)).unwrap_or_else(|_| dir.join(file))
+}
+
+// ---------- upstream URLs ----------
+
+/// An upstream URL that may be rendered as a link: http or https with a host, and no whitespace,
+/// control characters, angle brackets, backslashes or backticks (quotes are escaped when
+/// rendered). Anything else (javascript:, data:, vbscript:, protocol-relative, relative or
+/// malformed) gives None.
+pub fn safe_url(u: &str) -> Option<String> {
+    let t = u.trim();
+    if t.is_empty() || t.len() > 2048 || t.chars().any(|c| c.is_whitespace() || c.is_control() || matches!(c, '<' | '>' | '\\' | '`')) {
+        return None;
+    }
+    let lower = t.to_ascii_lowercase();
+    let rest = lower.strip_prefix("https://").or_else(|| lower.strip_prefix("http://"))?;
+    let authority = rest.split(['/', '?', '#']).next().unwrap_or("");
+    let host = authority.rsplit('@').next().unwrap_or("");
+    if host.is_empty() || host.starts_with('.') || host.starts_with(':') {
+        return None;
+    }
+    Some(t.to_string())
+}
+
+/// Drop a URL field that isn't `safe_url`, noting what was dropped.
+fn clean_url(v: &mut Option<String>, what: &str, dropped: &mut Vec<String>) {
+    if let Some(u) = v.as_deref() {
+        match safe_url(u) {
+            Some(ok) => *v = Some(ok),
+            None => {
+                dropped.push(format!("{what}: {:?}", u.chars().take(80).collect::<String>()));
+                *v = None;
+            }
+        }
+    }
+}
+
+/// Text that may also be a URL (miningpoolstats' `hashrate_src`: "explorer" or a link). Plain
+/// words are kept; anything with a scheme must be http(s).
+fn clean_text_or_url(v: &mut Option<String>, what: &str, dropped: &mut Vec<String>) {
+    let looks_like_url = v.as_deref().map(|s| {
+        let s = s.trim();
+        s.contains("//") || s.split_once(':').map(|(a, _)| !a.is_empty() && a.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '-' | '.'))).unwrap_or(false)
+    });
+    if looks_like_url == Some(true) {
+        clean_url(v, what, dropped);
+    } else if let Some(s) = v.as_deref() {
+        if s.chars().any(|c| c.is_control()) {
+            dropped.push(format!("{what}: control characters"));
+            *v = None;
+        }
+    }
+}
+
+fn clean_links(v: &mut Vec<Link>, what: &str, dropped: &mut Vec<String>) {
+    v.retain(|l| {
+        let ok = safe_url(&l.url).is_some();
+        if !ok {
+            dropped.push(format!("{what}: {:?}", l.url.chars().take(80).collect::<String>()));
+        }
+        ok
+    });
+}
+
+pub fn clean_pool_urls(p: &mut Pool, dropped: &mut Vec<String>) {
+    let id = p.id.clone();
+    for (f, name) in [
+        (&mut p.url, "url"),
+        (&mut p.source_url, "source_url"),
+        (&mut p.data_url, "data_url"),
+        (&mut p.hashrate_source, "hashrate_source"),
+        (&mut p.fee_source, "fee_source"),
+        (&mut p.miners_source, "miners_source"),
+        (&mut p.blocks_source, "blocks_source"),
+        (&mut p.min_payout_source, "min_payout_source"),
+    ] {
+        clean_url(f, &format!("pool {id} {name}"), dropped);
+    }
+}
+
+pub fn clean_coin_urls(c: &mut Coin, dropped: &mut Vec<String>) {
+    let id = c.id.clone();
+    let n = &mut c.network;
+    for (f, name) in [
+        (&mut c.source_url, "source_url"),
+        (&mut c.data_url, "data_url"),
+        (&mut c.price_source, "price_source"),
+        (&mut n.hashrate_source, "network.hashrate_source"),
+        (&mut n.difficulty_source, "network.difficulty_source"),
+        (&mut n.height_source, "network.height_source"),
+        (&mut n.block_time_source, "network.block_time_source"),
+    ] {
+        clean_url(f, &format!("coin {id} {name}"), dropped);
+    }
+    clean_text_or_url(&mut n.hashrate_upstream, &format!("coin {id} network.hashrate_upstream"), dropped);
+    if let Some(r) = c.block_reward_miner.as_mut() {
+        clean_url(&mut r.source_url, &format!("coin {id} block_reward_miner.source_url"), dropped);
+    }
+    clean_links(&mut c.status_sources, &format!("coin {id} status_sources"), dropped);
+    c.cross_checks.retain(|x| {
+        let ok = safe_url(&x.url).is_some();
+        if !ok {
+            dropped.push(format!("coin {id} cross_checks: {:?}", x.url.chars().take(80).collect::<String>()));
+        }
+        ok
+    });
+}
+
+// ---------- pool permalinks (data/curated/permalinks.json) ----------
+
+/// `{"pools": {"<pool id>": "<permalink>"}, "aliases": {"<old slug>": "<permalink>"}}`. The refresh
+/// assigns a permalink once, to new pool ids only, and never rewrites one; a pool keeps its URL
+/// when its name or domain changes.
+#[derive(Debug, Clone, Deserialize, Default)]
+#[serde(default)]
+pub struct PermalinksFile {
+    pub pools: BTreeMap<String, String>,
+    pub aliases: BTreeMap<String, String>,
+}
+
+pub const PERMALINKS: &str = "permalinks.json";
+
+/// A permalink is lowercase letters, digits and single dashes, like the slugs it started from.
+pub fn valid_permalink(s: &str) -> bool {
+    !s.is_empty() && s.len() <= 160 && slugify(s) == s
+}
+
+/// The slug a pool's URL was built from before permalinks: coin id, name and domain.
+pub fn computed_slug(p: &Pool) -> String {
+    let host = p.url.as_deref().unwrap_or("").trim_start_matches("https://").trim_start_matches("http://").trim_start_matches("www.").to_string();
+    slugify(&format!("{}-{}-{}", p.coin_id, p.name, host))
+}
+
+/// Give every pool its permanent slug, and collect redirects from the old computed URLs.
+/// Pools without an entry (a hand-added row before the next refresh) fall back to the computed
+/// slug, made unique against every assigned permalink.
+pub fn assign_slugs(pools: &mut [Pool], file: &PermalinksFile) -> BTreeMap<String, String> {
+    let mut taken: HashSet<String> = HashSet::new();
+    let mut owner: BTreeMap<&str, &str> = BTreeMap::new();
+    for (id, link) in &file.pools {
+        if !valid_permalink(link) {
+            log::warn!("{PERMALINKS}: {id}: invalid permalink {link:?} ignored");
+            continue;
+        }
+        if owner.contains_key(link.as_str()) {
+            log::warn!("{PERMALINKS}: {link:?} is assigned twice; {id} falls back to its computed slug");
+            continue;
+        }
+        owner.insert(link, id);
+        taken.insert(link.clone());
+    }
+    // Old URLs, computed exactly as before (duplicates numbered in file order).
+    let mut seen_legacy = HashSet::new();
+    for p in pools.iter_mut() {
+        let base = computed_slug(p);
+        let mut s = base.clone();
+        let mut i = 2;
+        while !seen_legacy.insert(s.clone()) {
+            s = format!("{base}-{i}");
+            i += 1;
+        }
+        p.legacy_slug = s;
+    }
+    for p in pools.iter_mut() {
+        p.slug = match file.pools.get(&p.id).filter(|l| owner.get(l.as_str()) == Some(&p.id.as_str())) {
+            Some(l) => l.clone(),
+            None => {
+                let base = if p.legacy_slug.is_empty() { slugify(&p.id) } else { p.legacy_slug.clone() };
+                let mut s = base.clone();
+                let mut i = 2;
+                while taken.contains(&s) {
+                    s = format!("{base}-{i}");
+                    i += 1;
+                }
+                taken.insert(s.clone());
+                s
+            }
+        };
+    }
+    let mut redirects = BTreeMap::new();
+    for p in pools.iter() {
+        if p.legacy_slug != p.slug && !taken.contains(&p.legacy_slug) {
+            redirects.insert(p.legacy_slug.clone(), p.slug.clone());
+        }
+    }
+    for (old, to) in &file.aliases {
+        if !taken.contains(old) && pools.iter().any(|p| &p.slug == to) {
+            redirects.insert(old.clone(), to.clone());
+        }
+    }
+    redirects
 }
 
 pub fn slugify(s: &str) -> String {
@@ -810,20 +1117,28 @@ pub fn share_pct(h: Option<f64>, denom: Option<f64>) -> (Option<f64>, bool) {
 
 /// `load`, with the latest good readings from the live pollers laid over the files.
 pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Result<Data, String> {
-    let pf: PoolsFile = read(dir, "pools.json")?;
-    let nf: NetworkFile = read(dir, "network.json")?;
-    let af: ArchiveFile = read(dir, "archive.json")?;
-    let mf: MinersFile = read(dir, "miners.json")?;
-    let rf: ResearchFile = read(dir, "research.json").unwrap_or_default();
-    let meta: Meta = read(dir, "meta.json").unwrap_or_default();
+    // The generated files come from one published snapshot (data/current.json), read together.
+    let snap = Snapshot::current(dir)?;
+    let pf: PoolsFile = snap.read("pools.json")?;
+    let nf: NetworkFile = snap.read("network.json")?;
+    let mut meta: Meta = if snap.id.is_some() { snap.read("meta.json")? } else { read(dir, "meta.json").unwrap_or_default() };
+    let mut af: ArchiveFile = read(dir, "archive.json")?;
+    let mut mf: MinersFile = read(dir, "miners.json")?;
+    let mut rf: ResearchFile = read(dir, "research.json").unwrap_or_default();
+    // Upstream URLs are rendered as links: only http(s) ones are kept (see safe_url).
+    let mut dropped: Vec<String> = Vec::new();
     // Social/community links (written by a separate research step). Missing file = no links;
     // a broken file is an error, so the last good data keeps serving.
     let links: LinksFile = match std::fs::read_to_string(dir.join("curated").join("links.json")) {
         Ok(raw) => serde_json::from_str(&raw).map_err(|e| format!("{}: {e}", dir.join("curated").join("links.json").display()))?,
         Err(_) => LinksFile::default(),
     };
+    let logos = crate::views::logo::load(dir)?;
 
     let mut coins = nf.coins;
+    for c in coins.iter_mut() {
+        clean_coin_urls(c, &mut dropped);
+    }
     // Hand-added coins (data/curated/coins.json) appear even before the next refresh.
     if let Ok(raw) = std::fs::read_to_string(dir.join("curated").join("coins.json")) {
         match serde_json::from_str::<NetworkFile>(&raw) {
@@ -832,6 +1147,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
                     if c.id.is_empty() || coins.iter().any(|x| x.id == c.id) {
                         continue;
                     }
+                    clean_coin_urls(&mut c, &mut dropped);
                     if c.status.is_empty() {
                         c.status = "active".into();
                     }
@@ -853,7 +1169,8 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
                     if let Some(n) = st.get("note").and_then(|x| x.as_str()) {
                         c.status_note = Some(n.into());
                     }
-                    if let Some(src) = st.get("sources").cloned().and_then(|x| serde_json::from_value::<Vec<Link>>(x).ok()) {
+                    if let Some(mut src) = st.get("sources").cloned().and_then(|x| serde_json::from_value::<Vec<Link>>(x).ok()) {
+                        clean_links(&mut src, &format!("coin-status {id} sources"), &mut dropped);
                         c.status_sources = src;
                     }
                 }
@@ -901,24 +1218,17 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         },
         Err(_) => {}
     }
-    let mut seen = HashSet::new();
+    // Permanent pool URLs (data/curated/permalinks.json); a broken file is an error, so the last
+    // good data keeps serving. Missing file = every pool uses its computed slug.
+    let permalinks: PermalinksFile = match std::fs::read_to_string(dir.join("curated").join(PERMALINKS)) {
+        Ok(raw) => serde_json::from_str(&raw).map_err(|e| format!("{}: {e}", dir.join("curated").join(PERMALINKS).display()))?,
+        Err(_) => PermalinksFile::default(),
+    };
     for p in pools.iter_mut() {
-        let host = p
-            .url
-            .as_deref()
-            .unwrap_or("")
-            .trim_start_matches("https://")
-            .trim_start_matches("http://")
-            .trim_start_matches("www.")
-            .to_string();
-        let base = slugify(&format!("{}-{}-{}", p.coin_id, p.name, host));
-        let mut slug = base.clone();
-        let mut i = 2;
-        while !seen.insert(slug.clone()) {
-            slug = format!("{base}-{i}");
-            i += 1;
-        }
-        p.slug = slug;
+        clean_pool_urls(p, &mut dropped);
+    }
+    let slug_redirects = assign_slugs(&mut pools, &permalinks);
+    for p in pools.iter_mut() {
         let (tags, unknown) = region_tags_checked(p);
         if !unknown.is_empty() {
             log::warn!("pool {}: unrecognised region value(s) {:?}; add them to data::region_bucket", p.id, unknown);
@@ -937,6 +1247,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         p.coin_label = coins.iter().find(|c| c.id == p.coin_id).map(|c| c.label.clone()).unwrap_or_else(|| p.coin.clone());
         fill_provenance(p);
         p.links = links.pools.get(&p.id).map(|v| verified_links(v)).unwrap_or_default();
+        p.logo = logos.pool(&p.id, &p.name);
     }
     // Live endpoints (data/curated/live-sources.json): the last good reading of each, when newer
     // than what the files hold, replaces that one figure and its provenance.
@@ -949,6 +1260,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         c.pool_count = pools.iter().filter(|p| p.coin_id == c.id).count() as u32;
         c.reported = reported_for(&c.id, &pools);
         c.links = links.coins.get(&c.id).map(|v| verified_links(v)).unwrap_or_default();
+        c.logo = logos.coin(&c.id, &c.name);
     }
     coins.sort_by(rank_cmp);
     // Network-share normalisation. Small coins' network-hashrate estimates are noisy and are
@@ -984,11 +1296,34 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
                         crate::fmt::hashrate(Some(n), &unit)
                     ));
                 }
+            } else if basis == "pools" && reporting == 1 && net.is_none() && p.hashrate.unwrap_or(0.0) > 0.0 {
+                p.share_note = Some(format!("{} is the only listed pool reporting hashrate, and no network estimate is published, so no share is shown.", p.name));
             } else if capped {
                 p.share_note = Some("Above 100% of the network estimate (different measurement windows); capped at 100%.".into());
             }
             p.share_flag = p.network_share_pct.unwrap_or(0.0) > 30.0 && (basis == "network" || reporting > 1);
+            p.share_status = share_status(p.hashrate, basis, capped, reporting, net.is_some()).into();
         }
+    }
+    for a in af.pools.iter_mut() {
+        clean_url(&mut a.url, &format!("archive {} url", a.id), &mut dropped);
+        clean_links(&mut a.sources, &format!("archive {} sources", a.id), &mut dropped);
+    }
+    for m in mf.miners.iter_mut() {
+        clean_url(&mut m.source_url, &format!("miner {} source_url", m.id), &mut dropped);
+    }
+    for r in rf.items.iter_mut() {
+        clean_url(&mut r.url, &format!("research {} url", r.pool), &mut dropped);
+    }
+    meta.sources.retain(|s| {
+        let ok = safe_url(&s.url).is_some();
+        if !ok {
+            dropped.push(format!("meta source {}: {:?}", s.id, s.url.chars().take(80).collect::<String>()));
+        }
+        ok
+    });
+    for x in &dropped {
+        log::warn!("unsafe or malformed URL dropped (only http/https links are rendered): {x}");
     }
     let last_updated = pools
         .iter()
@@ -1009,9 +1344,34 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         meta,
         last_updated,
         links_generated_at: links.generated_at,
+        logos,
         live: crate::live::statuses(&live_cfg, live, chrono::Utc::now()),
         live_stale_after_secs: live_cfg.stale_after_seconds,
+        snapshot: snap.id.clone(),
+        snapshot_dir: snap.dir.clone(),
+        snapshot_published_at: snap.published_at().map(String::from),
+        slug_redirects,
     })
+}
+
+/// What a pool's share figure is measured against:
+/// - "network": the network estimate (the only case where it is a share of the network);
+/// - "only_listed_pool": the one pool reporting hashrate, reading above the network estimate or
+///   on a coin without one (no share is shown);
+/// - "pools_exceed_network": the listed pools together read above the network estimate (or this
+///   pool alone does), so shares are of the listed pools' total;
+/// - "no_network_estimate": several pools, no network estimate; shares are of their total;
+/// - "unavailable": the pool publishes no hashrate, or there is nothing to divide by.
+pub fn share_status(h: Option<f64>, basis: &str, capped: bool, reporting: usize, has_net: bool) -> &'static str {
+    let Some(h) = h.filter(|h| h.is_finite()) else { return "unavailable" };
+    match basis {
+        "network" if capped => "pools_exceed_network",
+        "network" => "network",
+        "pools" if reporting == 1 && h > 0.0 => "only_listed_pool",
+        "pools" if has_net => "pools_exceed_network",
+        "pools" => "no_network_estimate",
+        _ => "unavailable",
+    }
 }
 
 impl Data {
@@ -1111,10 +1471,14 @@ mod tests {
             std::fs::create_dir_all(dir.join("curated")).unwrap();
             for sub in ["", "curated"] {
                 for e in std::fs::read_dir(real_dir().join(sub)).unwrap().flatten() {
-                    if e.path().is_file() {
+                    if e.path().is_file() && e.file_name() != MANIFEST {
                         std::fs::copy(e.path(), dir.join(sub).join(e.file_name())).unwrap();
                     }
                 }
+            }
+            // The flat layout: the current snapshot's generated files sit in the temp dir itself.
+            for f in GENERATED {
+                std::fs::copy(generated_path(&real_dir(), f), dir.join(f)).unwrap();
             }
             TempData(dir)
         }
@@ -1250,8 +1614,9 @@ mod tests {
             }
         }
         // Raw files too, including the curated rows.
-        for f in ["pools.json", "curated/manual-pools.json"] {
-            let v: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(real_dir().join(f)).unwrap()).unwrap();
+        for path in [generated_path(&real_dir(), "pools.json"), real_dir().join("curated/manual-pools.json")] {
+            let v: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+            let f = path.display();
             for row in v["pools"].as_array().unwrap() {
                 let mut toks = vec![];
                 if let Some(r) = row["region"].as_str() {
@@ -1814,5 +2179,155 @@ mod tests {
         }
         // ZecWec stays the only listed WEC pool.
         assert_eq!(d.pools.iter().filter(|p| p.coin_id == "wcash").count(), 1);
+    }
+
+    // ---- snapshots, permalinks ----
+
+    /// Publish the temp dir's flat generated files as snapshot `id`, the way scripts/snapshot.mjs
+    /// does: complete directory first, then the manifest swapped in by rename.
+    fn publish(t: &TempData, id: &str) {
+        let sdir = t.0.join("snapshots").join(id);
+        std::fs::create_dir_all(&sdir).unwrap();
+        let mut files = serde_json::Map::new();
+        for f in GENERATED {
+            let bytes = std::fs::read(t.0.join(f)).unwrap();
+            std::fs::write(sdir.join(f), &bytes).unwrap();
+            files.insert(f.to_string(), serde_json::json!({"bytes": bytes.len(), "sha256": sha256_hex(&bytes)}));
+        }
+        let m = serde_json::json!({"snapshot": id, "published_at": "2026-10-03T15:00:00Z", "files": files});
+        let tmp = t.0.join(".current.json.tmp-1");
+        std::fs::write(&tmp, serde_json::to_vec(&m).unwrap()).unwrap();
+        std::fs::rename(tmp, t.0.join(MANIFEST)).unwrap();
+    }
+
+    #[test]
+    fn loads_the_snapshot_the_manifest_names_and_refuses_a_mismatched_file() {
+        let t = TempData::new("snap");
+        publish(&t, "20261003T150000Z");
+        // The flat files are no longer read: break one to prove it.
+        std::fs::write(t.0.join("pools.json"), "{broken").unwrap();
+        let d = load(&t.0).unwrap();
+        assert_eq!(d.snapshot.as_deref(), Some("20261003T150000Z"));
+        assert_eq!(d.snapshot_published_at.as_deref(), Some("2026-10-03T15:00:00Z"));
+        assert!(d.snapshot_dir.ends_with("snapshots/20261003T150000Z"));
+        assert!(!d.pools.is_empty());
+        // A file that doesn't match its manifest entry (size or SHA-256) is never parsed.
+        let p = t.0.join("snapshots/20261003T150000Z/pools.json");
+        let mut s = std::fs::read_to_string(&p).unwrap();
+        s.push(' ');
+        std::fs::write(&p, s).unwrap();
+        assert!(load(&t.0).unwrap_err().contains("does not match current.json"));
+        // Same size, different bytes: still refused.
+        let raw = std::fs::read_to_string(&p).unwrap();
+        std::fs::write(&p, format!("{}\n", raw.trim_end())).unwrap();
+        assert!(load(&t.0).is_err());
+        // Bad ids, a missing snapshot or an incomplete manifest are errors too.
+        let e = serde_json::json!({"bytes": 1, "sha256": "00"});
+        for (id, files) in [("../etc", true), (".hidden", true), ("missing", true), ("20261003T150000Z", false)] {
+            let mut m = serde_json::json!({"snapshot": id, "files": {"pools.json": e, "network.json": e}});
+            if files {
+                m["files"]["meta.json"] = e.clone();
+            }
+            std::fs::write(t.0.join(MANIFEST), m.to_string()).unwrap();
+            assert!(load(&t.0).is_err(), "{id}");
+        }
+    }
+
+    #[test]
+    fn reloader_switches_snapshots_as_one_set_and_keeps_the_last_good_one() {
+        let t = TempData::new("snap-reload");
+        publish(&t, "a1");
+        let mut r = Reloader::new(&t.0);
+        assert!(r.poll().is_none());
+        let id = load(&t.0).unwrap().pools.iter().find(|p| p.from_miningpoolstats).unwrap().id.clone();
+        // The next refresh renames one pool and is published as a new snapshot.
+        edit_pools(&t, |row| {
+            if row["id"] == id.as_str() {
+                row["name"] = "Renamed Pool".into();
+            }
+        });
+        publish(&t, "a2");
+        let d = r.poll().expect("the manifest swap is noticed").unwrap();
+        assert_eq!(d.snapshot.as_deref(), Some("a2"));
+        assert_eq!(d.pools.iter().find(|p| p.id == id).unwrap().name, "Renamed Pool");
+        // A manifest pointing at a snapshot that doesn't match: the error is reported and retried.
+        std::fs::write(t.0.join("snapshots/a2/network.json"), "{}").unwrap();
+        std::fs::write(t.0.join(MANIFEST), std::fs::read_to_string(t.0.join(MANIFEST)).unwrap().replace("a2", "a2")).unwrap();
+        let mut r2 = Reloader::new(&t.0);
+        std::fs::write(t.0.join(MANIFEST), std::fs::read_to_string(t.0.join(MANIFEST)).unwrap() + " ").unwrap();
+        assert!(r2.poll().expect("change noticed").is_err(), "a2 is now corrupt: the server keeps serving what it has");
+        assert!(r2.poll().expect("retried until it loads").is_err());
+        // Rolling back to a1 (a manifest swap) loads again.
+        publish(&t, "a3");
+        let d = r2.poll().expect("change noticed").unwrap();
+        assert_eq!(d.snapshot.as_deref(), Some("a3"));
+    }
+
+    #[test]
+    fn a_renamed_pool_keeps_its_permalink_and_the_old_url_redirects() {
+        let t = TempData::new("perma");
+        let before = load(&t.0).unwrap();
+        let p0 = before.pools.iter().find(|p| p.from_miningpoolstats && p.coin_id == "zcash").unwrap().clone();
+        assert_eq!(p0.slug, p0.legacy_slug, "the permalinks started from the computed slugs, so no URL changed");
+        edit_pools(&t, |row| {
+            if row["id"] == p0.id.as_str() {
+                row["name"] = "Brand New Name".into();
+                row["url"] = "https://new-domain.example/".into();
+            }
+        });
+        let after = load(&t.0).unwrap();
+        let p1 = after.pools.iter().find(|p| p.id == p0.id).unwrap();
+        assert_eq!(p1.slug, p0.slug, "permalink unchanged by a rename and a new domain");
+        assert_eq!(p1.legacy_slug, "zcash-brand-new-name-new-domain-example");
+        assert_eq!(after.slug_redirects.get(&p1.legacy_slug), Some(&p0.slug), "the name-based URL redirects");
+        // Curated aliases redirect too; ones that point nowhere, or shadow a live slug, don't.
+        let pf = t.0.join("curated").join(PERMALINKS);
+        let mut v: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&pf).unwrap()).unwrap();
+        let other = after.pools.iter().find(|p| p.id != p0.id).unwrap().slug.clone();
+        v["aliases"] = serde_json::json!({"an-old-url": p0.slug, "dead-end": "no-such-pool", other.clone(): p0.slug});
+        std::fs::write(&pf, v.to_string()).unwrap();
+        let d = load(&t.0).unwrap();
+        assert_eq!(d.slug_redirects.get("an-old-url"), Some(&p0.slug));
+        assert!(!d.slug_redirects.contains_key("dead-end") && !d.slug_redirects.contains_key(&other));
+        // A pool without an entry falls back to its computed slug, unique against assigned ones.
+        v["pools"].as_object_mut().unwrap().remove(&p0.id);
+        std::fs::write(&pf, v.to_string()).unwrap();
+        let d = load(&t.0).unwrap();
+        assert_eq!(d.pools.iter().find(|p| p.id == p0.id).unwrap().slug, "zcash-brand-new-name-new-domain-example");
+        let mut slugs: Vec<&str> = d.pools.iter().map(|p| p.slug.as_str()).collect();
+        let n = slugs.len();
+        slugs.sort();
+        slugs.dedup();
+        assert_eq!(slugs.len(), n, "slugs stay unique");
+        // A duplicate or malformed permalink is ignored (with a warning), never served twice.
+        let mut f = PermalinksFile::default();
+        f.pools.insert(d.pools[0].id.clone(), "Not A Slug!".into());
+        f.pools.insert(d.pools[1].id.clone(), "same".into());
+        f.pools.insert(d.pools[2].id.clone(), "same".into());
+        let mut ps = d.pools.clone();
+        assign_slugs(&mut ps, &f);
+        assert_ne!(ps[0].slug, "Not A Slug!");
+        assert_eq!(ps.iter().filter(|p| p.slug == "same").count(), 1);
+    }
+
+    #[test]
+    fn safe_url_accepts_only_http_and_https() {
+        for ok in ["https://z.cash/", "http://pool.example:8080/a?b=1&c=\"2\"", "HTTPS://Example.com"] {
+            assert!(safe_url(ok).is_some(), "{ok}");
+        }
+        for bad in ["javascript:alert(1)", " JavaScript:alert(1)", "data:text/html,<b>", "vbscript:x", "//evil.example", "/relative", "ftp://x.example", "https://", "https://:80", "https://a b", "https://x/<script>", "https://x/\u{2028}y", "http://x\\y", ""] {
+            assert!(safe_url(bad).is_none(), "{bad:?}");
+        }
+        let mut p = Pool { id: "p".into(), url: Some("javascript:alert(1)".into()), source_url: Some("https://ok.example/".into()), data_url: Some("data:x".into()), ..Default::default() };
+        let mut dropped = vec![];
+        clean_pool_urls(&mut p, &mut dropped);
+        assert_eq!((p.url, p.source_url.as_deref(), p.data_url), (None, Some("https://ok.example/"), None));
+        assert_eq!(dropped.len(), 2);
+        let mut up = Some("explorer 1".to_string());
+        clean_text_or_url(&mut up, "x", &mut dropped);
+        assert_eq!(up.as_deref(), Some("explorer 1"), "plain words stay");
+        let mut up = Some("javascript:alert(1)".to_string());
+        clean_text_or_url(&mut up, "x", &mut dropped);
+        assert_eq!(up, None);
     }
 }

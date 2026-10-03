@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-03T14:11:50.108Z",
-  "started_at": "2026-10-03T14:10:02.642Z",
+  "generated_at": "2026-10-03T16:07:07.713Z",
+  "started_at": "2026-10-03T16:05:20.188Z",
   "pool_count": 118,
   "coin_count": 28,
   "mps_pool_count": 115,
@@ -48,9 +48,9 @@
     }
   ],
   "errors": [
-    "price bitmark-equihash: https://data.miningpoolstats.stream/data/price/bitmark-equihash.js?t=1791036468: HTTP 404",
-    "price kerrigan-equihash: https://data.miningpoolstats.stream/data/price/kerrigan-equihash.js?t=1791036468: HTTP 404",
-    "price kerrigan-equihash192: https://data.miningpoolstats.stream/data/price/kerrigan-equihash192.js?t=1791036652: HTTP 404",
+    "price bitmark-equihash: https://data.miningpoolstats.stream/data/price/bitmark-equihash.js?t=1791043490: HTTP 404",
+    "price kerrigan-equihash: https://data.miningpoolstats.stream/data/price/kerrigan-equihash.js?t=1791043490: HTTP 404",
+    "price kerrigan-equihash192: https://data.miningpoolstats.stream/data/price/kerrigan-equihash192.js?t=1791043490: HTTP 404",
     "zergpool (optional): https://zergpool.com/api/currencies: This operation was aborted"
   ]
 }

@@ -627,6 +627,7 @@ dependencies = [
  "log",
  "maud",
  "reqwest",
+ "ring",
  "serde",
  "serde_json",
 ]

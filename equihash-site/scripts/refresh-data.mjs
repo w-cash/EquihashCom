@@ -19,15 +19,26 @@
  * estimated). Network rows carry the same for hashrate, difficulty and height, with basis
  * "network". A field's timestamp only moves when that field was actually fetched: refreshing a
  * fee or a block height never makes a hashrate look newer than it is.
- * Usage: npm run refresh        (node scripts/refresh-data.mjs)
+ * Publishing: the three generated files are built in memory, written to a staging directory,
+ * validated (schema, upstream URLs, critical sources, sharp drops against the current snapshot)
+ * and only then published atomically as data/snapshots/<id>/ plus a swapped data/current.json
+ * (see scripts/snapshot.mjs). A failed validation keeps the previous snapshot live and exits 2.
+ *
+ * Usage: npm run refresh                      (node scripts/refresh-data.mjs)
+ *        node scripts/refresh-data.mjs --live-only   re-read only the live sources
+ *        node scripts/refresh-data.mjs --force       publish even if validation fails
+ *        node scripts/refresh-data.mjs --list        list snapshots
+ *        node scripts/refresh-data.mjs --rollback [id]   point current.json at an earlier snapshot
  */
 import { pathToFileURL } from "node:url";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import * as snap from "./snapshot.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const DATA = path.join(ROOT, "data");
+// DATA_DIR overrides where data lives (e.g. /srv/equihash/data, shared by every release).
+const DATA = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(ROOT, "data");
 const UA =
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36";
 const MPS = "https://miningpoolstats.stream";
@@ -273,7 +284,9 @@ async function refreshMps() {
       }
       console.log(`  mps ${page}: ${d.data?.length ?? 0} pools`);
     } catch (e) {
-      errors.push(`mps ${page}: ${e.message}`);
+      // A coin page is a critical source (its pool rows would vanish); pages kept only for coins
+      // whose PoW ended are not (see snapshot.isCritical).
+      errors.push(`${EXTRA_MPS_PAGES.includes(page) ? "mps (ended coin)" : "mps"} ${page}: ${e.message}`);
       console.warn(`  ! mps ${page}: ${e.message}`);
     }
   }
@@ -621,9 +634,73 @@ async function refreshLiveSources(coins, pools, previous) {
 }
 
 async function readPrevious() {
-  const pf = await readJson(path.join(DATA, "pools.json"), { pools: [] });
-  const nf = await readJson(path.join(DATA, "network.json"), { coins: [] });
-  return { pools: pf.pools || [], coins: nf.coins || [], pf, nf };
+  const cur = await snap.readCurrent(DATA);
+  const pf = cur["pools.json"] || { pools: [] };
+  const nf = cur["network.json"] || { coins: [] };
+  return { pools: pf.pools || [], coins: nf.coins || [], pf, nf, meta: cur["meta.json"], files: cur };
+}
+
+// ---------- pool permalinks (data/curated/permalinks.json; read by src/data.rs) ----------
+
+/** Same as data::slugify: ASCII letters and digits, lowercased; any run of other characters is one dash. */
+export function slugify(s) {
+  let out = "", dash = false;
+  for (const ch of String(s)) {
+    if (/^[A-Za-z0-9]$/.test(ch)) { out += ch.toLowerCase(); dash = false; }
+    else if (!dash && out) { out += "-"; dash = true; }
+  }
+  return out.replace(/-+$/, "");
+}
+/** Same as data::computed_slug: the slug a pool's URL was built from before permalinks. */
+export function computedSlug(p) {
+  const host = String(p.url || "").replace(/^(https:\/\/)+/, "").replace(/^(http:\/\/)+/, "").replace(/^(www\.)+/, "");
+  return slugify(`${p.coin_id}-${p.name}-${host}`);
+}
+/** Give each pool id that has none a permanent slug, once. Existing entries are never changed or
+ *  removed (a retired pool's slug stays reserved), so a rename or a new domain keeps the URL.
+ *  Returns the ids that were added. */
+export function assignPermalinks(pools, file) {
+  file.pools ||= {};
+  file.aliases ||= {};
+  const taken = new Set([...Object.values(file.pools), ...Object.keys(file.aliases)]);
+  const added = [];
+  for (const p of pools) {
+    if (!p.id || file.pools[p.id]) continue;
+    const base = computedSlug(p) || slugify(p.id) || "pool";
+    let s = base;
+    for (let i = 2; taken.has(s); i++) s = `${base}-${i}`;
+    taken.add(s);
+    file.pools[p.id] = s;
+    added.push(p.id);
+  }
+  return added;
+}
+async function updatePermalinks(pools) {
+  const file = path.join(DATA, "curated", "permalinks.json");
+  const cur = await readJson(file, null);
+  const data = cur || { _note: "Permanent pool URLs: /pool/<slug>. Assigned once per pool id by the refresh and never changed; add \"aliases\": {\"old-slug\": \"slug\"} to redirect an old URL.", pools: {}, aliases: {} };
+  const added = assignPermalinks(pools, data);
+  if (added.length || !cur) {
+    const tmp = `${file}.tmp-${process.pid}`;
+    await fs.writeFile(tmp, JSON.stringify(data, null, 2) + "\n");
+    await fs.rename(tmp, file);
+    console.log(`  permalinks: ${added.length} new`);
+  }
+  return added;
+}
+
+/** Validate and publish one refresh as a new snapshot; exit 2 (previous snapshot kept) on problems. */
+async function publishSnapshot(pf, nf, meta, previous) {
+  const files = { "pools.json": JSON.stringify(pf, null, 2), "network.json": JSON.stringify(nf, null, 2), "meta.json": JSON.stringify(meta, null, 2) };
+  const res = await snap.publish(DATA, files, { previous: previous.files, force: process.argv.includes("--force") });
+  if (!res.published) {
+    console.error("Not published: the new data failed validation, so the previous snapshot stays live.\n" + res.problems.map((p) => "  - " + p).join("\n") + "\nRe-run later, or with --force after checking.");
+    process.exitCode = 2;
+    return null;
+  }
+  if (res.problems.length) console.warn("Published with --force despite:\n" + res.problems.map((p) => "  - " + p).join("\n"));
+  console.log(`Published snapshot ${res.id}.`);
+  return res.id;
 }
 
 // data/curated/coins.json: coins miningpoolstats doesn't cover, added verbatim (same shape as network.json).
@@ -702,15 +779,34 @@ async function mainLiveOnly() {
   rankCoins(coins, pools);
   normaliseShares(coins, pools);
   pools.sort((a, b) => (b.hashrate ?? -1) - (a.hashrate ?? -1));
+  snap.sanitizeUrls(pools, coins, errors);
   // generated_at stays: only the live figures moved, and they carry their own observed_at.
-  await fs.writeFile(path.join(DATA, "pools.json"), JSON.stringify({ ...previous.pf, pools }, null, 2));
-  await fs.writeFile(path.join(DATA, "network.json"), JSON.stringify({ ...previous.nf, coins }, null, 2));
+  // The run's warnings are not merged into meta.errors (that list describes the full refresh).
+  await publishSnapshot({ ...previous.pf, pools }, { ...previous.nf, coins }, previous.meta, previous);
   console.log(`Live sources updated. ${errors.length} warnings.`);
   if (errors.length) console.log(errors.map((e) => "  - " + e).join("\n"));
 }
 
 async function main() {
-  if (process.argv.includes("--live-only")) return mainLiveOnly();
+  if (process.argv.includes("--list")) {
+    const m = await snap.readManifest(DATA);
+    for (const id of await snap.listSnapshots(DATA)) console.log(`${id}${m?.snapshot === id ? "  (current)" : ""}`);
+    return;
+  }
+  if (process.argv.includes("--rollback")) {
+    const i = process.argv.indexOf("--rollback");
+    const to = process.argv[i + 1] && !process.argv[i + 1].startsWith("--") ? process.argv[i + 1] : null;
+    return snap.withLock(DATA, async () => console.log(`current.json now points at snapshot ${await snap.rollback(DATA, to)}.`));
+  }
+  return snap.withLock(DATA, async () => {
+    // The layout before snapshots: keep those files as the first snapshot (for rollback).
+    const imported = await snap.importFlat(DATA);
+    if (imported) console.log(`Imported the existing data files as snapshot ${imported}.`);
+    return process.argv.includes("--live-only") ? mainLiveOnly() : mainFull();
+  });
+}
+
+async function mainFull() {
   const started = nowIso();
   const previous = await readPrevious();
   console.log("Refreshing equihash.com data…");
@@ -728,6 +824,8 @@ async function main() {
   rankCoins(coins, pools);
   normaliseShares(coins, pools);
   pools.sort((a, b) => (b.hashrate ?? -1) - (a.hashrate ?? -1));
+  // Upstream URLs become links: anything that isn't http(s) is dropped here (and again at load).
+  snap.sanitizeUrls(pools, coins, errors);
 
   const finished = nowIso();
   if (coins.length === 0 || pools.length === 0) {
@@ -744,10 +842,9 @@ async function main() {
     sources: [...sources.values()],
     errors,
   };
-  await fs.writeFile(path.join(DATA, "pools.json"), JSON.stringify({ generated_at: finished, pools }, null, 2));
-  await fs.writeFile(path.join(DATA, "network.json"), JSON.stringify({ generated_at: finished, coins }, null, 2));
-  await fs.writeFile(path.join(DATA, "meta.json"), JSON.stringify(meta, null, 2));
-  console.log(`Done: ${pools.length} pools across ${coins.length} coins (${meta.non_mps_pool_count} not from MPS). ${errors.length} warnings.`);
+  await updatePermalinks(pools);
+  const id = await publishSnapshot({ generated_at: finished, pools }, { generated_at: finished, coins }, meta, previous);
+  console.log(`${id ? "Done" : "Refresh finished but not published"}: ${pools.length} pools across ${coins.length} coins (${meta.non_mps_pool_count} not from MPS). ${errors.length} warnings.`);
   if (errors.length) console.log(errors.map((e) => "  - " + e).join("\n"));
 }
 

@@ -4,7 +4,36 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "5";
+pub const ASSET_V: &str = "7";
+
+/// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
+/// the Content-Security-Policy (see `csp`), so no other inline script can run.
+pub const INLINE_SCRIPT: &str = "document.documentElement.classList.replace('no-js','js');";
+
+fn base64(bytes: &[u8]) -> String {
+    const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut out = String::new();
+    for ch in bytes.chunks(3) {
+        let b = [ch[0], *ch.get(1).unwrap_or(&0), *ch.get(2).unwrap_or(&0)];
+        let n = (b[0] as u32) << 16 | (b[1] as u32) << 8 | b[2] as u32;
+        for i in 0..4 {
+            if i <= ch.len() {
+                out.push(T[(n >> (18 - 6 * i) & 63) as usize] as char);
+            } else {
+                out.push('=');
+            }
+        }
+    }
+    out
+}
+
+/// Content-Security-Policy for every response: same-origin scripts plus the hashed inline
+/// script, same-origin fetches (/api/live), fonts and images; inline style attributes (bar
+/// widths) are allowed; no plugins, no framing, no <base>, forms only to this site.
+pub fn csp() -> String {
+    let h = base64(ring::digest::digest(&ring::digest::SHA256, INLINE_SCRIPT.as_bytes()).as_ref());
+    format!("default-src 'self'; script-src 'self' 'sha256-{h}'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
+}
 
 pub struct Page<'a> {
     pub title: &'a str,
@@ -61,7 +90,7 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::
                 link rel="preload" href="/static/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin;
                 link rel="preload" href="/static/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin;
                 link rel="stylesheet" href={"/static/app.css?v=" (ASSET_V)};
-                script { (PreEscaped("document.documentElement.classList.replace('no-js','js');")) }
+                script { (PreEscaped(INLINE_SCRIPT)) }
                 script type="application/ld+json" {
                     (PreEscaped(format!(r#"{{"@context":"https://schema.org","@type":"WebSite","name":"equihash.com","url":"{SITE}","description":"Equihash mining pools, hardware and network stats, with sources."}}"#)))
                 }
@@ -126,6 +155,11 @@ pub fn stale_notice(ts: Option<&str>, now: chrono::DateTime<chrono::Utc>) -> Mar
     }
 }
 
+/// An outbound link. Only http(s) URLs become links (data::safe_url); anything else is shown as
+/// plain text, so a bad upstream value can never become a javascript: or data: link.
 pub fn ext(url: &str, label: &str) -> Markup {
-    html! { a href=(url) rel="noopener nofollow" target="_blank" { (label) } }
+    match crate::data::safe_url(url) {
+        Some(u) => html! { a href=(u) rel="noopener nofollow" target="_blank" { (label) } },
+        None => html! { span class="na" { (label) } },
+    }
 }

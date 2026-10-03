@@ -344,7 +344,7 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
                 }
             }
         }
-        script type="application/json" id="calc-data" { (PreEscaped(calc_json.replace("</", "<\\/"))) }
+        script type="application/json" id="calc-data" { (PreEscaped(super::escape_script_json(&calc_json))) }
     })
 }
 

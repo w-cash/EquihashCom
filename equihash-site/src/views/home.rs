@@ -3,6 +3,7 @@ use crate::fmt;
 use crate::views::calc;
 use crate::views::layout::{ext, layout_at, Page};
 use crate::views::links;
+use crate::views::logo::{self, At};
 use maud::{html, Markup, PreEscaped};
 use serde::Deserialize;
 
@@ -228,7 +229,7 @@ fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool) -> Markup {
     let share = p.network_share_pct;
     html! {
         tr class={"pool-row" @if p.share_flag { " over" }} hidden[hidden]
-            data-slug=(p.slug) data-coin=(p.coin_id)
+            data-slug=(p.slug) data-coin=(p.coin_id) data-pool-id=(p.id)
             data-schemes=(p.payout_schemes.join(",")) data-regions=(p.region_tags.join(","))
             data-fee=[p.min_fee()] data-hashrate=[p.hashrate] data-share=[share]
             data-miners=[p.miners.or(p.workers)] data-minpay=[p.min_payout] data-blocks=[p.blocks_last_1000]
@@ -238,9 +239,9 @@ fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool) -> Markup {
         {
             td class="rank" { (rank) }
             td class="name" {
-                a class="pool-link" href={"/pool/" (p.slug)} { (p.name) }
+                a class="pool-link" href={"/pool/" (p.slug)} { (logo::chip(&p.logo, &p.name, At::Row, rank > 12)) (p.name) }
                 @if p.merged() { " " span class="mm" title=[p.merged_mining.note.clone()] { "+" (p.merged_mining.coins.join(", ")) } }
-                span class="host" { (fmt::host(p.url.as_deref())) }
+                span class="host" title=(fmt::host(p.url.as_deref())) { (fmt::host(p.url.as_deref())) }
                 span class="m-meta" {
                     @if !p.payout_schemes.is_empty() { (p.payout_schemes.join(", ")) }
                     @if let Some(r) = &p.region { @if !p.payout_schemes.is_empty() { " · " } (region_short(r)) }
@@ -250,16 +251,9 @@ fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool) -> Markup {
             td class="num hash" title=(hashrate_title(p)) data-live-pool=[p.live_source.as_ref().map(|_| &p.id)] {
                 @if p.hashrate.is_some() { span data-f="hashrate" { (fmt::hashrate(p.hashrate, &unit)) } } @else { span class="na" { "n/a" } }
                 @if p.operator_reported() { span class="dag" { "†" } }
-                span class="m-share" { @if p.share_note.is_some() { (share_text(p)) } @else if let Some(s) = share { (fmt::pct(Some(s))) } }
+                span class="m-share" { (m_share(p)) }
             }
-            td class="num share" data-live-share=[p.live_source.as_ref().map(|_| &p.id)] {
-                @if let (Some(note), false) = (&p.share_note, p.share_capped) {
-                    span class="share-note" title=(note) { "only listed pool" }
-                } @else if let Some(s) = share {
-                    span class="bar" aria-hidden="true" { span style={"width:" (format!("{:.2}", s.clamp(0.0, 100.0))) "%"} {} }
-                    (fmt::pct(Some(s)))
-                } @else { span class="na" { "n/a" } }
-            }
+            td class="num share" data-share-pool=(p.id) { (share_cell(p)) }
             td class="num miners" {
                 @if p.miners.is_some() { (fmt::int(p.miners)) }
                 @else if p.workers.is_some() { (fmt::int(p.workers)) span class="na" title="Workers; the pool doesn't publish a miner count" { " w" } }
@@ -280,9 +274,31 @@ fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool) -> Markup {
     }
 }
 
+/// What the Share cell shows: a bar and percentage, "only listed pool" (with the reason in the
+/// tooltip) or n/a. Also sent in /api/live, so an open page switches modes without a reload.
+pub fn share_cell(p: &Pool) -> Markup {
+    html! {
+        @if let (Some(note), false) = (&p.share_note, p.share_capped) {
+            span class="share-note" title=(note) { "only listed pool" }
+        } @else if let Some(s) = p.network_share_pct {
+            span class="bar" aria-hidden="true" { span style={"width:" (format!("{:.2}", s.clamp(0.0, 100.0))) "%"} {} }
+            (fmt::pct(Some(s)))
+        } @else { span class="na" { "n/a" } }
+    }
+}
+
+/// The share under the hashrate on small screens.
+pub fn m_share(p: &Pool) -> String {
+    if p.share_note.is_some() {
+        share_text(p)
+    } else {
+        p.network_share_pct.map(|s| fmt::pct(Some(s))).unwrap_or_default()
+    }
+}
+
 /// Tooltip for a hashrate cell: where the figure came from and when it was observed.
 /// The Share column's tooltip names the basis the shares are actually computed on.
-fn share_th_title(cur: Option<&Coin>) -> &'static str {
+pub fn share_th_title(cur: Option<&Coin>) -> &'static str {
     match cur.map(|c| c.share_basis.as_str()) {
         Some("network") => "Share of the network's hashrate",
         Some(_) => "Share of the hashrate the listed pools report (the network estimate reads below their sum)",
@@ -306,18 +322,19 @@ pub fn hashrate_title(p: &Pool) -> String {
     }
 }
 
-/// One stacked bar: who holds the coin's hashrate. Red for any pool over 30%, hatched for hashrate no listed pool reports.
-fn split_bar(d: &Data, c: &Coin) -> Markup {
+/// One stacked bar: who holds the coin's hashrate. Red for any pool over 30%, hatched for hashrate
+/// no listed pool reports. Every variant carries data-split-coin, so /api/live can swap it whole.
+pub fn split_bar(d: &Data, c: &Coin) -> Markup {
     let mut pools: Vec<&Pool> = d.pools.iter().filter(|p| p.coin_id == c.id && p.network_share_pct.map(|s| s > 0.0).unwrap_or(false)).collect();
     pools.sort_by(|a, b| b.network_share_pct.partial_cmp(&a.network_share_pct).unwrap());
     if pools.is_empty() {
-        return html! { p class="split-none" { "No pool on " (c.label) " publishes its hashrate, so there is no split to show." } };
+        return html! { p class="split-none" data-split-coin=(c.id) { "No pool on " (c.label) " publishes its hashrate, so there is no split to show." } };
     }
     // One pool reading above a network estimate taken over another window: show both figures, not a bar.
     if let [p] = pools.as_slice() {
         if let (Some(note), false) = (&p.share_note, p.share_capped) {
             return html! {
-                figure class="split" data-live-share=[p.live_source.as_ref().map(|_| &p.id)] {
+                figure class="split" data-split-coin=(c.id) {
                     figcaption { "Share of " (c.symbol) " network hashrate" }
                     p class="split-note solo" data-f="share-note" { (note) }
                 }
@@ -334,7 +351,7 @@ fn split_bar(d: &Data, c: &Coin) -> Markup {
     let big: Vec<&Pool> = pools.iter().filter(|p| p.network_share_pct.unwrap_or(0.0) >= 2.0 || p.share_flag).cloned().collect();
     let small: f64 = pools.iter().filter(|p| !(p.network_share_pct.unwrap_or(0.0) >= 2.0 || p.share_flag)).filter_map(|p| p.network_share_pct).sum();
     html! {
-        figure class="split" {
+        figure class="split" data-split-coin=(c.id) {
             figcaption {
                 @if by_network { "Share of " (c.symbol) " network hashrate" }
                 @else { "Share of hashrate reported by " (c.symbol) " pools" }
@@ -486,7 +503,10 @@ fn coin_head(d: &Data, c: &Coin, now: chrono::DateTime<chrono::Utc>) -> Markup {
     html! {
         div class="coin-head" {
             div class="coin-title" {
-                h2 { (c.label) " " span class="sym" { (c.symbol) } }
+                div class="title-row" {
+                    h2 { (logo::chip(&c.logo, &c.label, At::Head, false)) (c.label) " " span class="sym" { (c.symbol) } }
+                    (super::pages::copy_link(&format!("/?coin={}", c.id), &format!("Copy link to {}", c.label)))
+                }
                 (links::render(&c.links, &format!("{} links", c.label), "coin-links"))
                 (hashrate_pair(c))
                 (live_line(d, c, now))
@@ -507,6 +527,14 @@ fn coin_head(d: &Data, c: &Coin, now: chrono::DateTime<chrono::Utc>) -> Markup {
             (split_bar(d, c))
         }
     }
+}
+
+/// The concentration alert for one coin view (or all coins), in a wrapper /api/live can refill
+/// when a live reading moves a pool over or under 30%, or changes what shares are measured against.
+pub fn concentration_view(d: &Data, cur: Option<&Coin>) -> Markup {
+    let mut flagged: Vec<&Pool> = d.live_pools().filter(|p| cur.map(|c| p.coin_id == c.id).unwrap_or(true)).filter(|p| p.share_flag && (cur.is_some() || p.share_basis == "network")).collect();
+    flagged.sort_by(|a, b| b.network_share_pct.partial_cmp(&a.network_share_pct).unwrap());
+    html! { div class="conc" data-conc-view=(cur.map(|c| c.id.as_str()).unwrap_or("all")) { (concentration(cur, &flagged)) } }
 }
 
 fn concentration(c: Option<&Coin>, flagged: &[&Pool]) -> Markup {
@@ -574,7 +602,7 @@ fn coin_nav(d: &Data, current: &str, live_total: usize) -> Markup {
         let (rep, dag) = fmt::reported(c);
         html! {
             li class=[(c.pool_count == 0).then_some("none")] data-rank-id=(c.id) { a href={"/?coin=" (c.id)} aria-current=[(c.id == current).then_some("true")] title=(coin_title(c)) data-rank-title {
-                span class="cn" { (c.name) } span class="ch" { span data-rank-f="reported" { (rep) } @if dag { span class="dag" { "†" } } } span class="cc" { span class="sep" { "· " } (pools_text(c.pool_count as usize)) }
+                span class="cn" { (logo::chip(&c.logo, &c.name, At::Nav, false)) (c.name) } span class="ch" { span data-rank-f="reported" { (rep) } @if dag { span class="dag" { "†" } } } span class="cc" { span class="sep" { "· " } (pools_text(c.pool_count as usize)) }
             } }
         }
     };
@@ -685,7 +713,7 @@ fn z15_box(d: &Data) -> Markup {
                     @for c in &coins {
                         @let (rep, dag) = fmt::reported(c);
                         tr data-rank-id=(c.id) {
-                            td { a href={"/?coin=" (c.id)} { (c.name) } " " span class="sym" { (c.symbol) } }
+                            td { a href={"/?coin=" (c.id)} { (logo::chip(&c.logo, &c.name, At::List, true)) (c.name) } " " span class="sym" { (c.symbol) } }
                             td class="num" { span data-rank-f="reported" { (rep) } @if dag { span class="dag" { "†" } } }
                             td class="num" { (c.pool_count) }
                         }
@@ -725,7 +753,7 @@ fn networks(d: &Data, now: chrono::DateTime<chrono::Utc>) -> Markup {
                                 @let seen = c.network.hashrate_observed_at.clone().or(c.network.height_observed_at.clone()).or(c.fetched_at.clone());
                                 @let dq = c.discrepancy().is_some();
                                 tr class=[(!c.active()).then_some("ended")] data-rank-id=(c.id) {
-                                    td { @if c.active() { a href={"/?coin=" (c.id)} { (c.name) } } @else { (c.name) } " " span class="sym" { (c.symbol) }
+                                    td { (logo::chip(&c.logo, &c.name, At::Row, true)) @if c.active() { a href={"/?coin=" (c.id)} { (c.name) } } @else { (c.name) } " " span class="sym" { (c.symbol) }
                                         @if !c.active() { " " span class="tag" title=[c.status_note.clone()] { "PoW ended" } } }
                                     td { (c.hardware.clone().unwrap_or("n/a".into())) }
                                     td class="num" title=(field_title(c.network.hashrate_source.as_deref(), c.network.hashrate_observed_at.as_deref())) {
@@ -824,8 +852,9 @@ fn field_sources(c: &Coin) -> Markup {
 /// Coin selector with one optgroup per exact parameter set, in rank order.
 fn coin_select(d: &Data, current: &str, live_total: usize) -> Markup {
     html! {
-        label class="f f-coin" {
+        label class={"f f-coin" @if d.coin(current).is_some() { " has-logo" }} {
             span { "Coin" }
+            @if let Some(c) = d.coin(current) { (logo::chip(&c.logo, &c.name, At::List, false)) }
             select name="coin" data-filter="coin" {
                 option value="all" selected[current == "all"] { "All coins (" (live_total) " pool rows)" }
                 @for (label, coins) in d.param_groups(true) {
@@ -871,8 +900,6 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
     let in_scope: Vec<&Pool> = live.iter().filter(|p| coin == "all" || p.coin_id == coin).cloned().collect();
     let rows = sort_pools(in_scope.clone(), &sort, &dir);
     let show_coin = cur.is_none();
-    let mut flagged: Vec<&Pool> = in_scope.iter().filter(|p| p.share_flag && (cur.is_some() || p.share_basis == "network")).cloned().collect();
-    flagged.sort_by(|a, b| b.network_share_pct.partial_cmp(&a.network_share_pct).unwrap());
     let help_coin: &Coin = cur.unwrap_or_else(|| active_coins.iter().find(|c| c.id == "zcash").or(active_coins.first()).unwrap());
 
     let scheme_opts = scheme_options(d);
@@ -900,8 +927,9 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
             .collect()
     };
 
-    let pool_json = serde_json::to_string(&in_scope).unwrap_or("[]".into()).replace("</", "<\\/");
-    let coins_json = serde_json::to_string(&d.coins.iter().map(|c| serde_json::json!({"id": c.id, "label": c.label, "symbol": c.symbol, "params": c.params(), "z15": c.z15_compatible, "net": c.network.hashrate, "reported": c.reported, "basis": c.share_basis})).collect::<Vec<_>>()).unwrap_or("[]".into());
+    // Escaped for the <script> context (see views::script_json): upstream names can't close it.
+    let pool_json = super::script_json(&in_scope);
+    let coins_json = super::script_json(&d.coins.iter().map(|c| serde_json::json!({"id": c.id, "label": c.label, "symbol": c.symbol, "params": c.params(), "z15": c.z15_compatible, "net": c.network.hashrate, "reported": c.reported, "basis": c.share_basis})).collect::<Vec<_>>());
     let site_ts = d.last_updated.as_deref();
 
     let body = html! {
@@ -929,7 +957,7 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                             } }
                         }
                     }
-                    (concentration(cur, &flagged))
+                    (concentration_view(d, cur))
                     form class="filters" method="get" action="/#pools" id="filters" role="search" {
                         (coin_select(d, &coin, live.len()))
                         label class="f f-q" {
@@ -1201,8 +1229,11 @@ mod tests {
         let real = Path::new(env!("CARGO_MANIFEST_DIR")).join("data");
         for sub in ["", "curated"] {
             for e in std::fs::read_dir(real.join(sub)).unwrap().flatten() {
-                if e.path().is_file() { std::fs::copy(e.path(), dir.join(sub).join(e.file_name())).unwrap(); }
+                if e.path().is_file() && e.file_name() != crate::data::MANIFEST { std::fs::copy(e.path(), dir.join(sub).join(e.file_name())).unwrap(); }
             }
+        }
+        for f in crate::data::GENERATED {
+            std::fs::copy(crate::data::generated_path(&real, f), dir.join(f)).unwrap();
         }
         use crate::live::{LiveState, Parsed, Reading};
         let now = chrono::Utc::now();
