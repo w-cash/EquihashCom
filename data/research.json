@@ -1,0 +1,28 @@
+{
+  "_doc": "What was checked for each pool the brief asked about, and the outcome. Shown on /sources.",
+  "checked_at": "2026-10-02T23:55:00.000Z",
+  "items": [
+    { "pool": "ViaBTC", "outcome": "listed", "detail": "ZEC listed on miningpoolstats (PPS+ 4% / PPLNS 2%).", "url": "https://miningpoolstats.stream/zcash" },
+    { "pool": "F2Pool", "outcome": "listed", "detail": "ZEC listed on miningpoolstats. ZEN pool retired Jul 2025 (archive).", "url": "https://miningpoolstats.stream/zcash" },
+    { "pool": "AntPool", "outcome": "listed", "detail": "ZEC listed on miningpoolstats.", "url": "https://miningpoolstats.stream/zcash" },
+    { "pool": "Luxor", "outcome": "listed", "detail": "ZEC listed on miningpoolstats (FPPS 3%).", "url": "https://miningpoolstats.stream/zcash" },
+    { "pool": "2Miners + 2Miners Solo", "outcome": "listed", "detail": "ZEC PPLNS and ZEC solo listed on miningpoolstats; BTG checked via 2Miners API (also on MPS). ZEN and Flux pools retired (archive).", "url": "https://zec.2miners.com/api/stats" },
+    { "pool": "Kryptex", "outcome": "listed", "detail": "ZEC only (PPS+ 3%, SOLO 1.5%, min payout 0.025 ZEC per pool page). No other Equihash coin on pool.kryptex.com.", "url": "https://pool.kryptex.com/zec" },
+    { "pool": "Mining-Dutch", "outcome": "listed", "detail": "ZEC listed on miningpoolstats. Its own /api/status shows Equihash algos but with zero hashrate and no per-coin breakdown, so only MPS rows are used.", "url": "https://www.mining-dutch.nl/api/status" },
+    { "pool": "zpool", "outcome": "listed", "detail": "Already listed on miningpoolstats for several Equihash coins; public API (zpool.ca/api/currencies) used only to fill coins MPS lacks (none missing in this run).", "url": "https://zpool.ca/api/currencies" },
+    { "pool": "ZecWec", "outcome": "added", "detail": "Not on miningpoolstats. Added for ZEC and WEC (merged mining). Fee from public overview API; hashrate from the public pool hashrate API (https://pool.zecwec.com/api/v1/hashrate/pool), shown on both rows because ZecWec merge-mines ZEC and WEC with the same work. An earlier operator-reported ~0.44 MSol/s figure was dropped.", "url": "https://pool.zecwec.com/api/v1/overview" },
+    { "pool": "unMineable", "outcome": "added", "detail": "Not on miningpoolstats. Equihash ASIC pool 'based on Zcash' documented in its support center; hostname resolves. No public hashrate/fee data.", "url": "https://unmineable.com/support/article/how-to-setup-antminer-for-asic-mining" },
+    { "pool": "Suprnova", "outcome": "unverified", "detail": "zec.suprnova.cc page exists, but its stats API (zec.suprnova.cc:4008/api/pools) returned HTTP 503 and the old MPOS API returned 404, so current operation could not be verified. Not listed.", "url": "https://zec.suprnova.cc/" },
+    { "pool": "Nanopool", "outcome": "unverified", "detail": "Help center still documents a ZEC pool, but api.nanopool.org/v1/zec/* returns 404 while XMR/RVN endpoints return 200, and zec.nanopool.org shows a generic maintenance page. Not listed and not archived (no shutdown announcement could be fetched).", "url": "https://help.nanopool.org/hc/en-us/categories/4896019249949-Zcash-ZEC-pool" },
+    { "pool": "ZergPool", "outcome": "unverified", "detail": "zergpool.com and its API returned Cloudflare 522 (origin unreachable) on every attempt. The refresh script adds ZergPool Equihash coins automatically when the API answers.", "url": "https://zergpool.com/api/currencies" },
+    { "pool": "HeroMiners", "outcome": "not-supported", "detail": "Algorithm list on herominers.com has no Equihash variant (only BeamHash III, which is a different PoW).", "url": "https://herominers.com/" },
+    { "pool": "Solo pools", "outcome": "listed", "detail": "Solo pools on MPS are included and flagged SOLO (2Miners solo, Kryptex solo, fenixpool, himpool, molepool, mysolopool, kardanpool, solopool.site, etc.).", "url": "https://miningpoolstats.stream/zcash" },
+    { "pool": "Flypool (ZEC)", "outcome": "archived", "detail": "Closed after 30 Sep 2022.", "url": "https://www.reddit.com/r/zec/comments/wnebgo/why_is_zcash_flypool_shutting_down/" }
+  ],
+  "coins": [
+    { "coin": "Horizen (ZEN)", "detail": "MPS page exists but shows 0 hashrate and no pools; PoW ended 23 Jul 2025 (migration to Base). Shown as ended." },
+    { "coin": "Flux (FLUX)", "detail": "MPS page lists one pool with 0 hashrate; PoW ended at block 2,020,000 (Oct 2025). Shown as ended; its pool row is in the archive view." },
+    { "coin": "Beam (BeamHash III)", "detail": "Not included: BeamHash is not listed by miningpoolstats as an Equihash algorithm." },
+    { "coin": "Bitcoin Private (BTCP)", "detail": "MPS data file is stale (last update 2024) and the coin page returns 404. Not included." }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-10-02T23:40:48.880Z",
+  "started_at": "2026-10-02T23:39:04.092Z",
+  "pool_count": 118,
+  "coin_count": 28,
+  "mps_pool_count": 115,
+  "non_mps_pool_count": 3,
+  "sources": [
+    {
+      "id": "mps",
+      "label": "miningpoolstats.stream (pool + network JSON)",
+      "url": "https://miningpoolstats.stream/"
+    },
+    {
+      "id": "2miners-ZEC",
+      "label": "2Miners ZEC public API",
+      "url": "https://zec.2miners.com/api/stats"
+    },
+    {
+      "id": "2miners-BTG",
+      "label": "2Miners BTG public API",
+      "url": "https://btg.2miners.com/api/stats"
+    },
+    {
+      "id": "zpool",
+      "label": "zpool.ca public API",
+      "url": "https://zpool.ca/api/currencies"
+    },
+    {
+      "id": "zecwec",
+      "label": "ZecWec public overview API",
+      "url": "https://pool.zecwec.com/api/v1/overview"
+    },
+    {
+      "id": "wcashexplorer",
+      "label": "Wcash explorer API (height, difficulty, block spacing)",
+      "url": "https://wcashexplorer.com/api/v1/status"
+    }
+  ],
+  "errors": [
+    "price bitmark-equihash: https://data.miningpoolstats.stream/data/price/bitmark-equihash.js?t=1790984275: HTTP 404",
+    "price kerrigan-equihash: https://data.miningpoolstats.stream/data/price/kerrigan-equihash.js?t=1790984275: HTTP 404",
+    "price kerrigan-equihash192: https://data.miningpoolstats.stream/data/price/kerrigan-equihash192.js?t=1790984275: HTTP 404",
+    "zergpool (optional): https://zergpool.com/api/currencies: This operation was aborted"
+  ]
+}

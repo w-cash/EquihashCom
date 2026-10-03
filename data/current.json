@@ -1,0 +1,20 @@
+{
+  "snapshot": "20261003T170226Z",
+  "published_at": "2026-10-03T17:02:26Z",
+  "generated_at": "2026-10-03T17:02:26.701Z",
+  "previous": "20261003T160707Z",
+  "files": {
+    "pools.json": {
+      "bytes": 232942,
+      "sha256": "b10a64b96c77420a0548fe509d9e39c379ec135e5b465564c8974ec02ce1ee37"
+    },
+    "network.json": {
+      "bytes": 51799,
+      "sha256": "523dfe877fc0dd2fad1611d2427f2444346a2a148d696530076363ec57c52895"
+    },
+    "meta.json": {
+      "bytes": 2130,
+      "sha256": "8177ede5dcbdef4de9548c4c0929040154dd65d5388e26978a3bdab19c6ad0ac"
+    }
+  }
+}

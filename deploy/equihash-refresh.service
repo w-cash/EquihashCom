@@ -1,0 +1,26 @@
+# /etc/systemd/system/equihash-refresh.service
+# One data refresh. It publishes a new snapshot atomically, or exits 2 and leaves the previous
+# snapshot live when validation fails (critical source down, sharp drop); the unit then shows as
+# failed, which `systemctl --failed` and /healthz (data age) both surface.
+[Unit]
+Description=equihash.com data refresh
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=equihash
+Group=equihash
+WorkingDirectory=/srv/equihash/current
+Environment=DATA_DIR=/srv/equihash/data
+ExecStart=/usr/bin/node scripts/refresh-data.mjs
+TimeoutStartSec=20min
+Nice=10
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/srv/equihash/data
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=

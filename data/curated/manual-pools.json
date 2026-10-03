@@ -1,0 +1,239 @@
+{
+  "_doc": "Hand-verified pools that miningpoolstats does not list. Every row needs source_url and verified_at. Unknown values are null (shown as n/a). Per-field provenance: <field>_source and <field>_observed_at for hashrate, fee, miners, blocks and min_payout, and basis (listed_pools | pool_api | operator_reported | estimated) for the hashrate. refresh-data.mjs enriches rows marked live with public endpoints and only touches the provenance of the fields it actually fetched. A row with \"live_fields\": [\"fee\", \"hashrate\"] takes those fields (value, provenance and time) from the refresh or the live pollers (data/curated/live-sources.json) instead of this file; the hand-verified time never overwrites them.",
+  "pools": [
+    {
+      "id": "zcash:zecwec.com",
+      "name": "ZecWec",
+      "coin": "ZEC",
+      "url": "https://pool.zecwec.com/",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "hashrate_is_reported": false,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 0,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": null,
+      "regions": [],
+      "country_code": null,
+      "merged_mining": {
+        "supported": true,
+        "coins": [
+          "WEC"
+        ],
+        "note": "Merged-mines Wcash (WEC) on top of Zcash: one Equihash 200,9 connection, separate ZEC and WEC balances."
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "ZecWec pool page + public overview API",
+      "source_url": "https://pool.zecwec.com/",
+      "from_miningpoolstats": false,
+      "verified_at": "2026-10-02T23:29:00.000Z",
+      "live": "zecwec",
+      "notes": "Merge-mines ZEC and WEC with the same hashrate. Hashrate is accepted work over the previous 1200 s from ZecWec's public /api/v1/hashrate/pool endpoint (the same reading as the WEC row), refreshed by the server every 45 s. Fee (0 bps) comes from the public /api/v1/overview endpoint; the dashboard describes 'Independent PPLNS allocation' per chain.",
+      "hashrate_source": "https://pool.zecwec.com/api/v1/hashrate/pool",
+      "basis": null,
+      "fee_source": "https://pool.zecwec.com/api/v1/overview",
+      "fee_observed_at": "2026-10-02T23:29:00.000Z",
+      "miners_source": "https://pool.zecwec.com/",
+      "miners_observed_at": "2026-10-02T23:29:00.000Z",
+      "blocks_source": "https://pool.zecwec.com/",
+      "blocks_observed_at": "2026-10-02T23:29:00.000Z",
+      "min_payout_source": "https://pool.zecwec.com/",
+      "min_payout_observed_at": "2026-10-02T23:29:00.000Z",
+      "live_fields": [
+        "fee",
+        "hashrate"
+      ]
+    },
+    {
+      "id": "wcash:zecwec.com",
+      "name": "ZecWec",
+      "coin": "WEC",
+      "coin_id": "wcash",
+      "url": "https://pool.zecwec.com/",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "hashrate_is_reported": false,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 0,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "WEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": null,
+      "regions": [],
+      "country_code": null,
+      "merged_mining": {
+        "supported": true,
+        "coins": [
+          "ZEC"
+        ],
+        "note": "Aux chain of a Zcash (parent) merged-mining setup."
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "ZecWec public overview and hashrate APIs",
+      "source_url": "https://pool.zecwec.com/",
+      "from_miningpoolstats": false,
+      "verified_at": "2026-10-02T23:29:00.000Z",
+      "live": "zecwec",
+      "notes": "Merge-mines ZEC and WEC with the same hashrate. Currently the only known public WEC pool, and the only one listed here. Hashrate is accepted work over the previous 1200 s from ZecWec's public /api/v1/hashrate/pool endpoint, refreshed by the server every 45 s. Fee (0 bps) comes from /api/v1/overview.",
+      "hashrate_source": "https://pool.zecwec.com/api/v1/hashrate/pool",
+      "basis": null,
+      "fee_source": "https://pool.zecwec.com/api/v1/overview",
+      "fee_observed_at": "2026-10-02T23:29:00.000Z",
+      "miners_source": "https://pool.zecwec.com/",
+      "miners_observed_at": "2026-10-02T23:29:00.000Z",
+      "blocks_source": "https://pool.zecwec.com/",
+      "blocks_observed_at": "2026-10-02T23:29:00.000Z",
+      "min_payout_source": "https://pool.zecwec.com/",
+      "min_payout_observed_at": "2026-10-02T23:29:00.000Z",
+      "live_fields": [
+        "fee",
+        "hashrate"
+      ]
+    },
+    {
+      "id": "zcash:zprominers.com",
+      "name": "ZProMiners",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://zprominers.com/",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "hashrate_is_reported": false,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        },
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "SOLO",
+        "PPLNS",
+        "PROP"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "Worldwide",
+      "regions": [
+        "Worldwide"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "ZProMiners official pool pages and live feed",
+      "source_url": "https://zprominers.com/zcash-pool-stats",
+      "data_url": "https://zprominers.com/api/live.json",
+      "from_miningpoolstats": false,
+      "verified_at": "2026-10-03T16:56:47Z",
+      "notes": "Zcash-only Equihash 200,9 pool. SOLO charges 2%; PPLNS and PROP charge 1%. Rewards are paid directly to transparent addresses in each block, so there is no balance or withdrawal threshold; a PPLNS/PROP slice under 0.0005 ZEC carries into the next payout. The official live feed supplies aggregate hashrate every 45 s; its page describes the figure as the last 10 minutes.",
+      "hashrate_source": "https://zprominers.com/api/live.json",
+      "hashrate_observed_at": null,
+      "basis": null,
+      "fee_source": "https://zprominers.com/how-to-mine-zcash",
+      "fee_observed_at": "2026-10-03T16:56:47Z",
+      "miners_source": "https://zprominers.com/api/live.json",
+      "miners_observed_at": "2026-10-03T16:56:47Z",
+      "blocks_source": "https://zprominers.com/zcash-blocks-found",
+      "blocks_observed_at": "2026-10-03T16:56:47Z",
+      "min_payout_source": "https://zprominers.com/zcash-mining-faq",
+      "min_payout_observed_at": "2026-10-03T16:56:47Z",
+      "live_fields": [
+        "hashrate"
+      ]
+    },
+    {
+      "id": "zcash:unmineable.com",
+      "name": "unMineable",
+      "coin": "ZEC",
+      "url": "https://unmineable.com/",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "miners": null,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [],
+      "payout_schemes": [],
+      "min_payout": null,
+      "min_payout_unit": null,
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "US, EU, Asia",
+      "regions": [
+        "US",
+        "EU",
+        "Asia"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "unMineable support article (Equihash ASIC setup)",
+      "source_url": "https://unmineable.com/support/article/how-to-setup-antminer-for-asic-mining",
+      "from_miningpoolstats": false,
+      "verified_at": "2026-10-02T23:40:00.000Z",
+      "notes": "Equihash ASIC pool 'based on Zcash' (stratum+tcp://equihash.unmineable.com:3333, regional equihash-us/eu/asia). Rewards are converted to a payout coin of your choice. Hostname resolved during verification; pool hashrate, fee and scheme are not published in a public API.",
+      "hashrate_source": "https://unmineable.com/support/article/how-to-setup-antminer-for-asic-mining",
+      "hashrate_observed_at": "2026-10-02T23:40:00.000Z",
+      "basis": null,
+      "fee_source": "https://unmineable.com/support/article/how-to-setup-antminer-for-asic-mining",
+      "fee_observed_at": "2026-10-02T23:40:00.000Z",
+      "miners_source": "https://unmineable.com/support/article/how-to-setup-antminer-for-asic-mining",
+      "miners_observed_at": "2026-10-02T23:40:00.000Z",
+      "blocks_source": "https://unmineable.com/support/article/how-to-setup-antminer-for-asic-mining",
+      "blocks_observed_at": "2026-10-02T23:40:00.000Z",
+      "min_payout_source": "https://unmineable.com/support/article/how-to-setup-antminer-for-asic-mining",
+      "min_payout_observed_at": "2026-10-02T23:40:00.000Z"
+    }
+  ]
+}

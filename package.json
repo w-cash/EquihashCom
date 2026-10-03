@@ -1,0 +1,8 @@
+{
+  "name": "equihash-site-data",
+  "private": true,
+  "description": "Data refresh tooling for equihash.com (no dependencies; Node 18+).",
+  "scripts": {
+    "refresh": "node scripts/refresh-data.mjs"
+  }
+}
