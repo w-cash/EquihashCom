@@ -3,6 +3,8 @@ use crate::fmt;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
+/// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
+pub const ASSET_V: &str = "5";
 
 pub struct Page<'a> {
     pub title: &'a str,
@@ -11,29 +13,23 @@ pub struct Page<'a> {
     pub nav: &'a str,
 }
 
+/// Main navigation: five places a miner actually goes. About, Add a pool and Sources live in the footer.
 const NAV: &[(&str, &str, &str)] = &[
     ("pools", "/", "Pools"),
-    ("miners", "/miners", "Miners"),
+    ("miners", "/miners", "Hardware"),
     ("calculator", "/calculator", "Calculator"),
     ("merged-mining", "/merged-mining", "Merged mining"),
     ("archive", "/archive", "Archive"),
-    ("add-pool", "/add-pool", "Add pool"),
-    ("about", "/about", "About"),
 ];
 
-pub fn logo() -> Markup {
-    html! {
-        svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true" {
-            defs { linearGradient id="lg" x1="0" y1="0" x2="1" y2="1" { stop offset="0" stop-color="#f5c451" {} stop offset="1" stop-color="#f08a24" {} } }
-            rect x="1" y="1" width="30" height="30" rx="8" fill="url(#lg)" {}
-            path d="M9 10h14M9 16h10M9 22h14" stroke="#14110a" stroke-width="3.2" stroke-linecap="round" fill="none" {}
-        }
-    }
+pub fn layout(d: &Data, p: Page, body: Markup) -> Markup {
+    layout_at(d, p, body, chrono::Utc::now())
 }
 
-pub fn layout(d: &Data, p: Page, body: Markup) -> Markup {
+/// `layout` with an explicit clock, so the stale notice can be tested.
+pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::Utc>) -> Markup {
     let canonical = format!("{SITE}{}", p.path);
-    let full_title = if p.path == "/" { p.title.to_string() } else { format!("{} · equihash.com", p.title) };
+    let full_title = if p.path == "/" || p.title.ends_with("· equihash.com") { p.title.to_string() } else { format!("{} · equihash.com", p.title) };
     let updated = d.last_updated.clone();
     html! {
         (DOCTYPE)
@@ -44,8 +40,9 @@ pub fn layout(d: &Data, p: Page, body: Markup) -> Markup {
                 title { (full_title) }
                 meta name="description" content=(p.description);
                 link rel="canonical" href=(canonical);
-                meta name="theme-color" content="#0b0d12";
-                meta name="color-scheme" content="dark light";
+                meta name="theme-color" content="#f7f5ef" media="(prefers-color-scheme: light)";
+                meta name="theme-color" content="#161614" media="(prefers-color-scheme: dark)";
+                meta name="color-scheme" content="light dark";
                 meta property="og:type" content="website";
                 meta property="og:site_name" content="equihash.com";
                 meta property="og:title" content=(full_title);
@@ -61,60 +58,69 @@ pub fn layout(d: &Data, p: Page, body: Markup) -> Markup {
                 link rel="icon" href="/favicon.ico" sizes="32x32";
                 link rel="icon" href="/static/favicon.svg" type="image/svg+xml";
                 link rel="apple-touch-icon" href="/static/apple-touch-icon.png";
-                link rel="stylesheet" href="/static/app.css?v=1";
+                link rel="preload" href="/static/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin;
+                link rel="preload" href="/static/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin;
+                link rel="stylesheet" href={"/static/app.css?v=" (ASSET_V)};
                 script { (PreEscaped("document.documentElement.classList.replace('no-js','js');")) }
                 script type="application/ld+json" {
-                    (PreEscaped(format!(r#"{{"@context":"https://schema.org","@type":"WebSite","name":"equihash.com","url":"{SITE}","description":"Neutral, sourced directory of Equihash mining pools, ASICs and network stats."}}"#)))
+                    (PreEscaped(format!(r#"{{"@context":"https://schema.org","@type":"WebSite","name":"equihash.com","url":"{SITE}","description":"Equihash mining pools, hardware and network stats, with sources."}}"#)))
                 }
             }
             body data-page=(p.nav) {
                 a class="skip" href="#main" { "Skip to content" }
-                header class="site-header" {
-                    div class="wrap header-inner" {
-                        a class="brand" href="/" aria-label="equihash.com home" { (logo()) span { "equihash" b { ".com" } } }
-                        nav class="nav-desktop" aria-label="Main" {
+                header class="masthead" {
+                    div class="wrap masthead-inner" {
+                        a class="wordmark" href="/" { "equihash" span { ".com" } }
+                        nav class="nav" aria-label="Main" {
                             @for (key, href, label) in NAV {
-                                a href=(href) class=@if *key == p.nav { "active" } { (label) }
-                            }
-                        }
-                        details class="nav-mobile" {
-                            summary aria-label="Menu" { span {} span {} span {} }
-                            nav aria-label="Mobile" {
-                                @for (key, href, label) in NAV {
-                                    a href=(href) class=@if *key == p.nav { "active" } { (label) }
-                                }
+                                a href=(href) aria-current=[(*key == p.nav).then_some("page")] { (label) }
                             }
                         }
                     }
                 }
+                (stale_notice(updated.as_deref(), now))
                 main id="main" { (body) }
-                footer class="site-footer" {
-                    div class="wrap footer-grid" {
-                        div {
-                            a class="brand small" href="/" { (logo()) span { "equihash" b { ".com" } } }
-                            p class="muted" { "A neutral, miner-first directory of Equihash mining pools. Every number links to its source; unknown values are shown as n/a, never estimated." }
+                footer class="foot" {
+                    div class="wrap foot-inner" {
+                        p {
+                            strong { "equihash.com" } " is maintained by " a href="https://x.com/RustDev_" rel="noopener" { "@RustDev_" } ". "
+                            "Pool figures come from miningpoolstats and the pools' own public APIs; last refresh "
+                            time class="ago" datetime=[updated.as_deref()] { (fmt::utc(updated.as_deref())) } ". "
+                            "Nothing on this site is paid for, and none of it is financial advice."
                         }
-                        div {
-                            h4 { "Data" }
-                            ul {
-                                li { "Last updated: " time class="ago" datetime=[updated.as_deref()] { (fmt::utc(updated.as_deref())) } }
-                                li { a href="/sources" { "Sources & methodology" } }
-                                li { a href="/data/pools.json" { "pools.json" } " · " a href="/data/network.json" { "network.json" } " · " a href="/data/miners.json" { "miners.json" } }
-                            }
-                        }
-                        div {
-                            h4 { "Site" }
-                            ul {
-                                li { a href="/add-pool" { "Add or update your pool" } }
-                                li { a href="/merged-mining" { "Merged-mining guide for pools" } }
-                                li { a href="/about" { "About" } }
-                            }
+                        p class="foot-links" {
+                            a href="/add-pool" { "Add or correct a pool" }
+                            a href="/sources" { "Sources and method" }
+                            a href="/about" { "About" }
+                            span { "Raw data: " a href="/data/pools.json" { "pools" } ", " a href="/data/network.json" { "networks" } ", " a href="/data/miners.json" { "hardware" } }
                         }
                     }
-                    div class="wrap fine" { "Not financial advice. Pool data from miningpoolstats.stream and pools' own public pages/APIs; see " a href="/sources" { "sources" } "." }
                 }
                 div id="drawer-root" {}
-                script src="/static/app.js?v=1" defer {}
+                script src={"/static/shared.js?v=" (ASSET_V)} defer {}
+                script src={"/static/app.js?v=" (ASSET_V)} defer {}
+            }
+        }
+    }
+}
+
+/// Site-wide notice when the newest refresh is older than `data::STALE_AFTER_SECS`.
+pub fn stale_notice(ts: Option<&str>, now: chrono::DateTime<chrono::Utc>) -> Markup {
+    if !crate::data::is_stale(ts, now) {
+        return html! {};
+    }
+    let age = fmt::age(crate::data::age_secs(ts, now));
+    html! {
+        div class="stale-note" role="status" {
+            div class="wrap" {
+                p {
+                    strong { "Stale data. " }
+                    @match age {
+                        Some(a) => { "The newest pool figures here are " (a) " old (" (fmt::utc(ts)) "). " }
+                        None => { "The age of these figures is unknown. " }
+                    }
+                    "Treat them as a snapshot and check the pool's own page before you switch."
+                }
             }
         }
     }

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-02T23:40:48.880Z",
-  "started_at": "2026-10-02T23:39:04.092Z",
+  "generated_at": "2026-10-03T14:11:50.108Z",
+  "started_at": "2026-10-03T14:10:02.642Z",
   "pool_count": 118,
   "coin_count": 28,
   "mps_pool_count": 115,
@@ -35,12 +35,22 @@
       "id": "wcashexplorer",
       "label": "Wcash explorer API (height, difficulty, block spacing)",
       "url": "https://wcashexplorer.com/api/v1/status"
+    },
+    {
+      "id": "zecwec-pool",
+      "label": "ZecWec pool hashrate (accepted work, previous 1200 s; the same work mines ZEC and WEC)",
+      "url": "https://pool.zecwec.com/api/v1/hashrate/pool"
+    },
+    {
+      "id": "zecwec-wcash-network",
+      "label": "Wcash network hashrate, estimated by ZecWec from the previous 120 blocks",
+      "url": "https://pool.zecwec.com/api/v1/hashrate/network"
     }
   ],
   "errors": [
-    "price bitmark-equihash: https://data.miningpoolstats.stream/data/price/bitmark-equihash.js?t=1790984275: HTTP 404",
-    "price kerrigan-equihash: https://data.miningpoolstats.stream/data/price/kerrigan-equihash.js?t=1790984275: HTTP 404",
-    "price kerrigan-equihash192: https://data.miningpoolstats.stream/data/price/kerrigan-equihash192.js?t=1790984275: HTTP 404",
+    "price bitmark-equihash: https://data.miningpoolstats.stream/data/price/bitmark-equihash.js?t=1791036468: HTTP 404",
+    "price kerrigan-equihash: https://data.miningpoolstats.stream/data/price/kerrigan-equihash.js?t=1791036468: HTTP 404",
+    "price kerrigan-equihash192: https://data.miningpoolstats.stream/data/price/kerrigan-equihash192.js?t=1791036652: HTTP 404",
     "zergpool (optional): https://zergpool.com/api/currencies: This operation was aborted"
   ]
 }

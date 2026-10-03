@@ -1,0 +1,5008 @@
+{
+  "generated_at": "2026-10-03T10:54:43Z",
+  "coins": {
+    "zcash": [
+      {
+        "kind": "website",
+        "url": "https://z.cash/",
+        "label": "Zcash (z.cash)",
+        "source_url": "https://x.com/Zcash",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Zcash",
+        "label": "@Zcash on X (verified business, links z.cash)",
+        "source_url": "https://x.com/Zcash",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.com/invite/zcash",
+        "label": "Zcash Global Discord",
+        "source_url": "https://github.com/zcash/zcash",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "forum",
+        "url": "https://forum.zcashcommunity.com/",
+        "label": "Zcash Community Forum",
+        "source_url": "https://github.com/zcash/zcash",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/zcash",
+        "label": "Zcash GitHub org",
+        "source_url": "https://github.com/zcash/zcash",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://zcash.readthedocs.io",
+        "label": "Zcash documentation",
+        "source_url": "https://github.com/zcash/zcash",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://zips.z.cash/protocol/protocol.pdf",
+        "label": "Zcash protocol specification",
+        "source_url": "https://github.com/zcash/zcash",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "website",
+        "url": "https://zfnd.org/",
+        "label": "Zcash Foundation",
+        "source_url": "https://x.com/ZcashFoundation",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/zcashfoundation",
+        "label": "@ZcashFoundation on X",
+        "source_url": "https://zfnd.org/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/ZcashFoundation/zebra",
+        "label": "Zebra node (Zcash Foundation)",
+        "source_url": "https://github.com/zcash/zcash",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "wcash": [
+      {
+        "kind": "website",
+        "url": "https://w.cash/",
+        "label": "Wcash (w.cash)",
+        "source_url": "https://w.cash/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/WcashProject",
+        "label": "@WcashProject",
+        "source_url": "https://x.com/WcashProject",
+        "verified_at": "2026-10-03T11:06:17.353Z",
+        "status": "verified",
+        "note": "Chosen by the project maintainer (Nik, @RustDev_) on 2026-10-03"
+      },
+      {
+        "kind": "docs",
+        "url": "https://w.cash/whitepaper",
+        "label": "Wcash protocol specification",
+        "source_url": "https://w.cash/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/w-cash/wolf",
+        "label": "w-cash/wolf source",
+        "source_url": "https://w.cash/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://wcashexplorer.com/",
+        "label": "Wcash explorer",
+        "source_url": "https://w.cash/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      }
+    ],
+    "komodo": [
+      {
+        "kind": "website",
+        "url": "https://komodoplatform.com/en/",
+        "label": "Komodo Platform",
+        "source_url": "https://komodoplatform.com/en/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/KomodoPlatform",
+        "label": "KomodoPlatform GitHub org",
+        "source_url": "https://komodoplatform.com/en/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/KomodoPlatform/komodo",
+        "label": "komodo daemon",
+        "source_url": "https://komodoplatform.com/en/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/KomodoPlatform_Official",
+        "label": "Komodo Telegram",
+        "source_url": "https://komodoplatform.com/en/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/komodoplatform/",
+        "label": "r/komodoplatform",
+        "source_url": "https://komodoplatform.com/en/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/GleecOfficial/",
+        "label": "@GleecOfficial on X (the X link in komodoplatform.com's footer)",
+        "source_url": "https://komodoplatform.com/en/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      }
+    ],
+    "piratechain": [
+      {
+        "kind": "website",
+        "url": "https://piratechain.com/",
+        "label": "Pirate Chain (pirate.black redirects here)",
+        "source_url": "https://piratechain.com",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/PirateChain",
+        "label": "@PirateChain on X",
+        "source_url": "https://piratechain.com",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/piratechain/",
+        "label": "Pirate Chain Telegram",
+        "source_url": "https://piratechain.com",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/4ABvFa5hHj",
+        "label": "Pirate Chain Discord (support)",
+        "source_url": "https://piratechain.com",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "dead"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/PirateNetwork",
+        "label": "PirateNetwork GitHub org",
+        "source_url": "https://piratechain.com",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://explorer.piratechain.com/",
+        "label": "Pirate Chain explorer",
+        "source_url": "https://piratechain.com",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://piratechain.com/faq",
+        "label": "Pirate Chain FAQ",
+        "source_url": "https://piratechain.com",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoingold": [
+      {
+        "kind": "website",
+        "url": "https://bitcoingold.org/",
+        "label": "Bitcoin Gold",
+        "source_url": "http://www.bitcoingold.org/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/realSatoshiGold",
+        "label": "@realSatoshiGold on X (founder account; linked as 'Twitter' on bitcoingold.org)",
+        "source_url": "http://www.bitcoingold.org/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/bitcoingoldgroup",
+        "label": "Bitcoin Gold Telegram group",
+        "source_url": "http://www.bitcoingold.org/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/bitcoingoldorg",
+        "label": "Bitcoin Gold Telegram",
+        "source_url": "http://www.bitcoingold.org/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.com/invite/jCB7QYTXAP",
+        "label": "Bitcoin Gold Discord",
+        "source_url": "http://www.bitcoingold.org/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/bitcoingoldorg",
+        "label": "bitcoingoldorg GitHub org",
+        "source_url": "http://www.bitcoingold.org/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/BitcoinGoldHQ",
+        "label": "r/BitcoinGoldHQ",
+        "source_url": "http://www.bitcoingold.org/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://btg1.trezor.io/",
+        "label": "BTG explorer (Trezor Blockbook)",
+        "source_url": "http://www.bitcoingold.org/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "dead"
+      },
+      {
+        "kind": "status",
+        "url": "http://status.bitcoingold.org",
+        "label": "Bitcoin Gold network status",
+        "source_url": "http://www.bitcoingold.org/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "dead"
+      }
+    ],
+    "aion": [
+      {
+        "kind": "website",
+        "url": "https://aion.network/",
+        "label": "Aion",
+        "source_url": "https://aion.network/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/AionNetwork/",
+        "label": "r/AionNetwork",
+        "source_url": "https://aion.theoan.com/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://helpdesk.theoan.com/",
+        "label": "The OAN helpdesk",
+        "source_url": "https://aion.theoan.com/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://github.com/aionnetwork/aion/wiki/Tools",
+        "label": "Aion docs (GitHub wiki)",
+        "source_url": "https://aion.theoan.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      }
+    ],
+    "anonymous": [
+      {
+        "kind": "github",
+        "url": "https://github.com/anonymousbitcoin/anon",
+        "label": "anonymousbitcoin/anon ('The Official Repository for ANON')",
+        "source_url": "https://github.com/anonymousbitcoin",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoincandy": [
+      {
+        "kind": "website",
+        "url": "https://cdy.one/",
+        "label": "Bitcoin Candy",
+        "source_url": "https://cdy.one/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://block.cdy.one/",
+        "label": "CDY explorer",
+        "source_url": "https://cdy.one/",
+        "verified_at": "2026-10-03T10:50:56Z",
+        "status": "dead"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://explorer.bitcdy.com/",
+        "label": "CDY explorer (backup)",
+        "source_url": "https://cdy.one/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.com/invite/BADgW4T",
+        "label": "CDY Discord",
+        "source_url": "https://cdy.one/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/BitcoinCandyOfficial",
+        "label": "Bitcoin Candy Telegram",
+        "source_url": "https://cdy.one/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/BitcoinCandyCDY/",
+        "label": "@BitcoinCandyCDY on X",
+        "source_url": "https://cdy.one/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "forum",
+        "url": "https://forum.bitcoinbookmarks.com/",
+        "label": "CDY forum (bitcoinbookmarks)",
+        "source_url": "https://cdy.one/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "dead"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/bitcoincandyofficial/bitcoincandy",
+        "label": "bitcoincandyofficial/bitcoincandy",
+        "source_url": "https://cdy.one/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoinz": [
+      {
+        "kind": "website",
+        "url": "https://getbtcz.com/",
+        "label": "BitcoinZ",
+        "source_url": "https://getbtcz.com/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://explorer.getbtcz.com/",
+        "label": "BitcoinZ explorer",
+        "source_url": "https://getbtcz.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/K59mxyf",
+        "label": "BitcoinZ Discord",
+        "source_url": "https://getbtcz.com/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/bitcoinzcommunity",
+        "label": "BitcoinZ Telegram",
+        "source_url": "https://getbtcz.com/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/BTCZOfficial",
+        "label": "@BTCZOfficial on X",
+        "source_url": "https://getbtcz.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/btcz/bitcoinz",
+        "label": "btcz/bitcoinz",
+        "source_url": "https://getbtcz.com/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/BTCZCommunity/",
+        "label": "r/BTCZCommunity",
+        "source_url": "https://getbtcz.com/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "forum",
+        "url": "https://bitcointalk.org/index.php?topic=3086664.0",
+        "label": "BitcoinTalk thread",
+        "source_url": "https://getbtcz.com/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "bitmark-equihash": [
+      {
+        "kind": "website",
+        "url": "https://bitmark.co/",
+        "label": "Bitmark",
+        "source_url": "https://bitmark.co/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/project-bitmark",
+        "label": "project-bitmark GitHub org",
+        "source_url": "https://bitmark.co/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://github.com/project-bitmark/bitmark/wiki",
+        "label": "Bitmark wiki",
+        "source_url": "https://bitmark.co/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      }
+    ],
+    "buck": [
+      {
+        "kind": "website",
+        "url": "https://buck.red/",
+        "label": "BUCK",
+        "source_url": "https://buck.red/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "http://explorer.buck.red/",
+        "label": "BUCK explorer",
+        "source_url": "https://buck.red/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/maGFGwYdn4",
+        "label": "BUCK Discord",
+        "source_url": "https://buck.red/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/BUCKcoin",
+        "label": "@BUCKcoin on X",
+        "source_url": "https://buck.red/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/BuckCoin/buck",
+        "label": "BuckCoin/buck",
+        "source_url": "https://buck.red/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "forum",
+        "url": "https://bitcointalk.org/index.php?topic=2828707",
+        "label": "BitcoinTalk [ANN]",
+        "source_url": "https://buck.red/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://buck.red/docs/buck_whitepaper.pdf",
+        "label": "BUCK whitepaper",
+        "source_url": "https://buck.red/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      }
+    ],
+    "exchangecoin": [
+      {
+        "kind": "website",
+        "url": "https://excc.co/",
+        "label": "ExchangeCoin",
+        "source_url": "https://excc.co/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/22h9YFTTsx",
+        "label": "ExchangeCoin Discord",
+        "source_url": "https://excc.co/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "dead"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/ExchangeCoinChat",
+        "label": "ExchangeCoin Telegram",
+        "source_url": "https://excc.co/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/excc_team",
+        "label": "@EXCC_Team on X",
+        "source_url": "https://excc.co/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/EXCCoin",
+        "label": "EXCCoin GitHub org",
+        "source_url": "https://excc.co/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://docs.excc.co",
+        "label": "ExchangeCoin docs",
+        "source_url": "https://excc.co/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "gemlink": [
+      {
+        "kind": "website",
+        "url": "https://www.gemlink.org",
+        "label": "Gemlink (site did not load during check)",
+        "source_url": "https://github.com/gemlink",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "dead"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/gemlink",
+        "label": "Gemlink GitHub org",
+        "source_url": "https://github.com/gemlink",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      }
+    ],
+    "hush": [
+      {
+        "kind": "website",
+        "url": "https://hush.is/",
+        "label": "Hush",
+        "source_url": "https://hush.is/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://explorer.hush.is",
+        "label": "Hush explorer",
+        "source_url": "https://hush.is/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "dead"
+      },
+      {
+        "kind": "github",
+        "url": "https://git.hush.is/hush",
+        "label": "Hush source (git.hush.is, self-hosted Gitea)",
+        "source_url": "https://hush.is/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "forum",
+        "url": "https://bitcointalk.org/index.php?topic=2008578.0",
+        "label": "BitcoinTalk thread",
+        "source_url": "https://hush.is/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash": [
+      {
+        "kind": "website",
+        "url": "https://kerrigan.network/",
+        "label": "Kerrigan Network",
+        "source_url": "https://kerrigan.network/",
+        "verified_at": "2026-10-03T10:50:54Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/V9P3UDjkFu",
+        "label": "Kerrigan Discord",
+        "source_url": "https://kerrigan.network/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/kerrigannetwork",
+        "label": "@kerrigannetwork on X",
+        "source_url": "https://kerrigan.network/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/kerrigan-network",
+        "label": "kerrigan-network GitHub org",
+        "source_url": "https://kerrigan.network/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://explorer.kerrigan.network/#/",
+        "label": "Kerrigan explorer",
+        "source_url": "https://kerrigan.network/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash192": [
+      {
+        "kind": "website",
+        "url": "https://kerrigan.network/",
+        "label": "Kerrigan Network",
+        "source_url": "https://kerrigan.network/",
+        "verified_at": "2026-10-03T10:50:54Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/V9P3UDjkFu",
+        "label": "Kerrigan Discord",
+        "source_url": "https://kerrigan.network/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/kerrigannetwork",
+        "label": "@kerrigannetwork on X",
+        "source_url": "https://kerrigan.network/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/kerrigan-network",
+        "label": "kerrigan-network GitHub org",
+        "source_url": "https://kerrigan.network/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://explorer.kerrigan.network/#/",
+        "label": "Kerrigan explorer",
+        "source_url": "https://kerrigan.network/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      }
+    ],
+    "litecoinz": [
+      {
+        "kind": "website",
+        "url": "https://litecoinz.org/",
+        "label": "LitecoinZ (litecoinz.org)",
+        "source_url": "https://github.com/litecoinz-core",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/QNcS4Pm",
+        "label": "LitecoinZ Discord",
+        "source_url": "https://litecoinz.org/community",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/LitecoinzTeam",
+        "label": "@LitecoinzTeam on X",
+        "source_url": "https://litecoinz.org/community",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      },
+      {
+        "kind": "forum",
+        "url": "https://bitcointalk.org/index.php?topic=2767102.0",
+        "label": "BitcoinTalk thread",
+        "source_url": "https://litecoinz.org/community",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://explorer.litecoinz.org",
+        "label": "LitecoinZ explorer",
+        "source_url": "https://litecoinz.org/",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://insight.litecoinz.org",
+        "label": "LitecoinZ Insight explorer",
+        "source_url": "https://litecoinz.org/",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/litecoinz-core",
+        "label": "litecoinz-core GitHub org",
+        "source_url": "https://litecoinz.org/",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      }
+    ],
+    "marmara": [
+      {
+        "kind": "website",
+        "url": "https://marmara.io/",
+        "label": "Marmara Credit Loops",
+        "source_url": "https://marmara.io/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "http://t.me/marmarachain",
+        "label": "Marmara Telegram",
+        "source_url": "https://marmara.io/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://explorer.marmara.io",
+        "label": "Marmara explorer",
+        "source_url": "https://marmara.io/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "spacecoin": [
+      {
+        "kind": "website",
+        "url": "https://spacecoin.network/",
+        "label": "Spacecoin (SPACE)",
+        "source_url": "https://spacecoin.network/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/ryetudex8r",
+        "label": "Spacecoin Discord",
+        "source_url": "https://spacecoin.network/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/spacecoinSPACE",
+        "label": "Spacecoin Telegram",
+        "source_url": "https://spacecoin.network/",
+        "verified_at": "2026-10-03T10:50:54Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/SpacecoinSPACE",
+        "label": "@SpacecoinSPACE on X",
+        "source_url": "https://spacecoin.network/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/spacecoinSPACE",
+        "label": "spacecoinSPACE GitHub org",
+        "source_url": "https://spacecoin.network/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://reddit.com/r/SpacecoinSPACE",
+        "label": "r/SpacecoinSPACE",
+        "source_url": "https://spacecoin.network/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://spacecoinexplorer.com",
+        "label": "spacecoinexplorer.com",
+        "source_url": "https://spacecoin.network/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "dead"
+      },
+      {
+        "kind": "docs",
+        "url": "https://docs.spacecoin.network",
+        "label": "Spacecoin RPC docs",
+        "source_url": "https://spacecoin.network/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "forum",
+        "url": "https://bitcointalk.org/index.php?topic=5273789",
+        "label": "BitcoinTalk thread",
+        "source_url": "https://spacecoin.network/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "squishycoin": [
+      {
+        "kind": "website",
+        "url": "https://www.squishycoin.us/",
+        "label": "Squishy Coin",
+        "source_url": "https://www.squishycoin.us/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "http://explorer.squishycoin.us/",
+        "label": "Squishy Coin explorer",
+        "source_url": "https://www.squishycoin.us/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "dead"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.com/invite/zxbBrzAqhZ",
+        "label": "Squishy Coin Discord",
+        "source_url": "https://www.squishycoin.us/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/SqcnDev",
+        "label": "@SqcnDev on X",
+        "source_url": "https://www.squishycoin.us/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      }
+    ],
+    "tokel": [
+      {
+        "kind": "website",
+        "url": "https://tokel.io",
+        "label": "Tokel (site did not load during check)",
+        "source_url": "https://github.com/TokelPlatform",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "dead"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/TokelPlatform",
+        "label": "TokelPlatform GitHub org",
+        "source_url": "https://github.com/TokelPlatform",
+        "verified_at": "2026-10-03T10:53:03Z",
+        "status": "verified"
+      }
+    ],
+    "vdimension": [
+      {
+        "kind": "github",
+        "url": "https://github.com/v-dimension/vds-core",
+        "label": "v-dimension/vds-core",
+        "source_url": "https://github.com/v-dimension",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      }
+    ],
+    "ycash": [
+      {
+        "kind": "website",
+        "url": "https://y.cash/",
+        "label": "Ycash",
+        "source_url": "https://y.cash/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/YcashFoundation",
+        "label": "@YcashFoundation on X",
+        "source_url": "https://y.cash/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/Yz8rW7P",
+        "label": "Ycash Discord",
+        "source_url": "https://y.cash/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/YcashFoundation",
+        "label": "Ycash Telegram",
+        "source_url": "https://y.cash/",
+        "verified_at": "2026-10-03T10:50:54Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://reddit.com/r/ycashtalk",
+        "label": "r/ycashtalk",
+        "source_url": "https://y.cash/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/ycashfoundation",
+        "label": "Ycash Foundation GitHub org",
+        "source_url": "https://y.cash/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://y.cash/explorers",
+        "label": "Ycash block explorers (list)",
+        "source_url": "https://y.cash/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      }
+    ],
+    "zclassic": [
+      {
+        "kind": "website",
+        "url": "https://zclassic.org/",
+        "label": "Zclassic",
+        "source_url": "https://zclassic.org/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/ZclassicCommunity/zclassic",
+        "label": "ZclassicCommunity/zclassic",
+        "source_url": "https://zclassic.org/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/zclassic_chat",
+        "label": "Zclassic Telegram",
+        "source_url": "https://zclassic.org/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "dead"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://explorer.zcl.zelcore.io/",
+        "label": "Zclassic explorer (Zelcore)",
+        "source_url": "https://zclassic.org/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "forum",
+        "url": "https://bitcointalk.org/index.php?topic=1671982.0",
+        "label": "BitcoinTalk thread",
+        "source_url": "https://zclassic.org/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "zero": [
+      {
+        "kind": "website",
+        "url": "https://zero.directory/",
+        "label": "Zero (zero.directory)",
+        "source_url": "https://x.com/ZeroCurrencies",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/ZeroCurrencies",
+        "label": "@ZeroCurrencies on X",
+        "source_url": "https://zero.directory/",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/ZeroCoins",
+        "label": "r/ZeroCoins",
+        "source_url": "https://zero.directory/",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://insight.zeromachine.io/insight/",
+        "label": "Zero Insight explorer",
+        "source_url": "https://zero.directory/",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/zerocurrencycoin",
+        "label": "zerocurrencycoin GitHub org",
+        "source_url": "https://github.com/zerocurrencycoin",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "verified"
+      },
+      {
+        "kind": "website",
+        "url": "https://zerocurrency.io",
+        "label": "Former site zerocurrency.io (Cloudflare 526)",
+        "source_url": "https://github.com/zerocurrencycoin",
+        "verified_at": "2026-10-03T10:53:02Z",
+        "status": "dead"
+      }
+    ],
+    "zeroclassic": [
+      {
+        "kind": "website",
+        "url": "https://www.zeroclassic.org/",
+        "label": "ZeroClassic",
+        "source_url": "https://www.zeroclassic.org/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/TBDTycM",
+        "label": "ZeroClassic Discord",
+        "source_url": "https://www.zeroclassic.org/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+J6eNqDWAYdphY2Q0",
+        "label": "ZeroClassic Telegram",
+        "source_url": "https://www.zeroclassic.org/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/ZeroClassic_",
+        "label": "@ZeroClassic_ on X",
+        "source_url": "https://www.zeroclassic.org/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/zeroclassic/ZeroClassic",
+        "label": "zeroclassic/ZeroClassic",
+        "source_url": "https://www.zeroclassic.org/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "explorer",
+        "url": "https://explorer.zeroclassic.org/",
+        "label": "ZeroClassic explorer",
+        "source_url": "https://www.zeroclassic.org/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "flux": [
+      {
+        "kind": "website",
+        "url": "https://runonflux.com/",
+        "label": "Flux",
+        "source_url": "https://runonflux.com/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/RunOnFlux",
+        "label": "@RunOnFlux on X",
+        "source_url": "https://runonflux.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.com/invite/runonflux",
+        "label": "Flux Discord",
+        "source_url": "https://runonflux.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/runonflux",
+        "label": "Flux Telegram",
+        "source_url": "https://runonflux.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/runonflux",
+        "label": "RunOnFlux GitHub org",
+        "source_url": "https://runonflux.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://docs.runonflux.com/",
+        "label": "Flux docs",
+        "source_url": "https://runonflux.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://support.runonflux.io/support/home",
+        "label": "Flux support",
+        "source_url": "https://runonflux.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      }
+    ],
+    "horizen": [
+      {
+        "kind": "website",
+        "url": "https://horizen.io/",
+        "label": "Horizen",
+        "source_url": "https://horizen.io/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/horizenglobal",
+        "label": "@horizenglobal on X",
+        "source_url": "https://horizen.io/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/horizencommunity",
+        "label": "Horizen Telegram",
+        "source_url": "https://horizen.io/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/horizenofficial",
+        "label": "horizenofficial GitHub org",
+        "source_url": "https://horizen.io/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://docs.horizen.io",
+        "label": "Horizen docs",
+        "source_url": "https://horizen.io/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ]
+  },
+  "pools": {
+    "zcash:viabtc.com:16": [
+      {
+        "kind": "website",
+        "url": "https://www.viabtc.com",
+        "label": "ViaBTC",
+        "source_url": "https://www.viabtc.com",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/ViaBTC",
+        "label": "@ViaBTC on X",
+        "source_url": "https://www.viabtc.com/en/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/TheViaBTC",
+        "label": "ViaBTC Telegram",
+        "source_url": "https://www.viabtc.com/en/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/viabtc/viapool_api/wiki",
+        "label": "ViaBTC pool API (GitHub wiki)",
+        "source_url": "https://www.viabtc.com/en/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://support.viabtc.com/hc/en-us",
+        "label": "ViaBTC help center",
+        "source_url": "https://www.viabtc.com/en/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:foundrydigital.com:94": [
+      {
+        "kind": "website",
+        "url": "https://foundrydigital.com",
+        "label": "Foundry",
+        "source_url": "https://foundrydigital.com",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/foundryservices",
+        "label": "@FoundryServices on X",
+        "source_url": "https://foundrydigital.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:f2pool.com:3": [
+      {
+        "kind": "website",
+        "url": "https://www.f2pool.com",
+        "label": "F2Pool",
+        "source_url": "https://www.f2pool.com",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/f2pool",
+        "label": "@f2pool on X",
+        "source_url": "https://www.f2pool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/fhjeWrmdK9",
+        "label": "F2Pool Discord",
+        "source_url": "https://www.f2pool.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/f2poolreal",
+        "label": "F2Pool Telegram",
+        "source_url": "https://www.f2pool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/f2pool",
+        "label": "r/f2pool",
+        "source_url": "https://www.f2pool.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://f2pool.zendesk.com/hc/en-us/categories/4406716616461-FAQ",
+        "label": "F2Pool help center (FAQ)",
+        "source_url": "https://www.f2pool.com/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:luxor.tech:65": [
+      {
+        "kind": "website",
+        "url": "https://luxor.tech/mining",
+        "label": "Luxor",
+        "source_url": "https://luxor.tech/mining",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/luxor",
+        "label": "@luxor on X",
+        "source_url": "https://luxor.tech/mining",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/luxormining",
+        "label": "Luxor Mining Telegram",
+        "source_url": "https://luxor.tech/mining",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/LuxorLabs",
+        "label": "LuxorLabs GitHub org",
+        "source_url": "https://luxor.tech/mining",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://docs.luxor.tech/",
+        "label": "Luxor docs",
+        "source_url": "https://luxor.tech/mining",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:antpool.com:4": [
+      {
+        "kind": "website",
+        "url": "https://antpool.com",
+        "label": "AntPool",
+        "source_url": "https://antpool.com",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/AntPoolofficial",
+        "label": "@AntPoolofficial on X",
+        "source_url": "https://www.antpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/AntPoolOffical",
+        "label": "AntPool Telegram (handle spelled 'Offical' on antpool.com)",
+        "source_url": "https://www.antpool.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://support.antpool.com/hc/en-us",
+        "label": "AntPool help center",
+        "source_url": "https://www.antpool.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://antpoolsupport-hc.zendesk.com/hc/en-us/articles/5984548872985-ZEC-Mining",
+        "label": "AntPool ZEC mining instructions",
+        "source_url": "https://www.antpool.com/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:2miners.com:11": [
+      {
+        "kind": "website",
+        "url": "https://zec.2miners.com",
+        "label": "2Miners",
+        "source_url": "https://zec.2miners.com",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/pool2miners",
+        "label": "@pool2miners on X",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://telegram.me/chat2miners",
+        "label": "2Miners Telegram chat",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/2miners",
+        "label": "2Miners GitHub org",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "status",
+        "url": "https://status.2miners.com",
+        "label": "2Miners pools status",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://2miners.zendesk.com/hc/en-us/sections/115000949992",
+        "label": "2Miners helpdesk",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:sluicey.xyz:141": [
+      {
+        "kind": "website",
+        "url": "https://sluicey.xyz",
+        "label": "sluicey.xyz",
+        "source_url": "https://sluicey.xyz",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/sluiceypool",
+        "label": "@SluiceyPool on X",
+        "source_url": "https://sluicey.xyz/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://sluicey.xyz/#/docs",
+        "label": "Sluicey documentation",
+        "source_url": "https://sluicey.xyz/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://sluicey.xyz/#/docs/faq",
+        "label": "Sluicey FAQ",
+        "source_url": "https://sluicey.xyz/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:binance.com:66": [
+      {
+        "kind": "website",
+        "url": "https://pool.binance.com",
+        "label": "Binance Pool",
+        "source_url": "https://pool.binance.com",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:placepool.pro:135": [
+      {
+        "kind": "website",
+        "url": "https://placepool.pro",
+        "label": "placepool.pro",
+        "source_url": "https://placepool.pro",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/placepool",
+        "label": "placepool Telegram channel",
+        "source_url": "https://placepool.pro/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://t.me/placepool_support",
+        "label": "placepool Telegram support",
+        "source_url": "https://placepool.pro/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:trustpool.cc:10": [
+      {
+        "kind": "website",
+        "url": "https://trustpool.cc",
+        "label": "TrustPool",
+        "source_url": "https://trustpool.cc",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://telegram.me/trustpool",
+        "label": "TrustPool Telegram",
+        "source_url": "https://trustpool.cc/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://telegram.me/trustpoolnews",
+        "label": "TrustPool news channel",
+        "source_url": "https://trustpool.cc/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:pool.kryptex.com:79": [
+      {
+        "kind": "website",
+        "url": "https://pool.kryptex.com/zec",
+        "label": "Kryptex",
+        "source_url": "https://pool.kryptex.com/zec",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://www.twitter.com/KryptexMining",
+        "label": "@KryptexMining on X",
+        "source_url": "https://pool.kryptex.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/ejyx9PkCW3",
+        "label": "Kryptex Discord",
+        "source_url": "https://pool.kryptex.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/kryptex_channel_en",
+        "label": "Kryptex Telegram channel",
+        "source_url": "https://pool.kryptex.com/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/kryptex/",
+        "label": "r/kryptex",
+        "source_url": "https://pool.kryptex.com/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pool.kryptex.com/articles/get-support-en",
+        "label": "Kryptex support",
+        "source_url": "https://pool.kryptex.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:poolin.com:1": [
+      {
+        "kind": "website",
+        "url": "https://www.poolin.com",
+        "label": "Poolin",
+        "source_url": "https://www.poolin.com",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://help.poolin.me/hc/en-us",
+        "label": "Poolin help center (help.poolin.me)",
+        "source_url": "https://help.poolin.me/hc/en-us",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "unverified"
+      }
+    ],
+    "zcash:tpool.io:82": [
+      {
+        "kind": "website",
+        "url": "https://tpool.io",
+        "label": "TPool",
+        "source_url": "https://tpool.io",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://telegram.me/tpool_io",
+        "label": "TPool Telegram channel",
+        "source_url": "https://tpool.io/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://tpool.io/help",
+        "label": "TPool help (returned HTTP 500 to automated check)",
+        "source_url": "https://tpool.io/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "unverified"
+      }
+    ],
+    "zcash:kupool.com:107": [
+      {
+        "kind": "website",
+        "url": "https://kupool.com",
+        "label": "KuPool",
+        "source_url": "https://kupool.com",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/kupooltech",
+        "label": "@kupooltech on X",
+        "source_url": "https://kupool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:mining-dutch.nl:38": [
+      {
+        "kind": "website",
+        "url": "https://www.mining-dutch.nl/pools/zcash.php",
+        "label": "Mining-Dutch",
+        "source_url": "https://www.mining-dutch.nl/pools/zcash.php",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/W8HyV3v",
+        "label": "Mining-Dutch Discord",
+        "source_url": "https://www.mining-dutch.nl/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:pool.zecminingpool.com:95": [
+      {
+        "kind": "website",
+        "url": "https://pool.zecminingpool.com",
+        "label": "pool.zecminingpool.com",
+        "source_url": "https://pool.zecminingpool.com",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:2miners.com:13": [
+      {
+        "kind": "website",
+        "url": "https://solo-zec.2miners.com",
+        "label": "2Miners (solo)",
+        "source_url": "https://solo-zec.2miners.com",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/pool2miners",
+        "label": "@pool2miners on X",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://telegram.me/chat2miners",
+        "label": "2Miners Telegram chat",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/2miners",
+        "label": "2Miners GitHub org",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "status",
+        "url": "https://status.2miners.com",
+        "label": "2Miners pools status",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://2miners.zendesk.com/hc/en-us/sections/115000949992",
+        "label": "2Miners helpdesk",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "vdimension:666pool.com:1": [
+      {
+        "kind": "website",
+        "url": "https://www.666pool.com",
+        "label": "666pool.com",
+        "source_url": "https://www.666pool.com",
+        "verified_at": "2026-10-03T10:50:54Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/joinchat/7_gYt9ZWdxo2NWY1",
+        "label": "666pool Telegram (contact)",
+        "source_url": "https://www.666pool.com/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:fenixpool.com:128": [
+      {
+        "kind": "website",
+        "url": "https://fenixpool.com/pools/mps-zecsolo",
+        "label": "fenixpool.com (solo)",
+        "source_url": "https://fenixpool.com/pools/mps-zecsolo",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.com/invite/FMfCpVRQaw",
+        "label": "FenixPool Discord",
+        "source_url": "https://fenixpool.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:molepool.com:70": [
+      {
+        "kind": "website",
+        "url": "https://zec.molepool.com",
+        "label": "molepool.com",
+        "source_url": "https://zec.molepool.com",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/molepoolnet",
+        "label": "molepool Telegram",
+        "source_url": "https://zec.molepool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/Molepool_news",
+        "label": "molepool news channel",
+        "source_url": "https://zec.molepool.com/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zec.molepool.com/help",
+        "label": "molepool help",
+        "source_url": "https://zec.molepool.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:grandpool.io:87": [
+      {
+        "kind": "website",
+        "url": "https://grandpool.io/pools/zcash",
+        "label": "grandpool.io",
+        "source_url": "https://grandpool.io/pools/zcash",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/grandminingpool",
+        "label": "@grandminingpool on X",
+        "source_url": "https://grandpool.io/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/VFgam4skhf",
+        "label": "Grand Pool Discord",
+        "source_url": "https://grandpool.io/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/grandminingpool",
+        "label": "Grand Pool Telegram",
+        "source_url": "https://grandpool.io/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/grandminingpool",
+        "label": "grandminingpool GitHub org",
+        "source_url": "https://grandpool.io/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://api.grandpool.io/docs/",
+        "label": "Grand Pool API docs",
+        "source_url": "https://grandpool.io/",
+        "verified_at": "2026-10-03T10:50:54Z",
+        "status": "verified"
+      }
+    ],
+    "piratechain:zpool.ca:13": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:rabidmining.com:137": [
+      {
+        "kind": "website",
+        "url": "https://pool.rabidmining.com/zec",
+        "label": "rabidmining.com",
+        "source_url": "https://pool.rabidmining.com/zec",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/miningrabid",
+        "label": "@MiningRabid on X",
+        "source_url": "https://pool.rabidmining.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/wXkMhztBDx",
+        "label": "Rabid Mining Discord",
+        "source_url": "https://pool.rabidmining.com/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pool.rabidmining.com/#faq",
+        "label": "Rabid Mining pool FAQ",
+        "source_url": "https://pool.rabidmining.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "piratechain:coolmine.top:4": [
+      {
+        "kind": "website",
+        "url": "https://coolmine.top/?coin=6",
+        "label": "coolmine.top",
+        "source_url": "https://coolmine.top/?coin=6",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/ghbXVEj",
+        "label": "coolmine Discord",
+        "source_url": "https://coolmine.top/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/coolminepool",
+        "label": "coolmine Telegram",
+        "source_url": "https://coolmine.top/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "piratechain:coolmine.top:1": [
+      {
+        "kind": "website",
+        "url": "https://coolmine.top/?coin=1",
+        "label": "coolmine.top",
+        "source_url": "https://coolmine.top/?coin=1",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/ghbXVEj",
+        "label": "coolmine Discord",
+        "source_url": "https://coolmine.top/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/coolminepool",
+        "label": "coolmine Telegram",
+        "source_url": "https://coolmine.top/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:zecwec.com": [
+      {
+        "kind": "website",
+        "url": "https://pool.zecwec.com/",
+        "label": "ZecWec",
+        "source_url": "https://pool.zecwec.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "wcash:zecwec.com": [
+      {
+        "kind": "website",
+        "url": "https://pool.zecwec.com/",
+        "label": "ZecWec",
+        "source_url": "https://pool.zecwec.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:mysolopool.com:140": [
+      {
+        "kind": "website",
+        "url": "https://zcash.mysolopool.com",
+        "label": "mysolopool.com",
+        "source_url": "https://zcash.mysolopool.com",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/hashratefarm",
+        "label": "@hashratefarm on X (operator Hashrate Farm)",
+        "source_url": "https://zcash.mysolopool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zcash.mysolopool.com/faq",
+        "label": "mysolopool FAQ",
+        "source_url": "https://zcash.mysolopool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash:pooly.ca:8": [
+      {
+        "kind": "website",
+        "url": "https://pooly.ca",
+        "label": "pooly.ca",
+        "source_url": "https://pooly.ca",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/poolynodes",
+        "label": "@poolynodes on X",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/UW8QCzKC4C",
+        "label": "pooly Discord",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/pooly_ca",
+        "label": "pooly Telegram",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/pooly-ca",
+        "label": "pooly-ca GitHub org",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pooly.ca/support",
+        "label": "pooly support",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:himpool.com:101": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/zec-solo",
+        "label": "himpool.com (solo)",
+        "source_url": "https://himpool.com/pools/zec-solo",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "komodo:himpool.com:7": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/kmd",
+        "label": "himpool.com",
+        "source_url": "https://himpool.com/pools/kmd",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:kardanpool.com:129": [
+      {
+        "kind": "website",
+        "url": "https://kardanpool.com/zec",
+        "label": "kardanpool.com",
+        "source_url": "https://kardanpool.com/zec",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/kardanpool",
+        "label": "kardanpool Telegram group",
+        "source_url": "https://kardanpool.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://kardanpool.com/#support",
+        "label": "kardanpool support",
+        "source_url": "https://kardanpool.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoingold:2miners.com:6": [
+      {
+        "kind": "website",
+        "url": "https://btg.2miners.com",
+        "label": "2Miners",
+        "source_url": "https://btg.2miners.com",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/pool2miners",
+        "label": "@pool2miners on X",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://telegram.me/chat2miners",
+        "label": "2Miners Telegram chat",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/2miners",
+        "label": "2Miners GitHub org",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "status",
+        "url": "https://status.2miners.com",
+        "label": "2Miners pools status",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://2miners.zendesk.com/hc/en-us/sections/115000949992",
+        "label": "2Miners helpdesk",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "ycash:ninjaraider.com:19": [
+      {
+        "kind": "website",
+        "url": "https://ninjaraider.com",
+        "label": "ninjaraider.com",
+        "source_url": "https://ninjaraider.com",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/ninjaraiderpool",
+        "label": "ninjaraider Telegram",
+        "source_url": "https://ninjaraider.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://ninjaraider.com/docs",
+        "label": "ninjaraider API docs",
+        "source_url": "https://ninjaraider.com/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      }
+    ],
+    "ycash:zpool.ca:5": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "zclassic:zpool.ca:7": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoinz:zpool.ca:7": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "ycash:mining-dutch.nl:9": [
+      {
+        "kind": "website",
+        "url": "https://www.mining-dutch.nl/pools/ycash.php",
+        "label": "Mining-Dutch",
+        "source_url": "https://www.mining-dutch.nl/pools/ycash.php",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/W8HyV3v",
+        "label": "Mining-Dutch Discord",
+        "source_url": "https://www.mining-dutch.nl/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "gemlink:zpool.ca:6": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "buck:myvnc.com:1": [
+      {
+        "kind": "website",
+        "url": "http://buckpool.myvnc.com",
+        "label": "myvnc.com",
+        "source_url": "http://buckpool.myvnc.com",
+        "verified_at": "2026-10-03T10:50:59Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/maGFGwYdn4",
+        "label": "BUCK Discord (linked as pool Discord)",
+        "source_url": "https://buckpool.myvnc.com/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "exchangecoin:pool.excc.co:1": [
+      {
+        "kind": "website",
+        "url": "https://pool.excc.co",
+        "label": "pool.excc.co",
+        "source_url": "https://pool.excc.co",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "ycash:dapool.io:1": [
+      {
+        "kind": "website",
+        "url": "https://dapool.io/coin/yec",
+        "label": "dapool.io",
+        "source_url": "https://dapool.io/coin/yec",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/dapoolio",
+        "label": "@dapoolio on X",
+        "source_url": "https://dapool.io/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/7UKcGcK",
+        "label": "daPool Discord",
+        "source_url": "https://dapool.io/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoingold:2miners.com:7": [
+      {
+        "kind": "website",
+        "url": "https://solo-btg.2miners.com",
+        "label": "2Miners (solo)",
+        "source_url": "https://solo-btg.2miners.com",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/pool2miners",
+        "label": "@pool2miners on X",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://telegram.me/chat2miners",
+        "label": "2Miners Telegram chat",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/2miners",
+        "label": "2Miners GitHub org",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "status",
+        "url": "https://status.2miners.com",
+        "label": "2Miners pools status",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://2miners.zendesk.com/hc/en-us/sections/115000949992",
+        "label": "2Miners helpdesk",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "bitmark-equihash:openmarks.com:25": [
+      {
+        "kind": "website",
+        "url": "https://pool.openmarks.com",
+        "label": "openmarks.com",
+        "source_url": "https://pool.openmarks.com",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoinz:himpool.com:22": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/bitcoinz-solo",
+        "label": "himpool.com (solo)",
+        "source_url": "https://himpool.com/pools/bitcoinz-solo",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoinz:swgroupe.fr:3": [
+      {
+        "kind": "website",
+        "url": "https://swgroupe.fr",
+        "label": "swgroupe.fr",
+        "source_url": "https://swgroupe.fr",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/V9qq2hScNq",
+        "label": "swgroupe Discord",
+        "source_url": "https://swgroupe.fr/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "zclassic:mining-dutch.nl:21": [
+      {
+        "kind": "website",
+        "url": "https://www.mining-dutch.nl/pools/zclassic.php",
+        "label": "Mining-Dutch",
+        "source_url": "https://www.mining-dutch.nl/pools/zclassic.php",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/W8HyV3v",
+        "label": "Mining-Dutch Discord",
+        "source_url": "https://www.mining-dutch.nl/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "piratechain:mining-dutch.nl:7": [
+      {
+        "kind": "website",
+        "url": "https://www.mining-dutch.nl/pools/pirate.php",
+        "label": "Mining-Dutch",
+        "source_url": "https://www.mining-dutch.nl/pools/pirate.php",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/W8HyV3v",
+        "label": "Mining-Dutch Discord",
+        "source_url": "https://www.mining-dutch.nl/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash192:himpool.com:7": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/kerrigan-equihash192-solo",
+        "label": "himpool.com (solo)",
+        "source_url": "https://himpool.com/pools/kerrigan-equihash192-solo",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoinz:darkfibermines.com:2": [
+      {
+        "kind": "website",
+        "url": "https://btcz.darkfibermines.com",
+        "label": "darkfibermines.com",
+        "source_url": "https://btcz.darkfibermines.com",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/v7bP7WR",
+        "label": "Dark Fiber Mines Discord",
+        "source_url": "https://xsg.darkfibermines.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "anonymous:195.3.222.105:6": [
+      {
+        "kind": "website",
+        "url": "http://195.3.222.105:3380",
+        "label": "195.3.222.105",
+        "source_url": "http://195.3.222.105:3380",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/ANONFork",
+        "label": "ANON Telegram (linked as pool contact)",
+        "source_url": "http://195.3.222.105:3380/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoingold:himpool.com:18": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/btg-solo",
+        "label": "himpool.com (solo)",
+        "source_url": "https://himpool.com/pools/btg-solo",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "zero:pooly.ca:14": [
+      {
+        "kind": "website",
+        "url": "https://pooly.ca",
+        "label": "pooly.ca",
+        "source_url": "https://pooly.ca",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/poolynodes",
+        "label": "@poolynodes on X",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/UW8QCzKC4C",
+        "label": "pooly Discord",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/pooly_ca",
+        "label": "pooly Telegram",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/pooly-ca",
+        "label": "pooly-ca GitHub org",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pooly.ca/support",
+        "label": "pooly support",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "exchangecoin:excc-pplns.techminehub.com:7": [
+      {
+        "kind": "website",
+        "url": "https://excc-pplns.techminehub.com",
+        "label": "excc-pplns.techminehub.com",
+        "source_url": "https://excc-pplns.techminehub.com",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "zero:mining-dutch.nl:5": [
+      {
+        "kind": "website",
+        "url": "https://www.mining-dutch.nl/pools/zero.php",
+        "label": "Mining-Dutch",
+        "source_url": "https://www.mining-dutch.nl/pools/zero.php",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/W8HyV3v",
+        "label": "Mining-Dutch Discord",
+        "source_url": "https://www.mining-dutch.nl/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "zero:rockpool.cloud:6": [
+      {
+        "kind": "website",
+        "url": "https://rockpool.cloud",
+        "label": "rockpool.cloud",
+        "source_url": "https://rockpool.cloud",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/RJyTyhDswG",
+        "label": "rockpool Discord",
+        "source_url": "https://rockpool.cloud/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "zero:zpool.ca:3": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "gemlink:pooly.ca:21": [
+      {
+        "kind": "website",
+        "url": "https://pooly.ca",
+        "label": "pooly.ca",
+        "source_url": "https://pooly.ca",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/poolynodes",
+        "label": "@poolynodes on X",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/UW8QCzKC4C",
+        "label": "pooly Discord",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/pooly_ca",
+        "label": "pooly Telegram",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/pooly-ca",
+        "label": "pooly-ca GitHub org",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pooly.ca/support",
+        "label": "pooly support",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash192:kerriganpool.com:17": [
+      {
+        "kind": "website",
+        "url": "https://kerriganpool.com/#krgn-equihash-192-7",
+        "label": "kerriganpool.com",
+        "source_url": "https://kerriganpool.com/#krgn-equihash-192-7",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/yzVKDTxf",
+        "label": "kerriganpool Discord",
+        "source_url": "https://kerriganpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "dead"
+      }
+    ],
+    "litecoinz:rockpool.cloud:21": [
+      {
+        "kind": "website",
+        "url": "https://rockpool.cloud",
+        "label": "rockpool.cloud",
+        "source_url": "https://rockpool.cloud",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/RJyTyhDswG",
+        "label": "rockpool Discord",
+        "source_url": "https://rockpool.cloud/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoincandy:bitcdy.com:14": [
+      {
+        "kind": "website",
+        "url": "https://mainpool.bitcdy.com",
+        "label": "bitcdy.com",
+        "source_url": "https://mainpool.bitcdy.com",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://discord.com/invite/BADgW4T",
+        "label": "CDY Discord (linked as 'Support')",
+        "source_url": "https://mainpool.bitcdy.com/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      }
+    ],
+    "zeroclassic:eternalzero.io:15": [
+      {
+        "kind": "website",
+        "url": "https://eternalzero.io",
+        "label": "eternalzero.io",
+        "source_url": "https://eternalzero.io",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      }
+    ],
+    "zeroclassic:swgroupe.fr:13": [
+      {
+        "kind": "website",
+        "url": "https://swgroupe.fr",
+        "label": "swgroupe.fr",
+        "source_url": "https://swgroupe.fr",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/V9qq2hScNq",
+        "label": "swgroupe Discord",
+        "source_url": "https://swgroupe.fr/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:solominers.space:143": [
+      {
+        "kind": "website",
+        "url": "https://solominers.space/zec",
+        "label": "solominers.space",
+        "source_url": "https://solominers.space/zec",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/kkgmwRAd3G",
+        "label": "solominers Discord",
+        "source_url": "https://solominers.space/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:himpool.com:99": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/zec",
+        "label": "himpool.com",
+        "source_url": "https://himpool.com/pools/zec",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:smoozypool.es:136": [
+      {
+        "kind": "website",
+        "url": "https://smoozypool.es",
+        "label": "smoozypool.es",
+        "source_url": "https://smoozypool.es",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/smoozypool",
+        "label": "@smoozypool on X",
+        "source_url": "https://smoozypool.es/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/SmoozyPool",
+        "label": "SmoozyPool Telegram",
+        "source_url": "https://smoozypool.es/",
+        "verified_at": "2026-10-03T10:50:54Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://smoozypool.es/miners.html#faq",
+        "label": "SmoozyPool FAQ",
+        "source_url": "https://smoozypool.es/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:hashbay.io:89": [
+      {
+        "kind": "website",
+        "url": "https://hashbay.io",
+        "label": "hashbay.io",
+        "source_url": "https://hashbay.io",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/invite/DyH4nP3xGa",
+        "label": "hashbay Discord",
+        "source_url": "https://hashbay.io/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "status",
+        "url": "https://hashbay.io/status.html",
+        "label": "hashbay status",
+        "source_url": "https://hashbay.io/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://hashbay.io/help.html",
+        "label": "hashbay help & API",
+        "source_url": "https://hashbay.io/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:bitmernsolo.com:138": [
+      {
+        "kind": "website",
+        "url": "http://bitmernsolo.com",
+        "label": "bitmernsolo.com",
+        "source_url": "http://bitmernsolo.com",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://www.bitmernsolo.com/docs",
+        "label": "bitmernsolo docs",
+        "source_url": "https://www.bitmernsolo.com/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://www.bitmernsolo.com/faq",
+        "label": "bitmernsolo FAQ",
+        "source_url": "https://www.bitmernsolo.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:pooly.ca:81": [
+      {
+        "kind": "website",
+        "url": "https://pooly.ca",
+        "label": "pooly.ca",
+        "source_url": "https://pooly.ca",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/poolynodes",
+        "label": "@poolynodes on X",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/UW8QCzKC4C",
+        "label": "pooly Discord",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/pooly_ca",
+        "label": "pooly Telegram",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/pooly-ca",
+        "label": "pooly-ca GitHub org",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pooly.ca/support",
+        "label": "pooly support",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:solopool.site:90": [
+      {
+        "kind": "website",
+        "url": "https://solopool.site",
+        "label": "solopool.site",
+        "source_url": "https://solopool.site",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/solopoolsite",
+        "label": "solopool.site Telegram",
+        "source_url": "https://solopool.site/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/aPKqKggVqs",
+        "label": "solopool.site Discord",
+        "source_url": "https://solopool.site/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:letsmine.it:127": [
+      {
+        "kind": "website",
+        "url": "https://letsmine.it/coin/zec",
+        "label": "letsmine.it",
+        "source_url": "https://letsmine.it/coin/zec",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/CvRsVTeCgW",
+        "label": "letsmine Discord",
+        "source_url": "https://letsmine.it/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/letsmine_it",
+        "label": "letsmine Telegram",
+        "source_url": "https://letsmine.it/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://letsmine.it/posts/tutorial/faq",
+        "label": "letsmine FAQ",
+        "source_url": "https://letsmine.it/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      }
+    ],
+    "komodo:coolmine.top:2": [
+      {
+        "kind": "website",
+        "url": "https://coolmine.top/?coin=4",
+        "label": "coolmine.top",
+        "source_url": "https://coolmine.top/?coin=4",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/ghbXVEj",
+        "label": "coolmine Discord",
+        "source_url": "https://coolmine.top/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/coolminepool",
+        "label": "coolmine Telegram",
+        "source_url": "https://coolmine.top/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "komodo:himpool.com:9": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/kmd-solo",
+        "label": "himpool.com (solo)",
+        "source_url": "https://himpool.com/pools/kmd-solo",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "komodo:mining-dutch.nl:3": [
+      {
+        "kind": "website",
+        "url": "https://www.mining-dutch.nl/pools/komodo.php",
+        "label": "Mining-Dutch",
+        "source_url": "https://www.mining-dutch.nl/pools/komodo.php",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/W8HyV3v",
+        "label": "Mining-Dutch Discord",
+        "source_url": "https://www.mining-dutch.nl/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "komodo:zpool.ca:4": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "komodo:solopool.site:10": [
+      {
+        "kind": "website",
+        "url": "https://solopool.site",
+        "label": "solopool.site",
+        "source_url": "https://solopool.site",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/solopoolsite",
+        "label": "solopool.site Telegram",
+        "source_url": "https://solopool.site/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/aPKqKggVqs",
+        "label": "solopool.site Discord",
+        "source_url": "https://solopool.site/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "hush:coolmine.top:12": [
+      {
+        "kind": "website",
+        "url": "https://coolmine.top/?coin=8",
+        "label": "coolmine.top",
+        "source_url": "https://coolmine.top/?coin=8",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/ghbXVEj",
+        "label": "coolmine Discord",
+        "source_url": "https://coolmine.top/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/coolminepool",
+        "label": "coolmine Telegram",
+        "source_url": "https://coolmine.top/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "piratechain:smoozypool.es:46": [
+      {
+        "kind": "website",
+        "url": "https://smoozypool.es",
+        "label": "smoozypool.es",
+        "source_url": "https://smoozypool.es",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/smoozypool",
+        "label": "@smoozypool on X",
+        "source_url": "https://smoozypool.es/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/SmoozyPool",
+        "label": "SmoozyPool Telegram",
+        "source_url": "https://smoozypool.es/",
+        "verified_at": "2026-10-03T10:50:54Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://smoozypool.es/miners.html#faq",
+        "label": "SmoozyPool FAQ",
+        "source_url": "https://smoozypool.es/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "piratechain:himpool.com:39": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/arrr",
+        "label": "himpool.com",
+        "source_url": "https://himpool.com/pools/arrr",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "piratechain:himpool.com:40": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/arrr-solo",
+        "label": "himpool.com (solo)",
+        "source_url": "https://himpool.com/pools/arrr-solo",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "buck:rockpool.cloud:2": [
+      {
+        "kind": "website",
+        "url": "https://rockpool.cloud",
+        "label": "rockpool.cloud",
+        "source_url": "https://rockpool.cloud",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/RJyTyhDswG",
+        "label": "rockpool Discord",
+        "source_url": "https://rockpool.cloud/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "marmara:zpool.ca:1": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash:himpool.com:4": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/kerrigan-equihash200",
+        "label": "himpool.com",
+        "source_url": "https://himpool.com/pools/kerrigan-equihash200",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash:himpool.com:5": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/kerrigan-equihash200-solo",
+        "label": "himpool.com (solo)",
+        "source_url": "https://himpool.com/pools/kerrigan-equihash200-solo",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash:nitopool.online:44": [
+      {
+        "kind": "website",
+        "url": "https://pool.nitopool.online/#krgnequihash200solo",
+        "label": "nitopool.online (solo)",
+        "source_url": "https://pool.nitopool.online/#krgnequihash200solo",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/xesbzdVNJh",
+        "label": "nitopool Discord",
+        "source_url": "https://pool.nitopool.online/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pool.nitopool.online/support",
+        "label": "nitopool help",
+        "source_url": "https://pool.nitopool.online/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash:nitopool.online:46": [
+      {
+        "kind": "website",
+        "url": "https://pool.nitopool.online/#krgnequihash200pplnsbf",
+        "label": "nitopool.online",
+        "source_url": "https://pool.nitopool.online/#krgnequihash200pplnsbf",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/xesbzdVNJh",
+        "label": "nitopool Discord",
+        "source_url": "https://pool.nitopool.online/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pool.nitopool.online/support",
+        "label": "nitopool help",
+        "source_url": "https://pool.nitopool.online/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash:kerriganpool.com:11": [
+      {
+        "kind": "website",
+        "url": "https://kerriganpool.com/#krgn-equihash-200-9",
+        "label": "kerriganpool.com",
+        "source_url": "https://kerriganpool.com/#krgn-equihash-200-9",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/yzVKDTxf",
+        "label": "kerriganpool Discord",
+        "source_url": "https://kerriganpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "dead"
+      }
+    ],
+    "kerrigan-equihash:kerriganpool.com:18": [
+      {
+        "kind": "website",
+        "url": "https://kerriganpool.com/#krgn-equihash-200-9-solo",
+        "label": "kerriganpool.com (solo)",
+        "source_url": "https://kerriganpool.com/#krgn-equihash-200-9-solo",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/yzVKDTxf",
+        "label": "kerriganpool Discord",
+        "source_url": "https://kerriganpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "dead"
+      }
+    ],
+    "kerrigan-equihash:mining-dutch.nl:43": [
+      {
+        "kind": "website",
+        "url": "https://www.mining-dutch.nl/pools/kerrigan_equihash.php",
+        "label": "Mining-Dutch",
+        "source_url": "https://www.mining-dutch.nl/pools/kerrigan_equihash.php",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/W8HyV3v",
+        "label": "Mining-Dutch Discord",
+        "source_url": "https://www.mining-dutch.nl/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash:zpool.ca:9": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoingold:miningpoolhub.com:5": [
+      {
+        "kind": "website",
+        "url": "https://bitcoin-gold.miningpoolhub.com",
+        "label": "miningpoolhub.com",
+        "source_url": "https://bitcoin-gold.miningpoolhub.com",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "forum",
+        "url": "https://bitcointalk.org/index.php?topic=472510.0",
+        "label": "Mining Pool Hub BitcoinTalk thread",
+        "source_url": "https://miningpoolhub.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoingold:himpool.com:17": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/btg",
+        "label": "himpool.com",
+        "source_url": "https://himpool.com/pools/btg",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoingold:zpool.ca:4": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "ycash:darkfibermines.com:2": [
+      {
+        "kind": "website",
+        "url": "https://xsg.darkfibermines.com",
+        "label": "darkfibermines.com",
+        "source_url": "https://xsg.darkfibermines.com",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/v7bP7WR",
+        "label": "Dark Fiber Mines Discord",
+        "source_url": "https://xsg.darkfibermines.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "ycash:swgroupe.fr:4": [
+      {
+        "kind": "website",
+        "url": "https://swgroupe.fr",
+        "label": "swgroupe.fr",
+        "source_url": "https://swgroupe.fr",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/V9qq2hScNq",
+        "label": "swgroupe Discord",
+        "source_url": "https://swgroupe.fr/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "ycash:pooly.ca:17": [
+      {
+        "kind": "website",
+        "url": "https://pooly.ca",
+        "label": "pooly.ca",
+        "source_url": "https://pooly.ca",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/poolynodes",
+        "label": "@poolynodes on X",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/UW8QCzKC4C",
+        "label": "pooly Discord",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/pooly_ca",
+        "label": "pooly Telegram",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/pooly-ca",
+        "label": "pooly-ca GitHub org",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pooly.ca/support",
+        "label": "pooly support",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "zclassic:tokenxpool.online:40": [
+      {
+        "kind": "website",
+        "url": "https://tokenxpool.online/#zclassic",
+        "label": "tokenxpool.online",
+        "source_url": "https://tokenxpool.online/#zclassic",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "zeroclassic:rockpool.cloud:10": [
+      {
+        "kind": "website",
+        "url": "https://rockpool.cloud",
+        "label": "rockpool.cloud",
+        "source_url": "https://rockpool.cloud",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/RJyTyhDswG",
+        "label": "rockpool Discord",
+        "source_url": "https://rockpool.cloud/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoinz:himpool.com:20": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/bitcoinz",
+        "label": "himpool.com",
+        "source_url": "https://himpool.com/pools/bitcoinz",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "bitcoinz:pooly.ca:17": [
+      {
+        "kind": "website",
+        "url": "https://pooly.ca",
+        "label": "pooly.ca",
+        "source_url": "https://pooly.ca",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/poolynodes",
+        "label": "@poolynodes on X",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/UW8QCzKC4C",
+        "label": "pooly Discord",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/pooly_ca",
+        "label": "pooly Telegram",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/pooly-ca",
+        "label": "pooly-ca GitHub org",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pooly.ca/support",
+        "label": "pooly support",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "litecoinz:darkfibermines.com:16": [
+      {
+        "kind": "website",
+        "url": "https://xsg.darkfibermines.com",
+        "label": "darkfibermines.com",
+        "source_url": "https://xsg.darkfibermines.com",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/v7bP7WR",
+        "label": "Dark Fiber Mines Discord",
+        "source_url": "https://xsg.darkfibermines.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "litecoinz:swgroupe.fr:25": [
+      {
+        "kind": "website",
+        "url": "https://swgroupe.fr",
+        "label": "swgroupe.fr",
+        "source_url": "https://swgroupe.fr",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/V9qq2hScNq",
+        "label": "swgroupe Discord",
+        "source_url": "https://swgroupe.fr/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      }
+    ],
+    "litecoinz:zpool.ca:15": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash192:rplant.xyz:29": [
+      {
+        "kind": "website",
+        "url": "https://pool.rplant.xyz",
+        "label": "rplant.xyz",
+        "source_url": "https://pool.rplant.xyz",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash192:himpool.com:6": [
+      {
+        "kind": "website",
+        "url": "https://himpool.com/pools/kerrigan-equihash192",
+        "label": "himpool.com",
+        "source_url": "https://himpool.com/pools/kerrigan-equihash192",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Himpool_",
+        "label": "@Himpool_ on X",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/pQvH2mV8ph",
+        "label": "Himpool Discord",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/+zsjBeGpW5vIxNmZl",
+        "label": "Himpool Telegram chat",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:45Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://himpool.com/help",
+        "label": "Himpool help",
+        "source_url": "https://himpool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash192:nitopool.online:50": [
+      {
+        "kind": "website",
+        "url": "https://pool.nitopool.online/#krgnequihash192solo",
+        "label": "nitopool.online (solo)",
+        "source_url": "https://pool.nitopool.online/#krgnequihash192solo",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/xesbzdVNJh",
+        "label": "nitopool Discord",
+        "source_url": "https://pool.nitopool.online/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pool.nitopool.online/support",
+        "label": "nitopool help",
+        "source_url": "https://pool.nitopool.online/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash192:nitopool.online:51": [
+      {
+        "kind": "website",
+        "url": "https://pool.nitopool.online/#krgnequihash192pplnsbf",
+        "label": "nitopool.online",
+        "source_url": "https://pool.nitopool.online/#krgnequihash192pplnsbf",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/xesbzdVNJh",
+        "label": "nitopool Discord",
+        "source_url": "https://pool.nitopool.online/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pool.nitopool.online/support",
+        "label": "nitopool help",
+        "source_url": "https://pool.nitopool.online/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash192:pooly.ca:8": [
+      {
+        "kind": "website",
+        "url": "https://pooly.ca",
+        "label": "pooly.ca",
+        "source_url": "https://pooly.ca",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/poolynodes",
+        "label": "@poolynodes on X",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/UW8QCzKC4C",
+        "label": "pooly Discord",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/pooly_ca",
+        "label": "pooly Telegram",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/pooly-ca",
+        "label": "pooly-ca GitHub org",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://pooly.ca/support",
+        "label": "pooly support",
+        "source_url": "https://pooly.ca/",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      }
+    ],
+    "kerrigan-equihash192:kerriganpool.com:27": [
+      {
+        "kind": "website",
+        "url": "https://kerriganpool.com/#krgn-equihash-192-7-solo",
+        "label": "kerriganpool.com (solo)",
+        "source_url": "https://kerriganpool.com/#krgn-equihash-192-7-solo",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/yzVKDTxf",
+        "label": "kerriganpool Discord",
+        "source_url": "https://kerriganpool.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "dead"
+      }
+    ],
+    "kerrigan-equihash192:zpool.ca:9": [
+      {
+        "kind": "website",
+        "url": "https://zpool.ca",
+        "label": "zpool",
+        "source_url": "https://zpool.ca",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/_zpool_",
+        "label": "@_zpool_ on X",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/n45n6Jj",
+        "label": "zpool Discord",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/zpool/",
+        "label": "r/zpool",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zpool.ca/faq",
+        "label": "zpool FAQ",
+        "source_url": "https://zpool.ca/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "flux:cruxpool.com:48": [
+      {
+        "kind": "website",
+        "url": "https://cruxpool.com/flux",
+        "label": "CruxPool",
+        "source_url": "https://cruxpool.com/flux",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://twitter.com/cruxpool",
+        "label": "@cruxpool on X",
+        "source_url": "https://cruxpool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/bgBruh3",
+        "label": "Cruxpool Discord",
+        "source_url": "https://cruxpool.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/cruxpool",
+        "label": "Cruxpool Telegram",
+        "source_url": "https://cruxpool.com/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/Cruxpool/",
+        "label": "r/Cruxpool",
+        "source_url": "https://cruxpool.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://cruxpool.com/faq/",
+        "label": "Cruxpool support FAQ",
+        "source_url": "https://cruxpool.com/",
+        "verified_at": "2026-10-03T10:50:47Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:nicehash.com:105": [
+      {
+        "kind": "website",
+        "url": "https://nicehash.com",
+        "label": "NiceHash",
+        "source_url": "https://nicehash.com",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://www.twitter.com/NiceHashMining/",
+        "label": "@NiceHashMining on X",
+        "source_url": "https://www.nicehash.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/nicehash",
+        "label": "NiceHash Discord",
+        "source_url": "https://www.nicehash.com/",
+        "verified_at": "2026-10-03T10:50:44Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/nicehash_mining",
+        "label": "NiceHash Telegram",
+        "source_url": "https://www.nicehash.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/NiceHash/",
+        "label": "r/NiceHash",
+        "source_url": "https://www.nicehash.com/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/nicehash",
+        "label": "NiceHash GitHub org",
+        "source_url": "https://www.nicehash.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "status",
+        "url": "https://status.nicehash.com/",
+        "label": "NiceHash status",
+        "source_url": "https://www.nicehash.com/",
+        "verified_at": "2026-10-03T10:50:48Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://www.nicehash.com/support",
+        "label": "NiceHash support",
+        "source_url": "https://www.nicehash.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:1miner.net:102": [
+      {
+        "kind": "website",
+        "url": "https://1miner.net/#zec1",
+        "label": "1miner.net",
+        "source_url": "https://1miner.net/#zec1",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/YZXGEa9RhK",
+        "label": "1miner Discord",
+        "source_url": "https://1miner.net/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/DankMiner",
+        "label": "DankMiner GitHub",
+        "source_url": "https://1miner.net/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      }
+    ],
+    "zclassic:aikapool.com:34": [
+      {
+        "kind": "website",
+        "url": "https://aikapool.com/zcl",
+        "label": "aikapool.com",
+        "source_url": "https://aikapool.com/zcl",
+        "verified_at": "2026-10-03T10:50:58Z",
+        "status": "dead"
+      }
+    ],
+    "gemlink:aikapool.com:7": [
+      {
+        "kind": "website",
+        "url": "https://aikapool.com/glink",
+        "label": "aikapool.com",
+        "source_url": "https://aikapool.com/glink",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "dead"
+      }
+    ],
+    "bitcoinz:aikapool.com:6": [
+      {
+        "kind": "website",
+        "url": "https://aikapool.com/btcz",
+        "label": "aikapool.com",
+        "source_url": "https://aikapool.com/btcz",
+        "verified_at": "2026-10-03T10:50:56Z",
+        "status": "dead"
+      }
+    ],
+    "litecoinz:aikapool.com:3": [
+      {
+        "kind": "website",
+        "url": "https://aikapool.com/ltz",
+        "label": "aikapool.com",
+        "source_url": "https://aikapool.com/ltz",
+        "verified_at": "2026-10-03T10:50:54Z",
+        "status": "dead"
+      }
+    ],
+    "zcash:unmineable.com": [
+      {
+        "kind": "website",
+        "url": "https://unmineable.com/",
+        "label": "unMineable",
+        "source_url": "https://unmineable.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/un_mineable",
+        "label": "@un_mineable on X",
+        "source_url": "https://unmineable.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://unmineable.com/support",
+        "label": "unMineable support center",
+        "source_url": "https://unmineable.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      }
+    ],
+    "flypool-zec": [
+      {
+        "kind": "website",
+        "url": "https://zcash.flypool.org/",
+        "label": "Flypool (Zcash)",
+        "source_url": "https://zcash.flypool.org/",
+        "verified_at": "2026-10-03T10:54:32Z",
+        "status": "dead"
+      }
+    ],
+    "slushpool-zec": [
+      {
+        "kind": "website",
+        "url": "https://braiins.com/pool",
+        "label": "Slush Pool (Zcash)",
+        "source_url": "https://braiins.com/pool",
+        "verified_at": "2026-10-03T10:54:13Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/Braiins",
+        "label": "@Braiins on X",
+        "source_url": "https://braiins.com/pool",
+        "verified_at": "2026-10-03T10:54:43Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/Braiins",
+        "label": "Braiins Telegram",
+        "source_url": "https://braiins.com/pool",
+        "verified_at": "2026-10-03T10:54:13Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/Braiins/",
+        "label": "r/Braiins",
+        "source_url": "https://braiins.com/pool",
+        "verified_at": "2026-10-03T10:54:13Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://help.braiins.com/en/support/tickets/new",
+        "label": "Braiins support",
+        "source_url": "https://braiins.com/pool",
+        "verified_at": "2026-10-03T10:54:13Z",
+        "status": "verified"
+      }
+    ],
+    "2miners-zen": [
+      {
+        "kind": "website",
+        "url": "https://zen.2miners.com/",
+        "label": "2Miners (Horizen)",
+        "source_url": "https://zen.2miners.com/",
+        "verified_at": "2026-10-03T10:54:13Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/pool2miners",
+        "label": "@pool2miners on X",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://telegram.me/chat2miners",
+        "label": "2Miners Telegram chat",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/2miners",
+        "label": "2Miners GitHub org",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "status",
+        "url": "https://status.2miners.com",
+        "label": "2Miners pools status",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://2miners.zendesk.com/hc/en-us/sections/115000949992",
+        "label": "2Miners helpdesk",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "f2pool-zen": [
+      {
+        "kind": "website",
+        "url": "https://www.f2pool.com/",
+        "label": "F2Pool (Horizen + ZEN/ZEC switching)",
+        "source_url": "https://www.f2pool.com/",
+        "verified_at": "2026-10-03T10:54:14Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/f2pool",
+        "label": "@f2pool on X",
+        "source_url": "https://www.f2pool.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "discord",
+        "url": "https://discord.gg/fhjeWrmdK9",
+        "label": "F2Pool Discord",
+        "source_url": "https://www.f2pool.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/f2poolreal",
+        "label": "F2Pool Telegram",
+        "source_url": "https://www.f2pool.com/",
+        "verified_at": "2026-10-03T10:50:51Z",
+        "status": "verified"
+      },
+      {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/f2pool",
+        "label": "r/f2pool",
+        "source_url": "https://www.f2pool.com/",
+        "verified_at": "2026-10-03T10:50:46Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://f2pool.zendesk.com/hc/en-us/categories/4406716616461-FAQ",
+        "label": "F2Pool help center (FAQ)",
+        "source_url": "https://www.f2pool.com/",
+        "verified_at": "2026-10-03T10:50:52Z",
+        "status": "verified"
+      }
+    ],
+    "poolin-zen": [
+      {
+        "kind": "website",
+        "url": "https://www.poolin.com/",
+        "label": "Poolin (Horizen)",
+        "source_url": "https://www.poolin.com/",
+        "verified_at": "2026-10-03T10:54:13Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://help.poolin.me/hc/en-us",
+        "label": "Poolin help center (help.poolin.me)",
+        "source_url": "https://help.poolin.me/hc/en-us",
+        "verified_at": "2026-10-03T10:50:49Z",
+        "status": "unverified"
+      }
+    ],
+    "2miners-flux": [
+      {
+        "kind": "website",
+        "url": "https://flux.2miners.com/",
+        "label": "2Miners (Flux)",
+        "source_url": "https://flux.2miners.com/",
+        "verified_at": "2026-10-03T10:54:13Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/pool2miners",
+        "label": "@pool2miners on X",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:51:17Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://telegram.me/chat2miners",
+        "label": "2Miners Telegram chat",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:53Z",
+        "status": "verified"
+      },
+      {
+        "kind": "github",
+        "url": "https://github.com/2miners",
+        "label": "2Miners GitHub org",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "status",
+        "url": "https://status.2miners.com",
+        "label": "2Miners pools status",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://2miners.zendesk.com/hc/en-us/sections/115000949992",
+        "label": "2Miners helpdesk",
+        "source_url": "https://2miners.com/",
+        "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ]
+  }
+}

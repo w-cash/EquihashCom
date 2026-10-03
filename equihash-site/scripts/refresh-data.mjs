@@ -12,7 +12,13 @@
  *   coin-status.json   – coins whose PoW has ended (with citations)
  * and the static files data/archive.json, data/miners.json, data/research.json.
  *
- * Rules: never invent numbers. Unknown => null (rendered as "n/a").
+ * Rules: never invent numbers. Unknown => null (rendered as "n/a"); zero stays zero.
+ *
+ * Provenance: every pool row carries <field>_source and <field>_observed_at for hashrate, fee,
+ * miners, blocks and min_payout, plus `basis` for the hashrate (listed_pools | operator_reported |
+ * estimated). Network rows carry the same for hashrate, difficulty and height, with basis
+ * "network". A field's timestamp only moves when that field was actually fetched: refreshing a
+ * fee or a block height never makes a hashrate look newer than it is.
  * Usage: npm run refresh        (node scripts/refresh-data.mjs)
  */
 import { pathToFileURL } from "node:url";
@@ -28,6 +34,8 @@ const MPS = "https://miningpoolstats.stream";
 const MPS_DATA = "https://data.miningpoolstats.stream/data";
 // Pages that are no longer in the MPS coin index but still have a page (PoW ended).
 const EXTRA_MPS_PAGES = ["horizen", "flux"];
+// These two left the miningpoolstats index when their PoW ended, so the index can't name them.
+const EXTRA_MPS_NAMES = { horizen: "Horizen", flux: "Flux" };
 
 const errors = [];
 const sources = new Map();
@@ -69,6 +77,27 @@ const mpsNum = (v) => {
   const n = num(v);
   return n === null || n < 0 ? null : n;
 };
+
+/** Record where one field came from and when it was observed. Touches nothing else on the row. */
+export function stamp(row, field, source, at) {
+  row[`${field}_source`] = source ?? null;
+  row[`${field}_observed_at`] = at ?? null;
+  return row;
+}
+const POOL_FIELDS = ["hashrate", "fee", "miners", "blocks", "min_payout"];
+/** Basis of a pool row's hashrate figure. */
+export function hashrateBasis(row) {
+  if (row.hashrate === null || row.hashrate === undefined) return null;
+  return row.hashrate_is_reported ? "operator_reported" : "listed_pools";
+}
+/** A live fee update (e.g. the ZecWec overview API): fee and its provenance only. The row's
+ * hashrate, its timestamp and the row-level fetched_at are left exactly as they were. */
+export function applyLiveFee(row, feePct, source, at) {
+  if (feePct === null || feePct === undefined || !Number.isFinite(feePct)) return row;
+  row.fee_pct = feePct;
+  row.schemes = (row.schemes || []).map((s) => ({ ...s, fee_pct: feePct }));
+  return stamp(row, "fee", source, at);
+}
 
 function parseEquihash(algo) {
   const a = String(algo || "");
@@ -158,7 +187,7 @@ async function refreshMps() {
       const netHash = mpsNum(d.hashrate);
       const coin = {
         id: page,
-        name: idx?.name ?? d.symbol,
+        name: idx?.name ?? EXTRA_MPS_NAMES[page] ?? d.symbol,
         symbol: d.symbol,
         algo_label: d.algo ?? null,
         equihash: eq ? { n: eq.n, k: eq.k } : null,
@@ -169,7 +198,10 @@ async function refreshMps() {
         network: {
           hashrate: netHash && netHash > 0 ? netHash : null,
           unit: d.unit ?? "Sol/s",
-          hashrate_source: d.hashrate_src ?? null,
+          // Where the number was read (set by stamp() below); miningpoolstats' own attribution
+          // is kept beside it, since its figure can differ from that upstream's current one.
+          hashrate_source: null,
+          hashrate_upstream: d.hashrate_src ?? null,
           difficulty: mpsNum(d.difficulty) || null,
           height: mpsNum(d.height),
           block_time_target_s: mpsNum(d.block_time_target),
@@ -189,6 +221,13 @@ async function refreshMps() {
         status_sources: [],
         cross_checks: [],
       };
+      const ndu = `${MPS_DATA}/${page}.js?t=${meta.last_time}`;
+      const nw = coin.network;
+      stamp(nw, "hashrate", nw.hashrate !== null ? ndu : null, nw.hashrate !== null ? fetched_at : null);
+      nw.basis = nw.hashrate !== null ? "network" : null;
+      stamp(nw, "difficulty", nw.difficulty !== null ? ndu : null, nw.difficulty !== null ? fetched_at : null);
+      stamp(nw, "height", nw.height !== null ? ndu : null, nw.height !== null ? fetched_at : null);
+      stamp(nw, "block_time", nw.block_time_avg_s !== null ? ndu : null, nw.block_time_avg_s !== null ? fetched_at : null);
       coins.push(coin);
       for (const p of d.data || []) {
         const hr = mpsNum(p.hashrate);
@@ -228,6 +267,9 @@ async function refreshMps() {
           fetched_at,
           notes: hr === null ? "Hashrate not published (MPS reports it as hidden/unknown)." : null,
         });
+        const row = pools[pools.length - 1];
+        for (const f of POOL_FIELDS) stamp(row, f, `${MPS_DATA}/${page}.js`, fetched_at);
+        row.basis = hashrateBasis(row);
       }
       console.log(`  mps ${page}: ${d.data?.length ?? 0} pools`);
     } catch (e) {
@@ -285,6 +327,9 @@ async function refreshZpool(coins, pools) {
         fetched_at,
         notes: `Multi-coin pool (algo '${c.algo}', coin key '${sym}'). Payouts can be auto-exchanged into the coin you select; payout scheme not published in the API. ${c["24h_blocks"] !== undefined ? `Blocks in last 24h: ${c["24h_blocks"]}.` : ""}`.trim(),
       });
+      const row = pools[pools.length - 1];
+      for (const f of POOL_FIELDS) stamp(row, f, url, fetched_at);
+      row.basis = hashrateBasis(row);
     }
     console.log("  zpool ok");
   } catch (e) {
@@ -313,6 +358,9 @@ async function refreshZergpool(coins, pools) {
         solo: false, active: hr !== null && hr > 0, source_name: "ZergPool API", source_url: url, data_url: url, from_miningpoolstats: false, fetched_at,
         notes: `Multi-coin pool (algo '${c.algo}').`,
       });
+      const row = pools[pools.length - 1];
+      for (const f of POOL_FIELDS) stamp(row, f, url, fetched_at);
+      row.basis = hashrateBasis(row);
     }
     console.log("  zergpool ok");
   } catch (e) {
@@ -334,16 +382,22 @@ async function refreshManual(coins, pools) {
   for (const m of manual.pools) {
     const coin = coins.find((c) => c.symbol === m.coin);
     const row = { ...m };
-    delete row.verified_at; delete row.live;
+    delete row.verified_at; delete row.live; delete row.live_fields;
+    const liveFields = m.live_fields || (m.live ? ["fee"] : []);
     row.coin_id = coin?.id ?? m.coin_id ?? m.coin.toLowerCase();
+    // The row as a whole was hand-checked at verified_at; that stays its fetched_at.
     row.fetched_at = m.verified_at;
+    // Hand-verified fields default to the verification time unless the curated row says otherwise.
+    for (const f of POOL_FIELDS) {
+      if (liveFields.includes(f) && f !== "fee") continue; // filled by its live source below
+      if (row[`${f}_source`] === undefined) row[`${f}_source`] = m.source_url ?? null;
+      if (row[`${f}_observed_at`] === undefined) row[`${f}_observed_at`] = m.verified_at ?? null;
+    }
+    if (row.basis === undefined) row.basis = hashrateBasis(row);
     if (m.live === "zecwec" && zecwec) {
       const fee = m.coin === "WEC" ? num(zecwec.body.wec_fee_bps) : num(zecwec.body.zec_fee_bps);
-      if (fee !== null) {
-        row.fee_pct = fee / 100;
-        row.schemes = (row.schemes || []).map((s) => ({ ...s, fee_pct: fee / 100 }));
-      }
-      row.fetched_at = zecwec.fetched_at;
+      // Only the fee is fetched here. The hashrate (if live) comes from live-sources.json and keeps its own time.
+      applyLiveFee(row, fee === null ? null : fee / 100, "https://pool.zecwec.com/api/v1/overview", zecwec.fetched_at);
       row.data_url = "https://pool.zecwec.com/api/v1/overview";
     }
     row.network_share_pct = row.hashrate !== null && coin?.network?.hashrate ? (row.hashrate / coin.network.hashrate) * 100 : null;
@@ -394,6 +448,18 @@ async function refresh2Miners(coins) {
   }
 }
 
+/** The calculator's note on the WEC block reward. The subsidy is S(h) = floor(2,199,023,255 × h /
+ *  40,000) atoms up to height 40,000 (Wcash protocol specification, "Monetary policy"), so the
+ *  last block's reward is already out of date one block later. Never states a supply figure. */
+export function wcashRewardNote(height) {
+  const h = Number(height);
+  const ramp = Number.isFinite(h) && h < 40000;
+  return `Coinbase reward of block ${height} as shown by the explorer (subsidy plus fees). ` +
+    (ramp
+      ? "The subsidy ramps up every block until height 40,000 (by about 0.00055 WEC per block), so a later block pays more; see the spec's emission section."
+      : "The subsidy changes every block after height 40,000; see the spec's emission section.");
+}
+
 /** Wcash (WEC) network: explorer status + latest block. Only neutral chain stats are kept. */
 async function refreshWcash(coins, zecwec) {
   const base = "https://wcashexplorer.com/api/v1";
@@ -407,7 +473,9 @@ async function refreshWcash(coins, zecwec) {
     hardware: "ASIC",
     mps_group: null,
     in_mps_index: false,
-    network: { hashrate: null, unit: "Sol/s", hashrate_source: null, difficulty: null, height: null, block_time_target_s: 75, block_time_avg_s: null, pools_hashrate: null },
+    // The explorer publishes no network hashrate, so it stays null (shown as "Network estimate:
+    // unavailable"). What the listed pool reports is a separate figure, derived from the pool rows.
+    network: { hashrate: null, unit: "Sol/s", hashrate_source: null, hashrate_observed_at: null, basis: null, difficulty: null, height: null, block_time_target_s: 75, block_time_avg_s: null, pools_hashrate: null },
     price_usd: null,
     price_source: null,
     block_reward_miner: null,
@@ -416,7 +484,7 @@ async function refreshWcash(coins, zecwec) {
     data_url: `${base}/status`,
     fetched_at: null,
     status: "active",
-    status_note: "Not listed on miningpoolstats. Network hashrate is not published by the explorer; the only pool (ZecWec) is reported at ~0.44 MSol/s.",
+    status_note: "Not listed on miningpoolstats. The explorer publishes no network hashrate; the network estimate comes from ZecWec's public endpoint (previous 120 blocks). ZecWec is the only listed pool.",
     status_sources: [{ label: "Wcash protocol specification", url: "https://w.cash/whitepaper" }],
     cross_checks: [],
     merged_mining_parent: "ZEC",
@@ -429,13 +497,16 @@ async function refreshWcash(coins, zecwec) {
     coin.network.block_time_avg_s = num(s.observedSpacingSeconds);
     coin.network.block_time_target_s = num(s.targetSpacingSeconds) ?? 75;
     coin.fetched_at = fetched_at;
+    if (coin.network.difficulty !== null) stamp(coin.network, "difficulty", `${base}/status`, fetched_at);
+    if (coin.network.height !== null) stamp(coin.network, "height", `${base}/status`, fetched_at);
+    if (coin.network.block_time_avg_s !== null) stamp(coin.network, "block_time", `${base}/status`, fetched_at);
     const { body: bl, fetched_at: bAt } = await get(`${base}/blocks?limit=1`);
     const b = bl.data?.[0];
     if (b?.reward?.decimal) {
       coin.block_reward_miner = {
         value: Number(b.reward.decimal),
         unit: "WEC",
-        note: `Coinbase reward of block ${b.height} as shown by the explorer (subsidy changes every block; see the spec's emission section).`,
+        note: wcashRewardNote(b.height),
         source_url: `${base}/blocks?limit=1`,
         fetched_at: bAt,
       };
@@ -444,8 +515,115 @@ async function refreshWcash(coins, zecwec) {
   } catch (e) {
     errors.push(`wcash explorer: ${e.message}`);
   }
-  if (zecwec?.body?.wcash_height && !coin.network.height) coin.network.height = num(zecwec.body.wcash_height);
+  if (zecwec?.body?.wcash_height && !coin.network.height) {
+    coin.network.height = num(zecwec.body.wcash_height);
+    stamp(coin.network, "height", "https://pool.zecwec.com/api/v1/overview", zecwec.fetched_at);
+  }
   coins.push(coin);
+}
+
+// ---------- live sources (data/curated/live-sources.json; the server polls the same list) ----------
+
+/** Parse one live-source response. Mirrors src/live.rs: only available === true with a finite,
+ *  non-negative hashrate and a sane unix updated_at counts. */
+export function parseLiveReading(src, body, nowMs = Date.now()) {
+  const f = { available: "available", hashrate: "hashrate_sol_s", updated_at: "updated_at", window_seconds: "window_seconds", sample_blocks: "sample_blocks", height: "height", ...(src.fields || {}) };
+  if (!body || body[f.available] !== true) return { status: "unavailable" };
+  const h = body[f.hashrate];
+  if (typeof h !== "number" || !isFinite(h) || h < 0) return { status: "error", error: `${src.id}: no valid ${f.hashrate}` };
+  const ts = body[f.updated_at];
+  if (typeof ts !== "number" || !isFinite(ts)) return { status: "error", error: `${src.id}: no valid ${f.updated_at}` };
+  if (ts * 1000 > nowMs + 5 * 60 * 1000) return { status: "error", error: `${src.id}: ${f.updated_at} is in the future` };
+  const u = (k) => (typeof body[k] === "number" && isFinite(body[k]) && body[k] >= 0 ? Math.floor(body[k]) : null);
+  return {
+    status: "ok",
+    reading: { hashrate: h, observed_at: new Date(Math.floor(ts) * 1000).toISOString().replace(".000Z", "Z"), window_seconds: u(f.window_seconds), sample_blocks: u(f.sample_blocks), height: u(f.height) },
+  };
+}
+
+/** Write one good reading into its pool row or coin, with its own provenance. */
+export function applyLiveReading(target, src, r) {
+  if (src.target === "pool") {
+    Object.assign(target, {
+      hashrate: r.hashrate, hashrate_unit: src.unit || "Sol/s", hashrate_is_reported: false, basis: "pool_api",
+      hashrate_source: src.url, hashrate_observed_at: r.observed_at, hashrate_window_s: r.window_seconds, live_source: src.id,
+    });
+  } else if (src.target === "network") {
+    const n = (target.network ||= {});
+    Object.assign(n, {
+      hashrate: r.hashrate, unit: src.unit || "Sol/s", basis: "network", hashrate_source: src.url, hashrate_upstream: null,
+      hashrate_observed_at: r.observed_at, hashrate_sample_blocks: r.sample_blocks, live_source: src.id,
+    });
+    // Height stays credited to the chain source (explorer) when it has one; see src/live.rs.
+    if (r.height !== null && (n.height === null || n.height === undefined) && (!n.height_observed_at || new Date(r.observed_at) >= new Date(n.height_observed_at))) {
+      n.height = r.height;
+      stamp(n, "height", src.url, r.observed_at);
+    }
+  }
+}
+
+/** Carry the previous good live values over when the endpoint is unavailable this time. */
+export function keepPreviousLive(target, prev, src) {
+  if (!prev) return false;
+  if (src.target === "pool" && prev.live_source === src.id && prev.hashrate != null) {
+    for (const k of ["hashrate", "hashrate_unit", "hashrate_is_reported", "basis", "hashrate_source", "hashrate_observed_at", "hashrate_window_s", "live_source"]) target[k] = prev[k];
+    return true;
+  }
+  if (src.target === "network" && prev.network?.live_source === src.id && prev.network.hashrate != null) {
+    target.network ||= {};
+    for (const k of ["hashrate", "unit", "basis", "hashrate_source", "hashrate_upstream", "hashrate_observed_at", "hashrate_sample_blocks", "live_source"]) target.network[k] = prev.network[k];
+    return true;
+  }
+  return false;
+}
+
+async function readJson(file, fallback) {
+  try { return JSON.parse(await fs.readFile(file, "utf8")); } catch { return fallback; }
+}
+
+/** Pool rows a live source feeds: `pool_ids` (one endpoint, several rows, e.g. a merge-mining
+ *  pool whose single hashrate covers ZEC and WEC), plus `pool_id` for older configs. Mirrors
+ *  Source::pool_ids in src/live.rs. */
+export function livePoolIds(src) {
+  const ids = [...(Array.isArray(src.pool_ids) ? src.pool_ids : [])];
+  if (src.pool_id && !ids.includes(src.pool_id)) ids.push(src.pool_id);
+  return ids;
+}
+
+/** Apply one live result to every target it feeds. One reading per source, so rows fed by the same
+ *  endpoint always carry the same value and time. Returns the ids it could not find. */
+export function applyLiveResult(src, res, coins, pools, previous) {
+  const ids = src.target === "pool" ? livePoolIds(src) : [src.coin_id];
+  const missing = [], kept = [];
+  for (const id of ids) {
+    const target = src.target === "pool" ? pools.find((p) => p.id === id) : coins.find((c) => c.id === id);
+    if (!target) { missing.push(id); continue; }
+    if (res.status === "ok") applyLiveReading(target, src, res.reading);
+    else {
+      const prev = src.target === "pool" ? previous.pools.find((p) => p.id === id) : previous.coins.find((c) => c.id === id);
+      if (keepPreviousLive(target, prev, src)) kept.push(id);
+    }
+  }
+  return { missing, kept };
+}
+
+async function refreshLiveSources(coins, pools, previous) {
+  const cfg = await readJson(path.join(DATA, "curated", "live-sources.json"), { sources: [] });
+  for (const src of cfg.sources || []) {
+    let res;
+    try { const { body } = await get(src.url, { retries: 1, timeout: 15000 }); res = parseLiveReading(src, body); }
+    catch (e) { res = { status: "error", error: `${src.id}: ${e.message}` }; }
+    const { missing, kept } = applyLiveResult(src, res, coins, pools, previous);
+    for (const id of missing) errors.push(`live ${src.id}: no ${src.target} ${id}`);
+    if (res.status === "ok") addSource(src.id, src.label || src.id, src.url);
+    else errors.push(`live ${src.id}: ${res.error || "available: false"}${kept.length ? ` (kept previous reading for ${kept.join(", ")})` : ""}`);
+  }
+}
+
+async function readPrevious() {
+  const pf = await readJson(path.join(DATA, "pools.json"), { pools: [] });
+  const nf = await readJson(path.join(DATA, "network.json"), { coins: [] });
+  return { pools: pf.pools || [], coins: nf.coins || [], pf, nf };
 }
 
 // data/curated/coins.json: coins miningpoolstats doesn't cover, added verbatim (same shape as network.json).
@@ -483,12 +661,58 @@ export function normaliseShares(coins, pools) {
     if (net !== null && sum <= net * 1.02) { basis = "network"; denom = net; }
     else if (sum > 0) { basis = "pools"; denom = sum; }
     c.share_basis = basis;
-    for (const p of own) p.network_share_pct = p.hashrate !== null && p.hashrate !== undefined && denom ? (p.hashrate / denom) * 100 : null;
+    // Never above 100%: pool and network figures can cover different windows.
+    for (const p of own) p.network_share_pct = p.hashrate !== null && p.hashrate !== undefined && denom ? Math.min(100, (p.hashrate / denom) * 100) : null;
   }
 }
 
+/** Parameter-set key: 200,9 first (Z15-series), then other exact (n,k) sets, unknown last. */
+export function paramKey(c) {
+  const n = c.equihash?.n, k = c.equihash?.k;
+  if (n == null || k == null) return [2, 0, 0];
+  return n === 200 && k === 9 ? [0, n, k] : [1, n, k];
+}
+/** Sum of positive pool-reported hashrates for a coin, or null when no row has a number. */
+export function reportedHashrate(coin, pools) {
+  const own = pools.filter((p) => p.coin_id === coin.id && p.hashrate !== null && p.hashrate !== undefined);
+  if (!own.length) return null;
+  return own.reduce((a, p) => a + (p.hashrate > 0 ? p.hashrate : 0), 0);
+}
+/** Ranking within each exact (n,k) group by pool-reported hashrate, zero/unavailable last, name as
+ * tie-break. Hashrates are never compared across parameter sets. Mirrors src/data.rs rank_coins. */
+export function rankCoins(coins, pools) {
+  const sum = new Map(coins.map((c) => [c.id, reportedHashrate(c, pools)]));
+  coins.sort((a, b) => {
+    const ka = paramKey(a), kb = paramKey(b);
+    for (let i = 0; i < 3; i++) if (ka[i] !== kb[i]) return ka[i] - kb[i];
+    const sa = sum.get(a.id) > 0 ? sum.get(a.id) : 0, sb = sum.get(b.id) > 0 ? sum.get(b.id) : 0;
+    if ((sa > 0) !== (sb > 0)) return sa > 0 ? -1 : 1;
+    if (sa !== sb) return sb - sa;
+    return a.name.localeCompare(b.name) || a.id.localeCompare(b.id);
+  });
+  return coins;
+}
+
+/** `--live-only`: re-read just the live sources into the existing pools.json / network.json. */
+async function mainLiveOnly() {
+  const previous = await readPrevious();
+  const pools = structuredClone(previous.pools), coins = structuredClone(previous.coins);
+  if (!pools.length || !coins.length) { console.error("No existing data to update; run a full refresh first."); process.exit(1); }
+  await refreshLiveSources(coins, pools, previous);
+  rankCoins(coins, pools);
+  normaliseShares(coins, pools);
+  pools.sort((a, b) => (b.hashrate ?? -1) - (a.hashrate ?? -1));
+  // generated_at stays: only the live figures moved, and they carry their own observed_at.
+  await fs.writeFile(path.join(DATA, "pools.json"), JSON.stringify({ ...previous.pf, pools }, null, 2));
+  await fs.writeFile(path.join(DATA, "network.json"), JSON.stringify({ ...previous.nf, coins }, null, 2));
+  console.log(`Live sources updated. ${errors.length} warnings.`);
+  if (errors.length) console.log(errors.map((e) => "  - " + e).join("\n"));
+}
+
 async function main() {
+  if (process.argv.includes("--live-only")) return mainLiveOnly();
   const started = nowIso();
+  const previous = await readPrevious();
   console.log("Refreshing equihash.com data…");
   const { coins, pools } = await refreshMps();
   await refresh2Miners(coins);
@@ -497,17 +721,11 @@ async function main() {
   await addCuratedCoins(coins);
   const zecwec = await refreshManual(coins, pools);
   await refreshWcash(coins, zecwec);
+  await refreshLiveSources(coins, pools, previous);
   await applyCoinStatus(coins);
 
-  // Coin order: by network hashrate share of attention (ZEC first), then name.
-  const order = ["ZEC", "WEC", "KMD", "ARRR", "BTG"];
-  coins.sort((a, b) => {
-    const ia = order.indexOf(a.symbol), ib = order.indexOf(b.symbol);
-    if (ia !== -1 || ib !== -1) return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-    if (a.status !== b.status) return a.status === "active" ? -1 : 1;
-    return a.name.localeCompare(b.name);
-  });
   for (const c of coins) c.pool_count = pools.filter((p) => p.coin_id === c.id).length;
+  rankCoins(coins, pools);
   normaliseShares(coins, pools);
   pools.sort((a, b) => (b.hashrate ?? -1) - (a.hashrate ?? -1));
 

@@ -1,63 +1,55 @@
 // Dev tool: headless screenshots of the running site into screenshots/.
-// Usage: BASE=http://127.0.0.1:8080 node scripts/screenshots.mjs
-// Needs playwright-core (npm i -D playwright-core, or NODE_PATH to an install) and a Chrome/Chromium binary.
+// Usage: BASE=http://127.0.0.1:8090 node scripts/screenshots.mjs
+// Needs playwright-core (npm i --no-save playwright-core, or NODE_PATH to an install) and Chrome/Chromium.
 import { chromium } from "playwright-core";
 import fs from "node:fs";
 
 const BASE = process.env.BASE || "http://127.0.0.1:8080";
-const OUT = new URL("../screenshots/", import.meta.url).pathname;
+const OUT = (process.env.OUT || new URL("../screenshots/", import.meta.url).pathname).replace(/\/?$/, "/");
 const exe = process.env.CHROME || ["/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find((p) => fs.existsSync(p));
 fs.mkdirSync(OUT, { recursive: true });
 
 const browser = await chromium.launch({ executablePath: exe, args: ["--no-sandbox"] });
-const desk = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, colorScheme: "dark" });
-const shots = [
-  ["home-pools.png", "/", { full: false }],
-  ["home-full.png", "/?coin=zcash", { full: true }],
-  ["archive.png", "/archive", { full: true }],
-  ["miners.png", "/miners", { full: true }],
-  ["merged-mining-guide.png", "/merged-mining", { full: true }],
-  ["calculator.png", "/calculator", { full: false }],
-  ["add-pool.png", "/add-pool", { full: true }],
-  ["about.png", "/about", { full: true }],
-  ["sources.png", "/sources", { full: false }],
-];
-for (const [file, path, o] of shots) {
-  const p = await desk.newPage();
+const errors = [];
+async function shot(ctx, file, path, { full = false, click = null, wait = 500 } = {}) {
+  const p = await ctx.newPage();
+  p.on("pageerror", (e) => errors.push(`${path}: ${e.message}`));
   await p.goto(BASE + path, { waitUntil: "networkidle" });
-  await p.waitForTimeout(1100);
-  await p.screenshot({ path: OUT + file, fullPage: o.full });
-  console.log("saved", OUT + file);
-  await p.close();
-}
-// Pool table + drawer open on the largest ZEC pool
-{
-  const p = await desk.newPage();
-  await p.goto(BASE + "/?coin=zcash#pools", { waitUntil: "networkidle" });
-  await p.waitForTimeout(400);
-  await p.click("#pool-table tbody tr.pool-row:not([hidden]) .pool-link");
-  await p.waitForTimeout(700);
-  await p.screenshot({ path: OUT + "pool-drawer.png" });
-  console.log("saved", OUT + "pool-drawer.png");
-  await p.close();
-}
-// Mobile
-const mob = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, colorScheme: "dark" });
-for (const [file, path, full] of [["mobile-home.png", "/", false], ["mobile-pools.png", "/?coin=zcash#pools", false], ["mobile-home-full.png", "/", true]]) {
-  const p = await mob.newPage();
-  await p.goto(BASE + path, { waitUntil: "networkidle" });
-  await p.waitForTimeout(1100);
+  if (click) { await p.click(click); }
+  await p.waitForTimeout(wait);
   await p.screenshot({ path: OUT + file, fullPage: full });
   console.log("saved", OUT + file);
   await p.close();
 }
-{
-  const p = await mob.newPage();
-  await p.goto(BASE + "/?coin=zcash#pools", { waitUntil: "networkidle" });
-  await p.click("#pool-table tbody tr.pool-row:not([hidden]) .pool-link");
-  await p.waitForTimeout(700);
-  await p.screenshot({ path: OUT + "mobile-drawer.png" });
-  console.log("saved", OUT + "mobile-drawer.png");
-  await p.close();
-}
+const desk = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, colorScheme: "light" });
+const firstRow = "#pool-table tbody tr.pool-row:not([hidden]) .pool-link";
+await shot(desk, "home.png", "/");
+await shot(desk, "home-full.png", "/", { full: true });
+await shot(desk, "home-all-coins.png", "/?coin=all");
+await shot(desk, "home-komodo.png", "/?coin=komodo");
+await shot(desk, "home-wcash.png", "/?coin=wcash");
+await shot(desk, "pool-drawer.png", "/?coin=zcash#pools", { click: firstRow });
+await shot(desk, "pool-page.png", "/pool/" + (process.env.POOL || "zcash-viabtc-viabtc-com"));
+await shot(desk, "hardware.png", "/miners", { full: true });
+await shot(desk, "calculator.png", "/calculator");
+await shot(desk, "calculator-wcash.png", "/calculator?coin=wcash");
+await shot(desk, "calculator-invalid.png", "/calculator?coin=zcash&hashrate=840&watts=2780&power=0.08&fee=150");
+await shot(desk, "merged-mining-guide.png", "/merged-mining", { full: true });
+await shot(desk, "archive.png", "/archive", { full: true });
+await shot(desk, "add-pool.png", "/add-pool", { full: true });
+await shot(desk, "about.png", "/about", { full: true });
+await shot(desk, "sources.png", "/sources", { full: true });
+const dark = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, colorScheme: "dark" });
+await shot(dark, "home-dark.png", "/");
+const mob = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, colorScheme: "light" });
+await shot(mob, "mobile-home.png", "/");
+await shot(mob, "mobile-pools.png", "/?coin=zcash#pools");
+await shot(mob, "mobile-home-full.png", "/", { full: true });
+await shot(mob, "mobile-drawer.png", "/?coin=zcash#pools", { click: firstRow });
+await shot(mob, "mobile-hardware.png", "/miners");
+await shot(mob, "mobile-calculator.png", "/calculator", { full: true });
+await shot(mob, "mobile-guide.png", "/merged-mining");
+await shot(mob, "mobile-archive.png", "/archive");
+await shot(mob, "mobile-about.png", "/about");
 await browser.close();
+if (errors.length) { console.error("page errors:\n" + errors.join("\n")); process.exit(1); }

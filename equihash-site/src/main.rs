@@ -5,22 +5,32 @@
 
 mod data;
 mod fmt;
+mod live;
 mod views;
 
 use actix_files::{Files, NamedFile};
 use actix_web::{get, http::header, middleware, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 
 struct AppState {
     data: RwLock<Arc<data::Data>>,
     data_dir: PathBuf,
+    /// Last good reading of every live source (see src/live.rs).
+    live: RwLock<live::LiveState>,
 }
 
 impl AppState {
     fn get(&self) -> Arc<data::Data> {
         self.data.read().unwrap().clone()
+    }
+    /// Rebuild the served data from the files plus the latest live readings.
+    fn rebuild(&self) -> Result<(), String> {
+        let l = self.live.read().unwrap().clone();
+        let d = data::load_with_live(&self.data_dir, Some(&l))?;
+        *self.data.write().unwrap() = Arc::new(d);
+        Ok(())
     }
 }
 
@@ -74,6 +84,16 @@ async fn sources(s: web::Data<AppState>) -> impl Responder {
     html(views::pages::sources(&s.get()))
 }
 
+/// Live figures for the page to poll (every 60 s). Read from the server's own last good readings,
+/// so browsers never call the pool's endpoints.
+#[get("/api/live")]
+async fn api_live(s: web::Data<AppState>) -> HttpResponse {
+    let d = s.get();
+    HttpResponse::Ok()
+        .insert_header((header::CACHE_CONTROL, "public, max-age=15"))
+        .json(views::live_json(&d, chrono::Utc::now()))
+}
+
 /// Public, read-only copies of the data files (transparency).
 #[get("/data/{file}")]
 async fn data_file(s: web::Data<AppState>, path: web::Path<String>, req: HttpRequest) -> HttpResponse {
@@ -117,22 +137,6 @@ fn static_dir() -> PathBuf {
     std::env::var("STATIC_DIR").map(PathBuf::from).unwrap_or_else(|_| PathBuf::from("static"))
 }
 
-fn newest_mtime(dir: &PathBuf) -> Option<SystemTime> {
-    let mut newest = None;
-    for sub in [dir.clone(), dir.join("curated")] {
-        if let Ok(rd) = std::fs::read_dir(&sub) {
-            for e in rd.flatten() {
-                if let Ok(m) = e.metadata().and_then(|m| m.modified()) {
-                    if newest.map(|n| m > n).unwrap_or(true) {
-                        newest = Some(m);
-                    }
-                }
-            }
-        }
-    }
-    newest
-}
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::default().default_filter_or("info"));
@@ -142,27 +146,64 @@ async fn main() -> std::io::Result<()> {
         std::process::exit(1);
     });
     println!("Loaded {} pools, {} coins, {} miners, {} archive entries from {}", d.pools.len(), d.coins.len(), d.miners.len(), d.archive.len(), data_dir.display());
-    let state = web::Data::new(AppState { data: RwLock::new(Arc::new(d)), data_dir: data_dir.clone() });
+    let state = web::Data::new(AppState { data: RwLock::new(Arc::new(d)), data_dir: data_dir.clone(), live: RwLock::new(live::LiveState::default()) });
 
-    // Hot reload: re-read data/*.json when any file changes (after `npm run refresh` or a manual edit).
+    // Hot reload: poll data/ and data/curated/ every 2 s; any edit, added, removed or replaced
+    // JSON file triggers a reload (after `npm run refresh` or a hand edit). A broken file keeps
+    // the last good data and is retried on the next poll.
     {
         let state = state.clone();
         std::thread::spawn(move || {
-            let mut last = newest_mtime(&state.data_dir);
+            let mut watcher = data::Reloader::new(&state.data_dir);
+            let mut failing = false;
             loop {
-                std::thread::sleep(Duration::from_secs(5));
-                let now = newest_mtime(&state.data_dir);
-                if now != last {
-                    std::thread::sleep(Duration::from_millis(500)); // let writers finish
-                    match data::load(&state.data_dir) {
-                        Ok(d) => {
-                            println!("Reloaded data: {} pools", d.pools.len());
-                            *state.data.write().unwrap() = Arc::new(d);
-                            last = now;
+                std::thread::sleep(Duration::from_secs(2));
+                let l = state.live.read().unwrap().clone();
+                match watcher.poll_with(Some(&l)) {
+                    None => {}
+                    Some(Ok(d)) => {
+                        println!("Reloaded data: {} pools", d.pools.len());
+                        *state.data.write().unwrap() = Arc::new(d);
+                        failing = false;
+                    }
+                    Some(Err(e)) => {
+                        if !failing {
+                            eprintln!("reload failed (keeping previous data): {e}");
                         }
-                        Err(e) => eprintln!("reload failed (keeping previous data): {e}"),
+                        failing = true;
                     }
                 }
+            }
+        });
+    }
+
+    // Live sources: a small background task polls each endpoint in data/curated/live-sources.json
+    // every 30–60 s (re-reading the config each round, so adding a source is a JSON edit). A bad
+    // answer keeps the previous good reading. LIVE=0 turns polling off.
+    if std::env::var("LIVE").map(|v| v != "0").unwrap_or(true) {
+        let state = state.clone();
+        actix_web::rt::spawn(async move {
+            let client = match reqwest::Client::builder().timeout(Duration::from_secs(10)).user_agent("equihash.com live poller").build() {
+                Ok(c) => c,
+                Err(e) => return eprintln!("live poller disabled: {e}"),
+            };
+            loop {
+                let cfg = live::read_config(&state.data_dir).unwrap_or_default();
+                let mut changed = false;
+                for src in &cfg.sources {
+                    let r = live::fetch(&client, src).await;
+                    if let Err(e) = &r {
+                        log::warn!("live source {}: {e}", src.id);
+                    }
+                    changed |= state.live.write().unwrap().record(&src.id, r, chrono::Utc::now());
+                }
+                // Rebuild even when nothing changed, so status and ages in /api/live stay current.
+                if let Err(e) = state.rebuild() {
+                    if changed {
+                        eprintln!("live rebuild failed (keeping previous data): {e}");
+                    }
+                }
+                actix_web::rt::time::sleep(Duration::from_secs(cfg.interval())).await;
             }
         });
     }
@@ -186,6 +227,7 @@ async fn main() -> std::io::Result<()> {
             .service(add_pool)
             .service(about)
             .service(sources)
+            .service(api_live)
             .service(data_file)
             .service(favicon)
             .service(robots)
