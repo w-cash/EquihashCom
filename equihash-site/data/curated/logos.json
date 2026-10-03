@@ -1,6 +1,6 @@
 {
   "_doc": "Written by scripts/fetch-logos.mjs (see README, 'Logos'). kind: official | repo | third_party | fallback. file is relative to static/logos/; fallback entries have file null and render as a monogram.",
-  "generated_at": "2026-10-03T15:56:16.475Z",
+  "generated_at": "2026-10-03T16:59:32.819Z",
   "coins": {
     "zcash": {
       "file": "coins/zcash.47590b6def.svg",
@@ -1890,6 +1890,18 @@
         "https://www.aikapool.com/favicon.ico → HTTP 0 fetch failed"
       ],
       "domain": "aikapool.com"
+    },
+    "zcash:zprominers.com": {
+      "file": "pools/zprominers.com.290257175e.svg",
+      "source_url": "https://zprominers.com/favicon.svg?v=484e4d1283",
+      "source_page": "https://zprominers.com/",
+      "fetched_at": "2026-10-03T16:59:34.004Z",
+      "kind": "official",
+      "license_note": "ZProMiners's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "svg",
+      "bytes": 823,
+      "source_px": "vector",
+      "domain": "zprominers.com"
     }
   }
 }

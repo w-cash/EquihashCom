@@ -119,6 +119,75 @@
       ]
     },
     {
+      "id": "zcash:zprominers.com",
+      "name": "ZProMiners",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://zprominers.com/",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "hashrate_is_reported": false,
+      "miners": 0,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        },
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 1
+        },
+        {
+          "scheme": "PROP",
+          "fee_pct": 1
+        }
+      ],
+      "payout_schemes": [
+        "SOLO",
+        "PPLNS",
+        "PROP"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "Worldwide",
+      "regions": [
+        "Worldwide"
+      ],
+      "country_code": "WL",
+      "merged_mining": {
+        "supported": null,
+        "coins": [],
+        "note": null
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "ZProMiners official pool pages and live feed",
+      "source_url": "https://zprominers.com/zcash-pool-stats",
+      "data_url": "https://zprominers.com/api/live.json",
+      "from_miningpoolstats": false,
+      "verified_at": "2026-10-03T16:56:47Z",
+      "notes": "Zcash-only Equihash 200,9 pool. SOLO charges 2%; PPLNS and PROP charge 1%. Rewards are paid directly to transparent addresses in each block, so there is no balance or withdrawal threshold; a PPLNS/PROP slice under 0.0005 ZEC carries into the next payout. The official live feed supplies aggregate hashrate every 45 s; its page describes the figure as the last 10 minutes.",
+      "hashrate_source": "https://zprominers.com/api/live.json",
+      "hashrate_observed_at": null,
+      "basis": null,
+      "fee_source": "https://zprominers.com/how-to-mine-zcash",
+      "fee_observed_at": "2026-10-03T16:56:47Z",
+      "miners_source": "https://zprominers.com/api/live.json",
+      "miners_observed_at": "2026-10-03T16:56:47Z",
+      "blocks_source": "https://zprominers.com/zcash-blocks-found",
+      "blocks_observed_at": "2026-10-03T16:56:47Z",
+      "min_payout_source": "https://zprominers.com/zcash-mining-faq",
+      "min_payout_observed_at": "2026-10-03T16:56:47Z",
+      "live_fields": [
+        "hashrate"
+      ]
+    },
+    {
       "id": "zcash:unmineable.com",
       "name": "unMineable",
       "coin": "ZEC",

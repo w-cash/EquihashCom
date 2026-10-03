@@ -1936,6 +1936,18 @@ mod tests {
     }
 
     #[test]
+    fn zprominers_loads_as_a_real_pool_with_its_x_link_and_official_logo() {
+        let d = load(&real_dir()).unwrap();
+        let p = d.pools.iter().find(|p| p.id == "zcash:zprominers.com").expect("ZProMiners row");
+        assert_eq!(p.coin_id, "zcash");
+        assert_eq!(p.slug, "zcash-zprominers-zprominers-com");
+        assert_eq!(p.fee_range(), Some((1.0, 2.0)));
+        assert!(p.links.iter().any(|l| l.kind == "x" && l.url == "https://x.com/ZProMiners"));
+        assert_eq!(p.logo.kind, "official");
+        assert!(p.logo.src.as_deref().unwrap_or_default().contains("/static/logos/pools/zprominers.com."));
+    }
+
+    #[test]
     fn reloader_picks_up_links_json() {
         let t = TempData::new("links-reload");
         let mut r = Reloader::new(&t.0);

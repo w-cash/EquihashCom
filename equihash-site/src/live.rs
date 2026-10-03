@@ -116,19 +116,29 @@ pub enum Parsed {
     Unavailable,
 }
 
+/// Read a JSON field by name, or a nested field with a dotted path (`all.solRate`). Pool APIs
+/// often group their live figures, and keeping this in the declarative source config avoids a
+/// one-off parser for every operator.
+fn field<'a>(v: &'a serde_json::Value, path: &str) -> Option<&'a serde_json::Value> {
+    if path.is_empty() {
+        return None;
+    }
+    path.split('.').try_fold(v, |value, key| value.get(key))
+}
+
 fn uint(v: &serde_json::Value, k: &str) -> Option<u64> {
-    v.get(k).and_then(|x| x.as_u64().or_else(|| x.as_f64().filter(|f| f.is_finite() && *f >= 0.0).map(|f| f as u64)))
+    field(v, k).and_then(|x| x.as_u64().or_else(|| x.as_f64().filter(|f| f.is_finite() && *f >= 0.0).map(|f| f as u64)))
 }
 
 /// Parse one response. Only `available: true` with a finite, non-negative hashrate and a sane
 /// `updated_at` (unix seconds, not in the future) counts as a reading.
 pub fn parse(src: &Source, body: &serde_json::Value, now: chrono::DateTime<chrono::Utc>) -> Result<Parsed, String> {
     let f = &src.fields;
-    if body.get(&f.available).and_then(|x| x.as_bool()) != Some(true) {
+    if field(body, &f.available).and_then(|x| x.as_bool()) != Some(true) {
         return Ok(Parsed::Unavailable);
     }
-    let h = body.get(&f.hashrate).and_then(|x| x.as_f64()).filter(|h| h.is_finite() && *h >= 0.0).ok_or_else(|| format!("{}: no valid {}", src.id, f.hashrate))?;
-    let ts = body.get(&f.updated_at).and_then(|x| x.as_i64()).ok_or_else(|| format!("{}: no valid {}", src.id, f.updated_at))?;
+    let h = field(body, &f.hashrate).and_then(|x| x.as_f64()).filter(|h| h.is_finite() && *h >= 0.0).ok_or_else(|| format!("{}: no valid {}", src.id, f.hashrate))?;
+    let ts = field(body, &f.updated_at).and_then(|x| x.as_i64()).ok_or_else(|| format!("{}: no valid {}", src.id, f.updated_at))?;
     let at = chrono::DateTime::from_timestamp(ts, 0).ok_or_else(|| format!("{}: bad {}", src.id, f.updated_at))?;
     if at > now + chrono::Duration::minutes(5) {
         return Err(format!("{}: {} is in the future", src.id, f.updated_at));
@@ -367,6 +377,21 @@ mod tests {
         assert_eq!(r.hashrate, 553587.0);
         assert_eq!(r.window_seconds, Some(1200));
         assert_eq!(r.observed_at, "2026-10-03T11:09:23Z");
+    }
+
+    #[test]
+    fn parses_nested_fields_declared_with_dotted_paths() {
+        let mut s = src();
+        s.id = "zprominers-pool".into();
+        s.fields.available = "ok".into();
+        s.fields.hashrate = "all.solRate".into();
+        s.fields.updated_at = "t".into();
+        s.fields.window_seconds = "".into();
+        let p = parse(&s, &json!({"ok": true, "t": 1_791_025_763, "all": {"solRate": 0}}), now()).unwrap();
+        let Parsed::Ok(r) = p else { panic!("{p:?}") };
+        assert_eq!(r.hashrate, 0.0, "an explicit live zero is data, not n/a");
+        assert_eq!(r.observed_at, "2026-10-03T11:09:23Z");
+        assert_eq!(r.window_seconds, None);
     }
 
     #[test]

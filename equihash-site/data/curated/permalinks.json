@@ -118,7 +118,8 @@
     "gemlink:aikapool.com:7": "gemlink-aikapool-com-aikapool-com-glink",
     "bitcoinz:aikapool.com:6": "bitcoinz-aikapool-com-aikapool-com-btcz",
     "litecoinz:aikapool.com:3": "litecoinz-aikapool-com-aikapool-com-ltz",
-    "zcash:unmineable.com": "zcash-unmineable-unmineable-com"
+    "zcash:unmineable.com": "zcash-unmineable-unmineable-com",
+    "zcash:zprominers.com": "zcash-zprominers-zprominers-com"
   },
   "aliases": {}
 }

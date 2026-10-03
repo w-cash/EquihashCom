@@ -541,13 +541,14 @@ async function refreshWcash(coins, zecwec) {
  *  non-negative hashrate and a sane unix updated_at counts. */
 export function parseLiveReading(src, body, nowMs = Date.now()) {
   const f = { available: "available", hashrate: "hashrate_sol_s", updated_at: "updated_at", window_seconds: "window_seconds", sample_blocks: "sample_blocks", height: "height", ...(src.fields || {}) };
-  if (!body || body[f.available] !== true) return { status: "unavailable" };
-  const h = body[f.hashrate];
+  const field = (path) => String(path || "").split(".").filter(Boolean).reduce((value, key) => value?.[key], body);
+  if (!body || field(f.available) !== true) return { status: "unavailable" };
+  const h = field(f.hashrate);
   if (typeof h !== "number" || !isFinite(h) || h < 0) return { status: "error", error: `${src.id}: no valid ${f.hashrate}` };
-  const ts = body[f.updated_at];
+  const ts = field(f.updated_at);
   if (typeof ts !== "number" || !isFinite(ts)) return { status: "error", error: `${src.id}: no valid ${f.updated_at}` };
   if (ts * 1000 > nowMs + 5 * 60 * 1000) return { status: "error", error: `${src.id}: ${f.updated_at} is in the future` };
-  const u = (k) => (typeof body[k] === "number" && isFinite(body[k]) && body[k] >= 0 ? Math.floor(body[k]) : null);
+  const u = (k) => { const v = field(k); return typeof v === "number" && isFinite(v) && v >= 0 ? Math.floor(v) : null; };
   return {
     status: "ok",
     reading: { hashrate: h, observed_at: new Date(Math.floor(ts) * 1000).toISOString().replace(".000Z", "Z"), window_seconds: u(f.window_seconds), sample_blocks: u(f.sample_blocks), height: u(f.height) },

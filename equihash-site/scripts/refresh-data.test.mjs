@@ -63,6 +63,16 @@ test("live readings are used only when available is true", () => {
   assert.deepEqual(ok.reading, { hashrate: 553587, observed_at: "2026-10-03T11:09:23Z", window_seconds: 1200, sample_blocks: null, height: null });
 });
 
+test("live source field mappings accept nested dotted paths and preserve an explicit zero", () => {
+  const src = {
+    id: "zprominers-pool",
+    fields: { available: "ok", hashrate: "all.solRate", updated_at: "t", window_seconds: "" },
+  };
+  const out = parseLiveReading(src, { ok: true, t: 1791025763, all: { solRate: 0 } }, NOW);
+  assert.equal(out.status, "ok");
+  assert.deepEqual(out.reading, { hashrate: 0, observed_at: "2026-10-03T11:09:23Z", window_seconds: null, sample_blocks: null, height: null });
+});
+
 test("a live reading sets basis, source and its own time; the previous one survives an outage", () => {
   const row = { id: "wcash:zecwec.com", hashrate: null, basis: null, fee_observed_at: "2026-10-03T10:00:00Z" };
   const r = parseLiveReading(poolSrc, { available: true, hashrate_sol_s: 553587, window_seconds: 1200, updated_at: 1791025763 }, NOW).reading;

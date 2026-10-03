@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-03T10:54:43Z",
+  "generated_at": "2026-10-03T16:56:47Z",
   "coins": {
     "zcash": [
       {
@@ -2071,6 +2071,64 @@
         "label": "ZecWec",
         "source_url": "https://pool.zecwec.com/",
         "verified_at": "2026-10-03T10:50:50Z",
+        "status": "verified"
+      }
+    ],
+    "zcash:zprominers.com": [
+      {
+        "kind": "website",
+        "url": "https://zprominers.com/",
+        "label": "ZProMiners",
+        "source_url": "https://zprominers.com/",
+        "verified_at": "2026-10-03T16:56:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "x",
+        "url": "https://x.com/ZProMiners",
+        "label": "@ZProMiners on X",
+        "source_url": "https://x.com/ZProMiners",
+        "verified_at": "2026-10-03T16:56:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/zprominers",
+        "label": "ZProMiners community chat",
+        "source_url": "https://zprominers.com/",
+        "verified_at": "2026-10-03T16:56:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "telegram",
+        "url": "https://t.me/zprominers_news",
+        "label": "ZProMiners news channel",
+        "source_url": "https://zprominers.com/",
+        "verified_at": "2026-10-03T16:56:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "status",
+        "url": "https://zprominers.com/zcash-pool-stats",
+        "label": "ZProMiners live pool statistics",
+        "source_url": "https://zprominers.com/",
+        "verified_at": "2026-10-03T16:56:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "docs",
+        "url": "https://zprominers.com/how-to-mine-zcash",
+        "label": "ZProMiners mining setup",
+        "source_url": "https://zprominers.com/",
+        "verified_at": "2026-10-03T16:56:47Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zprominers.com/zcash-mining-faq",
+        "label": "ZProMiners FAQ and support",
+        "source_url": "https://zprominers.com/",
+        "verified_at": "2026-10-03T16:56:47Z",
         "status": "verified"
       }
     ],
