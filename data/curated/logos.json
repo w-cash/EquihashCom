@@ -1,6 +1,6 @@
 {
   "_doc": "Written by scripts/fetch-logos.mjs (see README, 'Logos'). kind: official | repo | third_party | fallback. file is relative to static/logos/; fallback entries have file null and render as a monogram.",
-  "generated_at": "2026-10-03T16:59:32.819Z",
+  "generated_at": "2026-10-05T20:15:00.000Z",
   "coins": {
     "zcash": {
       "file": "coins/zcash.47590b6def.svg",
@@ -1902,6 +1902,20 @@
       "bytes": 823,
       "source_px": "vector",
       "domain": "zprominers.com"
+    }
+  },
+  "vendors": {
+    "the-mining-shop-uk": {
+      "file": "vendors/the-mining-shop-uk.239a526176.png",
+      "source_url": "https://www.theminingshop.co.uk/wp-content/uploads/2026/07/the-mining-shop-uk-favicon.png",
+      "source_page": "https://www.theminingshop.co.uk/",
+      "fetched_at": "2026-10-05T20:15:00.000Z",
+      "kind": "official",
+      "license_note": "The Mining Shop UK's own mark, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "png",
+      "bytes": 4987,
+      "bg": "tile",
+      "source_px": "512x512"
     }
   }
 }

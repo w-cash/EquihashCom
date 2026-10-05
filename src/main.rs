@@ -72,6 +72,19 @@ async fn archive(s: web::Data<AppState>) -> impl Responder {
 async fn miners(s: web::Data<AppState>) -> impl Responder {
     html(views::pages::miners(&s.get()))
 }
+async fn buy(s: web::Data<AppState>, q: web::Query<views::buy::BuyQuery>) -> impl Responder {
+    html(views::buy::index(&s.get(), &q))
+}
+async fn buy_vendor(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
+    let d = s.get();
+    match views::buy::vendor(&d, &path) {
+        Some(m) => html(m),
+        None => HttpResponse::NotFound().content_type("text/html; charset=utf-8").body(views::pages::not_found(&d).into_string()),
+    }
+}
+async fn add_vendor(s: web::Data<AppState>) -> impl Responder {
+    html(views::buy::add_vendor(&s.get()))
+}
 async fn calculator(s: web::Data<AppState>, q: web::Query<views::calc::CalcQuery>) -> impl Responder {
     html(views::calc::render(&s.get(), &q))
 }
@@ -142,12 +155,18 @@ async fn healthz(s: web::Data<AppState>) -> HttpResponse {
 /// Public, read-only copies of the data files (transparency). The generated files are served
 /// from the same snapshot the pages were rendered from.
 async fn data_file(s: web::Data<AppState>, path: web::Path<String>, req: HttpRequest) -> HttpResponse {
-    const ALLOWED: &[&str] = &["pools.json", "network.json", "archive.json", "miners.json", "meta.json", "research.json", "current.json"];
+    const ALLOWED: &[&str] = &["pools.json", "network.json", "archive.json", "miners.json", "meta.json", "research.json", "current.json", "vendors.json", "listings.json"];
     if !ALLOWED.contains(&path.as_str()) {
         return HttpResponse::NotFound().finish();
     }
     let d = s.get();
-    let file = if data::GENERATED.contains(&path.as_str()) { d.snapshot_dir.join(path.as_str()) } else { s.data_dir.join(path.as_str()) };
+    let file = if data::GENERATED.contains(&path.as_str()) {
+        d.snapshot_dir.join(path.as_str())
+    } else if path.as_str() == "vendors.json" || path.as_str() == "listings.json" {
+        s.data_dir.join("curated").join(path.as_str())
+    } else {
+        s.data_dir.join(path.as_str())
+    };
     match NamedFile::open(file) {
         Ok(f) => f.into_response(&req),
         Err(_) => HttpResponse::NotFound().finish(),
@@ -167,8 +186,9 @@ async fn robots() -> HttpResponse {
 
 async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
     let d = s.get();
-    let mut urls: Vec<String> = ["/", "/miners", "/calculator", "/merged-mining", "/archive", "/add-pool", "/about", "/sources"].iter().map(|p| p.to_string()).collect();
+    let mut urls: Vec<String> = ["/", "/miners", "/buy", "/calculator", "/merged-mining", "/archive", "/add-pool", "/add-vendor", "/about", "/sources"].iter().map(|p| p.to_string()).collect();
     urls.extend(d.pools.iter().map(|p| format!("/pool/{}", p.slug)));
+    urls.extend(d.vendors.iter().map(|v| format!("/buy/vendor/{}", v.slug)));
     let body: String = urls.iter().map(|u| format!("<url><loc>{}{}</loc></url>", views::layout::SITE, u)).collect();
     HttpResponse::Ok().content_type("application/xml").body(format!(r#"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>"#))
 }
@@ -206,9 +226,12 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
         .service(web::resource("/pool/{slug}").route(get_head().to(pool)))
         .service(web::resource("/archive").route(get_head().to(archive)))
         .service(web::resource("/miners").route(get_head().to(miners)))
+        .service(web::resource("/buy").route(get_head().to(buy)))
+        .service(web::resource("/buy/vendor/{slug}").route(get_head().to(buy_vendor)))
         .service(web::resource("/calculator").route(get_head().to(calculator)))
         .service(web::resource("/merged-mining").route(get_head().to(guide)))
         .service(web::resource("/add-pool").route(get_head().to(add_pool)))
+        .service(web::resource("/add-vendor").route(get_head().to(add_vendor)))
         .service(web::resource("/about").route(get_head().to(about)))
         .service(web::resource("/sources").route(get_head().to(sources)))
         .service(web::resource("/api/live").route(get_head().to(api_live)))
@@ -232,10 +255,12 @@ async fn main() -> std::io::Result<()> {
         std::process::exit(1);
     });
     println!(
-        "Loaded {} pools, {} coins, {} miners, {} archive entries from {}{}",
+        "Loaded {} pools, {} coins, {} miners, {} vendors, {} listings, {} archive entries from {}{}",
         d.pools.len(),
         d.coins.len(),
         d.miners.len(),
+        d.vendors.len(),
+        d.listings.len(),
         d.archive.len(),
         data_dir.display(),
         d.snapshot.as_deref().map(|s| format!(" (snapshot {s})")).unwrap_or_default()
@@ -349,6 +374,9 @@ mod tests {
             format!("/pool/{slug}"),
             "/archive".into(),
             "/miners".into(),
+            "/buy".into(),
+            "/buy?machine=antminer-z15-pro".into(),
+            "/add-vendor".into(),
             "/calculator".into(),
             "/merged-mining".into(),
             "/add-pool".into(),
@@ -357,6 +385,8 @@ mod tests {
             "/api/live".into(),
             "/data/pools.json".into(),
             "/data/miners.json".into(),
+            "/data/vendors.json".into(),
+            "/data/listings.json".into(),
             "/favicon.ico".into(),
             "/robots.txt".into(),
             "/sitemap.xml".into(),
@@ -413,6 +443,48 @@ mod tests {
         let (code, body) = health(&d, gen + chrono::Duration::minutes(30), HEALTH_MAX_DATA_AGE_SECS, None, true);
         assert_eq!(code, 200);
         assert_eq!(body["status"], if d.live.is_empty() { "ok" } else { "degraded" });
+    }
+
+    #[actix_web::test]
+    async fn buy_page_lists_outbound_vendor_links_and_no_checkout() {
+        let s = state();
+        let app = app!(s);
+        // Vendor page from live data.
+        let slug = s.get().vendors[0].slug.clone();
+        let product = s.get().listings[0].product_url.clone();
+        for p in ["/buy".to_string(), format!("/buy/vendor/{slug}"), "/add-vendor".into()] {
+            let r = test::call_service(&app, test::TestRequest::get().uri(&p).to_request()).await;
+            assert_eq!(r.status(), 200, "{p}");
+            let body = test::read_body(r).await;
+            let html = String::from_utf8(body.to_vec()).unwrap();
+            assert!(html.contains(r#"rel="noopener""#), "{p} outbound rel");
+            assert!(!html.to_lowercase().contains("buy now on equihash"), "{p}");
+            assert!(!html.contains("add to cart") && !html.contains("Add to cart"), "{p}");
+            assert!(!html.contains(r#"action="/checkout""#) && !html.contains(r#"href="/checkout""#), "{p}");
+        }
+        let r = test::call_service(&app, test::TestRequest::get().uri("/buy").to_request()).await;
+        let html = String::from_utf8(test::read_body(r).await.to_vec()).unwrap();
+        assert!(html.contains(&product), "product url present");
+        assert!(html.contains("View at"), "soft CTA copy");
+        assert!(html.contains("£12,800"), "observed price from The Mining Shop");
+        // Never invent a zero price when missing — the real listing price is positive.
+        assert!(!html.contains(">£0<") && !html.contains(">$0<"), "no zero price");
+        let r = test::call_service(&app, test::TestRequest::get().uri("/buy?machine=antminer-z15-pro").to_request()).await;
+        assert_eq!(r.status(), 200);
+        let html = String::from_utf8(test::read_body(r).await.to_vec()).unwrap();
+        assert!(html.contains(r#"class="buy-apply""#), "no-JS filter submit is present");
+        assert!(html.contains(r#"value="region" selected"#), "default sort is selected");
+        let r = test::call_service(&app, test::TestRequest::get().uri("/buy?sort=stock").to_request()).await;
+        assert_eq!(r.status(), 200);
+        let html = String::from_utf8(test::read_body(r).await.to_vec()).unwrap();
+        assert!(html.contains(r#"value="stock" selected"#), "server honours sort without JavaScript");
+        let r = test::call_service(&app, test::TestRequest::get().uri("/buy?region=US").to_request()).await;
+        assert_eq!(r.status(), 200);
+        let html = String::from_utf8(test::read_body(r).await.to_vec()).unwrap();
+        assert!(html.contains(&product), "filtered pages retain all cards so JavaScript can switch filters");
+        assert!(html.contains(r#"class="buy-card"#) && html.contains(" hidden"), "unmatched cards are hidden, not omitted");
+        let r = test::call_service(&app, test::TestRequest::get().uri("/buy/vendor/no-such-shop").to_request()).await;
+        assert_eq!(r.status(), 404);
     }
 
     #[actix_web::test]

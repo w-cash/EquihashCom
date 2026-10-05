@@ -120,6 +120,29 @@ pub fn opt_num(v: Option<f64>) -> String {
     v.map(num_short).unwrap_or_else(|| NA.into())
 }
 
+/// Fiat amount with currency code from the vendor page. Missing or non-positive → n/a (never "0").
+pub fn money(amount: Option<f64>, currency: Option<&str>) -> String {
+    match amount {
+        Some(p) if p.is_finite() && p > 0.0 => {
+            let cur = currency.unwrap_or("").trim().to_ascii_uppercase();
+            let num = if p >= 100.0 {
+                group(p.round() as i128)
+            } else if (p - p.round()).abs() < 1e-9 {
+                group(p.round() as i128)
+            } else {
+                format!("{p:.2}")
+            };
+            match cur.as_str() {
+                "GBP" => format!("£{num}"),
+                "USD" | "" => format!("${num}"),
+                "EUR" => format!("€{num}"),
+                other => format!("{num} {other}"),
+            }
+        }
+        _ => NA.into(),
+    }
+}
+
 /// USD price with sensible precision: $1,297 · $0.3122 · $0.0000293.
 pub fn price(v: Option<f64>) -> String {
     match v {
@@ -238,4 +261,18 @@ pub fn operator_note(c: &crate::data::Coin) -> Option<String> {
     } else {
         format!("† Includes an operator-reported figure from {pools}; verified {when}")
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn money_never_prints_zero_for_missing() {
+        assert_eq!(money(None, Some("GBP")), "n/a");
+        assert_eq!(money(Some(0.0), Some("GBP")), "n/a");
+        assert_eq!(money(Some(-1.0), Some("USD")), "n/a");
+        assert_eq!(money(Some(12800.0), Some("GBP")), "£12,800");
+        assert_eq!(money(Some(99.5), Some("USD")), "$99.50");
+    }
 }

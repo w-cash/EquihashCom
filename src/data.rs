@@ -473,6 +473,70 @@ pub struct NotListed {
     pub reason: String,
 }
 
+/// A shop that sells Equihash ASICs (data/curated/vendors.json). equihash.com never sells.
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct Vendor {
+    pub id: String,
+    pub slug: String,
+    pub name: String,
+    pub url: Option<String>,
+    pub regions: Vec<String>,
+    /// Preferred region for UK-first ordering (e.g. "UK").
+    pub region_focus: Option<String>,
+    pub region_note: Option<String>,
+    pub notes: Option<String>,
+    pub source_url: Option<String>,
+    pub observed_at: Option<String>,
+    /// Resolved on load from logos.json vendors map.
+    #[serde(skip)]
+    pub logo: crate::views::logo::Logo,
+    /// Filled on load: how many active listings point at this vendor.
+    #[serde(skip)]
+    pub listing_count: usize,
+}
+
+/// One retail listing (data/curated/listings.json). Price/stock/shipping are observed, never invented.
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct Listing {
+    pub id: String,
+    pub vendor_id: String,
+    /// Links to data/miners.json id (manufacturer specs stay on /miners).
+    pub miner_id: String,
+    pub title: String,
+    pub product_url: String,
+    /// What the shop states (may differ from manufacturer typical).
+    pub shop_hashrate_ksol: Option<f64>,
+    pub hashrate_note: Option<String>,
+    pub price_amount: Option<f64>,
+    pub price_currency: Option<String>,
+    /// false = ex VAT (as published); missing = not stated.
+    pub price_includes_vat: Option<bool>,
+    /// "in_stock" | "low_stock" | "preorder" | "out_of_stock" | "unknown"
+    pub availability: Option<String>,
+    pub availability_label: Option<String>,
+    pub shipping_regions: Vec<String>,
+    pub shipping_note: Option<String>,
+    pub condition: Option<String>,
+    /// Path relative to static/, e.g. "shop/machines/….webp".
+    pub image: Option<String>,
+    pub image_source_url: Option<String>,
+    pub image_license_note: Option<String>,
+    pub sku: Option<String>,
+    pub source_url: Option<String>,
+    pub observed_at: Option<String>,
+    /// Resolved on load.
+    #[serde(skip)]
+    pub image_src: Option<String>,
+    #[serde(skip)]
+    pub vendor_name: String,
+    #[serde(skip)]
+    pub vendor_slug: String,
+    #[serde(skip)]
+    pub miner_label: String,
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(default)]
 pub struct ResearchItem {
@@ -534,6 +598,18 @@ struct MinersFile {
 }
 #[derive(Deserialize, Default)]
 #[serde(default)]
+struct VendorsFile {
+    verified_at: Option<String>,
+    vendors: Vec<Vendor>,
+}
+#[derive(Deserialize, Default)]
+#[serde(default)]
+struct ListingsFile {
+    verified_at: Option<String>,
+    listings: Vec<Listing>,
+}
+#[derive(Deserialize, Default)]
+#[serde(default)]
 struct ResearchFile {
     items: Vec<ResearchItem>,
     coins: Vec<ResearchCoin>,
@@ -547,6 +623,10 @@ pub struct Data {
     pub miners: Vec<Miner>,
     pub miners_verified_at: Option<String>,
     pub miners_not_listed: Vec<NotListed>,
+    pub vendors: Vec<Vendor>,
+    pub vendors_verified_at: Option<String>,
+    pub listings: Vec<Listing>,
+    pub listings_verified_at: Option<String>,
     pub research: Vec<ResearchItem>,
     pub research_coins: Vec<ResearchCoin>,
     pub meta: Meta,
@@ -1104,6 +1184,41 @@ pub fn merge_manual(base: Option<&serde_json::Value>, manual: &serde_json::Value
     out
 }
 
+
+/// Product photos for the Buy page. Path must be under static/shop/, webp/png only, ≤ 2 MiB.
+pub fn check_shop_image(static_root: &Path, rel: &str) -> Result<(), String> {
+    let rel = rel.trim_start_matches('/');
+    if rel.contains("..") || rel.starts_with('.') {
+        return Err("bad path".into());
+    }
+    let mut parts = rel.split('/');
+    if parts.next() != Some("shop") {
+        return Err("must be under shop/".into());
+    }
+    let name = parts.next_back().unwrap_or("");
+    let ok_name = !name.is_empty()
+        && !name.starts_with('.')
+        && name.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || matches!(c, '.' | '-' | '_'));
+    if !ok_name {
+        return Err("bad file name".into());
+    }
+    let ext = name.rsplit('.').next().unwrap_or("");
+    if !matches!(ext, "webp" | "png") {
+        return Err("only webp/png".into());
+    }
+    let path = static_root.join(rel);
+    let meta = std::fs::metadata(&path).map_err(|e| format!("missing ({e})"))?;
+    const MAX: u64 = 2 * 1024 * 1024;
+    if !meta.is_file() || meta.len() == 0 || meta.len() > MAX {
+        return Err(format!("size {} not in 1..={MAX}", meta.len()));
+    }
+    let bytes = std::fs::read(&path).map_err(|e| e.to_string())?;
+    match (ext, crate::views::logo::sniff(&bytes)) {
+        ("webp", Some("webp")) | ("png", Some("png")) => Ok(()),
+        (e, t) => Err(format!("extension .{e} but content is {}", t.unwrap_or("unknown"))),
+    }
+}
+
 pub fn load(dir: &Path) -> Result<Data, String> {
     load_with_live(dir, None)
 }
@@ -1336,6 +1451,86 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         .max()
         .or(pf.generated_at.clone());
 
+    // Shop directory (data/curated/vendors.json + listings.json). Missing files = empty directory.
+    let static_root = std::env::var("STATIC_DIR").map(std::path::PathBuf::from).unwrap_or_else(|_| std::path::PathBuf::from("static"));
+    let mut vf: VendorsFile = match std::fs::read_to_string(dir.join("curated").join("vendors.json")) {
+        Ok(raw) => serde_json::from_str(&raw).map_err(|e| format!("{}: {e}", dir.join("curated").join("vendors.json").display()))?,
+        Err(_) => VendorsFile::default(),
+    };
+    let mut lf: ListingsFile = match std::fs::read_to_string(dir.join("curated").join("listings.json")) {
+        Ok(raw) => serde_json::from_str(&raw).map_err(|e| format!("{}: {e}", dir.join("curated").join("listings.json").display()))?,
+        Err(_) => ListingsFile::default(),
+    };
+    // Validate vendor URLs; attach logos.
+    for v in vf.vendors.iter_mut() {
+        clean_url(&mut v.url, &format!("vendor {} url", v.id), &mut dropped);
+        clean_url(&mut v.source_url, &format!("vendor {} source_url", v.id), &mut dropped);
+        if v.slug.is_empty() {
+            v.slug = v.id.clone();
+        }
+        v.logo = logos.vendor(&v.id, &v.name);
+    }
+    // Validate listings: outbound product URL required; image must live under static/shop/.
+    let miner_label_by_id: std::collections::HashMap<String, String> = mf
+        .miners
+        .iter()
+        .map(|m| (m.id.clone(), format!("{} {}", m.maker, m.model)))
+        .collect();
+    let vendor_by_id: std::collections::HashMap<String, (String, String)> =
+        vf.vendors.iter().map(|v| (v.id.clone(), (v.name.clone(), v.slug.clone()))).collect();
+    let mut kept_listings = Vec::new();
+    for mut listing in lf.listings.drain(..) {
+        let mut product = Some(listing.product_url.clone());
+        clean_url(&mut product, &format!("listing {} product_url", listing.id), &mut dropped);
+        let Some(product_url) = product else { continue };
+        listing.product_url = product_url;
+        clean_url(&mut listing.source_url, &format!("listing {} source_url", listing.id), &mut dropped);
+        clean_url(&mut listing.image_source_url, &format!("listing {} image_source_url", listing.id), &mut dropped);
+        // n/a ≠ 0: a missing or non-positive price becomes None.
+        if listing.price_amount.map(|p| !(p.is_finite() && p > 0.0)).unwrap_or(false) {
+            listing.price_amount = None;
+        }
+        if listing.shop_hashrate_ksol.map(|h| !(h.is_finite() && h > 0.0)).unwrap_or(false) {
+            listing.shop_hashrate_ksol = None;
+        }
+        listing.image_src = match listing.image.as_deref() {
+            Some(rel) => match check_shop_image(&static_root, rel) {
+                Ok(()) => Some(format!("/static/{rel}")),
+                Err(why) => {
+                    dropped.push(format!("listing {} image {rel}: {why}", listing.id));
+                    None
+                }
+            },
+            None => None,
+        };
+        if let Some((name, slug)) = vendor_by_id.get(&listing.vendor_id) {
+            listing.vendor_name = name.clone();
+            listing.vendor_slug = slug.clone();
+        } else {
+            dropped.push(format!("listing {}: unknown vendor_id {}", listing.id, listing.vendor_id));
+            continue;
+        }
+        if let Some(label) = miner_label_by_id.get(&listing.miner_id) {
+            listing.miner_label = label.clone();
+        } else {
+            listing.miner_label = listing.title.clone();
+            dropped.push(format!("listing {}: miner_id {} not in miners.json (kept; label falls back to title)", listing.id, listing.miner_id));
+        }
+        kept_listings.push(listing);
+    }
+    lf.listings = kept_listings;
+    // Listing counts on vendors.
+    for v in vf.vendors.iter_mut() {
+        v.listing_count = lf.listings.iter().filter(|l| l.vendor_id == v.id).count();
+    }
+    for x in &dropped {
+        if x.starts_with("listing ") || x.starts_with("vendor ") {
+            log::warn!("shop directory: {x}");
+        }
+    }
+    drop(miner_label_by_id);
+    drop(vendor_by_id);
+
     Ok(Data {
         pools,
         coins,
@@ -1343,6 +1538,10 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         miners: mf.miners,
         miners_verified_at: mf.verified_at,
         miners_not_listed: mf.not_listed,
+        vendors: vf.vendors,
+        vendors_verified_at: vf.verified_at,
+        listings: lf.listings,
+        listings_verified_at: lf.verified_at,
         research: rf.items,
         research_coins: rf.coins,
         meta,
@@ -1379,6 +1578,49 @@ pub fn share_status(h: Option<f64>, basis: &str, capped: bool, reporting: usize,
 }
 
 impl Data {
+
+    pub fn vendor(&self, id: &str) -> Option<&Vendor> {
+        self.vendors.iter().find(|v| v.id == id || v.slug == id)
+    }
+
+    pub fn listings_for_miner(&self, miner_id: &str) -> Vec<&Listing> {
+        self.listings.iter().filter(|l| l.miner_id == miner_id).collect()
+    }
+
+    /// Machines that have at least one listing, Z15 Pro first, then miners.json order.
+    pub fn buy_machine_groups(&self) -> Vec<(String, String, Vec<&Listing>)> {
+        let mut out: Vec<(String, String, Vec<&Listing>)> = Vec::new();
+        let mut seen = std::collections::HashSet::new();
+        // Prefer miners.json order, but hoist antminer-z15-pro.
+        let mut order: Vec<&Miner> = Vec::new();
+        if let Some(pro) = self.miners.iter().find(|m| m.id == "antminer-z15-pro") {
+            order.push(pro);
+        }
+        for m in &self.miners {
+            if m.id != "antminer-z15-pro" {
+                order.push(m);
+            }
+        }
+        for m in order {
+            let ls: Vec<&Listing> = self.listings.iter().filter(|l| l.miner_id == m.id).collect();
+            if ls.is_empty() {
+                continue;
+            }
+            seen.insert(m.id.as_str());
+            out.push((m.id.clone(), format!("{} {}", m.maker, m.model), ls));
+        }
+        // Listings whose miner_id is not in miners.json still appear, grouped by miner_id.
+        for l in &self.listings {
+            if seen.contains(l.miner_id.as_str()) {
+                continue;
+            }
+            let ls: Vec<&Listing> = self.listings.iter().filter(|x| x.miner_id == l.miner_id).collect();
+            seen.insert(l.miner_id.as_str());
+            out.push((l.miner_id.clone(), l.miner_label.clone(), ls));
+        }
+        out
+    }
+
     pub fn coin(&self, id: &str) -> Option<&Coin> {
         self.coins.iter().find(|c| c.id == id)
     }
@@ -2345,5 +2587,41 @@ mod tests {
         let mut up = Some("javascript:alert(1)".to_string());
         clean_text_or_url(&mut up, "x", &mut dropped);
         assert_eq!(up, None);
+    }
+
+    #[test]
+    fn shop_directory_loads_the_mining_shop_listing_without_inventing_prices() {
+        let d = load(&real_dir()).unwrap();
+        assert!(!d.vendors.is_empty(), "vendors.json should load");
+        assert!(!d.listings.is_empty(), "listings.json should load");
+        let v = d.vendors.iter().find(|v| v.id == "the-mining-shop-uk").expect("TMS vendor");
+        assert_eq!(v.slug, "the-mining-shop-uk");
+        assert!(v.regions.iter().any(|r| r == "UK"));
+        assert!(!v.logo.is_fallback(), "vendor logo should resolve locally");
+        assert!(v.listing_count >= 1);
+        let l = d.listings.iter().find(|l| l.id == "tms-antminer-z15-pro-860").expect("Z15 Pro listing");
+        assert_eq!(l.miner_id, "antminer-z15-pro");
+        assert_eq!(l.vendor_id, "the-mining-shop-uk");
+        assert_eq!(l.price_amount, Some(12800.0));
+        assert_eq!(l.price_currency.as_deref(), Some("GBP"));
+        assert_eq!(l.price_includes_vat, Some(false));
+        assert_eq!(l.shop_hashrate_ksol, Some(860.0));
+        assert_eq!(l.availability.as_deref(), Some("in_stock"));
+        assert!(l.product_url.starts_with("https://www.theminingshop.co.uk/"));
+        assert!(l.image_src.as_deref().unwrap_or("").starts_with("/static/shop/machines/"));
+        // n/a ≠ 0: missing price stays None
+        assert!(l.price_amount.unwrap() > 0.0);
+        let groups = d.buy_machine_groups();
+        assert_eq!(groups[0].0, "antminer-z15-pro", "Z15 Pro is the flagship group");
+        assert!(!d.listings_for_miner("antminer-z15-pro").is_empty());
+    }
+
+    #[test]
+    fn check_shop_image_rejects_path_escape_and_wrong_type() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("static");
+        assert!(check_shop_image(&root, "shop/machines/antminer-z15-pro-860.811ddcd13a.webp").is_ok());
+        assert!(check_shop_image(&root, "../Cargo.toml").is_err());
+        assert!(check_shop_image(&root, "logos/coins/zcash.47590b6def.svg").is_err());
+        assert!(check_shop_image(&root, "shop/machines/nope.webp").is_err());
     }
 }

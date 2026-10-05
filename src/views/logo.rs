@@ -1,11 +1,11 @@
-//! Coin and pool logos: data/curated/logos.json (written by scripts/fetch-logos.mjs) and the
+//! Coin, pool and vendor logos: data/curated/logos.json (written by scripts/fetch-logos.mjs) and the
 //! local copies in static/logos/. The site only ever serves those local copies (no hotlinking).
 //!
-//! Every file is checked on load: the path must stay inside static/logos/{coins,pools}/, the bytes
+//! Every file is checked on load: the path must stay inside static/logos/{coins,pools,vendors}/, the bytes
 //! must be the type the extension says (SVG, PNG or WebP only) and an SVG must pass `svg_is_safe`
 //! (no scripts, event handlers, foreignObject, images or external references). Anything that
-//! fails, and any coin or pool without an entry, gets a generated monogram instead, so a new coin
-//! or pool never shows a broken image.
+//! fails, and any coin, pool or vendor without an entry, gets a generated monogram instead, so a new
+//! entry never shows a broken image.
 use maud::{html, Markup};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -41,6 +41,7 @@ pub struct LogosFile {
     pub generated_at: Option<String>,
     pub coins: BTreeMap<String, LogoEntry>,
     pub pools: BTreeMap<String, LogoEntry>,
+    pub vendors: BTreeMap<String, LogoEntry>,
 }
 
 /// What a page needs to draw one logo. Serialised with each pool for the drawer (static/app.js).
@@ -70,6 +71,7 @@ pub struct Logos {
     pub generated_at: Option<String>,
     pub coins: BTreeMap<String, LogoEntry>,
     pub pools: BTreeMap<String, LogoEntry>,
+    pub vendors: BTreeMap<String, LogoEntry>,
     /// Entries whose file was rejected, with the reason (logged once per load).
     pub rejected: Vec<String>,
 }
@@ -80,6 +82,9 @@ impl Logos {
     }
     pub fn pool(&self, id: &str, name: &str) -> Logo {
         resolve(self.pools.get(id), name)
+    }
+    pub fn vendor(&self, id: &str, name: &str) -> Logo {
+        resolve(self.vendors.get(id), name)
     }
 }
 
@@ -119,16 +124,17 @@ pub fn load_from(data_dir: &Path, static_dir: &Path) -> Result<Logos, String> {
     };
     let coins = check("coins", f.coins);
     let pools = check("pools", f.pools);
+    let vendors = check("vendors", f.vendors);
     for r in &rejected {
         log::warn!("logo rejected, using a monogram: {r}");
     }
-    Ok(Logos { generated_at: f.generated_at, coins, pools, rejected })
+    Ok(Logos { generated_at: f.generated_at, coins, pools, vendors, rejected })
 }
 
 /// The path is a plain file name inside static/logos/<group>/, the bytes are the type the
 /// extension says, and an SVG passes `svg_is_safe`.
 pub fn check_file(root: &Path, group: &str, file: &str) -> Result<(), String> {
-    let (g, name) = file.split_once('/').ok_or("not in coins/ or pools/")?;
+    let (g, name) = file.split_once('/').ok_or("not in coins/, pools/ or vendors/")?;
     if g != group {
         return Err(format!("expected {group}/"));
     }
@@ -357,7 +363,7 @@ pub fn sources_note(d: &crate::data::Data) -> Markup {
     let pools: std::collections::BTreeSet<&str> = d.pools.iter().map(|p| p.name.as_str()).collect();
     let with: std::collections::BTreeSet<&str> = d.pools.iter().filter(|p| !p.logo.is_fallback()).map(|p| p.name.as_str()).collect();
     html! {
-        "Coin and pool logos are local copies, fetched from each coin's or pool's own website or official GitHub organisation (otherwise from the CC0 cryptocurrency-icons set or CoinGecko) and listed with their source in "
+        "Coin, pool and vendor logos are local copies, fetched from each coin's, pool's or shop's own website or official GitHub organisation (otherwise from the CC0 cryptocurrency-icons set or CoinGecko) and listed with their source in "
         code { "data/curated/logos.json" } ". "
         (coins) " of " (d.coins.len()) " coins and " (with.len()) " of " (pools.len()) " pool names have one; the rest show a plain monogram, never a drawn mark."
         @if let Some(g) = &d.logos.generated_at { " Logos last fetched " (crate::fmt::utc(Some(g))) "." }
@@ -382,7 +388,7 @@ pub fn service(static_dir: &Path) -> impl actix_web::dev::HttpServiceFactory + '
             // Only <group>/<file>.(svg|png|webp); no listing, no dotfiles, nothing else.
             let s = p.to_string_lossy();
             let mut parts = s.split('/');
-            matches!((parts.next(), parts.next(), parts.next()), (Some("coins" | "pools"), Some(f), None)
+            matches!((parts.next(), parts.next(), parts.next()), (Some("coins" | "pools" | "vendors"), Some(f), None)
                 if !f.starts_with('.') && (f.ends_with(".svg") || f.ends_with(".webp") || f.ends_with(".png")))
         }))
 }
@@ -396,7 +402,7 @@ mod tests {
         fn new(tag: &str) -> Self {
             let p = std::env::temp_dir().join(format!("eqlogo-{tag}-{}-{:?}", std::process::id(), std::thread::current().id()));
             let _ = std::fs::remove_dir_all(&p);
-            for d in ["data/curated", "static/logos/coins", "static/logos/pools"] {
+            for d in ["data/curated", "static/logos/coins", "static/logos/pools", "static/logos/vendors"] {
                 std::fs::create_dir_all(p.join(d)).unwrap();
             }
             Tmp(p)

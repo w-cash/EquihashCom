@@ -44,13 +44,15 @@ src/
   fmt.rs           number/hashrate/date formatting (unknown → "n/a")
   views/           maud templates: layout, home, pages, guide, calc; logo.rs (logo chips, checks)
 static/            app.css, app.js, fonts/, icons, og.png (served as /static/*)
-                   logos/coins/, logos/pools/ (local logo copies, see "Logos")
+                   logos/coins/, logos/pools/, logos/vendors/ (local logo copies, see "Logos")
+                   shop/machines/ (local ASIC product photos for /buy; no hotlinking)
 data/              current.json (manifest of the live snapshot), snapshots/<id>/ with
                    pools.json, network.json, meta.json (generated, one directory per refresh)
                    archive.json, miners.json, research.json (hand-maintained)
 data/curated/      manual-pools.json, coins.json, coin-status.json (hand-maintained),
                    permalinks.json (pool URLs; new ids added by the refresh, never changed),
-                   logos.json (logo files and sources, written by fetch-logos.mjs)
+                   logos.json (logo files and sources, written by fetch-logos.mjs),
+                   vendors.json, listings.json (Buy directory; hand-checked shop rows)
 scripts/           refresh-data.mjs (data refresh), snapshot.mjs (atomic publish, rollback),
                    fetch-logos.mjs (logos, run by hand), screenshots.mjs (dev only)
 deploy/            systemd units, Caddy and nginx examples, check-health.sh
@@ -82,6 +84,7 @@ Routes:
 - Pages:
   - `/` shows the pools. `?coin=<id>` picks a coin and `?coin=all` shows every coin. The page also has filters, "How to pick a pool", "What can a Z15 mine?" and all networks.
   - `/pool/{slug}`, `/archive` and `/miners` (the Hardware page).
+  - `/buy`, `/buy/vendor/{slug}` and `/add-vendor` (ASIC shop directory; outbound links only).
   - `/calculator`, `/merged-mining`, `/add-pool`, `/about` and `/sources`.
 - Raw data: `/data/{pools,network,miners,archive,meta,research,current}.json`. The generated files come from the same snapshot the pages were rendered from.
 - Live figures: `/api/live` (JSON; see "API" below). The page polls it every 60 s.
@@ -353,7 +356,7 @@ Rendering rules (`verified_links` in `src/data.rs`, `src/views/links.rs`, the dr
 
 Every coin and pool shows a small logo next to its name: 20px in the pool, networks and archive tables, 18px in the coin selector, the Z15 list and the Hardware page, 16px in the sidebar, 40px in the coin header, the pool page and the drawer (32px on phones). Each mark sits in a 1px-bordered paper chip (radius 2px), so brand colours that don't match the ledger still look tidy. The chip stays light in dark mode, so black-on-transparent marks stay visible. White-on-transparent marks get a dark chip, and opaque square icons fill the chip edge to edge.
 
-- **Files:** `static/logos/coins/` and `static/logos/pools/`, local copies only (no hotlinking). The name carries a content hash (`zcash.<hash>.svg`), so `/static/logos/*` is served with `Cache-Control: public, max-age=31536000, immutable`, plus its own `Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; sandbox` in case an SVG is opened directly. Only `coins/` or `pools/` files ending in `.svg`, `.webp` or `.png` are served.
+- **Files:** `static/logos/coins/`, `static/logos/pools/` and `static/logos/vendors/`, local copies only (no hotlinking). The name carries a content hash (`zcash.<hash>.svg`), so `/static/logos/*` is served with `Cache-Control: public, max-age=31536000, immutable`, plus its own `Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; sandbox` in case an SVG is opened directly. Only files in those three groups ending in `.svg`, `.webp` or `.png` are served.
 - **Data:** `data/curated/logos.json`, written by the fetch script and hot-reloaded like the other curated files:
 
   ```json
@@ -404,6 +407,18 @@ All changes in this section only need a JSON edit. The server shows them within 
 - **Add a coin.** Append an object to `data/curated/coins.json` with the same shape as a coin in `network.json`: `id`, `name`, `symbol`, `equihash: {n, k}`, `hardware`, `network: {hashrate, unit, difficulty, height, block_time_target_s, …}`, `source_url` and `fetched_at`. Coins that miningpoolstats already lists appear automatically on the next refresh. Pools for the new coin go in `manual-pools.json` with `"coin": "<SYMBOL>"`.
 - **A coin's proof of work ended.** Add `{id, status: "ended", note, sources: [{label, url}]}` to `data/curated/coin-status.json`.
 - **A pool shut down.** Add an entry to `data/archive.json` with `reason`, `retired` and at least one `sources` link.
+## Buy directory
+
+`/buy` is a shop index for Equihash ASICs (Z15 Pro first). equihash.com never sells hardware and never runs checkout: every CTA is an outbound link to the vendor product page (`rel="noopener"`).
+
+- `data/curated/vendors.json` — shop name, site URL, regions, provenance.
+- `data/curated/listings.json` — one row per product: price, stock, shipping, shop-stated hashrate, local photo under `static/shop/`, `miner_id` linking to `miners.json`, `source_url` + `observed_at`.
+- Vendor logos use the same pipeline as coins/pools (`logos.json` → `static/logos/vendors/`).
+- Hardware (`/miners`) stays manufacturer specs only; each machine with a listing gets a quiet “Where to buy” link to `/buy?machine=…`.
+- Vendors ask to be listed via `/add-vendor` (template to @RustDev_). Listing is unpaid by default.
+
+n/a ≠ 0: missing prices stay null and render as n/a. Shop-stated hashrate (e.g. 860 kSol on a Z15 Pro listing) is shown on Buy; Bitmain’s typical 840 stays on Hardware.
+
 - **A new ASIC.** Add an entry to `data/miners.json` with the manufacturer's spec URL. Efficiency is calculated as watts ÷ kSol/s.
 - **The research log** behind `/sources` lives in `data/research.json`.
 - **Pool URLs** live in `data/curated/permalinks.json` (`"pools": {"<pool id>": "<slug>"}`). Change a slug only on purpose, and add the old one to `"aliases": {"<old slug>": "<new slug>"}` so links keep working (301). An invalid or duplicate slug is ignored with a warning and the pool gets its computed slug.

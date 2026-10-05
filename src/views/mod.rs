@@ -1,3 +1,4 @@
+pub mod buy;
 pub mod calc;
 pub mod guide;
 pub mod home;

@@ -4,7 +4,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "8";
+pub const ASSET_V: &str = "9";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -46,6 +46,7 @@ pub struct Page<'a> {
 const NAV: &[(&str, &str, &str)] = &[
     ("pools", "/", "Pools"),
     ("miners", "/miners", "Hardware"),
+    ("buy", "/buy", "Buy"),
     ("calculator", "/calculator", "Calculator"),
     ("merged-mining", "/merged-mining", "Merged mining"),
     ("archive", "/archive", "Archive"),
@@ -115,13 +116,14 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::
                             strong { "equihash.com" } " is maintained by " a href="https://x.com/RustDev_" rel="noopener" { "@RustDev_" } ". "
                             "Pool figures come from miningpoolstats and the pools' own public APIs; last refresh "
                             time class="ago" datetime=[updated.as_deref()] { (fmt::utc(updated.as_deref())) } ". "
-                            "Nothing on this site is paid for, and none of it is financial advice."
+                            "This site does not sell hardware. Nothing here is paid for placement, and none of it is financial advice."
                         }
                         p class="foot-links" {
                             a href="/add-pool" { "Add or correct a pool" }
+                            a href="/add-vendor" { "Add a vendor" }
                             a href="/sources" { "Sources and method" }
                             a href="/about" { "About" }
-                            span { "Raw data: " a href="/data/pools.json" { "pools" } ", " a href="/data/network.json" { "networks" } ", " a href="/data/miners.json" { "hardware" } }
+                            span { "Raw data: " a href="/data/pools.json" { "pools" } ", " a href="/data/network.json" { "networks" } ", " a href="/data/miners.json" { "hardware" } ", " a href="/data/vendors.json" { "vendors" } ", " a href="/data/listings.json" { "listings" } }
                         }
                     }
                 }

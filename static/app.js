@@ -434,4 +434,74 @@
     }
   }
   if (liveEls().length) { setInterval(pollLive, 60000); document.addEventListener("visibilitychange", () => { if (!document.hidden) pollLive(); }); }
+
+  // ---------- buy directory: filter + sort (no checkout) ----------
+  (function buyDir() {
+    const form = $("#buy-filters");
+    const galleries = $$("[data-buy-gallery]");
+    if (!form || !galleries.length) return;
+    const countEl = $("#buy-count");
+    function cards() { return $$(".buy-card", document); }
+    function apply() {
+      const machine = (form.elements.machine && form.elements.machine.value) || "";
+      const region = (form.elements.region && form.elements.region.value) || "";
+      const sort = (form.elements.sort && form.elements.sort.value) || "region";
+      let n = 0;
+      for (const card of cards()) {
+        const okM = !machine || card.dataset.machine === machine;
+        const regs = (card.dataset.region || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
+        const okR = !region || regs.includes(region.toLowerCase());
+        const ok = okM && okR;
+        card.hidden = !ok;
+        if (ok) n++;
+      }
+      for (const g of galleries) {
+        const section = g.closest(".buy-machine");
+        if (!section) continue;
+        const any = $$(".buy-card", g).some((c) => !c.hidden);
+        section.hidden = !any;
+      }
+      // Sort within each gallery
+      for (const g of galleries) {
+        const list = $$(".buy-card", g).slice();
+        list.sort((a, b) => {
+          const na = (v) => (v === "" || v == null || Number.isNaN(+v) ? null : +v);
+          if (sort === "price") {
+            const pa = na(a.dataset.price), pb = na(b.dataset.price);
+            if (pa == null && pb == null) return 0;
+            if (pa == null) return 1;
+            if (pb == null) return -1;
+            return pa - pb;
+          }
+          if (sort === "stock") {
+            return (na(a.dataset.stockRank) ?? 9) - (na(b.dataset.stockRank) ?? 9);
+          }
+          // region (UK first), then price
+          const ra = na(a.dataset.regionRank) ?? 9, rb = na(b.dataset.regionRank) ?? 9;
+          if (ra !== rb) return ra - rb;
+          const pa = na(a.dataset.price), pb = na(b.dataset.price);
+          if (pa != null && pb != null && pa !== pb) return pa - pb;
+          return 0;
+        });
+        list.forEach((c) => g.appendChild(c));
+      }
+      if (countEl) {
+        const checked = countEl.textContent.includes("·") ? countEl.textContent.split("·").slice(1).join("·").trim() : "";
+        countEl.textContent = (n === 1 ? "1 listing" : n + " listings") + (checked ? " · " + checked : "");
+      }
+      // Reflect in URL without reload
+      const qs = new URLSearchParams();
+      if (machine) qs.set("machine", machine);
+      if (region) qs.set("region", region);
+      if (sort && sort !== "region") qs.set("sort", sort);
+      const next = qs.toString() ? "/buy?" + qs.toString() : "/buy";
+      if (location.pathname + location.search !== next) history.replaceState(null, "", next);
+    }
+    form.addEventListener("change", apply);
+    // Honour ?sort= from URL
+    const params = new URLSearchParams(location.search);
+    if (params.get("sort") && form.elements.sort) form.elements.sort.value = params.get("sort");
+    apply();
+  })();
+
 })();

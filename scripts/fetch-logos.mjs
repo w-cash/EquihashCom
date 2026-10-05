@@ -5,7 +5,8 @@
  * Finds a logo for every coin (data/network.json + data/curated/coins.json) and every pool
  * (data/pools.json + data/curated/manual-pools.json + data/archive.json), keeps a sanitised,
  * optimised local copy in static/logos/{coins,pools}/ and records where it came from in
- * data/curated/logos.json. The site only ever serves these local copies (no hotlinking).
+ * data/curated/logos.json. Existing vendor entries and files are preserved, but this tool does
+ * not fetch or otherwise modify them. The site only ever serves local copies (no hotlinking).
  *
  * Source order, best first. Nothing is ever drawn or invented: if no real logo can be fetched,
  * the entry is a generated monogram and is marked `kind: "fallback"`.
@@ -42,6 +43,28 @@ const UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Geck
 const MAX_BYTES = 2_000_000;
 const TARGET_PX = 96; // longest side of a raster logo (shown at 16-40 CSS px, so 2x-retina sharp)
 const MAX_FILE = 10 * 1024; // aim; files above this are re-encoded smaller
+const MANIFEST_DOC = "Written by scripts/fetch-logos.mjs (see README, 'Logos'). kind: official | repo | third_party | fallback. file is relative to static/logos/; fallback entries have file null and render as a monogram.";
+
+/** Start the next manifest without dropping logo groups this fetcher does not manage. */
+export function nextManifest(prev = {}, generatedAt = new Date().toISOString()) {
+  return {
+    _doc: MANIFEST_DOC,
+    generated_at: generatedAt,
+    coins: { ...(prev.coins || {}) },
+    pools: { ...(prev.pools || {}) },
+    vendors: { ...(prev.vendors || {}) },
+  };
+}
+
+/** Files referenced by every logo group, including groups this fetcher only preserves. */
+export function referencedLogoFiles(manifest) {
+  return new Set(
+    ["coins", "pools", "vendors"]
+      .flatMap((group) => Object.values(manifest[group] || {}))
+      .map((entry) => entry.file)
+      .filter(Boolean),
+  );
+}
 
 // Exact CoinGecko coin ids (last resort, kind "third_party"). The API answer must also carry the
 // coin's symbol, so a wrong id can't attach another coin's logo.
@@ -685,7 +708,7 @@ async function main() {
     console.error(`refusing to run: no coins or pools read from ${path.relative(ROOT, gen) || "data"}/ (network.json, pools.json)`);
     process.exit(2);
   }
-  const out = { _doc: "Written by scripts/fetch-logos.mjs (see README, 'Logos'). kind: official | repo | third_party | fallback. file is relative to static/logos/; fallback entries have file null and render as a monogram.", generated_at: new Date().toISOString(), coins: { ...(prev.coins || {}) }, pools: { ...(prev.pools || {}) } };
+  const out = nextManifest(prev);
   const now = () => new Date().toISOString();
   const exists = async (rel) => { try { await fs.access(path.join(LOGOS_DIR, rel)); return true; } catch { return false; } };
   const need = async (e, keys) => {
@@ -785,7 +808,7 @@ async function main() {
   if (dry) return;
   await fs.writeFile(LOGOS_JSON, JSON.stringify(out, null, 2) + "\n");
   // Remove files no entry points at any more (only inside static/logos/).
-  const used = new Set([...Object.values(out.coins), ...Object.values(out.pools)].map((e) => e.file).filter(Boolean));
+  const used = referencedLogoFiles(out);
   for (const g of ["coins", "pools"]) for (const f of await fs.readdir(path.join(LOGOS_DIR, g)).catch(() => [])) if (!used.has(`${g}/${f}`)) await fs.unlink(path.join(LOGOS_DIR, g, f));
   console.log("wrote", path.relative(ROOT, LOGOS_JSON));
 

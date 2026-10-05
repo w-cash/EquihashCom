@@ -206,7 +206,7 @@ pub fn miners(d: &Data) -> Markup {
         div class="wrap page" {
             header class="page-head" {
                 h1 { "Equihash hardware" }
-                p class="lede" { "Manufacturer specs for the Equihash ASICs you will still find running. Efficiency is worked out here as watts ÷ kSol/s, lower is better; the maker's own figure sits next to it where they publish one." }
+                p class="lede" { "Manufacturer specs for the Equihash ASICs you will still find running. Efficiency is worked out here as watts ÷ kSol/s, lower is better; the maker's own figure sits next to it where they publish one. Retail offers live on " a href="/buy" { "Buy" } "; this page stays specs only." }
             }
             div class="table-scroll" {
                 table class="data hw" {
@@ -220,8 +220,12 @@ pub fn miners(d: &Data) -> Markup {
                         tr class="group-row" { th colspan="8" scope="rowgroup" { "Equihash " (g) } }
                         @for m in ms {
                         @let eff = m.efficiency();
-                        tr {
+                        @let buy_n = d.listings_for_miner(&m.id).len();
+                        tr id={(format!("machine-{}", m.id))} {
                             td { (m.maker) " " strong { (m.model) } @if let Some(n) = &m.notes { br; span class="na hw-note" { (n) } }
+                                @if buy_n > 0 {
+                                    br; a class="hw-buy" href={"/buy?machine=" (m.id)} { "Where to buy" }
+                                }
                                 @if let Some(u) = &m.source_url { span class="m-only" { " " (ext(u, "spec")) } } }
                             td class="mono nk" { (m.equihash) }
                             td class="num" { (fmt::opt_num(m.hashrate_ksol)) }
@@ -309,6 +313,7 @@ pub fn about(d: &Data) -> Markup {
             p class="about-line" { "Maintained by " a href="https://x.com/RustDev_" rel="noopener" target="_blank" { "@RustDev_" } ", who also builds " a href="https://w.cash" rel="noopener" target="_blank" { "Wcash" } "." }
             h2 { "How it's run" }
             p { "Pools are ordered by their data and nothing else. There are no paid placements, sponsored rows or badges for sale." }
+            p { "The " a href="/buy" { "Buy" } " directory indexes Equihash ASIC shops. equihash.com never sells hardware, never runs checkout, and does not take payment for vendor placement." }
             p { "Every row links to where its numbers came from and says when they were fetched. When a pool doesn't publish something, the cell says n/a; nothing is estimated to fill the gap." }
             p { "Concentration matters to everyone who mines a coin, so any pool above 30% of a network is marked in red." }
             h2 { "Where the data comes from" }
@@ -346,6 +351,7 @@ pub fn sources(d: &Data) -> Markup {
                 li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-zcash-aux/README.md", "wcash-zcash-aux README at 3e6b8044")) }
                 li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-merge-miner/README.md", "wcash-merge-miner README at 3e6b8044")) }
                 li { "ASIC specs: Bitmain support spec pages and the Innosilicon product page, linked per row on " a href="/miners" { "Hardware" } "." }
+                li { "Buy directory: vendor product pages, linked per listing on " a href="/buy" { "Buy" } " (price, stock and shipping as published; never invented)." }
                 li { "Archive: pool and operator announcements and community threads, linked per entry on the " a href="/archive" { "Archive" } "." }
             }
             h2 { "Method" }

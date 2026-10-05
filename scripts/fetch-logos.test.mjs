@@ -1,7 +1,26 @@
 // Tests for the pure parts of the logo fetcher. Run: node --test scripts/
 import test from "node:test";
 import assert from "node:assert/strict";
-import { sanitizeSvg, svgLooksSafe, sniff, monogram, operatorDomain, iconCandidates, namesACoin, score, normaliseSvgRoot, icoLargest, similarity } from "./fetch-logos.mjs";
+import { sanitizeSvg, svgLooksSafe, sniff, monogram, operatorDomain, iconCandidates, namesACoin, score, normaliseSvgRoot, icoLargest, similarity, nextManifest, referencedLogoFiles } from "./fetch-logos.mjs";
+
+test("logo refresh preserves vendor entries and counts their files as used", () => {
+  const vendor = { file: "vendors/shop.123.png", kind: "official" };
+  const vendors = { shop: vendor };
+  const next = nextManifest({
+    coins: { zcash: { file: "coins/zcash.svg" } },
+    pools: { pool: { file: "pools/pool.webp" } },
+    vendors,
+  }, "2026-10-05T00:00:00.000Z");
+
+  assert.deepEqual(next.vendors, { shop: vendor });
+  assert.notEqual(next.vendors, vendors, "the vendor map is copied, not aliased");
+  assert.equal(next.generated_at, "2026-10-05T00:00:00.000Z");
+  assert.deepEqual([...referencedLogoFiles(next)].sort(), [
+    "coins/zcash.svg",
+    "pools/pool.webp",
+    "vendors/shop.123.png",
+  ]);
+});
 
 test("sanitizeSvg strips scripts, handlers, foreignObject, images and external references", () => {
   const dirty = `<?xml version="1.0"?><!-- c --><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:inkscape="x" inkscape:version="1" viewBox="0 0 24 24" onload="alert(1)" width="24">
