@@ -4,7 +4,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "28";
+pub const ASSET_V: &str = "29";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -59,8 +59,8 @@ pub fn layout(d: &Data, p: Page, body: Markup) -> Markup {
     layout_at(d, p, body, chrono::Utc::now())
 }
 
-/// `layout` with an explicit clock, so the stale notice can be tested.
-pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::Utc>) -> Markup {
+/// `layout` with an explicit clock for deterministic page rendering in tests.
+pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono::Utc>) -> Markup {
     let canonical = format!("{SITE}{}", p.path);
     let full_title = if p.path == "/" || p.title.ends_with("· equihash.com") {
         p.title.to_string()
@@ -134,9 +134,6 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::
                             }
                         }
                     }
-                }
-                @if matches!(p.nav, "home" | "coins" | "pools" | "calculator" | "merged-mining") {
-                    (stale_notice(updated.as_deref(), now))
                 }
                 main id="main" { (body) }
                 footer class="foot" {
@@ -361,28 +358,6 @@ fn breadcrumbs(p: &Page<'_>, canonical: &str) -> Option<serde_json::Value> {
         "name": p.title.trim_end_matches(" · equihash.com"), "item": canonical
     }));
     Some(json!({"@type": "BreadcrumbList", "@id": format!("{canonical}#breadcrumbs"), "itemListElement": items}))
-}
-
-/// Site-wide notice when the newest refresh is older than `data::STALE_AFTER_SECS`.
-pub fn stale_notice(ts: Option<&str>, now: chrono::DateTime<chrono::Utc>) -> Markup {
-    if !crate::data::is_stale(ts, now) {
-        return html! {};
-    }
-    let age = fmt::age(crate::data::age_secs(ts, now));
-    html! {
-        div class="stale-note" role="status" {
-            div class="wrap" {
-                p {
-                    strong { "Stale data. " }
-                    @match age {
-                        Some(a) => { "The newest pool figures here are " (a) " old (" (fmt::utc(ts)) "). " }
-                        None => { "The age of these figures is unknown. " }
-                    }
-                    "Treat them as a snapshot and check the pool's own page before you switch."
-                }
-            }
-        }
-    }
 }
 
 /// An outbound link. Only http(s) URLs become links (data::safe_url); anything else is shown as

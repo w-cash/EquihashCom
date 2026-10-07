@@ -1513,7 +1513,7 @@ mod tests {
     }
 
     #[test]
-    fn stale_notice_appears_only_past_two_hours() {
+    fn stale_rows_are_tagged_without_a_sitewide_banner() {
         let d = snap();
         let gen = d.meta.generated_at.clone().unwrap();
         let g = at(&gen);
@@ -1527,7 +1527,7 @@ mod tests {
             "fresh data shows no warning: {i:?}"
         );
         let old = render_at(&d, &Filters::default(), g + chrono::Duration::hours(5)).into_string();
-        assert!(old.contains("class=\"stale-note\"") && old.contains("Stale data."));
+        assert!(!old.contains("stale-note") && !old.contains("Stale data."));
         assert!(old.contains("stale-tag"));
     }
 
