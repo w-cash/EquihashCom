@@ -1,20 +1,20 @@
 {
-  "snapshot": "20261007T102806Z",
-  "published_at": "2026-10-07T10:28:06Z",
-  "generated_at": "2026-10-07T10:28:06.472Z",
-  "previous": "20261003T170226Z",
+  "snapshot": "20261007T141457Z",
+  "published_at": "2026-10-07T14:14:57Z",
+  "generated_at": "2026-10-07T14:14:57.767Z",
+  "previous": "20261007T102806Z",
   "files": {
     "pools.json": {
-      "bytes": 232645,
-      "sha256": "160b43a60b78cc278c55224b6bcbc7102761efce99cebe8569343df61a268561"
+      "bytes": 232728,
+      "sha256": "d9780660d70367a55e76a62a108db8261efe301c2fdd57bed1ce515b572839f5"
     },
     "network.json": {
-      "bytes": 51936,
-      "sha256": "e1920f0bfd31bb8fa37fd97ee12e292731c363d4df523853ff24686b36d47b94"
+      "bytes": 51925,
+      "sha256": "7dc56c9c618e9821ce1546d2063b518f8a3b72a08f19e76e7f1d263df48e4762"
     },
     "meta.json": {
       "bytes": 2130,
-      "sha256": "ead2204bd860036c8c69886cf8fd1f46733cf980bcc40263ea40e8283b8ded41"
+      "sha256": "d263f3ba4fa06ab795f51fd2e1714a25399fbdae76e68b2a850505f70b1c58dc"
     }
   }
 }
