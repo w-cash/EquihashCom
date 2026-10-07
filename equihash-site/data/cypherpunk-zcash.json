@@ -1,0 +1,89 @@
+{
+  "_doc": "Sourced facts used by /research/cypherpunk-zcash-mining. Company-reported fleet figures are never presented as live telemetry. The current-equivalent network share is computed at render time from data/network.json and labelled as a comparison of separate snapshots.",
+  "published_at": "2026-10-07",
+  "updated_at": "2026-10-07T21:30:00.000Z",
+  "company": "Cypherpunk Technologies Inc.",
+  "ticker": "Nasdaq: CYPH",
+  "reported_hashrate_gsol": 4.2,
+  "hashrate_confirmed_at": "2026-09-22",
+  "machine_count": 4902,
+  "machine_model": "Bitmain Antminer Z15 Pro",
+  "equihash": "200,9",
+  "launch_date": "2026-08-18",
+  "launch_network_share_pct": 18,
+  "transaction_usd": 33333333,
+  "mined_zec": 3023.13,
+  "mined_period": "18–31 August 2026",
+  "hosting_locations": [
+    "Barstow, Texas",
+    "Morristown, Tennessee",
+    "Fairview, West Virginia"
+  ],
+  "etf": {
+    "filed_at": "2026-10-06",
+    "name": "Winklevoss Zcash ETF",
+    "proposed_ticker": "WINK",
+    "status": "Preliminary S-1 filed; not effective or trading",
+    "sponsor": "Winklevoss Asset Services, LLC",
+    "custodian": "Gemini Trust Company, LLC",
+    "annual_fee_pct": 0.25,
+    "cypherpunk_role": "Proposed Zcash Ecosystem Partner",
+    "source_id": "wink-etf-s1"
+  },
+  "sources": [
+    {
+      "id": "cypherpunk-site",
+      "label": "Cypherpunk Technologies",
+      "url": "https://cypherpunk.com/",
+      "source_type": "Company website"
+    },
+    {
+      "id": "fleet-8k",
+      "label": "Cypherpunk fleet launch press release filed with the SEC",
+      "url": "https://www.sec.gov/Archives/edgar/data/1509745/000110465926098120/tm2623453d1_ex99-1.htm",
+      "source_type": "SEC filing exhibit"
+    },
+    {
+      "id": "asset-agreement",
+      "label": "Asset Purchase Agreement: machines and hosting agreements",
+      "url": "https://www.sec.gov/Archives/edgar/data/1509745/000110465926098120/tm2623453d1_ex1-1.htm",
+      "source_type": "SEC-filed agreement"
+    },
+    {
+      "id": "fleet-8k-cover",
+      "label": "Cypherpunk Form 8-K: transaction and counterparties",
+      "url": "https://www.sec.gov/Archives/edgar/data/1509745/000110465926098120/tm2623453d1_8k.htm",
+      "source_type": "SEC filing"
+    },
+    {
+      "id": "mining-follow-up",
+      "label": "22 September fleet and production update",
+      "url": "https://www.sec.gov/Archives/edgar/data/1509745/000110465926109463/tm2625876d1_ex99-1.htm",
+      "source_type": "SEC filing exhibit"
+    },
+    {
+      "id": "cyph-10k",
+      "label": "Cypherpunk 2025 Form 10-K",
+      "url": "https://www.sec.gov/Archives/edgar/data/1509745/000110465926028566/cyph-20251231x10k.htm",
+      "source_type": "SEC filing"
+    },
+    {
+      "id": "winklevoss-ownership",
+      "label": "Winklevoss ownership and control relationships",
+      "url": "https://www.sec.gov/Archives/edgar/data/2085726/000208572626000002/xslSCHEDULE_13D_X02/primary_doc.xml",
+      "source_type": "SEC Schedule 13D"
+    },
+    {
+      "id": "wink-etf-s1",
+      "label": "Preliminary registration statement for the Winklevoss Zcash ETF",
+      "url": "https://www.sec.gov/Archives/edgar/data/2158471/000110465926113940/tm2626975-1_s1.htm",
+      "source_type": "SEC preliminary S-1"
+    },
+    {
+      "id": "zcash-protocol",
+      "label": "Zcash protocol specification",
+      "url": "https://zips.z.cash/protocol/protocol.pdf",
+      "source_type": "Protocol specification"
+    }
+  ]
+}

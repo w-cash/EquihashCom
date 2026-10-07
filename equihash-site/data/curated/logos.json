@@ -1,6 +1,6 @@
 {
   "_doc": "Written by scripts/fetch-logos.mjs (see README, 'Logos'). kind: official | repo | third_party | fallback. file is relative to static/logos/; fallback entries have file null and render as a monogram.",
-  "generated_at": "2026-10-07T16:24:09.315Z",
+  "generated_at": "2026-10-07T21:29:39.841Z",
   "coins": {
     "zcash": {
       "file": "coins/zcash.47590b6def.svg",
@@ -1909,6 +1909,120 @@
       "bytes": 823,
       "source_px": "vector",
       "domain": "zprominers.com"
+    }
+  },
+  "vendors": {
+    "the-mining-shop-uk": {
+      "file": "vendors/the-mining-shop-uk.239a526176.png",
+      "source_url": "https://www.theminingshop.co.uk/",
+      "source_page": "https://www.theminingshop.co.uk/",
+      "fetched_at": "2026-10-07T12:00:03.000Z",
+      "kind": "official",
+      "license_note": "The Mining Shop UK's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "png",
+      "bytes": 2106,
+      "source_px": "512x512",
+      "bg": "tile"
+    },
+    "bitmain": {
+      "file": "vendors/bitmain.fcecc938db.png",
+      "source_url": "https://assets-www.bitmain.com.cn/www-bitmain-s3/front-static/dist/css/app.9636a469.css",
+      "source_page": "https://www.bitmain.com/",
+      "fetched_at": "2026-10-07T21:15:07.875Z",
+      "kind": "official",
+      "license_note": "BITMAIN's official header wordmark, extracted from its own website stylesheet. Trademark of its owner; shown only to identify it.",
+      "format": "png",
+      "bytes": 1437,
+      "source_px": "280x34"
+    },
+    "antminer-distribution-europe": {
+      "file": "vendors/antminer-distribution-europe.a8d57eecd0.png",
+      "source_url": "https://www.antminerdistribution.com/wp-content/themes/antminer/assets/images/antminer-distribution-com-logo.png",
+      "source_page": "https://www.antminerdistribution.com/",
+      "fetched_at": "2026-10-07T21:14:19.088Z",
+      "kind": "official",
+      "license_note": "Antminer Distribution Europe B.V.'s own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "png",
+      "bytes": 17046,
+      "source_px": "601x601"
+    },
+    "apexto-mining": {
+      "file": "vendors/apexto-mining.c8be32448b.webp",
+      "source_url": "https://i0.wp.com/apextomining.com/apexto/uploads/2026/02/logo.png",
+      "source_page": "https://apextomining.com/",
+      "fetched_at": "2026-10-07T21:17:06.428Z",
+      "kind": "official",
+      "license_note": "Apexto Mining's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "webp",
+      "bytes": 1914,
+      "source_px": "509x130"
+    },
+    "hashlabs": {
+      "file": "vendors/hashlabs.b2e0232bbf.webp",
+      "source_url": "https://www.hashlabs.io/favicon.ico",
+      "source_page": "https://www.hashlabs.io/",
+      "fetched_at": "2026-10-07T21:15:08.617Z",
+      "kind": "official",
+      "license_note": "Hashlabs's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "webp",
+      "bytes": 524,
+      "source_px": "48x48"
+    },
+    "bt-miners": {
+      "file": "vendors/bt-miners.27f0f6f9f8.png",
+      "source_url": "https://bt-miners.com/favicon.ico",
+      "source_page": "https://bt-miners.com/",
+      "fetched_at": "2026-10-07T21:14:21.450Z",
+      "kind": "official",
+      "license_note": "BT-MINERS's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "png",
+      "bytes": 8230,
+      "source_px": "141x141"
+    },
+    "oneminers": {
+      "file": "vendors/oneminers.91a7ae2654.webp",
+      "source_url": "https://oneminers.com/cdn/shop/files/om-favicon-dark-512.png?crop=center&height=180&v=1787056000&width=180",
+      "source_page": "https://oneminers.com/",
+      "fetched_at": "2026-10-07T21:15:10.139Z",
+      "kind": "official",
+      "license_note": "OneMiners's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "webp",
+      "bytes": 1040,
+      "bg": "tile",
+      "source_px": "180x180"
+    },
+    "the-bitcoin-miner-uk": {
+      "file": "vendors/the-bitcoin-miner-uk.bdd5b9a568.png",
+      "source_url": "https://thebitcoinminer.co.uk/cdn/shop/files/bitcoin-miner-favicon.png?crop=center&height=32&v=1772011206&width=32",
+      "source_page": "https://thebitcoinminer.co.uk/",
+      "fetched_at": "2026-10-07T21:14:25.055Z",
+      "kind": "official",
+      "license_note": "The Bitcoin Miner's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "png",
+      "bytes": 1565,
+      "source_px": "32x32"
+    },
+    "805-mining": {
+      "file": "vendors/805-mining.d39bbbae81.png",
+      "source_url": "https://805mining.com/wp-content/uploads/2025/03/cropped-805-Logo-No-background-180x180.png",
+      "source_page": "https://805mining.com/",
+      "fetched_at": "2026-10-07T21:14:28.272Z",
+      "kind": "official",
+      "license_note": "805 Mining's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "png",
+      "bytes": 44364,
+      "source_px": "180x180"
+    },
+    "crypto-miner-bros": {
+      "file": "vendors/crypto-miner-bros.036009b939.svg",
+      "source_url": "https://www.cryptominerbros.com/wp-content/themes/minerbros-v1/images/logo.svg",
+      "source_page": "https://www.cryptominerbros.com/",
+      "fetched_at": "2026-10-07T21:29:40.944Z",
+      "kind": "official",
+      "license_note": "Crypto Miner Bros's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "svg",
+      "bytes": 3412,
+      "source_px": "vector"
     }
   }
 }

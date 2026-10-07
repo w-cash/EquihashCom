@@ -34,18 +34,77 @@ pub struct Field {
 }
 
 pub const FIELDS: &[Field] = &[
-    Field { name: "hashrate", label: "Hashrate", unit: "kSol/s", min: 0.0, min_exclusive: true, max: 1e9 },
-    Field { name: "watts", label: "Power draw", unit: "W", min: 0.0, min_exclusive: false, max: 1e7 },
-    Field { name: "power", label: "Electricity", unit: "$/kWh", min: 0.0, min_exclusive: false, max: 10.0 },
-    Field { name: "fee", label: "Pool fee", unit: "%", min: 0.0, min_exclusive: false, max: 100.0 },
-    Field { name: "price", label: "Coin price", unit: "USD", min: 0.0, min_exclusive: false, max: 1e9 },
-    Field { name: "reward", label: "Block reward to miners", unit: "coins", min: 0.0, min_exclusive: true, max: 1e7 },
-    Field { name: "nethash", label: "Network hashrate", unit: "Sol/s", min: 0.0, min_exclusive: true, max: 1e18 },
-    Field { name: "blocktime", label: "Block time", unit: "s", min: 1.0, min_exclusive: false, max: 86400.0 },
+    Field {
+        name: "hashrate",
+        label: "Hashrate",
+        unit: "kSol/s",
+        min: 0.0,
+        min_exclusive: true,
+        max: 1e9,
+    },
+    Field {
+        name: "watts",
+        label: "Power draw",
+        unit: "W",
+        min: 0.0,
+        min_exclusive: false,
+        max: 1e7,
+    },
+    Field {
+        name: "power",
+        label: "Electricity",
+        unit: "$/kWh",
+        min: 0.0,
+        min_exclusive: false,
+        max: 10.0,
+    },
+    Field {
+        name: "fee",
+        label: "Pool fee",
+        unit: "%",
+        min: 0.0,
+        min_exclusive: false,
+        max: 100.0,
+    },
+    Field {
+        name: "price",
+        label: "Coin price",
+        unit: "USD",
+        min: 0.0,
+        min_exclusive: false,
+        max: 1e9,
+    },
+    Field {
+        name: "reward",
+        label: "Block reward to miners",
+        unit: "coins",
+        min: 0.0,
+        min_exclusive: true,
+        max: 1e7,
+    },
+    Field {
+        name: "nethash",
+        label: "Network hashrate",
+        unit: "Sol/s",
+        min: 0.0,
+        min_exclusive: true,
+        max: 1e18,
+    },
+    Field {
+        name: "blocktime",
+        label: "Block time",
+        unit: "s",
+        min: 1.0,
+        min_exclusive: false,
+        max: 86400.0,
+    },
 ];
 
 pub fn field(name: &str) -> &'static Field {
-    FIELDS.iter().find(|f| f.name == name).expect("known calculator field")
+    FIELDS
+        .iter()
+        .find(|f| f.name == name)
+        .expect("known calculator field")
 }
 
 fn bound(v: f64) -> String {
@@ -59,7 +118,9 @@ fn bound(v: f64) -> String {
 /// Parse and range-check one input. Empty or missing means "not given" (Ok(None)).
 pub fn check(name: &str, raw: Option<&str>) -> Result<Option<f64>, String> {
     let f = field(name);
-    let Some(s) = raw.map(str::trim).filter(|s| !s.is_empty()) else { return Ok(None) };
+    let Some(s) = raw.map(str::trim).filter(|s| !s.is_empty()) else {
+        return Ok(None);
+    };
     let v: f64 = s.parse().map_err(|_| "Enter a number.".to_string())?;
     if !v.is_finite() {
         return Err("Enter a finite number.".into());
@@ -128,12 +189,23 @@ pub struct Estimate {
 }
 
 fn in_range(name: &str, v: f64) -> bool {
-    check(name, Some(&v.to_string())).map(|x| x.is_some()).unwrap_or(false)
+    check(name, Some(&v.to_string()))
+        .map(|x| x.is_some())
+        .unwrap_or(false)
 }
 
 /// Daily estimate. Returns None for any out-of-range input (same bounds as the form).
 #[allow(clippy::too_many_arguments)]
-pub fn estimate(hr_ksol: f64, watts: f64, power: f64, fee: f64, price: Option<f64>, reward: f64, net: f64, bt: f64) -> Option<Estimate> {
+pub fn estimate(
+    hr_ksol: f64,
+    watts: f64,
+    power: f64,
+    fee: f64,
+    price: Option<f64>,
+    reward: f64,
+    net: f64,
+    bt: f64,
+) -> Option<Estimate> {
     let ok = in_range("hashrate", hr_ksol)
         && in_range("watts", watts)
         && in_range("power", power)
@@ -149,7 +221,12 @@ pub fn estimate(hr_ksol: f64, watts: f64, power: f64, fee: f64, price: Option<f6
     let coins_day = share * (86400.0 / bt) * reward * (1.0 - fee / 100.0);
     let power_day = watts / 1000.0 * 24.0 * power;
     let revenue_day = price.map(|p| coins_day * p);
-    Some(Estimate { coins_day, revenue_day, power_day, profit_day: revenue_day.map(|r| r - power_day) })
+    Some(Estimate {
+        coins_day,
+        revenue_day,
+        power_day,
+        profit_day: revenue_day.map(|r| r - power_day),
+    })
 }
 
 /// A per-machine estimate (machine ÷ network) only holds while the machine is a small part of the
@@ -158,7 +235,10 @@ pub fn estimate(hr_ksol: f64, watts: f64, power: f64, fee: f64, price: Option<f6
 pub const OUTWEIGH_SHARE: f64 = 0.1;
 
 pub fn outweighs_network(c: &Coin, hr_ksol: f64) -> bool {
-    c.network.hashrate.map(|n| outweighs(hr_ksol, n)).unwrap_or(false)
+    c.network
+        .hashrate
+        .map(|n| outweighs(hr_ksol, n))
+        .unwrap_or(false)
 }
 
 fn outweighs(hr_ksol: f64, net: f64) -> bool {
@@ -173,7 +253,11 @@ pub fn share_guard(hr_ksol: f64, net: f64) -> Option<String> {
         return None;
     }
     let r = hr_ksol * 1000.0 / net;
-    let how = if r >= 1.0 { format!("{r:.2}× the network estimate") } else { format!("{:.1}% of the network estimate", r * 100.0) };
+    let how = if r >= 1.0 {
+        format!("{r:.2}× the network estimate")
+    } else {
+        format!("{:.1}% of the network estimate", r * 100.0)
+    };
     Some(format!(
         "Your hashrate is {how}. At 10% or more of the network a share-based estimate isn't meaningful: adding it would itself move the network hashrate and difficulty. Coins per day, revenue and operating margin are shown as n/a."
     ))
@@ -194,7 +278,17 @@ pub fn coins_per_day(c: &Coin, hr_ksol: f64, fee: f64) -> Option<f64> {
         return None;
     }
     let r = c.block_reward_miner.as_ref()?.value;
-    estimate(hr_ksol, 0.0, 0.0, fee, None, r, c.network.hashrate?, c.network.block_time_target_s?).map(|e| e.coins_day)
+    estimate(
+        hr_ksol,
+        0.0,
+        0.0,
+        fee,
+        None,
+        r,
+        c.network.hashrate?,
+        c.network.block_time_target_s?,
+    )
+    .map(|e| e.coins_day)
 }
 
 fn money(v: Option<f64>) -> String {
@@ -217,14 +311,42 @@ fn coins(v: Option<f64>) -> String {
 pub fn render(d: &Data, q: &CalcQuery) -> Markup {
     let coins_list: Vec<_> = d.coins.iter().filter(|c| c.active()).collect();
     let coin_id = q.coin.clone().unwrap_or("zcash".into());
-    let coin = coins_list.iter().find(|c| c.id == coin_id).or(coins_list.first()).cloned();
-    let Some(coin) = coin else { return layout(d, Page { title: "Calculator", description: "", path: "/calculator", nav: "calculator" }, html! {}) };
+    let coin = coins_list
+        .iter()
+        .find(|c| c.id == coin_id)
+        .or(coins_list.first())
+        .cloned();
+    let Some(coin) = coin else {
+        return layout(
+            d,
+            Page {
+                title: "Calculator",
+                description: "",
+                path: "/calculator",
+                nav: "calculator",
+            },
+            html! {},
+        );
+    };
     let ck = validate(q);
     let z15 = coin.z15_compatible == Some(true);
     // Defaults: an Antminer Z15 Pro (from data/miners.json) on 200,9 coins, blank otherwise.
     let pro = d.miners.iter().find(|m| m.model.ends_with("Z15 Pro"));
-    let pick = |k: &str, dflt: Option<f64>| -> Option<f64> { if ck.errors.contains_key(k) { None } else { ck.get(k).or(dflt) } };
-    let hr = pick("hashrate", if z15 { pro.and_then(|m| m.hashrate_ksol) } else { None });
+    let pick = |k: &str, dflt: Option<f64>| -> Option<f64> {
+        if ck.errors.contains_key(k) {
+            None
+        } else {
+            ck.get(k).or(dflt)
+        }
+    };
+    let hr = pick(
+        "hashrate",
+        if z15 {
+            pro.and_then(|m| m.hashrate_ksol)
+        } else {
+            None
+        },
+    );
     let watts = pick("watts", if z15 { pro.and_then(|m| m.watts) } else { None });
     let power = pick("power", Some(0.08));
     let fee = pick("fee", Some(1.0));
@@ -238,7 +360,16 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
     };
     let est = if ck.errors.is_empty() && guard.is_none() {
         match (hr, reward, net, bt) {
-            (Some(h), Some(r), Some(n), Some(b)) => estimate(h, watts.unwrap_or(0.0), power.unwrap_or(0.0), fee.unwrap_or(0.0), price, r, n, b),
+            (Some(h), Some(r), Some(n), Some(b)) => estimate(
+                h,
+                watts.unwrap_or(0.0),
+                power.unwrap_or(0.0),
+                fee.unwrap_or(0.0),
+                price,
+                r,
+                n,
+                b,
+            ),
             _ => None,
         }
     } else {
@@ -266,7 +397,11 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
     let num_in = |name: &'static str, v: Option<f64>, unit: &str, hint: Markup| {
         let f = field(name);
         let err = ck.errors.get(name);
-        let shown = if err.is_some() { raw_of(name) } else { v.map(fmt::num_short) };
+        let shown = if err.is_some() {
+            raw_of(name)
+        } else {
+            v.map(fmt::num_short)
+        };
         html! {
             div class={"row" @if err.is_some() { " invalid" }} {
                 label for={"c-" (name)} { (f.label) }
@@ -283,7 +418,11 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
     };
     let e30 = |v: Option<f64>| v.map(|x| x * 30.0);
     // Electricity doesn't depend on the share, so it still shows when the guard applies.
-    let power_day = est.as_ref().map(|e| e.power_day).or_else(|| guard.as_ref().map(|_| watts.unwrap_or(0.0) / 1000.0 * 24.0 * power.unwrap_or(0.0)));
+    let power_day = est.as_ref().map(|e| e.power_day).or_else(|| {
+        guard
+            .as_ref()
+            .map(|_| watts.unwrap_or(0.0) / 1000.0 * 24.0 * power.unwrap_or(0.0))
+    });
     layout(d, Page { title: "Zcash and Equihash mining calculator", description: "Estimate Zcash and Equihash mining revenue, electricity cost and operating margin for a Z15 Pro or custom hashrate using sourced network data.", path: "/calculator", nav: "calculator" }, html! {
         div class="wrap page" {
             header class="page-head" {
@@ -465,12 +604,25 @@ mod tests {
 
     #[test]
     fn no_per_machine_figure_when_one_machine_outweighs_the_network() {
-        let mut c = Coin { block_reward_miner: Some(crate::data::Reward { value: 8.4, ..Default::default() }), ..Default::default() };
+        let mut c = Coin {
+            block_reward_miner: Some(crate::data::Reward {
+                value: 8.4,
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
         c.network.hashrate = Some(506_255.0);
         c.network.block_time_target_s = Some(75.0);
-        assert_eq!(coins_per_day(&c, 840.0, 1.0), None, "a Z15 Pro is bigger than the Wcash network");
+        assert_eq!(
+            coins_per_day(&c, 840.0, 1.0),
+            None,
+            "a Z15 Pro is bigger than the Wcash network"
+        );
         assert!(per_day_na_reason(&c, Some(840.0)).contains("10%"));
-        assert!(coins_per_day(&c, 10.0, 1.0).is_some(), "a small share still gets a figure");
+        assert!(
+            coins_per_day(&c, 10.0, 1.0).is_some(),
+            "a small share still gets a figure"
+        );
         c.network.hashrate = None;
         assert!(per_day_na_reason(&c, Some(840.0)).starts_with("No network estimate"));
     }
@@ -487,23 +639,60 @@ mod tests {
     fn share_guard_matches_the_hardware_rule() {
         // Same literal as scripts/client.test.mjs, so server and client say the same thing.
         assert_eq!(share_guard(840.0, 522_000.0).as_deref(), Some(GUARD_840));
-        assert!(share_guard(52.2, 522_000.0).unwrap().contains("10.0% of the network estimate"), "10% is inclusive");
+        assert!(
+            share_guard(52.2, 522_000.0)
+                .unwrap()
+                .contains("10.0% of the network estimate"),
+            "10% is inclusive"
+        );
         assert!(share_guard(52.1, 522_000.0).is_none());
         assert!(share_guard(840.0, 0.0).is_none() && share_guard(0.0, 1.0).is_none());
     }
 
     #[test]
     fn calculator_shows_na_not_a_capped_share_for_a_z15_pro_on_wcash() {
-        let d = crate::data::load(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("data")).unwrap();
-        let page = render(&d, &q(&[("coin", "wcash"), ("hashrate", "840"), ("watts", "2780"), ("power", "0.08"), ("fee", "1"), ("nethash", "522000"), ("blocktime", "75")])).into_string();
+        let d = crate::data::load(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("data"))
+            .unwrap();
+        let page = render(
+            &d,
+            &q(&[
+                ("coin", "wcash"),
+                ("hashrate", "840"),
+                ("watts", "2780"),
+                ("power", "0.08"),
+                ("fee", "1"),
+                ("nethash", "522000"),
+                ("blocktime", "75"),
+            ]),
+        )
+        .into_string();
         assert!(page.contains("id=\"o-guard\">Your hashrate is 1.61× the network estimate. At 10% or more of the network a share-based estimate isn"), "guard shown");
-        assert!(page.contains("id=\"o-coins\">n/a<") && page.contains("id=\"o-share\">n/a<") && page.contains("id=\"o-rev\">n/a<"));
+        assert!(
+            page.contains("id=\"o-coins\">n/a<")
+                && page.contains("id=\"o-share\">n/a<")
+                && page.contains("id=\"o-rev\">n/a<")
+        );
         assert!(!page.contains("10,148") && !page.contains("10148") && !page.contains("100.0%"));
-        assert!(page.contains("id=\"o-pow\">−$5.34<"), "electricity still shows");
+        assert!(
+            page.contains("id=\"o-pow\">−$5.34<"),
+            "electricity still shows"
+        );
         // The WEC reward note: the subsidy ramps until height 40,000.
-        assert!(page.contains("ramps up every block until height 40,000"), "reward note");
+        assert!(
+            page.contains("ramps up every block until height 40,000"),
+            "reward note"
+        );
         // A small farm still gets a figure.
-        let page = render(&d, &q(&[("coin", "wcash"), ("hashrate", "10"), ("nethash", "522000"), ("blocktime", "75")])).into_string();
+        let page = render(
+            &d,
+            &q(&[
+                ("coin", "wcash"),
+                ("hashrate", "10"),
+                ("nethash", "522000"),
+                ("blocktime", "75"),
+            ]),
+        )
+        .into_string();
         assert!(page.contains("id=\"o-guard\" hidden") && !page.contains("id=\"o-coins\">n/a<"));
     }
 }

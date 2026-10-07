@@ -178,16 +178,19 @@ async fn sources(s: web::Data<AppState>) -> impl Responder {
 async fn guides(s: web::Data<AppState>) -> impl Responder {
     html(views::hub::guides(&s.get()))
 }
+async fn cypherpunk_research(s: web::Data<AppState>) -> impl Responder {
+    html(views::research::render(&s.get()))
+}
 async fn search(s: web::Data<AppState>, q: web::Query<views::hub::SearchQuery>) -> impl Responder {
     html(views::hub::search(&s.get(), &q))
 }
 async fn contribute(s: web::Data<AppState>) -> impl Responder {
     html(views::hub::contribute(&s.get()))
 }
-async fn buy(s: web::Data<AppState>, q: web::Query<views::buy::BuyQuery>) -> impl Responder {
+async fn vendors(s: web::Data<AppState>, q: web::Query<views::buy::BuyQuery>) -> impl Responder {
     html(views::buy::index(&s.get(), &q))
 }
-async fn buy_vendor(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
+async fn vendor(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
     let d = s.get();
     match d.vendors.iter().find(|v| v.slug == *path) {
         Some(v) => html(views::buy::vendor_page(&d, v)),
@@ -195,6 +198,23 @@ async fn buy_vendor(s: web::Data<AppState>, path: web::Path<String>) -> HttpResp
             .content_type("text/html; charset=utf-8")
             .body(views::pages::not_found(&d).into_string()),
     }
+}
+
+async fn buy_legacy(req: HttpRequest) -> HttpResponse {
+    let to = if req.query_string().is_empty() {
+        "/vendors".to_string()
+    } else {
+        format!("/vendors?{}", req.query_string())
+    };
+    HttpResponse::MovedPermanently()
+        .insert_header((header::LOCATION, to))
+        .finish()
+}
+
+async fn buy_vendor_legacy(path: web::Path<String>) -> HttpResponse {
+    HttpResponse::MovedPermanently()
+        .insert_header((header::LOCATION, format!("/vendors/{}", path.into_inner())))
+        .finish()
 }
 async fn add_vendor(s: web::Data<AppState>) -> impl Responder {
     html(views::buy::add_vendor(&s.get()))
@@ -293,6 +313,7 @@ async fn data_file(
         "hashpower.json",
         "meta.json",
         "research.json",
+        "cypherpunk-zcash.json",
         "current.json",
     ];
     if !ALLOWED.contains(&path.as_str()) {
@@ -337,7 +358,8 @@ async fn llms(s: web::Data<AppState>) -> HttpResponse {
     let d = s.get();
     let updated = d.last_updated.as_deref().unwrap_or("unknown");
     let site = views::layout::SITE;
-    let body = format!(r#"# equihash.com
+    let body = format!(
+        r#"# equihash.com
 
 > Source-backed Equihash mining directory for coins, pools, ASIC hardware, seller evidence, calculators and technical guides.
 
@@ -351,6 +373,7 @@ Updated: {updated}
 - [Antminer Z15 Pro]({site}/hardware/antminer-z15-pro): manufacturer specifications and compatible coins.
 - [Equihash coins]({site}/coins): networks grouped by exact n,k parameters.
 - [Merged mining guide]({site}/merged-mining): Zcash parent-chain and Wcash auxiliary-chain flow.
+- [Cypherpunk Zcash mining fleet]({site}/research/cypherpunk-zcash-mining): SEC-sourced account of the reported 4.2 GSol/s fleet and preliminary WINK ETF filing.
 - [Sources and method]({site}/sources): provenance, refresh method and known limits.
 
 ## Machine-readable data
@@ -361,6 +384,7 @@ Updated: {updated}
 - [Vendors JSON]({site}/data/vendors.json)
 - [Listings JSON]({site}/data/listings.json)
 - [Hashpower JSON]({site}/data/hashpower.json)
+- [Cypherpunk Zcash research data]({site}/data/cypherpunk-zcash.json)
 
 ## Editorial notes
 
@@ -368,7 +392,8 @@ Updated: {updated}
 - Missing values remain n/a; listings are free and cannot buy ranking.
 - equihash.com and Wcash share a maintainer. Wcash receives work only from participating merged-mining pools.
 - Mining estimates are not forecasts or financial advice.
-"#);
+"#
+    );
     HttpResponse::Ok()
         .insert_header((header::CACHE_CONTROL, "public, max-age=300"))
         .content_type("text/plain; charset=utf-8")
@@ -412,18 +437,28 @@ async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
         ("/pools".into(), data_updated.clone()),
         ("/hashpower".into(), hashpower_updated),
         ("/hardware".into(), hardware_updated.clone()),
-        ("/buy".into(), vendor_updated.clone()),
+        ("/vendors".into(), vendor_updated.clone()),
         ("/guides".into(), Some("2026-10-07".into())),
         ("/zcash-mining".into(), Some("2026-10-07".into())),
         ("/calculator".into(), data_updated.clone()),
         ("/merged-mining".into(), Some("2026-10-07".into())),
+        (
+            "/research/cypherpunk-zcash-mining".into(),
+            Some("2026-10-07".into()),
+        ),
         ("/archive".into(), data_updated.clone()),
         ("/about".into(), Some("2026-10-07".into())),
         ("/sources".into(), Some("2026-10-07".into())),
     ];
-    urls.extend(d.coins.iter().map(|c| (format!("/coin/{}", c.id), data_updated.clone())));
+    urls.extend(
+        d.coins
+            .iter()
+            .map(|c| (format!("/coin/{}", c.id), data_updated.clone())),
+    );
     for c in d.coins.iter().filter(|c| c.active() && c.id != "zcash") {
-        if d.live_pools().any(|p| p.coin_id == c.id && !p.is_hashpower_marketplace()) {
+        if d.live_pools()
+            .any(|p| p.coin_id == c.id && !p.is_hashpower_marketplace())
+        {
             urls.push((format!("/pools?coin={}", c.id), data_updated.clone()));
         }
     }
@@ -442,10 +477,14 @@ async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
                 )
             }),
     );
-    urls.extend(d.miners.iter().map(|m| (format!("/hardware/{}", m.id), hardware_updated.clone())));
+    urls.extend(
+        d.miners
+            .iter()
+            .map(|m| (format!("/hardware/{}", m.id), hardware_updated.clone())),
+    );
     urls.extend(d.vendors.iter().map(|v| {
         (
-            format!("/buy/vendor/{}", v.slug),
+            format!("/vendors/{}", v.slug),
             sitemap_lastmod(v.observed_at.as_deref()).or_else(|| vendor_updated.clone()),
         )
     }));
@@ -514,13 +553,19 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
         .service(web::resource("/miners").route(get_head().to(miners_legacy)))
         .service(web::resource("/hardware").route(get_head().to(miners)))
         .service(web::resource("/hardware/{id}").route(get_head().to(hardware_detail)))
-        .service(web::resource("/buy").route(get_head().to(buy)))
-        .service(web::resource("/buy/vendor/{slug}").route(get_head().to(buy_vendor)))
+        .service(web::resource("/vendors").route(get_head().to(vendors)))
+        .service(web::resource("/vendors/{slug}").route(get_head().to(vendor)))
+        .service(web::resource("/buy").route(get_head().to(buy_legacy)))
+        .service(web::resource("/buy/vendor/{slug}").route(get_head().to(buy_vendor_legacy)))
         .service(web::resource("/add-vendor").route(get_head().to(add_vendor)))
         .service(web::resource("/calculator").route(get_head().to(calculator)))
         .service(web::resource("/merged-mining").route(get_head().to(guide)))
         .service(web::resource("/zcash-mining").route(get_head().to(zcash_mining)))
         .service(web::resource("/guides").route(get_head().to(guides)))
+        .service(
+            web::resource("/research/cypherpunk-zcash-mining")
+                .route(get_head().to(cypherpunk_research)),
+        )
         .service(web::resource("/search").route(get_head().to(search)))
         .service(web::resource("/contribute").route(get_head().to(contribute)))
         .service(web::resource("/add-pool").route(get_head().to(add_pool_legacy)))
@@ -700,12 +745,13 @@ mod tests {
             "/archive".into(),
             "/hardware".into(),
             format!("/hardware/{miner}"),
-            "/buy".into(),
-            "/buy?machine=antminer-z15-pro&region=UK&sort=stock".into(),
-            format!("/buy/vendor/{}", s.get().vendors[0].slug),
+            "/vendors".into(),
+            "/vendors?machine=antminer-z15-pro&region=UK&state=in_stock".into(),
+            format!("/vendors/{}", s.get().vendors[0].slug),
             "/add-vendor".into(),
             "/guides".into(),
             "/zcash-mining".into(),
+            "/research/cypherpunk-zcash-mining".into(),
             "/search?q=Z15+Pro".into(),
             "/contribute".into(),
             "/calculator".into(),
@@ -718,6 +764,7 @@ mod tests {
             "/data/vendors.json".into(),
             "/data/listings.json".into(),
             "/data/hashpower.json".into(),
+            "/data/cypherpunk-zcash.json".into(),
             "/favicon.ico".into(),
             "/robots.txt".into(),
             "/llms.txt".into(),
@@ -761,7 +808,10 @@ mod tests {
             for m in [Method::GET, Method::HEAD] {
                 let r = test::call_service(
                     &app,
-                    test::TestRequest::default().method(m).uri(from).to_request(),
+                    test::TestRequest::default()
+                        .method(m)
+                        .uri(from)
+                        .to_request(),
                 )
                 .await;
                 assert_eq!(r.status(), 301, "{from}");
@@ -840,11 +890,8 @@ mod tests {
         let s = state();
         let app = app!(s);
 
-        let home = test::call_and_read_body(
-            &app,
-            test::TestRequest::get().uri("/").to_request(),
-        )
-        .await;
+        let home =
+            test::call_and_read_body(&app, test::TestRequest::get().uri("/").to_request()).await;
         let home = String::from_utf8(home.to_vec()).unwrap();
         assert!(home.contains(
             r#"<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">"#
@@ -884,11 +931,9 @@ mod tests {
         assert!(!nodes.iter().any(|n| n["@type"] == "WebSite"));
 
         for path in ["/search?q=zcash", "/contribute", "/add-vendor"] {
-            let body = test::call_and_read_body(
-                &app,
-                test::TestRequest::get().uri(path).to_request(),
-            )
-            .await;
+            let body =
+                test::call_and_read_body(&app, test::TestRequest::get().uri(path).to_request())
+                    .await;
             let body = String::from_utf8(body.to_vec()).unwrap();
             assert!(
                 body.contains(r#"<meta name="robots" content="noindex, follow">"#),
@@ -922,20 +967,25 @@ mod tests {
         }
 
         let mut seen = std::collections::HashSet::new();
-        for loc in body.split("<loc>").skip(1).filter_map(|x| x.split("</loc>").next()) {
+        for loc in body
+            .split("<loc>")
+            .skip(1)
+            .filter_map(|x| x.split("</loc>").next())
+        {
             let path = loc
                 .strip_prefix(views::layout::SITE)
                 .expect("same-origin sitemap URL")
                 .replace("&amp;", "&");
             assert!(seen.insert(path.clone()), "duplicate sitemap URL: {path}");
-            let response = test::call_service(
-                &app,
-                test::TestRequest::get().uri(&path).to_request(),
-            )
-            .await;
+            let response =
+                test::call_service(&app, test::TestRequest::get().uri(&path).to_request()).await;
             assert_eq!(response.status(), 200, "sitemap URL must resolve: {path}");
         }
-        assert!(seen.len() > 25, "sitemap unexpectedly small: {}", seen.len());
+        assert!(
+            seen.len() > 25,
+            "sitemap unexpectedly small: {}",
+            seen.len()
+        );
     }
 
     #[actix_web::test]
@@ -951,22 +1001,30 @@ mod tests {
         assert!(robots.contains("User-agent: OAI-SearchBot\nAllow: /"));
         assert!(robots.contains("Sitemap: https://equihash.com/sitemap.xml"));
 
-        let llms = test::call_and_read_body(
-            &app,
-            test::TestRequest::get().uri("/llms.txt").to_request(),
-        )
-        .await;
+        let llms =
+            test::call_and_read_body(&app, test::TestRequest::get().uri("/llms.txt").to_request())
+                .await;
         let llms = String::from_utf8(llms.to_vec()).unwrap();
         assert!(llms.contains("https://equihash.com/zcash-mining"));
+        assert!(llms.contains("https://equihash.com/research/cypherpunk-zcash-mining"));
         assert!(llms.contains("https://equihash.com/data/pools.json"));
         assert!(llms.contains("Wcash receives work only from participating merged-mining pools"));
 
+        let research = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/research/cypherpunk-zcash-mining")
+                .to_request(),
+        )
+        .await;
+        let research = String::from_utf8(research.to_vec()).unwrap();
+        assert!(research.contains("4,902 Z15 Pro miners"));
+        assert!(research.contains("FILED · NOT LAUNCHED"));
+        assert!(research.contains("not live telemetry"));
+
         for path in ["/api/live", "/healthz", "/data/pools.json"] {
-            let response = test::call_service(
-                &app,
-                test::TestRequest::get().uri(path).to_request(),
-            )
-            .await;
+            let response =
+                test::call_service(&app, test::TestRequest::get().uri(path).to_request()).await;
             assert_eq!(
                 response.headers().get("x-robots-tag").unwrap(),
                 "noindex",

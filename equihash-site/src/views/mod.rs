@@ -8,6 +8,7 @@ pub mod layout;
 pub mod links;
 pub mod logo;
 pub mod pages;
+pub mod research;
 
 use crate::data::{Coin, Data, Pool};
 use crate::fmt;

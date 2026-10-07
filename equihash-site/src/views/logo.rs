@@ -1,7 +1,7 @@
 //! Coin and pool logos: data/curated/logos.json (written by scripts/fetch-logos.mjs) and the
 //! local copies in static/logos/. The site only ever serves those local copies (no hotlinking).
 //!
-//! Every file is checked on load: the path must stay inside static/logos/{coins,pools}/, the bytes
+//! Every file is checked on load: the path must stay inside static/logos/{coins,pools,vendors}/, the bytes
 //! must be the type the extension says (SVG, PNG or WebP only) and an SVG must pass `svg_is_safe`
 //! (no scripts, event handlers, foreignObject, images or external references). Anything that
 //! fails, and any coin or pool without an entry, gets a generated monogram instead, so a new coin
@@ -41,6 +41,7 @@ pub struct LogosFile {
     pub generated_at: Option<String>,
     pub coins: BTreeMap<String, LogoEntry>,
     pub pools: BTreeMap<String, LogoEntry>,
+    pub vendors: BTreeMap<String, LogoEntry>,
 }
 
 /// What a page needs to draw one logo. Serialised with each pool for the drawer (static/app.js).
@@ -70,6 +71,7 @@ pub struct Logos {
     pub generated_at: Option<String>,
     pub coins: BTreeMap<String, LogoEntry>,
     pub pools: BTreeMap<String, LogoEntry>,
+    pub vendors: BTreeMap<String, LogoEntry>,
     /// Entries whose file was rejected, with the reason (logged once per load).
     pub rejected: Vec<String>,
 }
@@ -81,10 +83,15 @@ impl Logos {
     pub fn pool(&self, id: &str, name: &str) -> Logo {
         resolve(self.pools.get(id), name)
     }
+    pub fn vendor(&self, id: &str, name: &str) -> Logo {
+        resolve(self.vendors.get(id), name)
+    }
 }
 
 fn static_dir() -> PathBuf {
-    std::env::var("STATIC_DIR").map(PathBuf::from).unwrap_or_else(|_| PathBuf::from("static"))
+    std::env::var("STATIC_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from("static"))
 }
 
 /// Load data/curated/logos.json and check every file in `STATIC_DIR`/logos. A missing file means
@@ -119,20 +126,33 @@ pub fn load_from(data_dir: &Path, static_dir: &Path) -> Result<Logos, String> {
     };
     let coins = check("coins", f.coins);
     let pools = check("pools", f.pools);
+    let vendors = check("vendors", f.vendors);
     for r in &rejected {
         log::warn!("logo rejected, using a monogram: {r}");
     }
-    Ok(Logos { generated_at: f.generated_at, coins, pools, rejected })
+    Ok(Logos {
+        generated_at: f.generated_at,
+        coins,
+        pools,
+        vendors,
+        rejected,
+    })
 }
 
 /// The path is a plain file name inside static/logos/<group>/, the bytes are the type the
 /// extension says, and an SVG passes `svg_is_safe`.
 pub fn check_file(root: &Path, group: &str, file: &str) -> Result<(), String> {
-    let (g, name) = file.split_once('/').ok_or("not in coins/ or pools/")?;
+    let (g, name) = file
+        .split_once('/')
+        .ok_or("not in coins/, pools/ or vendors/")?;
     if g != group {
         return Err(format!("expected {group}/"));
     }
-    let ok_name = !name.is_empty() && !name.starts_with('.') && name.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || matches!(c, '.' | '-' | '_'));
+    let ok_name = !name.is_empty()
+        && !name.starts_with('.')
+        && name
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || matches!(c, '.' | '-' | '_'));
     if !ok_name || name.contains("..") {
         return Err("bad file name".into());
     }
@@ -146,10 +166,17 @@ pub fn check_file(root: &Path, group: &str, file: &str) -> Result<(), String> {
     match (ext, sniff(&bytes)) {
         ("svg", Some("svg")) => {
             let s = std::str::from_utf8(&bytes).map_err(|_| "SVG is not UTF-8")?;
-            if svg_is_safe(s) { Ok(()) } else { Err("SVG failed the safety check".into()) }
+            if svg_is_safe(s) {
+                Ok(())
+            } else {
+                Err("SVG failed the safety check".into())
+            }
         }
         ("png", Some("png")) | ("webp", Some("webp")) => Ok(()),
-        (e, t) => Err(format!("extension .{e} but content is {}", t.unwrap_or("unknown"))),
+        (e, t) => Err(format!(
+            "extension .{e} but content is {}",
+            t.unwrap_or("unknown")
+        )),
     }
 }
 
@@ -161,7 +188,9 @@ pub fn sniff(b: &[u8]) -> Option<&'static str> {
     if b.len() > 12 && &b[0..4] == b"RIFF" && &b[8..12] == b"WEBP" {
         return Some("webp");
     }
-    let head = std::str::from_utf8(&b[..b.len().min(512)]).ok().or_else(|| std::str::from_utf8(b).ok())?;
+    let head = std::str::from_utf8(&b[..b.len().min(512)])
+        .ok()
+        .or_else(|| std::str::from_utf8(b).ok())?;
     let t = head.trim_start_matches('\u{feff}').trim_start();
     if t.starts_with("<svg ") || t.starts_with("<svg>") {
         return Some("svg");
@@ -179,7 +208,27 @@ pub fn svg_is_safe(s: &str) -> bool {
     if !(l.trim_start().starts_with("<svg ") || l.trim_start().starts_with("<svg>")) {
         return false;
     }
-    const BAD: &[&str] = &["<script", "foreignobject", "<image", "<feimage", "<iframe", "<embed", "<object", "<animate", "<set ", "<set>", "<!entity", "<!doctype", "<?", "javascript:", "vbscript:", "@import", "<a ", "<a>", "<style"];
+    const BAD: &[&str] = &[
+        "<script",
+        "foreignobject",
+        "<image",
+        "<feimage",
+        "<iframe",
+        "<embed",
+        "<object",
+        "<animate",
+        "<set ",
+        "<set>",
+        "<!entity",
+        "<!doctype",
+        "<?",
+        "javascript:",
+        "vbscript:",
+        "@import",
+        "<a ",
+        "<a>",
+        "<style",
+    ];
     // <style> is refused too: the sanitiser inlines nothing it can't check, and svgo turns
     // stylesheet rules into attributes. A logo that still needs a stylesheet falls back.
     if BAD.iter().any(|b| l.contains(b)) {
@@ -211,7 +260,10 @@ pub fn svg_is_safe(s: &str) -> bool {
         }
     }
     for (i, _) in l.match_indices("url(") {
-        let v = l[i + 4..].trim_start().trim_start_matches(['"', '\'']).trim_start();
+        let v = l[i + 4..]
+            .trim_start()
+            .trim_start_matches(['"', '\''])
+            .trim_start();
         if !v.starts_with('#') {
             return false;
         }
@@ -241,7 +293,14 @@ pub fn monogram(name: &str) -> String {
             s = s[p.len()..].to_string();
         }
     }
-    if s.split('.').count() == 4 && s.split('.').all(|x| !x.is_empty() && x.chars().take_while(|c| *c != ':').all(|c| c.is_ascii_digit())) {
+    if s.split('.').count() == 4
+        && s.split('.').all(|x| {
+            !x.is_empty()
+                && x.chars()
+                    .take_while(|c| *c != ':')
+                    .all(|c| c.is_ascii_digit())
+        })
+    {
         return "IP".into();
     }
     // Strip a trailing TLD: "pooly.ca" → "pooly", "mining-dutch.nl" → "mining-dutch".
@@ -263,7 +322,9 @@ pub fn monogram(name: &str) -> String {
     let lb = lower.as_bytes();
     while i < spaced.len() {
         let mut hit = None;
-        for suf in ["pool", "miners", "miner", "mines", "mine", "mining", "hub", "solo"] {
+        for suf in [
+            "pool", "miners", "miner", "mines", "mine", "mining", "hub", "solo",
+        ] {
             if i > 0 && lower[i..].starts_with(suf) && lb[i - 1].is_ascii_alphanumeric() {
                 let end = i + suf.len();
                 if end == lower.len() || !lb[end].is_ascii_alphanumeric() {
@@ -281,23 +342,48 @@ pub fn monogram(name: &str) -> String {
             i += 1;
         }
     }
-    let words: Vec<&str> = out.split(|c: char| !c.is_ascii_alphanumeric()).filter(|w| !w.is_empty()).collect();
+    let words: Vec<&str> = out
+        .split(|c: char| !c.is_ascii_alphanumeric())
+        .filter(|w| !w.is_empty())
+        .collect();
     match words.as_slice() {
         [] => "?".into(),
         [w] => {
-            let first: String = if w.starts_with(|c: char| c.is_ascii_digit()) { w.chars().take(2).collect() } else { w.chars().take(1).collect() };
+            let first: String = if w.starts_with(|c: char| c.is_ascii_digit()) {
+                w.chars().take(2).collect()
+            } else {
+                w.chars().take(1).collect()
+            };
             first.to_ascii_uppercase()
         }
-        [a, b, ..] => format!("{}{}", a.chars().next().unwrap(), b.chars().next().unwrap()).to_ascii_uppercase(),
+        [a, b, ..] => format!("{}{}", a.chars().next().unwrap(), b.chars().next().unwrap())
+            .to_ascii_uppercase(),
     }
 }
 
 /// Entry → what the page draws. No entry or no usable file → a monogram from the name.
 pub fn resolve(e: Option<&LogoEntry>, name: &str) -> Logo {
-    let mono = e.and_then(|e| e.monogram.clone()).filter(|m| !m.is_empty() && m.chars().count() <= 3 && m.chars().all(|c| c.is_alphanumeric())).unwrap_or_else(|| monogram(name));
+    let mono = e
+        .and_then(|e| e.monogram.clone())
+        .filter(|m| {
+            !m.is_empty() && m.chars().count() <= 3 && m.chars().all(|c| c.is_alphanumeric())
+        })
+        .unwrap_or_else(|| monogram(name));
     match e.and_then(|e| e.file.as_ref().map(|f| (e, f))) {
-        Some((e, f)) => Logo { src: Some(format!("{URL_PREFIX}{f}")), kind: e.kind.clone(), mono, tile: e.bg.as_deref() == Some("tile"), light: e.ink.as_deref() == Some("light") },
-        None => Logo { src: None, kind: "fallback".into(), mono, tile: false, light: false },
+        Some((e, f)) => Logo {
+            src: Some(format!("{URL_PREFIX}{f}")),
+            kind: e.kind.clone(),
+            mono,
+            tile: e.bg.as_deref() == Some("tile"),
+            light: e.ink.as_deref() == Some("light"),
+        },
+        None => Logo {
+            src: None,
+            kind: "fallback".into(),
+            mono,
+            tile: false,
+            light: false,
+        },
     }
 }
 
@@ -330,11 +416,26 @@ impl At {
 /// (screen readers would otherwise read the name twice); header logos say "<name> logo".
 pub fn chip(logo: &Logo, name: &str, at: At, lazy: bool) -> Markup {
     let px = at.px();
-    let class = match at { At::Row => "logo lg-row", At::List => "logo lg-list", At::Nav => "logo lg-nav", At::Head => "logo lg-head" };
-    let alt = if at == At::Head { format!("{name} logo") } else { String::new() };
+    let class = match at {
+        At::Row => "logo lg-row",
+        At::List => "logo lg-list",
+        At::Nav => "logo lg-nav",
+        At::Head => "logo lg-head",
+    };
+    let alt = if at == At::Head {
+        format!("{name} logo")
+    } else {
+        String::new()
+    };
     // Inner image size: the chip is px square with a 1 px border and a little padding, unless the
     // logo is an opaque tile of its own, which fills the chip.
-    let inner = if logo.tile || at == At::Nav { px - 2 } else if at == At::Head { px - 10 } else { px - 4 };
+    let inner = if logo.tile || at == At::Nav {
+        px - 2
+    } else if at == At::Head {
+        px - 10
+    } else {
+        px - 4
+    };
     html! {
         @match &logo.src {
             Some(src) => {
@@ -355,11 +456,17 @@ pub fn chip(logo: &Logo, name: &str, at: At, lazy: bool) -> Markup {
 pub fn sources_note(d: &crate::data::Data) -> Markup {
     let coins = d.coins.iter().filter(|c| !c.logo.is_fallback()).count();
     let pools: std::collections::BTreeSet<&str> = d.pools.iter().map(|p| p.name.as_str()).collect();
-    let with: std::collections::BTreeSet<&str> = d.pools.iter().filter(|p| !p.logo.is_fallback()).map(|p| p.name.as_str()).collect();
+    let with: std::collections::BTreeSet<&str> = d
+        .pools
+        .iter()
+        .filter(|p| !p.logo.is_fallback())
+        .map(|p| p.name.as_str())
+        .collect();
+    let vendors = d.vendors.iter().filter(|v| !v.logo.is_fallback()).count();
     html! {
-        "Coin and pool logos are local copies, fetched from each coin's or pool's own website or official GitHub organisation (otherwise from the CC0 cryptocurrency-icons set or CoinGecko) and listed with their source in "
+        "Coin, pool and vendor logos are local copies, fetched from each entity's own website or official GitHub organisation (coin fallbacks may use the CC0 cryptocurrency-icons set or CoinGecko) and listed with their source in "
         code { "data/curated/logos.json" } ". "
-        (coins) " of " (d.coins.len()) " coins and " (with.len()) " of " (pools.len()) " pool names have one; the rest show a plain monogram, never a drawn mark."
+        (coins) " of " (d.coins.len()) " coins, " (with.len()) " of " (pools.len()) " pool names and " (vendors) " of " (d.vendors.len()) " vendors have one; the rest show a plain monogram, never a drawn mark."
         @if let Some(g) = &d.logos.generated_at { " Logos last fetched " (crate::fmt::utc(Some(g))) "." }
         @if !d.logos.rejected.is_empty() { " " (d.logos.rejected.len()) " logo files failed the safety check and show a monogram." }
         " Logos are trademarks of their owners, shown only to identify them."
@@ -394,24 +501,46 @@ mod tests {
     struct Tmp(PathBuf);
     impl Tmp {
         fn new(tag: &str) -> Self {
-            let p = std::env::temp_dir().join(format!("eqlogo-{tag}-{}-{:?}", std::process::id(), std::thread::current().id()));
+            let p = std::env::temp_dir().join(format!(
+                "eqlogo-{tag}-{}-{:?}",
+                std::process::id(),
+                std::thread::current().id()
+            ));
             let _ = std::fs::remove_dir_all(&p);
             for d in ["data/curated", "static/logos/coins", "static/logos/pools"] {
                 std::fs::create_dir_all(p.join(d)).unwrap();
             }
             Tmp(p)
         }
-        fn data(&self) -> PathBuf { self.0.join("data") }
-        fn stat(&self) -> PathBuf { self.0.join("static") }
-        fn file(&self, rel: &str, bytes: &[u8]) { std::fs::write(self.0.join("static/logos").join(rel), bytes).unwrap(); }
-        fn json(&self, v: serde_json::Value) { std::fs::write(self.data().join("curated/logos.json"), v.to_string()).unwrap(); }
+        fn data(&self) -> PathBuf {
+            self.0.join("data")
+        }
+        fn stat(&self) -> PathBuf {
+            self.0.join("static")
+        }
+        fn file(&self, rel: &str, bytes: &[u8]) {
+            std::fs::write(self.0.join("static/logos").join(rel), bytes).unwrap();
+        }
+        fn json(&self, v: serde_json::Value) {
+            std::fs::write(self.data().join("curated/logos.json"), v.to_string()).unwrap();
+        }
     }
     impl Drop for Tmp {
-        fn drop(&mut self) { let _ = std::fs::remove_dir_all(&self.0); }
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
     }
     const SVG: &[u8] = br##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#f4b728" d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24z"/></svg>"##;
-    fn png() -> Vec<u8> { let mut v = vec![0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a]; v.extend_from_slice(&[0; 32]); v }
-    fn webp() -> Vec<u8> { let mut v = b"RIFF\x20\0\0\0WEBPVP8L".to_vec(); v.extend_from_slice(&[0; 24]); v }
+    fn png() -> Vec<u8> {
+        let mut v = vec![0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a];
+        v.extend_from_slice(&[0; 32]);
+        v
+    }
+    fn webp() -> Vec<u8> {
+        let mut v = b"RIFF\x20\0\0\0WEBPVP8L".to_vec();
+        v.extend_from_slice(&[0; 24]);
+        v
+    }
 
     #[test]
     fn logos_json_loads_and_checks_every_file() {
@@ -419,7 +548,10 @@ mod tests {
         t.file("coins/zcash.abc.svg", SVG);
         t.file("pools/himpool.com.def.webp", &webp());
         t.file("pools/fake.png", b"<html>not a png</html>");
-        t.file("coins/evil.svg", br#"<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><path d="M0 0"/></svg>"#);
+        t.file(
+            "coins/evil.svg",
+            br#"<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><path d="M0 0"/></svg>"#,
+        );
         t.file("coins/pixel.png", &png());
         t.json(serde_json::json!({
             "generated_at": "2026-10-03T15:00:00Z",
@@ -451,7 +583,10 @@ mod tests {
             assert_eq!(lg.kind, "fallback");
             assert_eq!(lg.mono, "SC");
         }
-        assert!(l.pool("zcash:fake.com:1", "Fake").is_fallback(), "HTML saved as .png is refused");
+        assert!(
+            l.pool("zcash:fake.com:1", "Fake").is_fallback(),
+            "HTML saved as .png is refused"
+        );
         assert_eq!(l.rejected.len(), 6);
         // A fallback entry keeps its own monogram; an unknown id gets one from its name.
         assert_eq!(l.coin("fb", "Squishy Coin").mono, "SQ");
@@ -466,13 +601,18 @@ mod tests {
         assert!(l.coins.is_empty() && l.coin("zcash", "Zcash").is_fallback());
         t.json(serde_json::json!({}));
         std::fs::write(t.data().join("curated/logos.json"), "{ nope").unwrap();
-        assert!(load_from(&t.data(), &t.stat()).is_err(), "a broken file keeps the last good data");
+        assert!(
+            load_from(&t.data(), &t.stat()).is_err(),
+            "a broken file keeps the last good data"
+        );
     }
 
     #[test]
     fn svg_safety_check() {
         assert!(svg_is_safe(std::str::from_utf8(SVG).unwrap()));
-        assert!(svg_is_safe(r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><defs><linearGradient id="a"/></defs><path fill="url(#a)" d="M0 0"/><use href="#a"/></svg>"##));
+        assert!(svg_is_safe(
+            r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><defs><linearGradient id="a"/></defs><path fill="url(#a)" d="M0 0"/><use href="#a"/></svg>"##
+        ));
         for bad in [
             r#"<svg><script>alert(1)</script></svg>"#,
             r#"<svg onload="x()"><path d="M0 0"/></svg>"#,
@@ -505,23 +645,60 @@ mod tests {
 
     #[test]
     fn monograms() {
-        for (name, m) in [("himpool.com (solo)", "HP"), ("ViaBTC", "VB"), ("zpool", "ZP"), ("Mining-Dutch", "MD"), ("2Miners", "2M"), ("pool.excc.co", "E"),
-            ("195.3.222.105", "IP"), ("rockpool.cloud", "RP"), ("Binance Pool", "BP"), ("F2Pool", "FP"), ("coolmine.top", "CM"), ("Pirate Chain", "PC"), ("Zcash", "Z")] {
+        for (name, m) in [
+            ("himpool.com (solo)", "HP"),
+            ("ViaBTC", "VB"),
+            ("zpool", "ZP"),
+            ("Mining-Dutch", "MD"),
+            ("2Miners", "2M"),
+            ("pool.excc.co", "E"),
+            ("195.3.222.105", "IP"),
+            ("rockpool.cloud", "RP"),
+            ("Binance Pool", "BP"),
+            ("F2Pool", "FP"),
+            ("coolmine.top", "CM"),
+            ("Pirate Chain", "PC"),
+            ("Zcash", "Z"),
+        ] {
             assert_eq!(monogram(name), m, "{name}");
         }
     }
 
     #[test]
     fn chips_have_size_alt_and_lazy_loading() {
-        let l = Logo { src: Some("/static/logos/coins/zcash.abc.svg".into()), kind: "official".into(), mono: "Z".into(), tile: false, light: false };
+        let l = Logo {
+            src: Some("/static/logos/coins/zcash.abc.svg".into()),
+            kind: "official".into(),
+            mono: "Z".into(),
+            tile: false,
+            light: false,
+        };
         let row = chip(&l, "Zcash", At::Row, true).into_string();
-        assert!(row.contains(r#"width="16" height="16""#) && row.contains(r#"alt="""#) && row.contains(r#"loading="lazy""#), "{row}");
+        assert!(
+            row.contains(r#"width="16" height="16""#)
+                && row.contains(r#"alt="""#)
+                && row.contains(r#"loading="lazy""#),
+            "{row}"
+        );
         let head = chip(&l, "Zcash", At::Head, false).into_string();
-        assert!(head.contains(r#"alt="Zcash logo""#) && head.contains(r#"width="30""#) && !head.contains("loading="), "{head}");
+        assert!(
+            head.contains(r#"alt="Zcash logo""#)
+                && head.contains(r#"width="30""#)
+                && !head.contains("loading="),
+            "{head}"
+        );
         let fb = chip(&resolve(None, "himpool.com"), "himpool.com", At::Row, false).into_string();
-        assert!(fb.contains("mono") && fb.contains(">HP<") && fb.contains(r#"data-kind="fallback""#) && !fb.contains("<img"), "{fb}");
+        assert!(
+            fb.contains("mono")
+                && fb.contains(">HP<")
+                && fb.contains(r#"data-kind="fallback""#)
+                && !fb.contains("<img"),
+            "{fb}"
+        );
         // Names are escaped in alt text.
-        assert!(chip(&l, "<b>", At::Head, false).into_string().contains("&lt;b&gt; logo"));
+        assert!(chip(&l, "<b>", At::Head, false)
+            .into_string()
+            .contains("&lt;b&gt; logo"));
     }
 
     #[test]
@@ -534,10 +711,18 @@ mod tests {
         assert!(l.rejected.is_empty(), "rejected: {:?}", l.rejected);
         let d = crate::data::load(Path::new("data")).unwrap();
         for c in &d.coins {
-            assert!(l.coins.contains_key(&c.id), "no logos.json entry for coin {}", c.id);
+            assert!(
+                l.coins.contains_key(&c.id),
+                "no logos.json entry for coin {}",
+                c.id
+            );
         }
         for p in &d.pools {
-            assert!(l.pools.contains_key(&p.id), "no logos.json entry for pool {}", p.id);
+            assert!(
+                l.pools.contains_key(&p.id),
+                "no logos.json entry for pool {}",
+                p.id
+            );
         }
     }
 }

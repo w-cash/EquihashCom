@@ -244,7 +244,7 @@ pub fn index(d: &Data) -> Markup {
                             a href="/zcash-mining" { "Zcash mining guide" }
                             a href="/hashpower" { "Hashpower market" }
                             a href="/hardware/antminer-z15-pro" { "Z15 Pro profile" }
-                            a href="/buy" { "Vendor listings" }
+                            a href="/vendors" { "Vendor directory" }
                         }
                         p class="ed-method" { "Figures from public pool and project pages · no paid listings · " a href="/about" { "ownership and method" } }
                     }
@@ -264,7 +264,7 @@ pub fn index(d: &Data) -> Markup {
                                         nav aria-label="Antminer Z15 Pro 860 actions" {
                                             a href="/hardware/antminer-z15-pro" { "Official 840 spec" }
                                             a href="/calculator?hashrate=860&watts=2847" { "Calculate" }
-                                            a href="/buy?machine=antminer-z15-pro" { "See offers" }
+                                            a href="/vendors?machine=antminer-z15-pro" { "Vendor records" }
                                         }
                                     }
                                 }
@@ -285,7 +285,7 @@ pub fn index(d: &Data) -> Markup {
                                         nav aria-label={(m.model) " actions"} {
                                             a href={"/hardware/" (m.id)} { "Specifications" }
                                             a href=(calculator) { "Calculate" }
-                                            @if has_listing { a href={"/buy?machine=" (m.id)} { "Where to buy" } }
+                                            @if has_listing { a href={"/vendors?machine=" (m.id)} { "Vendor records" } }
                                             @else { a href="/hardware" { "Compare hardware" } }
                                         }
                                     }
@@ -327,6 +327,8 @@ pub fn index(d: &Data) -> Markup {
                     }
                 }
             }
+
+            (crate::views::research::home_note(d))
 
             section class="wrap ed-directory" aria-labelledby="coins-title" {
                 header class="ed-section-head" {
@@ -479,6 +481,7 @@ pub fn coin(d: &Data, c: &Coin) -> Markup {
                     }
 
                     aside class="entity-side" {
+                        @if is_zcash { (crate::views::research::coin_note(d)) }
                         section class="side-card" { h2 { "Compatible hardware" }
                             @if miners.is_empty() { p class="na" { "None of the manufacturer specifications we have checked match this parameter set." } }
                             @for m in miners.iter().take(5) { a class="side-row" href={"/hardware/" (m.id)} { span { (m.maker) " " strong { (m.model) } } small { (fmt::opt_num(m.hashrate_ksol)) " kSol/s · " (fmt::int(m.watts)) " W" } } }
@@ -543,7 +546,7 @@ pub fn hardware_detail(d: &Data, m: &Miner) -> Markup {
                     }
                     aside class="entity-side" {
                         section class="side-card action-card" { h2 { "Run the numbers" } p { "The calculator opens with this machine's hashrate and power. Choose a coin and enter your electricity rate." } a class="btn" href={"/calculator?hashrate=" (fmt::opt_num(m.hashrate_ksol)) "&watts=" (fmt::opt_num(m.watts))} { "Use " (m.model) " defaults" } }
-                        @if d.listings.iter().any(|l| l.miner_id == m.id) { section class="side-card action-card" { h2 { "Where to buy" } p { "Compare the price, stock, VAT and shipping shown on each vendor’s product page." } a class="btn" href={"/buy?machine=" (m.id)} { "View vendor listings" } } }
+                        @if d.listings.iter().any(|l| l.miner_id == m.id) { section class="side-card action-card" { h2 { "Vendor records" } p { "Review seller identity checks and dated listing snapshots by region." } a class="btn" href={"/vendors?machine=" (m.id)} { "Open vendor directory" } } }
                         @if m.equihash == "200,9" { section class="side-card" { h2 { "Merged mining" } p { "Some Zcash pools can reuse the same work for Wcash without splitting Zcash hashrate." } a href="/merged-mining" { "How ZEC + WEC mining works →" } } }
                         section class="side-card" { h2 { "Setup path" } ol { li { "Choose one exact-match coin." } li { "Compare active pools and regions." } li { "Verify the stratum address at the pool." } li { "Enter worker and wallet details in the miner UI." } li { "Check accepted shares and payout threshold." } } }
                     }
@@ -562,6 +565,7 @@ pub fn guides(d: &Data) -> Markup {
                 article { p class="step" { "START HERE · 7 MIN" } h2 { a href="/hardware/antminer-z15-pro" { "Z15 Pro: from power-on to a compatible pool" } } p { "Check exact parameters, choose a coin, compare regions and fees, calculate power cost, and verify accepted shares." } }
                 article { p class="step" { "POOL CHOICE · 5 MIN" } h2 { a href="/pools#pools" { "How to compare Zcash pools" } } p { "Read hashrate, concentration, PPLNS/PPS variants, fees, minimum payouts, regions and observation times." } }
                 article { p class="step" { "MERGED MINING · 10 MIN" } h2 { a href="/merged-mining" { "How Zcash + Wcash merged mining works" } } p { "See what the miner sends, what the pool adds and how qualifying work reaches Zcash and Wcash." } }
+                article { p class="step" { "NETWORK NOTE · 7 MIN" } h2 { a href="/research/cypherpunk-zcash-mining" { "Cypherpunk’s 4.2 GSol/s Zcash fleet" } } p { "A sourced look at 4,902 Z15 Pro miners, the Winklevoss transactions and the preliminary WINK ETF filing." } }
                 article { p class="step" { "PARAMETERS · 4 MIN" } h2 { a href="/coins" { "Why Equihash n,k decides compatibility" } } p { "Understand why 200,9 hardware cannot mine every coin carrying the Equihash name." } }
                 article { p class="step" { "ECONOMICS · 5 MIN" } h2 { a href="/calculator" { "Estimate revenue and electricity cost" } } p { "Start with the listed network figures, then enter your hashrate, watts, fee and electricity price." } }
                 article { p class="step" { "VERIFY · 6 MIN" } h2 { a href="/sources" { "Where the pool and network figures come from" } } p { "See which pages and APIs are read, when each field was checked and how missing values are shown." } }
@@ -576,7 +580,12 @@ pub fn zcash_mining(d: &Data) -> Markup {
     let z15 = d.miners.iter().find(|m| m.id == "antminer-z15-pro");
     let pools = zcash.map(|c| coin_pools(d, c)).unwrap_or_default();
     let network = zcash
-        .map(|c| fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s")))
+        .map(|c| {
+            fmt::hashrate(
+                c.network.hashrate,
+                c.network.unit.as_deref().unwrap_or("Sol/s"),
+            )
+        })
         .unwrap_or_else(|| "n/a".into());
     layout(d, Page {
         title: "Zcash mining guide: pools, Z15 Pro setup and costs",
@@ -640,8 +649,10 @@ pub fn zcash_mining(d: &Data) -> Markup {
             section aria-labelledby="zcash-z15" {
                 h2 id="zcash-z15" { "Z15 Pro: 840 kSol/s manufacturer specification" }
                 p { "BITMAIN publishes 840 kSol/s typical and 2,780 W typical for the Antminer Z15 Pro under its stated operating conditions. Some retailer pages advertise 860 kSol/s; equihash.com keeps that seller claim separate from the manufacturer's typical specification." }
-                p { a href="/hardware/antminer-z15-pro" { "Read the sourced Z15 Pro specifications" } " · " a href="/buy?machine=antminer-z15-pro" { "Review public seller listings" } }
+                p { a href="/hardware/antminer-z15-pro" { "Read the sourced Z15 Pro specifications" } " · " a href="/vendors?machine=antminer-z15-pro" { "Review vendor records" } }
             }
+
+            (crate::views::research::guide_note(d))
 
             section aria-labelledby="zcash-privacy" {
                 h2 id="zcash-privacy" { "Mining and Zcash privacy are separate" }
@@ -756,10 +767,10 @@ pub fn search(d: &Data, q: &SearchQuery) -> Markup {
                     @if !coins.is_empty() { section { h2 { "Coins" } div class="result-list" { @for c in coins { a href={"/coin/" (c.id)} { span { (logo::chip(&c.logo, &c.name, At::List, true)) strong { (c.name) } " " span class="sym" { (c.symbol) } } small { "Equihash " (c.params()) " · " (c.pool_count) " pools" } } } } } }
                     @if !miners.is_empty() { section { h2 { "Hardware" } div class="result-list" { @for m in miners { a href={"/hardware/" (m.id)} { span { strong { (m.maker) " " (m.model) } } small { "Equihash " (m.equihash) " · " (fmt::opt_num(m.hashrate_ksol)) " kSol/s" } } } } } }
                     @if !pools.is_empty() { section { h2 { "Pools" } div class="result-list" { @for p in pools { a href={"/pool/" (p.slug)} { span { (logo::chip(&p.logo, &p.name, At::List, true)) strong { (p.name) } } small { (p.coin_label) " · " (p.region.as_deref().unwrap_or("region n/a")) } } } } } }
-                    @if !vendors.is_empty() { section { h2 { "Vendors" } div class="result-list" { @for v in vendors { a href={"/buy/vendor/" (v.slug)} { span { strong { (v.name) } } small { (v.region_focus.as_deref().unwrap_or("Region not stated")) " · " (v.regions.join(", ")) } } } } } }
+                    @if !vendors.is_empty() { section { h2 { "Vendors" } div class="result-list" { @for v in vendors { a href={"/vendors/" (v.slug)} { span { strong { (v.name) } } small { (v.region_focus.as_deref().unwrap_or("Region not stated")) " · " (v.regions.join(", ")) } } } } } }
                     @if merged || buying { section { h2 { "Guides and tools" } div class="result-list" {
                         @if merged { a href="/merged-mining" { span { strong { "Zcash + Wcash merged mining" } } small { "Miner overview and pool operator guide" } } }
-                        @if buying { a href="/buy" { span { strong { "Where to buy Equihash miners" } } small { "Sourced prices, stock claims, VAT and shipping notes" } } }
+                        @if buying { a href="/vendors" { span { strong { "Equihash ASIC vendor directory" } } small { "Seller identity checks and dated listing snapshots" } } }
                     } } }
                 }
             }

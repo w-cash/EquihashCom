@@ -539,6 +539,9 @@ pub struct Vendor {
     pub notes: Option<String>,
     pub source_url: Option<String>,
     pub observed_at: Option<String>,
+    /// Official vendor mark or a generated monogram, resolved from data/curated/logos.json.
+    #[serde(skip_deserializing)]
+    pub logo: crate::views::logo::Logo,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
@@ -633,6 +636,51 @@ pub struct SourceRef {
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(default)]
+pub struct CypherpunkSource {
+    pub id: String,
+    pub label: String,
+    pub url: String,
+    pub source_type: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct CypherpunkEtf {
+    pub filed_at: Option<String>,
+    pub name: String,
+    pub proposed_ticker: String,
+    pub status: String,
+    pub sponsor: String,
+    pub custodian: String,
+    pub annual_fee_pct: Option<f64>,
+    pub cypherpunk_role: String,
+    pub source_id: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct CypherpunkReport {
+    pub published_at: Option<String>,
+    pub updated_at: Option<String>,
+    pub company: String,
+    pub ticker: String,
+    pub reported_hashrate_gsol: Option<f64>,
+    pub hashrate_confirmed_at: Option<String>,
+    pub machine_count: Option<u32>,
+    pub machine_model: String,
+    pub equihash: String,
+    pub launch_date: Option<String>,
+    pub launch_network_share_pct: Option<f64>,
+    pub transaction_usd: Option<f64>,
+    pub mined_zec: Option<f64>,
+    pub mined_period: String,
+    pub hosting_locations: Vec<String>,
+    pub etf: CypherpunkEtf,
+    pub sources: Vec<CypherpunkSource>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
 pub struct Meta {
     pub generated_at: Option<String>,
     pub pool_count: u32,
@@ -705,6 +753,7 @@ pub struct Data {
     pub hashpower: HashpowerMarket,
     pub research: Vec<ResearchItem>,
     pub research_coins: Vec<ResearchCoin>,
+    pub cypherpunk: CypherpunkReport,
     pub meta: Meta,
     /// Newest fetched_at across pools (what "last updated" shows).
     pub last_updated: Option<String>,
@@ -1473,6 +1522,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
     let mut lf: ListingsFile = read(dir, "listings.json").unwrap_or_default();
     let mut hf: HashpowerFile = read(dir, "hashpower.json").unwrap_or_default();
     let mut rf: ResearchFile = read(dir, "research.json").unwrap_or_default();
+    let mut cypherpunk: CypherpunkReport = read(dir, "cypherpunk-zcash.json").unwrap_or_default();
     // Upstream URLs are rendered as links: only http(s) ones are kept (see safe_url).
     let mut dropped: Vec<String> = Vec::new();
     // Social/community links (written by a separate research step). Missing file = no links;
@@ -1767,6 +1817,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         if v.slug.is_empty() {
             v.slug = slugify(&v.id);
         }
+        v.logo = logos.vendor(&v.id, &v.name);
     }
     for l in lf.listings.iter_mut() {
         clean_url(
@@ -1809,6 +1860,13 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
             &mut dropped,
         );
     }
+    cypherpunk.sources.retain(|s| {
+        let ok = safe_url(&s.url).is_some();
+        if !ok {
+            dropped.push(format!("cypherpunk source {}: unsafe URL", s.id));
+        }
+        ok
+    });
     meta.sources.retain(|s| {
         let ok = safe_url(&s.url).is_some();
         if !ok {
@@ -1844,6 +1902,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         hashpower: hf.nicehash,
         research: rf.items,
         research_coins: rf.coins,
+        cypherpunk,
         meta,
         last_updated,
         links_generated_at: links.generated_at,

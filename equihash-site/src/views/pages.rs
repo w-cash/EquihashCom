@@ -260,7 +260,7 @@ pub fn miners(d: &Data) -> Markup {
                         th scope="col" { "Machine" } th scope="col" class="nk" { "n,k" } th class="num" scope="col" { "kSol/s" } th class="num" scope="col" { "Watts" }
                         th class="num" scope="col" { "J/kSol" } th class="num stated" scope="col" { "Stated" }
                         @if zec.is_some() { th class="num" scope="col" title="ZEC per day for one unit, at today's network hashrate and block reward, 1% fee, before power" { "ZEC/day*" } }
-                        th scope="col" class="specsrc" { "Spec source" } th scope="col" { "Buy" }
+                        th scope="col" class="specsrc" { "Spec source" } th scope="col" { "Vendors" }
                     } }
                     @for (g, ms) in &mgroups { tbody {
                         tr class="group-row" { th colspan="9" scope="rowgroup" { "Equihash " (g) } }
@@ -276,7 +276,7 @@ pub fn miners(d: &Data) -> Markup {
                             td class="num stated" { (fmt::opt_num(m.stated_efficiency_j_per_ksol)) }
                             @if let Some(z) = zec { td class="num" { (m.hashrate_ksol.and_then(|h| calc::coins_per_day(z, h, 1.0)).map(|v| format!("{v:.4}")).unwrap_or("n/a".into())) } }
                             td class="src specsrc" { @if let Some(u) = &m.source_url { (ext(u, fmt::host(Some(u)).split('/').next().unwrap_or(""))) } @else { "n/a" } }
-                            td { @if d.listings.iter().any(|l| l.miner_id == m.id) { a class="hw-buy" href={"/buy?machine=" (m.id)} { "Where to buy" } } @else { span class="na" { "—" } } }
+                            td { @if d.listings.iter().any(|l| l.miner_id == m.id) { a class="hw-buy" href={"/vendors?machine=" (m.id)} { "Vendor records" } } @else { span class="na" { "—" } } }
                         }
                     } } }
                 }
@@ -396,7 +396,7 @@ pub fn sources(d: &Data) -> Markup {
                     li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-zcash-aux/README.md", "wcash-zcash-aux README at 3e6b8044")) }
                     li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-merge-miner/README.md", "wcash-merge-miner README at 3e6b8044")) }
                     li { "ASIC specs: Bitmain support spec pages and the Innosilicon product page, linked per row on " a href="/hardware" { "Hardware" } "." }
-                    li { "ASIC offers and seller identities: the seller's product page, terms and public company record where available, linked per row on " a href="/buy" { "Buy" } ". Prices, stock and shipping are snapshots of the seller's own claims, not independent fulfillment checks." }
+                    li { "ASIC vendor identities and listing snapshots: seller pages, terms and public company records where available, linked per record in the " a href="/vendors" { "Vendor directory" } ". Inventory, fulfillment and warranty performance are not independently checked." }
                     li { "Archive: pool and operator announcements and community threads, linked per entry on the " a href="/archive" { "Archive" } "." }
                 }
                 h2 { "Method" }

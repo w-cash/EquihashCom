@@ -2,9 +2,10 @@
 /**
  * equihash.com logo fetcher (dev tool, NOT part of the hourly refresh).
  *
- * Finds a logo for every coin (data/network.json + data/curated/coins.json) and every pool
+ * Finds a logo for every coin (data/network.json + data/curated/coins.json), every pool
  * (data/pools.json + data/curated/manual-pools.json + data/archive.json), keeps a sanitised,
- * optimised local copy in static/logos/{coins,pools}/ and records where it came from in
+ * and every ASIC vendor (data/vendors.json), keeps a sanitised, optimised local copy in
+ * static/logos/{coins,pools,vendors}/ and records where it came from in
  * data/curated/logos.json. The site only ever serves these local copies (no hotlinking).
  *
  * Source order, best first. Nothing is ever drawn or invented: if no real logo can be fetched,
@@ -57,10 +58,15 @@ export const COINGECKO = {
 export const PINNED = {
   // Zcash: the coin mark from z.cash (its second website, zfnd.org, would give the Foundation's logo).
   zcash: ["https://z.cash/wp-content/uploads/2023/03/zcash-logo.svg"],
+  // These official sites block generic page fetches or expose a clearer square mark directly.
+  "apexto-mining": ["https://i0.wp.com/apextomining.com/apexto/uploads/2026/02/logo.png"],
+  "bt-miners": ["https://cdn-resource.btminer.com/2023/04/favicon.png"],
+  "crypto-miner-bros": ["https://www.cryptominerbros.com/wp-content/themes/minerbros-v1/images/logo.svg"],
 };
-// Owner-supplied marks are kept during a broad --force refresh. To replace one deliberately,
-// target it by id as well: --id wcash --force. The full-resolution source is in assets/brand/.
-const OWNER_SUPPLIED = new Set(["wcash"]);
+// Curated marks are kept during a broad --force refresh. Wcash is owner-supplied; BITMAIN is its
+// official header wordmark extracted from the brand's own stylesheet (favicon discovery finds only
+// the small ANTMINER insect mark). To replace one deliberately, target it by id with --force. The full-resolution source is in assets/brand/.
+const OWNER_SUPPLIED = new Set(["wcash", "bitmain"]);
 // Candidates auto-discovery must skip (e.g. a generic avatar, a sponsor's logo, a wordmark).
 export const SKIP = {
   // Serves the same /static/logo.svg as rockpool.cloud (pool software default, not this operator's
@@ -368,7 +374,9 @@ export const COMMON_COIN_WORDS = ["coin", "coins", "bitcoin", "btc", "ethereum",
 export function score(c) {
   if (!c || !c.w || !c.h) return -1;
   const aspect = Math.max(c.w, c.h) / Math.min(c.w, c.h);
-  if (aspect > 1.6) return -1;
+  // Coins and pools live in square chips. Vendor rows have a wider logo plate, so an official
+  // wordmark is preferable to a generic favicon when the source publishes one.
+  if (aspect > (c.vendor ? 5 : 1.6)) return -1;
   const viaBonus = { pinned: 1000, "apple-touch-icon": 6, icon: 5, manifest: 5, "mask-icon": -15, "favicon-probe": 2, "img.logo": 1, "og:image": -10, "twitter:image": -12, github: 0, repo: 0, coingecko: 0 }[c.via] ?? 0;
   const tierBonus = { official: 200, repo: 100, third_party: 0 }[c.kind] ?? 0;
   let q;
@@ -665,7 +673,7 @@ async function main() {
   // --recheck: no network. Re-run the shared-mark checks on the files already in static/logos/.
   const recheck = args.includes("--recheck");
   const only = args.filter((a, i) => args[i - 1] === "--id");
-  const which = recheck ? "none" : args.includes("--coins") ? "coins" : args.includes("--pools") ? "pools" : "both";
+  const which = recheck ? "none" : args.includes("--coins") ? "coins" : args.includes("--pools") ? "pools" : args.includes("--vendors") ? "vendors" : "all";
   loadOptional();
   if (!sharp) console.warn("note: sharp not found; ICO/JPEG sources are skipped and PNGs are kept as-is (npm i --no-save sharp svgo)");
   if (!svgo) console.warn("note: svgo not found; SVGs are sanitised but not minified");
@@ -678,15 +686,16 @@ async function main() {
   const pools = await readJson(path.join(gen, "pools.json"), { pools: [] });
   const manual = await readJson(path.join(DATA, "curated", "manual-pools.json"), { pools: [] });
   const archive = await readJson(path.join(DATA, "archive.json"), { pools: [] });
+  const vendors = await readJson(path.join(DATA, "vendors.json"), { vendors: [] });
   const links = await readJson(path.join(DATA, "curated", "links.json"), { coins: {}, pools: {} });
-  const prev = await readJson(LOGOS_JSON, { coins: {}, pools: {} });
+  const prev = await readJson(LOGOS_JSON, { coins: {}, pools: {}, vendors: {} });
   // Never prune or write from missing inputs: an empty coin or pool list means the data files
   // couldn't be read, not that every logo should go.
   if (!(net.coins || []).length || !(pools.pools || []).length) {
     console.error(`refusing to run: no coins or pools read from ${path.relative(ROOT, gen) || "data"}/ (network.json, pools.json)`);
     process.exit(2);
   }
-  const out = { _doc: "Written by scripts/fetch-logos.mjs (see README, 'Logos'). kind: official | repo | third_party | fallback. file is relative to static/logos/; fallback entries have file null and render as a monogram.", generated_at: new Date().toISOString(), coins: { ...(prev.coins || {}) }, pools: { ...(prev.pools || {}) } };
+  const out = { _doc: "Written by scripts/fetch-logos.mjs (see README, 'Logos'). kind: official | repo | third_party | fallback. file is relative to static/logos/; fallback entries have file null and render as a monogram.", generated_at: new Date().toISOString(), coins: { ...(prev.coins || {}) }, pools: { ...(prev.pools || {}) }, vendors: { ...(prev.vendors || {}) } };
   const now = () => new Date().toISOString();
   const exists = async (rel) => { try { await fs.access(path.join(LOGOS_DIR, rel)); return true; } catch { return false; } };
   const need = async (e, keys) => {
@@ -696,14 +705,14 @@ async function main() {
     if (e.kind === "fallback") return retryFallbacks;
     return !(e.file && (await exists(e.file)));
   };
-  const ciManifest = which === "none" || which === "pools" ? null : (await get("https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/manifest.json"))?.buf;
+  const ciManifest = which === "coins" || which === "all" ? (await get("https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/manifest.json"))?.buf : null;
   const ci = ciManifest ? JSON.parse(ciManifest.toString("utf8")) : [];
   const report = [];
 
   // ---- coins
   const seenCoin = new Set();
   const allCoins = [...(net.coins || []), ...(extraCoins.coins || [])].filter((c) => (seenCoin.has(c.id) ? false : (seenCoin.add(c.id), true)));
-  if (which === "coins" || which === "both") for (const coin of allCoins) {
+  if (which === "coins" || which === "all") for (const coin of allCoins) {
     const current = out.coins[coin.id];
     const deliberateOwnerRefresh = force && only.includes(coin.id);
     if (OWNER_SUPPLIED.has(coin.id) && current?.file && (await exists(current.file)) && !deliberateOwnerRefresh) continue;
@@ -728,7 +737,7 @@ async function main() {
     if (!byDomain.has(d)) byDomain.set(d, []);
     byDomain.get(d).push(p);
   }
-  if (which === "pools" || which === "both") for (const [domain, ps] of byDomain) {
+  if (which === "pools" || which === "all") for (const [domain, ps] of byDomain) {
     const ids = ps.map((p) => p.id);
     const needs = [];
     for (const p of ps) if (await need(out.pools[p.id], [p.id, domain])) needs.push(p);
@@ -779,18 +788,33 @@ async function main() {
   // Monograms on shared hosting use the host name: buckpool.myvnc.com -> "B", not "myvnc".
   for (const [id, e] of Object.entries(out.pools)) if (e.kind === "fallback" && e.domain && byDomain.has(e.domain)) e.monogram = monogram(poolLabel(e.domain, byDomain.get(e.domain)));
 
+  // ---- vendors (one sourced mark per listed seller; never hotlinked by the site)
+  if (which === "vendors" || which === "all") for (const vendor of vendors.vendors || []) {
+    if (!(await need(out.vendors[vendor.id], [vendor.id]))) continue;
+    const cands = [];
+    for (const u of [...(PINNED[vendor.id] || []), vendor.url].filter(Boolean)) {
+      for (const c of await discoverOrDirect(u)) cands.push({ ...c, vendor: true, kind: "official", via: (PINNED[vendor.id] || []).includes(u) && c.via !== "favicon-probe" ? "pinned" : c.via, page: vendor.url || u });
+    }
+    const uniq = [], seen = new Set();
+    for (const c of cands) if (!seen.has(c.url)) { seen.add(c.url); uniq.push(c); }
+    const { best, tried } = await pick(uniq, SKIP[vendor.id]);
+    out.vendors[vendor.id] = await entry(best, "vendors", vendor.id, vendor.name, tried, dry);
+    report.push(["vendor", vendor.id, out.vendors[vendor.id].kind, (out.vendors[vendor.id].source_url || "-").slice(0, 90)]);
+  }
+
   // ---- write
-  const coinIds = new Set(allCoins.map((c) => c.id)), poolIds = new Set(allPools.map((p) => p.id));
+  const coinIds = new Set(allCoins.map((c) => c.id)), poolIds = new Set(allPools.map((p) => p.id)), vendorIds = new Set((vendors.vendors || []).map((v) => v.id));
   for (const k of Object.keys(out.coins)) if (!coinIds.has(k)) delete out.coins[k];
   for (const k of Object.keys(out.pools)) if (!poolIds.has(k)) delete out.pools[k];
+  for (const k of Object.keys(out.vendors)) if (!vendorIds.has(k)) delete out.vendors[k];
   console.table(report);
   const tally = (g) => Object.values(out[g]).reduce((a, e) => ((a[e.kind] = (a[e.kind] || 0) + 1), a), {});
-  console.log("coins", tally("coins"), "pools", tally("pools"));
+  console.log("coins", tally("coins"), "pools", tally("pools"), "vendors", tally("vendors"));
   if (dry) return;
   await fs.writeFile(LOGOS_JSON, JSON.stringify(out, null, 2) + "\n");
   // Remove files no entry points at any more (only inside static/logos/).
-  const used = new Set([...Object.values(out.coins), ...Object.values(out.pools)].map((e) => e.file).filter(Boolean));
-  for (const g of ["coins", "pools"]) for (const f of await fs.readdir(path.join(LOGOS_DIR, g)).catch(() => [])) if (!used.has(`${g}/${f}`)) await fs.unlink(path.join(LOGOS_DIR, g, f));
+  const used = new Set([...Object.values(out.coins), ...Object.values(out.pools), ...Object.values(out.vendors)].map((e) => e.file).filter(Boolean));
+  for (const g of ["coins", "pools", "vendors"]) for (const f of await fs.readdir(path.join(LOGOS_DIR, g)).catch(() => [])) if (!used.has(`${g}/${f}`)) await fs.unlink(path.join(LOGOS_DIR, g, f));
   console.log("wrote", path.relative(ROOT, LOGOS_JSON));
 
   async function entry(best, group, key, label, tried, dryRun) {

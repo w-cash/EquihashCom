@@ -57,7 +57,13 @@ mod tests {
     use crate::data::verified_links;
 
     fn l(kind: &str, url: &str, status: &str) -> SocialLink {
-        SocialLink { kind: kind.into(), url: url.into(), label: format!("{kind} label"), status: status.into(), ..Default::default() }
+        SocialLink {
+            kind: kind.into(),
+            url: url.into(),
+            label: format!("{kind} label"),
+            status: status.into(),
+            ..Default::default()
+        }
     }
 
     #[test]
@@ -73,15 +79,28 @@ mod tests {
             l("forum", "https://forum.zcashcommunity.com/ x", "verified"),
         ];
         let v = verified_links(&raw);
-        assert_eq!(v.iter().map(|x| x.kind.as_str()).collect::<Vec<_>>(), vec!["website", "github"]);
+        assert_eq!(
+            v.iter().map(|x| x.kind.as_str()).collect::<Vec<_>>(),
+            vec!["website", "github"]
+        );
         let html = render(&v, "Zcash links", "coin-links").into_string();
         assert!(html.contains("https://z.cash/") && html.contains("https://github.com/zcash"));
-        for bad in ["discord.gg", "t.me", "myspace", "javascript:", "forum.zcash"] {
+        for bad in [
+            "discord.gg",
+            "t.me",
+            "myspace",
+            "javascript:",
+            "forum.zcash",
+        ] {
             assert!(!html.contains(bad), "{bad} rendered");
         }
         assert_eq!(html.matches("rel=\"noopener noreferrer\"").count(), 2);
         assert_eq!(html.matches("target=\"_blank\"").count(), 2);
-        assert!(html.contains("#i-website") && html.contains("#i-github") && !html.contains("#i-discord"));
+        assert!(
+            html.contains("#i-website")
+                && html.contains("#i-github")
+                && !html.contains("#i-discord")
+        );
     }
 
     #[test]
@@ -95,13 +114,25 @@ mod tests {
         assert!(html.contains("+1 more"));
         let more = &html[html.find("links-more").unwrap()..];
         assert!(more.contains("zfnd.org") && !more.contains("x.com"));
-        assert_eq!(html.matches("rel=\"noopener noreferrer\"").count(), 3, "every link, folded or not, is safe");
+        assert_eq!(
+            html.matches("rel=\"noopener noreferrer\"").count(),
+            3,
+            "every link, folded or not, is safe"
+        );
     }
 
     #[test]
     fn no_links_renders_nothing() {
         assert_eq!(render(&[], "x", "y").into_string(), "");
-        assert_eq!(render(&verified_links(&[l("x", "https://x.com/a", "unverified")]), "x", "y").into_string(), "");
+        assert_eq!(
+            render(
+                &verified_links(&[l("x", "https://x.com/a", "unverified")]),
+                "x",
+                "y"
+            )
+            .into_string(),
+            ""
+        );
     }
 
     #[test]

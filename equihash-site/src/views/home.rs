@@ -1271,7 +1271,10 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
         script type="application/json" id="coin-data" { (PreEscaped(coins_json)) }
     };
     let title = match cur {
-        Some(c) => format!("{} ({}) mining pools and fees · equihash.com", c.label, c.symbol),
+        Some(c) => format!(
+            "{} ({}) mining pools and fees · equihash.com",
+            c.label, c.symbol
+        ),
         None => "Equihash mining pools and fees · equihash.com".to_string(),
     };
     let description = match cur {

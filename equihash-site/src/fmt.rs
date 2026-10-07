@@ -144,7 +144,10 @@ pub fn seconds(v: Option<f64>) -> String {
 /// "2026-10-02T23:41:12.345Z" -> "2026-10-02 23:41 UTC"
 pub fn utc(ts: Option<&str>) -> String {
     match ts.and_then(|t| chrono::DateTime::parse_from_rfc3339(t).ok()) {
-        Some(d) => d.with_timezone(&chrono::Utc).format("%Y-%m-%d %H:%M UTC").to_string(),
+        Some(d) => d
+            .with_timezone(&chrono::Utc)
+            .format("%Y-%m-%d %H:%M UTC")
+            .to_string(),
         None => NA.into(),
     }
 }
@@ -163,7 +166,10 @@ pub fn host(url: Option<&str>) -> String {
 /// "2026-10-02T23:29:00Z" -> "2 Oct 2026" (UTC date).
 pub fn date(ts: Option<&str>) -> String {
     match ts.and_then(|t| chrono::DateTime::parse_from_rfc3339(t).ok()) {
-        Some(d) => d.with_timezone(&chrono::Utc).format("%-d %b %Y").to_string(),
+        Some(d) => d
+            .with_timezone(&chrono::Utc)
+            .format("%-d %b %Y")
+            .to_string(),
         None => NA.into(),
     }
 }
@@ -190,7 +196,14 @@ pub fn reported(c: &crate::data::Coin) -> (String, bool) {
         None => (NA.into(), false),
         Some(h) => {
             let floor = c.network.hashrate.is_none() && h > 0.0;
-            (format!("{}{}", if floor { "≥" } else { "" }, hashrate(Some(h), unit)), c.reported.operator_pools > 0)
+            (
+                format!(
+                    "{}{}",
+                    if floor { "≥" } else { "" },
+                    hashrate(Some(h), unit)
+                ),
+                c.reported.operator_pools > 0,
+            )
         }
     }
 }
@@ -201,7 +214,10 @@ pub fn factor(f: f64) -> String {
         let mag = 10f64.powi(x.abs().log10().floor() as i32 - 1);
         (x / mag).round() * mag
     };
-    let trimmed = |x: f64| { let t = format!("{x:.1}"); t.trim_end_matches(".0").to_string() };
+    let trimmed = |x: f64| {
+        let t = format!("{x:.1}");
+        t.trim_end_matches(".0").to_string()
+    };
     if f >= 1e9 {
         format!("{} billion", trimmed(sig2(f) / 1e9))
     } else if f >= 1e6 {
@@ -216,8 +232,15 @@ pub fn factor(f: f64) -> String {
 pub fn discrepancy_note(c: &crate::data::Coin) -> Option<String> {
     let f = c.discrepancy()?;
     let unit = c.network.unit.as_deref().unwrap_or("Sol/s");
-    let (net, rep) = (hashrate(c.network.hashrate, unit), hashrate(c.reported.hashrate, unit));
-    let bigger = if c.network.hashrate > c.reported.hashrate { "network estimate" } else { "listed pools' total" };
+    let (net, rep) = (
+        hashrate(c.network.hashrate, unit),
+        hashrate(c.reported.hashrate, unit),
+    );
+    let bigger = if c.network.hashrate > c.reported.hashrate {
+        "network estimate"
+    } else {
+        "listed pools' total"
+    };
     Some(format!(
         "The network estimate ({net}) and what the listed pools report ({rep}) differ by a factor of about {}, with the {bigger} the larger. Normal differences in measurement window or pool coverage don't explain a gap that size, so one of the sources is probably mismeasuring. Treat both figures, and the shares, with caution and check the coin's own explorer.",
         factor(f)
@@ -230,7 +253,11 @@ pub fn operator_note(c: &crate::data::Coin) -> Option<String> {
     if r.operator_pools == 0 {
         return None;
     }
-    let pools = if r.operator_pools == 1 { "one listed pool".to_string() } else { format!("{} listed pools", r.operator_pools) };
+    let pools = if r.operator_pools == 1 {
+        "one listed pool".to_string()
+    } else {
+        format!("{} listed pools", r.operator_pools)
+    };
     let all = r.operator_pools == r.positive_pools;
     let when = date(r.operator_observed_at.as_deref());
     Some(if all {

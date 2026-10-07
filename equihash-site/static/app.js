@@ -521,29 +521,35 @@
   }
   if (liveEls().length) { setInterval(pollLive, 60000); document.addEventListener("visibilitychange", () => { if (!document.hidden) pollLive(); }); }
 
-  // ---------- Buy directory: filter + sort, still fully usable without JavaScript ----------
+  // ---------- Vendor directory: source-record filters, still fully usable without JavaScript ----------
   (function buyDir() {
-    const f = $("#buy-filters"), galleries = $$('[data-buy-gallery]');
-    if (!f || !galleries.length) return;
-    const cards = () => $$(".buy-card");
+    const f = $("#buy-filters");
+    if (!f) return;
+    const values = (raw) => (raw || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
     function apply() {
-      const machine = f.elements.machine?.value || "", region = f.elements.region?.value || "", sort = f.elements.sort?.value || "region";
-      let count = 0;
-      for (const card of cards()) {
-        const regions = (card.dataset.region || "").split(",").map((x) => x.trim().toLowerCase());
-        card.hidden = !!((machine && card.dataset.machine !== machine) || (region && !regions.includes("global") && !regions.includes(region.toLowerCase())));
-        if (!card.hidden) count++;
-      }
-      for (const gallery of galleries) {
-        const number = (c, key, fallback = 9) => c.dataset[key] === "" || c.dataset[key] == null ? fallback : +c.dataset[key];
-        $$('.buy-card', gallery).sort((a, b) => sort === "price" ? number(a, "price", Infinity) - number(b, "price", Infinity) : sort === "stock" ? number(a, "stockRank") - number(b, "stockRank") : number(a, "regionRank") - number(b, "regionRank")).forEach((c) => gallery.appendChild(c));
+      const machine = (f.elements.machine?.value || "").toLowerCase();
+      const base = (f.elements.base?.value || "").toLowerCase();
+      const region = (f.elements.region?.value || "").toLowerCase();
+      const state = (f.elements.state?.value || "").toLowerCase();
+      let vendors = 0, listings = 0;
+      for (const card of $$(".buy-card")) {
+        const baseMatch = !base || (card.dataset.base || "").toLowerCase() === base;
+        let visibleSnapshots = 0;
+        for (const snapshot of $$(".vendor-snapshot", card)) {
+          const machines = values(snapshot.dataset.machine), regions = values(snapshot.dataset.region);
+          const stateValue = (snapshot.dataset.listingState || "").toLowerCase();
+          snapshot.hidden = !baseMatch || !!((machine && !machines.includes(machine)) || (region && !regions.includes("global") && !regions.includes(region)) || (state && stateValue !== state));
+          if (!snapshot.hidden) visibleSnapshots++;
+        }
+        card.hidden = !baseMatch || visibleSnapshots === 0;
+        if (!card.hidden) { vendors++; listings += visibleSnapshots; }
       }
       for (const group of $$('[data-buy-region-group]')) group.hidden = !$$('.buy-card', group).some((c) => !c.hidden);
-      for (const section of $$('.buy-machine')) section.hidden = !$$('.buy-card', section).some((c) => !c.hidden);
       const out = $("#buy-count");
-      if (out) { const checked = out.textContent.split("·").slice(1).join("·").trim(); out.textContent = `${count} listing${count === 1 ? "" : "s"}${checked ? " · " + checked : ""}`; }
-      const qs = new URLSearchParams(); if (machine) qs.set("machine", machine); if (region) qs.set("region", region); if (sort !== "region") qs.set("sort", sort);
-      history.replaceState(null, "", qs.toString() ? "/buy?" + qs : "/buy");
+      if (out) out.textContent = `${vendors} vendor${vendors === 1 ? "" : "s"} · ${listings} listing snapshot${listings === 1 ? "" : "s"}`;
+      const qs = new URLSearchParams();
+      if (machine) qs.set("machine", machine); if (base) qs.set("base", f.elements.base.value); if (region) qs.set("region", f.elements.region.value); if (state) qs.set("state", state);
+      history.replaceState(null, "", qs.toString() ? "/vendors?" + qs : "/vendors");
     }
     f.addEventListener("change", apply); apply();
   })();
