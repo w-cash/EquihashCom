@@ -36,12 +36,8 @@ fn status(c: &Coin) -> Markup {
     }
 }
 
-fn coin_rows(d: &Data, active_only: bool, featured_only: bool) -> Markup {
-    let groups: Vec<_> = d
-        .param_groups(active_only)
-        .into_iter()
-        .filter(|(group, _)| !featured_only || *group == "Equihash 200,9")
-        .collect();
+fn coin_rows(d: &Data, active_only: bool, limit: Option<usize>) -> Markup {
+    let groups = d.param_groups(active_only);
     html! {
         @for (group, coins) in groups {
             section class="coin-group" {
@@ -60,7 +56,7 @@ fn coin_rows(d: &Data, active_only: bool, featured_only: bool) -> Markup {
                             th scope="col" { "Next step" }
                         } }
                         tbody {
-                            @for c in coins {
+                            @for c in coins.iter().take(limit.unwrap_or(coins.len())) {
                                 tr {
                                     td { a class="entity-link" href={"/coin/" (c.id)} { (logo::chip(&c.logo, &c.name, At::Row, true)) strong { (c.name) } } " " span class="sym" { (c.symbol) } }
                                     td { (status(c)) }
@@ -81,16 +77,11 @@ fn coin_rows(d: &Data, active_only: bool, featured_only: bool) -> Markup {
 pub fn index(d: &Data) -> Markup {
     let active = d.coins.iter().filter(|c| c.active()).count();
     let pools = d.live_pools().count();
-    let reporting = d
-        .live_pools()
-        .filter(|p| p.hashrate.unwrap_or(0.0) > 0.0)
-        .count();
     let z15 = d
         .coins
         .iter()
         .filter(|c| c.active() && c.nk() == Some((200, 9)))
         .count();
-    let zcash = d.coins.iter().find(|c| c.id == "zcash");
     let merged_pools = d
         .live_pools()
         .filter(|p| p.coin_id == "zcash" && p.merged())
@@ -101,114 +92,83 @@ pub fn index(d: &Data) -> Markup {
         path: "/",
         nav: "home",
     }, html! {
-        div class="ih-home" {
-            section class="ih-hero" aria-labelledby="ih-title" {
-                div class="ih-hero-image" role="img" aria-label="Illustration of industrial ASIC mining infrastructure" {}
-                div class="ih-hero-shade" {}
-                div class="wrap ih-hero-inner" {
-                    div class="ih-hero-copy" {
-                        p class="ih-kicker" { span class="ih-live-dot" aria-hidden="true" {} "THE OPEN EQUIHASH DIRECTORY" }
-                        h1 id="ih-title" { "The Equihash mining network, " span { "mapped." } }
-                        p { "Compare coins, pools and ASIC hardware. Move from a Z15 Pro to a supporting pool, a sourced calculation and ZEC + WEC merged mining." }
-                        div class="ih-actions" {
-                            a class="ih-btn primary" href="/pools" { "Compare mining pools" span aria-hidden="true" { "↗" } }
-                            a class="ih-btn secondary" href="/hardware/antminer-z15-pro" { "Explore the Z15 Pro" span aria-hidden="true" { "→" } }
+        div class="ed-home" {
+            section class="ed-hero" aria-labelledby="ed-title" {
+                div class="wrap ed-hero-grid" {
+                    div class="ed-hero-copy" {
+                        p class="ed-edition" { "EQUIHASH.COM / OPEN MINING DIRECTORY" }
+                        h1 id="ed-title" { "Compare Equihash coins, pools and hardware." }
+                        p class="ed-lede" { "Exact parameter compatibility, current pool observations and practical tools for Zcash, Wcash and the wider Equihash ecosystem." }
+                        (search_form("", "Search coins, pools or hardware"))
+                        div class="ed-hero-links" {
+                            a class="ed-primary" href="/pools" { "Compare pools" }
+                            a href="/hardware/antminer-z15-pro" { "Z15 Pro profile" }
+                            a href="/buy" { "Vendor listings" }
+                        }
+                        p class="ed-method" { "Public sources · no paid placement · " a href="/about" { "ownership and method" } }
+                    }
+                    aside class="ed-hero-machine" aria-label="Featured Equihash hardware" {
+                        div class="ed-hero-machine-image" {
+                            img src="/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp" alt="Bitmain Antminer Z15 Pro ASIC miner" width="1200" height="1200";
+                        }
+                        div class="ed-hero-machine-info" {
+                            p { "EQUIHASH 200,9" }
+                            h2 { "Antminer Z15 Pro" }
+                            dl { div { dt { "Hashrate" } dd { "840 kSol/s" } } div { dt { "Power" } dd { "2,780 W" } } }
+                            nav aria-label="Z15 Pro actions" { a href="/hardware/antminer-z15-pro" { "Specifications" } a href="/calculator?hashrate=840&watts=2780" { "Calculate" } a href="/buy?machine=antminer-z15-pro" { "Where to buy" } }
                         }
                     }
-                    div class="ih-hero-utility" {
-                        (search_form("", "Search a coin, pool or miner"))
-                        p { "Independent directory · no paid placement · public sources" }
-                    }
-                }
-                p class="ih-image-note" { "Original illustrative infrastructure visual" }
-            }
-
-            section class="wrap ih-overview" aria-labelledby="overview-title" {
-                header class="ih-section-head" {
-                    div { p class="ih-overline" { "CURRENT COVERAGE" } h2 id="overview-title" { "A live view of the ecosystem" } }
-                    p { "Latest directory snapshot " time class="ago" datetime=[d.last_updated.as_deref()] { (fmt::utc(d.last_updated.as_deref())) } " · " a href="/sources" { "Sources and method" } }
-                }
-                dl class="ih-metrics" {
-                    div { dt { "Active networks" } dd { (active) } small { "across exact n,k groups" } }
-                    div { dt { "Pool listings" } dd { (pools) } small { (reporting) " publish hashrate" } }
-                    div { dt { "Z15-ready" } dd { (z15) } small { "active 200,9 networks" } }
-                    div { dt { "ZEC network" } dd { @if let Some(c) = zcash { (fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s"))) } @else { "n/a" } } small { @if let Some(c) = zcash { (fmt::price(c.price_usd)) } @else { "price n/a" } } }
                 }
             }
 
-            section class="wrap ih-directory" aria-labelledby="coins-title" {
-                div class="ih-section-head directory-head" {
-                    div { p class="ih-overline" { "THE DIRECTORY" } h2 id="coins-title" { "Find your network" } p { "Compatibility starts with the exact Equihash parameters. Figures are never compared across different n,k groups." } }
-                    a class="ih-text-link" href="/coins" { "All coin records →" }
-                }
-                (coin_rows(d, true, true))
-            }
-
-            section class="ih-route-band" aria-labelledby="routes-title" {
+            section class="ed-snapshot" aria-label="Current directory coverage" {
                 div class="wrap" {
-                    div class="ih-section-head on-dark" {
-                        div { p class="ih-overline" { "OPERATING PATHS" } h2 id="routes-title" { "Start with the work in front of you" } }
-                    }
-                    div class="ih-routes" {
-                        a href="/pools" { span class="ih-route-no" { "01" } h3 { "Compare pools" } p { "Fees, payouts, regions, hashrate and concentration." } strong { "Open pool intelligence →" } }
-                        a href="/hardware" { span class="ih-route-no" { "02" } h3 { "Choose hardware" } p { "Exact parameter compatibility and operating inputs." } strong { "Explore ASIC hardware →" } }
-                        a href="/buy" { span class="ih-route-no" { "03" } h3 { "Find a vendor" } p { "Dated offers with VAT, stock and shipping context." } strong { "Compare vendor offers →" } }
+                    p { "Directory snapshot " time class="ago" datetime=[d.last_updated.as_deref()] { (fmt::utc(d.last_updated.as_deref())) } a href="/sources" { "See sources" } }
+                    dl {
+                        div { dt { "Active networks" } dd { (active) } }
+                        div { dt { "Pool listings" } dd { (pools) } }
+                        div { dt { "200,9 compatible" } dd { (z15) } }
+                        div { dt { "Merged-mining pools" } dd { (merged_pools) } }
                     }
                 }
             }
 
-            section class="wrap ih-product" aria-labelledby="z15-feature-title" {
-                div class="ih-product-visual" {
-                    img src="/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp" alt="Bitmain Antminer Z15 Pro ASIC miner" width="1200" height="1200";
-                    span { "FLAGSHIP EQUIHASH 200,9 ASIC" }
+            section class="wrap ed-directory" aria-labelledby="coins-title" {
+                header class="ed-section-head" {
+                    div { h2 id="coins-title" { "Active Equihash networks" } p { "Grouped by exact parameters. Pool counts show listings in this directory, not an assurance that a network is mineable at your location." } }
+                    a href="/coins" { "Complete coin archive →" }
                 }
-                div class="ih-product-copy" {
-                    p class="ih-overline" { "HARDWARE PROFILE" }
-                    h2 id="z15-feature-title" { "Antminer Z15 Pro" }
-                    p class="ih-product-lede" { "One machine profile connects manufacturer specifications, compatible networks, pool comparison, operating-cost calculations and vendor offers." }
-                    dl class="ih-specs" {
-                        div { dt { "Typical hashrate" } dd { "840 kSol/s" } }
-                        div { dt { "Power" } dd { "2,780 W" } }
-                        div { dt { "Algorithm" } dd { "Equihash 200,9" } }
-                    }
-                    div class="ih-actions light" {
-                        a class="ih-btn primary" href="/hardware/antminer-z15-pro" { "View machine profile" }
-                        a class="ih-btn secondary" href="/buy?machine=antminer-z15-pro" { "Where to buy" }
-                        a class="ih-text-link" href="/calculator?hashrate=840&watts=2780" { "Calculate output →" }
-                    }
-                    p class="ih-source-note" { "Specifications use the manufacturer-sourced profile. Vendor claims remain separately labelled." }
-                }
+                (coin_rows(d, true, Some(4)))
             }
 
-            section class="ih-merge-feature" aria-labelledby="merge-feature-title" {
-                div class="wrap ih-merge-inner" {
-                    div class="ih-merge-copy" {
-                        p class="ih-overline" { "ZEC + WEC MERGED MINING" }
-                        h2 id="merge-feature-title" { "One miner. Two independent targets." }
-                        p { "A participating pool can submit the same Equihash 200,9 work to Zcash and Wcash. Your ASIC keeps mining normally; the pool handles the auxiliary chain and its separate payouts." }
-                        p class="ih-merge-fact" { strong { (merged_pools) } " currently listed supporting pool" @if merged_pools != 1 { "s" } }
-                        div class="ih-actions" {
-                            a class="ih-btn primary" href="/pools?coin=zcash&merged=1#pools" { "See supporting pools" }
-                            a class="ih-btn secondary" href="/merged-mining" { "How merged mining works" }
+            section class="ed-merge" aria-labelledby="merge-feature-title" {
+                div class="wrap ed-merge-grid" {
+                    div class="ed-merge-copy" {
+                        p class="ed-section-index" { "ZEC + WEC / MERGED MINING" }
+                        h2 id="merge-feature-title" { "One stream of work. Two independent targets." }
+                        p { "A participating pool can check the same Equihash 200,9 work against Zcash and Wcash targets. The pool manages the auxiliary chain and separate payouts." }
+                        div class="ed-merge-actions" {
+                            a class="ed-light-button" href="/pools?coin=zcash&merged=1#pools" { "See supporting pools" }
+                            a href="/merged-mining" { "How it works →" }
                         }
-                        p class="ih-disclosure" { "Wcash and equihash.com share a maintainer. Only work from participating pools secures Wcash." }
+                        p class="ed-disclosure" { "Wcash and equihash.com share a maintainer. Only work submitted through a supporting pool contributes to Wcash." }
                     }
-                    div class="ih-flow" role="img" aria-label="A Z15 Pro sends work to a compatible pool, which checks independent Zcash and Wcash targets" {
-                        div class="ih-flow-node miner" { span { "EQUIHASH 200,9" } strong { "Z15 PRO" } small { "one work stream" } }
-                        div class="ih-flow-line" aria-hidden="true" {}
-                        div class="ih-flow-node pool" { span { "SUPPORTING" } strong { "POOL" } small { "routes valid work" } }
-                        div class="ih-flow-branches" aria-hidden="true" { i {} i {} }
-                        div class="ih-flow-targets" {
-                            div { span { "PARENT" } strong { "ZCASH" } small { "ZEC target" } }
-                            div { span { "AUXILIARY" } strong { "WCASH" } small { "WEC target" } }
+                    div class="ed-flow" role="img" aria-label="Z15 Pro work goes to a participating pool, then to independent Zcash and Wcash targets" {
+                        div class="ed-flow-source" { small { "EQUIHASH 200,9" } strong { "Z15 PRO" } span { "work" } }
+                        i aria-hidden="true" {}
+                        div class="ed-flow-pool" { small { "PARTICIPATING" } strong { "POOL" } span { "routes shares" } }
+                        i aria-hidden="true" {}
+                        div class="ed-flow-targets" {
+                            div { small { "PARENT" } strong { "ZCASH" } span { "ZEC" } }
+                            div { small { "AUXILIARY" } strong { "WCASH" } span { "WEC" } }
                         }
                     }
                 }
             }
 
-            aside class="wrap ih-contribute" {
-                div { p class="ih-overline" { "INDUSTRY PARTICIPATION" } h2 { "Make the directory more complete." } p { "Pool operators, coin teams and hardware vendors can add public facts or correct an existing record. Listings remain free and source-backed." } }
-                div class="ih-actions light" { a class="ih-btn primary" href="/contribute" { "Add or correct a listing" } a class="ih-text-link" href="https://t.me/EquihashCom" rel="noopener" { "Contact on Telegram →" } }
+            aside class="wrap ed-contribute" {
+                div { h2 { "Help maintain the directory." } p { "Pool operators, coin teams and hardware vendors can submit a public source or correct an existing record." } }
+                div { a class="ed-dark-button" href="/contribute" { "Add or correct a listing" } a href="https://t.me/EquihashCom" rel="noopener" { "Telegram →" } }
             }
         }
     })
@@ -226,7 +186,7 @@ pub fn coins(d: &Data) -> Markup {
                 div { p class="eyebrow" { "COIN DIRECTORY" } h1 { "Equihash coins" } p class="lede" { "Browse active and historical networks by exact parameters. Open a coin for compatible hardware, pools, calculator inputs, official links and data sources." } }
                 (search_form("", "Search the directory"))
             }
-            (coin_rows(d, false, false))
+            (coin_rows(d, false, None))
         }
     })
 }

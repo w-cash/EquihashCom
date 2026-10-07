@@ -382,7 +382,7 @@ pub fn service(static_dir: &Path) -> impl actix_web::dev::HttpServiceFactory + '
             // Only <group>/<file>.(svg|png|webp); no listing, no dotfiles, nothing else.
             let s = p.to_string_lossy();
             let mut parts = s.split('/');
-            matches!((parts.next(), parts.next(), parts.next()), (Some("coins" | "pools"), Some(f), None)
+            matches!((parts.next(), parts.next(), parts.next()), (Some("coins" | "pools" | "vendors"), Some(f), None)
                 if !f.starts_with('.') && (f.ends_with(".svg") || f.ends_with(".webp") || f.ends_with(".png")))
         }))
 }
