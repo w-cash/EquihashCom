@@ -291,6 +291,9 @@ pub fn index(d: &Data) -> Markup {
                             }
                         }
                         @if slide_count > 1 {
+                            button class="ed-machine-peek" type="button" data-machine-peek aria-label="Show next machine" hidden {
+                                span aria-hidden="true" { "›" }
+                            }
                             nav class="ed-machine-switcher" data-machine-controls aria-label="Choose featured machine" hidden {
                                 button type="button" data-machine-prev aria-label="Previous machine" { "←" }
                                 span class="ed-machine-position" aria-hidden="true" { strong data-machine-current { "1" } " / " (slide_count) }
