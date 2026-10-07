@@ -123,5 +123,7 @@
     "zcash:xppool.in:142": "zcash-xppool-in-zec-xppool-in",
     "zcash:zprominers.com:144": "zcash-zprominers-com-zprominers-com"
   },
-  "aliases": {}
+  "aliases": {
+    "zcash-zprominers-zprominers-com": "zcash-zprominers-com-zprominers-com"
+  }
 }

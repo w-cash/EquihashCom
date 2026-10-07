@@ -76,8 +76,8 @@ pub fn render(d: &Data, q: &HashpowerQuery) -> Markup {
     layout(
         d,
         Page {
-            title: "Equihash hashpower market: NiceHash and direct pool mining",
-            description: "Current NiceHash Equihash order-book data, Z15 connection details and a plain comparison with direct pool and merged mining.",
+            title: "Equihash hashpower market and pool mining",
+            description: "Compare the current NiceHash Equihash order book with direct Zcash pool mining, including Z15 connection details, costs and payout differences.",
             path: "/hashpower",
             nav: "hashpower",
         },
@@ -86,7 +86,7 @@ pub fn render(d: &Data, q: &HashpowerQuery) -> Markup {
                 header class="page-head market-head" {
                     div {
                         p class="eyebrow" { "EQUIHASH HASHPOWER" }
-                        h1 { "Marketplace or pool?" }
+                        h1 { "Equihash hashpower market" }
                         p class="lede" { "A Z15 can sell Equihash work to NiceHash or point at a mining pool. These are different products, with different payouts and control." }
                     }
                     p class="market-definition" { strong { "NiceHash is a marketplace." } " Buyers pay for Equihash hashrate and choose the pool receiving it. It is listed here separately from mining pools." }
@@ -151,7 +151,7 @@ pub fn render(d: &Data, q: &HashpowerQuery) -> Markup {
                     div class="market-actions" {
                         @if let Some(url) = d.hashpower.marketplace_url.as_deref() { (ext(url, "Open NiceHash marketplace ↗")) }
                         @if let Some(url) = d.hashpower.connection_guide_url.as_deref() { (ext(url, "Read NiceHash XNSUB notice ↗")) }
-                        a href="/pools?coin=zcash#pools" { "Compare Zcash pools →" }
+                        a href="/pools#pools" { "Compare Zcash pools →" }
                     }
                 }
 

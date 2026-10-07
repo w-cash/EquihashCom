@@ -248,7 +248,7 @@ pub fn miners(d: &Data) -> Markup {
         .iter()
         .filter_map(|m| m.efficiency())
         .fold(f64::INFINITY, f64::min);
-    layout(d, Page { title: "Equihash ASICs: Antminer Z15, Z15 Pro, Z11, Z9, Innosilicon A9++", description: "Equihash 200,9 ASIC specifications (hashrate, power, computed J/kSol) from manufacturer spec pages, and which coins a Z15 can mine.", path: "/hardware", nav: "hardware" }, html! {
+    layout(d, Page { title: "Equihash ASIC miners: Z15 Pro, Z15, Z11 and Z9", description: "Compare manufacturer specifications, hashrate, power and efficiency for Equihash ASIC miners, including the Antminer Z15 Pro, Z15, Z11 and Z9.", path: "/hardware", nav: "hardware" }, html! {
         div class="wrap page" {
             header class="page-head" {
                 h1 { "Equihash hardware" }
@@ -323,50 +323,15 @@ pub fn miners(d: &Data) -> Markup {
     })
 }
 
-pub fn add_pool(d: &Data) -> Markup {
-    let template = "Pool name:\nWebsite:\nCoin(s) and Equihash parameters:\nStratum host(s), ports and regions:\nPayout scheme(s) and the fee for each:\nMinimum payout:\nMerged mining (aux chains), if any:\nPublic stats page or API (hashrate, miners, blocks):\nListed on miningpoolstats.stream? (link)\nContact for verification:\n";
-    layout(
-        d,
-        Page {
-            title: "Add or correct a pool",
-            description:
-                "How Equihash pool operators can get a pool listed or corrected on equihash.com.",
-            path: "/add-pool",
-            nav: "add-pool",
-        },
-        html! {
-            div class="wrap page narrow prose" {
-                header class="page-head" {
-                    h1 { "Add or correct a pool" }
-                    p class="lede" { "Listing is free. Nobody pays for a place or a better position, and the order in the table only ever comes from the data." }
-                }
-                h2 { "If you run a pool" }
-                ol {
-                    li { strong { "Publish your stats. " } "A row can only show what can be fetched from a public page or JSON API: hashrate, miners or workers, blocks, fee and payout scheme. Anything you don't publish shows as n/a." }
-                    li { strong { "Get listed on miningpoolstats. " } "Most rows come from " (ext("https://miningpoolstats.stream/zcash", "miningpoolstats.stream")) ". If you are there, you show up here on the next refresh without doing anything else." }
-                    li { strong { "Or send the details. " } "Copy the template below and send it to " a href="https://x.com/MykytaSamardak" rel="noopener" { "@MykytaSamardak on X" } " or " a href="https://t.me/EquihashCom" rel="noopener" { "EquihashCom on Telegram" } ". It gets checked against your public pages before a row is added, and the row cites its source and the time it was checked." }
-                }
-                div class="tpl" {
-                    div class="tpl-head" { span { "Template" } button class="btn small" type="button" data-copy="#tpl" { "Copy" } }
-                    pre id="tpl" { (template) }
-                }
-                h2 { "Corrections" }
-                p { "Send the pool, the field, the right value and a public link that shows it. Pools that stop operating move to the " a href="/archive" { "archive" } " once a source confirms it." }
-                h2 { "For whoever maintains this site" }
-                p { "Pools without an API live in " code { "data/curated/manual-pools.json" } ", one object per row with " code { "source_url" } " and " code { "verified_at" } ". The running server notices the edit within a couple of seconds and reloads; there is no need to restart it or wait for a refresh." }
-            }
-        },
-    )
-}
-
 pub fn about(d: &Data) -> Markup {
     layout(d, Page { title: "About", description: "About equihash.com, the open directory for Equihash coins, mining pools, hardware and guides.", path: "/about", nav: "about" }, html! {
         div class="wrap page narrow prose" {
             header class="page-head" { h1 { "About equihash.com" } p class="lede" { "equihash.com lists Equihash coins, mining pools, ASICs, sellers and hashpower markets, and shows where each number came from." } }
-            p class="about-line" { "Maintained by " a href="https://x.com/MykytaSamardak" rel="noopener" target="_blank" { "@MykytaSamardak" } ", who also builds " a href="https://w.cash" rel="noopener" target="_blank" { "Wcash" } ". Community updates are on " a href="https://t.me/EquihashCom" rel="noopener" target="_blank" { "Telegram" } "." }
+            p class="about-line" { "Maintained by " a href="https://x.com/MykytaSamardak" rel="me noopener" target="_blank" { "Mykyta Samardak (@MykytaSamardak)" } ", who also builds " a href="https://w.cash" rel="noopener" target="_blank" { "Wcash" } ". Community updates are on " a href="https://t.me/EquihashCom" rel="noopener" target="_blank" { "Telegram" } "." }
             p { "The same person maintains this site and Wcash. Only Zcash pools that support Wcash send work to it, so this site never counts all Zcash hashrate as Wcash hashrate." }
             h2 { "How it's run" }
             p { "Pool order comes from the figures in the table. Nobody can pay for a row, a higher position or a badge." }
+            p { "The site has no referral links and does not collect payment for hardware, pool or coin listings. Corrections can be submitted from the " a href="/contribute" { "contribution page" } " and are checked against a public source." }
             p { "Every number links to its source and has a time checked. If a pool does not publish a value, the table says n/a instead of guessing." }
             p { "Concentration matters to everyone who mines a coin, so any pool above 30% of a network is marked in red." }
             h2 { "Where the data comes from" }
@@ -392,6 +357,17 @@ pub fn sources(d: &Data) -> Markup {
                     h1 { "Sources and method" }
                     p class="lede" { "Last generated " (fmt::utc(m.generated_at.as_deref())) ": " (m.pool_count) " pool rows, " (m.mps_pool_count) " from miningpoolstats and " (m.non_mps_pool_count) " checked directly, across " (m.coin_count) " coins." }
                 }
+                h2 { "Machine-readable data" }
+                p { "These stable JSON downloads contain the same records used to render the site. Fields keep their source and observation time where the upstream source publishes them. Units are stored with the value; an unavailable value is null, never zero." }
+                ul {
+                    li { a href="/data/pools.json" { "Pool records" } " — pool identity, coin, reported hashrate, fees, payout methods, regions and field-level sources." }
+                    li { a href="/data/network.json" { "Network records" } " — Equihash parameters, network estimates, rewards, price inputs and observation times." }
+                    li { a href="/data/miners.json" { "Hardware records" } " — manufacturer hashrate, power, parameter compatibility and specification sources." }
+                    li { a href="/data/vendors.json" { "Vendor records" } " and " a href="/data/listings.json" { "offer records" } " — seller identity evidence and time-stamped public product claims." }
+                    li { a href="/data/hashpower.json" { "Hashpower market snapshot" } " — aggregate NiceHash EQUIHASH order-book observations." }
+                    li { a href="/data/current.json" { "Current snapshot manifest" } " — the exact generated files, sizes and SHA-256 values loaded by the server." }
+                }
+                p class="small" { "These downloads aggregate facts from the cited third-party sources. No separate licence is asserted for upstream data; consult each source for its terms." }
                 h2 { "Read by the refresh script" }
                 ul { @for s in &m.sources { li { (ext(&s.url, &s.label)) } } }
                 @if !d.live.is_empty() {

@@ -1171,11 +1171,14 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
     let pool_json = super::script_json(&in_scope);
     let coins_json = super::script_json(&d.coins.iter().map(|c| serde_json::json!({"id": c.id, "label": c.label, "symbol": c.symbol, "params": c.params(), "z15": c.z15_compatible, "net": c.network.hashrate, "reported": c.reported, "basis": c.share_basis})).collect::<Vec<_>>());
     let site_ts = d.last_updated.as_deref();
+    let page_h1 = cur
+        .map(|c| format!("{} mining pools", c.label))
+        .unwrap_or_else(|| "Equihash mining pools".into());
 
     let body = html! {
         div class="wrap home" {
             header class="intro" {
-                    h1 { "Equihash mining pools" }
+                    h1 { (page_h1) }
                     p class="lede" {
                         (headline_text(d)) " "
                         @match fmt::age(age_secs(site_ts, now)) {
@@ -1268,8 +1271,12 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
         script type="application/json" id="coin-data" { (PreEscaped(coins_json)) }
     };
     let title = match cur {
-        Some(c) => format!("{} ({}) mining pools: fees, payout and network share · equihash.com", c.label, c.symbol),
-        None => "Equihash mining pools: Zcash, Komodo, Pirate Chain, Bitcoin Gold and more · equihash.com".to_string(),
+        Some(c) => format!("{} ({}) mining pools and fees · equihash.com", c.label, c.symbol),
+        None => "Equihash mining pools and fees · equihash.com".to_string(),
+    };
+    let description = match cur {
+        Some(c) => format!("Compare {} mining pools by reported hashrate, network share, fee, payout method, minimum payout, region and source age.", c.label),
+        None => "Compare sourced Equihash mining pools for Zcash, Pirate Chain, Komodo, Bitcoin Gold and other networks by hashrate, fee, payout and region.".into(),
     };
     let path = match cur {
         Some(c) if c.id != "zcash" => format!("/pools?coin={}", c.id),
@@ -1279,7 +1286,7 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
         d,
         Page {
             title: &title,
-            description: "Every Equihash mining pool we can source, with hashrate share, fees, payout schemes, minimum payout and region for Zcash, Komodo, Pirate Chain, Bitcoin Gold and the smaller Equihash coins.",
+            description: &description,
             path: &path,
             nav: "pools",
         },

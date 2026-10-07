@@ -175,7 +175,7 @@ pub fn share_guard(hr_ksol: f64, net: f64) -> Option<String> {
     let r = hr_ksol * 1000.0 / net;
     let how = if r >= 1.0 { format!("{r:.2}× the network estimate") } else { format!("{:.1}% of the network estimate", r * 100.0) };
     Some(format!(
-        "Your hashrate is {how}. At 10% or more of the network a share-based estimate isn't meaningful: adding it would itself move the network hashrate and difficulty. Coins per day, revenue and profit are shown as n/a."
+        "Your hashrate is {how}. At 10% or more of the network a share-based estimate isn't meaningful: adding it would itself move the network hashrate and difficulty. Coins per day, revenue and operating margin are shown as n/a."
     ))
 }
 
@@ -284,11 +284,11 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
     let e30 = |v: Option<f64>| v.map(|x| x * 30.0);
     // Electricity doesn't depend on the share, so it still shows when the guard applies.
     let power_day = est.as_ref().map(|e| e.power_day).or_else(|| guard.as_ref().map(|_| watts.unwrap_or(0.0) / 1000.0 * 24.0 * power.unwrap_or(0.0)));
-    layout(d, Page { title: "Equihash mining profitability estimate", description: "Estimate Equihash mining revenue and power cost from your hashrate, wattage and power price, using sourced network hashrate, block reward and price.", path: "/calculator", nav: "calculator" }, html! {
+    layout(d, Page { title: "Zcash and Equihash mining calculator", description: "Estimate Zcash and Equihash mining revenue, electricity cost and operating margin for a Z15 Pro or custom hashrate using sourced network data.", path: "/calculator", nav: "calculator" }, html! {
         div class="wrap page" {
             header class="page-head" {
-                h1 { "What will it earn?" }
-                p class="lede" { "A rough daily figure for one machine or a whole farm. It assumes today's network hashrate, price and average luck hold, and leaves out stale shares, downtime and payout variance, so treat it as a ceiling rather than a forecast." }
+                h1 { "Zcash and Equihash mining calculator" }
+                p class="lede" { "Estimate revenue, electricity cost and operating margin for one machine or a farm. It assumes the selected network hashrate, price and average luck hold, and excludes hardware cost, tax, downtime, stale shares, payout variance, hosting and import charges." }
             }
             div class="calc" {
                 form class="calc-form" method="get" action="/calculator" id="calc" novalidate {
@@ -332,7 +332,7 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
                             tr { th { "Mined" } td class="num" { span id="o-coins" { (coins(est.as_ref().map(|e| e.coins_day))) } " " span class="sym" { (coin.symbol) } } td class="num" { span id="o-coins30" { (coins(e30(est.as_ref().map(|e| e.coins_day)))) } " " span class="sym" { (coin.symbol) } } }
                             tr { th { "Revenue" } td class="num" id="o-rev" { (money(est.as_ref().and_then(|e| e.revenue_day))) } td class="num" id="o-rev30" { (money(e30(est.as_ref().and_then(|e| e.revenue_day)))) } }
                             tr { th { "Electricity" } td class="num" id="o-pow" { (money(power_day.map(|p| -p))) } td class="num" id="o-pow30" { (money(e30(power_day.map(|p| -p)))) } }
-                            tr class="total" { th { "Profit" } td class="num" id="o-profit" { (money(est.as_ref().and_then(|e| e.profit_day))) } td class="num" id="o-profit30" { (money(e30(est.as_ref().and_then(|e| e.profit_day)))) } }
+                            tr class="total" { th { "Estimated operating margin" } td class="num" id="o-profit" { (money(est.as_ref().and_then(|e| e.profit_day))) } td class="num" id="o-profit30" { (money(e30(est.as_ref().and_then(|e| e.profit_day)))) } }
                         }
                     }
                     dl class="facts" {
@@ -481,7 +481,7 @@ mod tests {
         assert!((e.coins_day - 1440.0).abs() < 1e-9);
     }
 
-    const GUARD_840: &str = "Your hashrate is 1.61× the network estimate. At 10% or more of the network a share-based estimate isn't meaningful: adding it would itself move the network hashrate and difficulty. Coins per day, revenue and profit are shown as n/a.";
+    const GUARD_840: &str = "Your hashrate is 1.61× the network estimate. At 10% or more of the network a share-based estimate isn't meaningful: adding it would itself move the network hashrate and difficulty. Coins per day, revenue and operating margin are shown as n/a.";
 
     #[test]
     fn share_guard_matches_the_hardware_rule() {
