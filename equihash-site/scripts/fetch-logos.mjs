@@ -55,11 +55,12 @@ export const COINGECKO = {
 // Hand-picked official assets that beat what auto-discovery finds (the brand's own file).
 // Keys: coin id or pool operator domain. Values: list of URLs, tried in order.
 export const PINNED = {
-  // Wcash: the mark w.cash itself serves (its inline SVG favicon).
-  wcash: ["https://w.cash/"],
   // Zcash: the coin mark from z.cash (its second website, zfnd.org, would give the Foundation's logo).
   zcash: ["https://z.cash/wp-content/uploads/2023/03/zcash-logo.svg"],
 };
+// Owner-supplied marks are kept during a broad --force refresh. To replace one deliberately,
+// target it by id as well: --id wcash --force. The full-resolution source is in assets/brand/.
+const OWNER_SUPPLIED = new Set(["wcash"]);
 // Candidates auto-discovery must skip (e.g. a generic avatar, a sponsor's logo, a wordmark).
 export const SKIP = {
   // Serves the same /static/logo.svg as rockpool.cloud (pool software default, not this operator's
@@ -703,6 +704,9 @@ async function main() {
   const seenCoin = new Set();
   const allCoins = [...(net.coins || []), ...(extraCoins.coins || [])].filter((c) => (seenCoin.has(c.id) ? false : (seenCoin.add(c.id), true)));
   if (which === "coins" || which === "both") for (const coin of allCoins) {
+    const current = out.coins[coin.id];
+    const deliberateOwnerRefresh = force && only.includes(coin.id);
+    if (OWNER_SUPPLIED.has(coin.id) && current?.file && (await exists(current.file)) && !deliberateOwnerRefresh) continue;
     if (!(await need(out.coins[coin.id], [coin.id]))) continue;
     let cands = await coinCandidates(coin, links, ci);
     let { best, tried } = await pick(cands, SKIP[coin.id]);

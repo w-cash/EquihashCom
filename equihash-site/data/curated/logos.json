@@ -1,6 +1,6 @@
 {
   "_doc": "Written by scripts/fetch-logos.mjs (see README, 'Logos'). kind: official | repo | third_party | fallback. file is relative to static/logos/; fallback entries have file null and render as a monogram.",
-  "generated_at": "2026-10-07T10:28:49.902Z",
+  "generated_at": "2026-10-07T16:24:09.315Z",
   "coins": {
     "zcash": {
       "file": "coins/zcash.47590b6def.svg",
@@ -25,17 +25,17 @@
       "source_px": "vector"
     },
     "wcash": {
-      "file": "coins/wcash.be68f42efd.svg",
-      "source_url": "https://w.cash/",
-      "source_detail": "inline data: URI in the page's <link rel=icon>",
-      "source_page": "https://w.cash/",
-      "fetched_at": "2026-10-03T15:35:10.670Z",
+      "file": "coins/wcash.ec62095324.webp",
+      "source_url": "https://x.com/WcashProject",
+      "source_detail": "Original @WcashProject profile image supplied by the Wcash project owner",
+      "source_page": "https://x.com/WcashProject",
+      "fetched_at": "2026-10-07T16:24:09.315Z",
       "kind": "official",
-      "license_note": "Wcash's own logo, from its own website. Trademark of its owner; shown only to identify it.",
-      "format": "svg",
-      "bytes": 233,
+      "license_note": "Wcash's own logo, from its official X account and supplied by the project owner. Trademark of its owner; shown only to identify it.",
+      "format": "webp",
+      "bytes": 838,
       "bg": "tile",
-      "source_px": "vector"
+      "source_px": "400x400"
     },
     "komodo": {
       "file": "coins/komodo.0c9f1e41eb.webp",
