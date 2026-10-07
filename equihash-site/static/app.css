@@ -936,11 +936,11 @@ body[data-page="home"] .foot a { color: #f0ede4; }
 .ed-machine-slides { display: grid; min-width: 0; min-height: 100%; padding-inline: var(--machine-peek); }
 .ed-machine-slide { display: none; grid-area: 1 / 1; grid-template-rows: minmax(0, 1fr) auto; min-width: 0; }
 .ed-machine-slide:first-child { display: grid; }
-.js .ed-machine-slide { display: grid; z-index: 0; opacity: 0; visibility: hidden; transform: scale(.965); pointer-events: none; transition: opacity 640ms cubic-bezier(.22,.61,.36,1), transform 760ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 760ms; will-change: opacity, transform; }
-.js .ed-machine-slide.is-prev, .js .ed-machine-slide.is-next { z-index: 1; opacity: .56; visibility: visible; transition-delay: 0s; }
+.js .ed-machine-slide { display: grid; z-index: 0; opacity: 0; visibility: hidden; transform: scale(.965); filter: grayscale(.85) saturate(.3) brightness(.84) blur(.7px); pointer-events: none; transition: opacity 640ms cubic-bezier(.22,.61,.36,1), transform 760ms cubic-bezier(.22,.61,.36,1), filter 760ms cubic-bezier(.22,.61,.36,1), box-shadow 760ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 760ms; will-change: opacity, transform, filter; }
+.js .ed-machine-slide.is-prev, .js .ed-machine-slide.is-next { z-index: 1; opacity: .38; visibility: visible; box-shadow: inset 0 0 0 999px rgba(70,65,55,.08); transition-delay: 0s; }
 .js .ed-machine-slide.is-prev { transform: translateX(-28px) scale(.965); transform-origin: center left; }
 .js .ed-machine-slide.is-next { transform: translateX(28px) scale(.965); transform-origin: center right; }
-.js .ed-machine-slide.is-active { z-index: 2; opacity: 1; visibility: visible; transform: none; pointer-events: auto; transition-delay: 0s; }
+.js .ed-machine-slide.is-active { z-index: 2; opacity: 1; visibility: visible; transform: none; filter: none; box-shadow: 0 14px 34px rgba(35,32,25,.18); pointer-events: auto; transition-delay: 0s; }
 .ed-hero-machine-image { min-height: 320px; display: grid; place-items: center; overflow: hidden; background: linear-gradient(145deg, #e5e1d6, #f7f5ee); }
 .ed-hero-machine-image img { width: 82%; height: 310px; object-fit: contain; filter: drop-shadow(0 20px 18px rgba(38,34,26,.16)); }
 .ed-hero-machine-info { padding: 20px 22px 21px; border-top: 1px solid #bdb8aa; background: #f8f6ef; }
@@ -955,10 +955,10 @@ body[data-page="home"] .foot a { color: #f0ede4; }
 .ed-hero-machine-info nav a { color: var(--ink); font-size: 13px; font-weight: 500; }
 .ed-machine-peek { display: none; }
 .js .ed-machine-peek { position: absolute; z-index: 3; top: 0; bottom: 0; display: grid; width: var(--machine-peek); padding: 0; place-items: center; border: 0; border-radius: 0; color: var(--ink); cursor: pointer; }
-.js .ed-machine-peek-prev { left: 0; border-right: 1px solid rgba(79,74,63,.25); background: linear-gradient(90deg, rgba(250,249,244,.42), rgba(250,249,244,.06)); }
-.js .ed-machine-peek-next { right: 0; border-left: 1px solid rgba(79,74,63,.25); background: linear-gradient(90deg, rgba(250,249,244,.06), rgba(250,249,244,.42)); }
+.js .ed-machine-peek-prev { left: 0; border-right: 1px solid rgba(79,74,63,.32); background: linear-gradient(90deg, rgba(69,65,56,.18), rgba(69,65,56,.06)); }
+.js .ed-machine-peek-next { right: 0; border-left: 1px solid rgba(79,74,63,.32); background: linear-gradient(90deg, rgba(69,65,56,.06), rgba(69,65,56,.18)); }
 .js .ed-machine-peek[hidden] { display: none; }
-.ed-machine-peek span { display: grid; width: 20px; height: 36px; place-items: center; background: rgba(250,249,244,.9); box-shadow: 0 2px 10px rgba(35,32,25,.12); font: 22px/1 var(--sans); transition: background 180ms ease, transform 240ms ease; }
+.ed-machine-peek span { display: grid; width: 20px; height: 36px; place-items: center; background: rgba(243,240,232,.9); box-shadow: 0 3px 12px rgba(35,32,25,.18); font: 22px/1 var(--sans); transition: background 180ms ease, transform 240ms ease; }
 .ed-machine-peek:hover span, .ed-machine-peek:focus-visible span { background: #f4cc43; }
 .ed-machine-peek-prev:hover span, .ed-machine-peek-prev:focus-visible span { transform: translateX(-2px); }
 .ed-machine-peek-next:hover span, .ed-machine-peek-next:focus-visible span { transform: translateX(2px); }
