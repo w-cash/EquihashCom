@@ -983,6 +983,24 @@ body[data-page="home"] .foot a { color: #f0ede4; }
 .ed-snapshot p:hover, .ed-snapshot dl div:hover { background: #ded9cb; }
 .ed-snapshot p:focus-within, .ed-snapshot dl div:focus-within { outline: 2px solid var(--ink); outline-offset: -3px; }
 .coin-group { scroll-margin-top: 20px; }
+.js tbody.coin-secondary-rows { display: none; }
+.js tbody.coin-secondary-rows.is-open { display: table-row-group; }
+.coin-more-control td { padding: 0 !important; background: #f2f0e8; }
+.coin-more-control tr:hover { background: transparent; }
+.coin-more-button { width: 100%; padding: 12px 15px; border: 0; border-top: 1px solid var(--rule); border-radius: 0; background: transparent; color: var(--ink); text-align: left; font: 500 12px/1.3 var(--sans); cursor: pointer; }
+.coin-more-button::after { float: right; content: "+"; font: 500 16px/1 var(--mono); }
+.coin-more-button[aria-expanded="true"]::after { content: "−"; }
+.coin-more-button:hover, .coin-more-button:focus-visible { background: #e7e2d6; }
+.coin-more-button:focus-visible { outline: 2px solid var(--ink); outline-offset: -3px; }
+.coin-other-params { margin-top: 28px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.coin-other-params > summary { display: flex; justify-content: space-between; align-items: center; padding: 16px 2px; color: var(--ink); font-weight: 500; cursor: pointer; list-style: none; }
+.coin-other-params > summary::-webkit-details-marker { display: none; }
+.coin-other-params > summary::before { margin-right: 10px; content: "+"; font: 500 17px/1 var(--mono); }
+.coin-other-params[open] > summary::before { content: "−"; }
+.coin-other-params > summary span { margin-left: auto; color: var(--ink-3); font: 11px/1 var(--mono); }
+.coin-other-params > summary:hover, .coin-other-params > summary:focus-visible { background: #e7e2d6; }
+.coin-other-params > summary:focus-visible { outline: 2px solid var(--ink); outline-offset: -3px; }
+.coin-other-params-body { padding-bottom: 24px; }
 
 .ed-directory { padding-top: 62px; padding-bottom: 70px; }
 .ed-section-head { display: flex; justify-content: space-between; align-items: end; gap: 40px; margin-bottom: 25px; padding-bottom: 19px; border-bottom: 1px solid var(--ink); }

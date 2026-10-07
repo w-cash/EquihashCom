@@ -70,6 +70,21 @@
     }
   }
 
+  // ---------- coin directory: keep lower-priority networks available without crowding the scan ----------
+  $$('[data-coin-more]').forEach((button) => {
+    const rows = document.getElementById(button.getAttribute('aria-controls'));
+    const control = button.closest('.coin-more-control');
+    if (!rows || !control) return;
+    control.hidden = false;
+    const count = +button.dataset.count;
+    button.addEventListener('click', () => {
+      const open = button.getAttribute('aria-expanded') !== 'true';
+      button.setAttribute('aria-expanded', String(open));
+      rows.classList.toggle('is-open', open);
+      button.textContent = open ? 'Hide other networks' : `Show ${count} other network${count === 1 ? '' : 's'}`;
+    });
+  });
+
   // ---------- copy buttons ----------
   $$("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
     const t = $(b.dataset.copy)?.textContent || "";

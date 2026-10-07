@@ -385,12 +385,15 @@ impl Coin {
             _ => None,
         }
     }
-    /// Group order: 200,9 first (the Z15 family), then the other exact sets by n,k, unknown last.
+    /// Editorial group order: the three parameter sets miners most often browse here first,
+    /// followed by the remaining exact sets by n,k, with unknown parameters last.
     pub fn param_key(&self) -> (u8, u32, u32) {
         match self.nk() {
             Some((200, 9)) => (0, 200, 9),
-            Some((n, k)) => (1, n, k),
-            None => (2, 0, 0),
+            Some((192, 7)) => (1, 192, 7),
+            Some((144, 5)) => (2, 144, 5),
+            Some((n, k)) => (3, n, k),
+            None => (4, 0, 0),
         }
     }
     pub fn group_label(&self) -> String {
@@ -2425,6 +2428,11 @@ mod tests {
                 }
             }
             let labels: Vec<String> = d.param_groups(false).into_iter().map(|(l, _)| l).collect();
+            assert_eq!(
+                &labels[..3],
+                &["Equihash 200,9", "Equihash 192,7", "Equihash 144,5"],
+                "the miner-facing parameter sets stay first"
+            );
             let mut dedup = labels.clone();
             dedup.dedup();
             assert_eq!(labels, dedup, "a parameter set appears twice");

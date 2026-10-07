@@ -36,39 +36,105 @@ fn status(c: &Coin) -> Markup {
     }
 }
 
-fn coin_rows(d: &Data, active_only: bool, limit: Option<usize>) -> Markup {
-    let groups = d.param_groups(active_only);
+fn coin_table_row(c: &Coin) -> Markup {
     html! {
-        @for (group, coins) in groups {
-            section class="coin-group" id=[(group == "Equihash 200,9").then_some("equihash-200-9")] {
-                div class="section-head compact" {
-                    div { h2 { (group) } p { @if let Some(max) = limit { (coins.len().min(max)) " of " (coins.len()) " active coins shown" } @else { (coins.len()) @if coins.len() == 1 { " listed coin" } @else { " listed coins" } } } }
-                    @if group == "Equihash 200,9" { a href="/hardware/antminer-z15-pro" { "Z15 Pro compatible →" } }
-                }
-                div class="table-scroll" {
-                    table class="data directory coin-directory" {
-                        thead { tr {
-                            th scope="col" { "Coin" }
-                            th scope="col" { "Status" }
-                            th class="num" scope="col" { "Network" }
-                            th class="num" scope="col" { "Listed pools" }
-                            th class="num" scope="col" { "Price" }
-                            th scope="col" { "Next step" }
-                        } }
-                        tbody {
-                            @for c in coins.iter().take(limit.unwrap_or(coins.len())) {
-                                tr {
-                                    td { a class="entity-link" href={"/coin/" (c.id)} { (logo::chip(&c.logo, &c.name, At::Row, true)) strong { (c.name) } } " " span class="sym" { (c.symbol) } }
-                                    td { (status(c)) }
-                                    td class="num" { (fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s"))) }
-                                    td class="num" { (c.pool_count) }
-                                    td class="num" { (fmt::price(c.price_usd)) }
-                                    td class="nowrap" { @if c.active() && c.pool_count > 0 { a href={"/pools?coin=" (c.id) "#pools"} { "Compare pools" } } @else { a href={"/coin/" (c.id)} { "View record" } } }
-                                }
-                            }
+        tr {
+            td { a class="entity-link" href={"/coin/" (c.id)} { (logo::chip(&c.logo, &c.name, At::Row, true)) strong { (c.name) } } " " span class="sym" { (c.symbol) } }
+            td { (status(c)) }
+            td class="num" { (fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s"))) }
+            td class="num" { (c.pool_count) }
+            td class="num" { (fmt::price(c.price_usd)) }
+            td class="nowrap" { @if c.active() && c.pool_count > 0 { a href={"/pools?coin=" (c.id) "#pools"} { "Compare pools" } } @else { a href={"/coin/" (c.id)} { "View record" } } }
+        }
+    }
+}
+
+fn lead_coin_ids(group: &str) -> &'static [&'static str] {
+    match group {
+        "Equihash 200,9" => &["zcash", "piratechain", "wcash"],
+        "Equihash 192,7" => &["ycash", "zclassic"],
+        "Equihash 144,5" => &["bitcoingold"],
+        _ => &[],
+    }
+}
+
+fn coin_group(group: &str, coins: &[&Coin]) -> Markup {
+    let lead_ids = lead_coin_ids(group);
+    let mut lead: Vec<&Coin> = lead_ids
+        .iter()
+        .filter_map(|id| coins.iter().copied().find(|c| c.id == *id))
+        .collect();
+    if lead.is_empty() {
+        lead.extend(coins.iter().take(1).copied());
+    }
+    let other: Vec<&Coin> = coins
+        .iter()
+        .copied()
+        .filter(|c| !lead.iter().any(|shown| shown.id == c.id))
+        .collect();
+    let suffix = coins
+        .first()
+        .and_then(|c| c.nk())
+        .map(|(n, k)| format!("{n}-{k}"))
+        .unwrap_or_else(|| "unknown".into());
+    let section_id = format!("equihash-{suffix}");
+    let more_id = format!("coin-more-{suffix}");
+    html! {
+        section class="coin-group" id=(section_id) {
+            div class="section-head compact" {
+                div {
+                    h2 { (group) }
+                    p {
+                        @if other.is_empty() {
+                            (coins.len()) @if coins.len() == 1 { " listed network" } @else { " listed networks" }
+                        } @else {
+                            (lead.len()) " shown first · " (other.len()) " more"
                         }
                     }
                 }
+                @if group == "Equihash 200,9" { a href="/hardware/antminer-z15-pro" { "Z15 Pro compatible →" } }
+            }
+            div class="table-scroll" {
+                table class="data directory coin-directory" {
+                    thead { tr {
+                        th scope="col" { "Coin" }
+                        th scope="col" { "Status" }
+                        th class="num" scope="col" { "Network" }
+                        th class="num" scope="col" { "Listed pools" }
+                        th class="num" scope="col" { "Price" }
+                        th scope="col" { "Next step" }
+                    } }
+                    tbody { @for c in &lead { (coin_table_row(c)) } }
+                    @if !other.is_empty() {
+                        tbody class="coin-more-control" hidden {
+                            tr { td colspan="6" {
+                                button type="button" class="coin-more-button" data-coin-more data-count=(other.len()) aria-expanded="false" aria-controls=(more_id) {
+                                    "Show " (other.len()) " other " @if other.len() == 1 { "network" } @else { "networks" }
+                                }
+                            } }
+                        }
+                        tbody class="coin-secondary-rows" id=(more_id) { @for c in &other { (coin_table_row(c)) } }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn coin_rows(d: &Data, active_only: bool) -> Markup {
+    let groups = d.param_groups(active_only);
+    let (priority, other): (Vec<_>, Vec<_>) = groups.into_iter().partition(|(group, _)| {
+        matches!(
+            group.as_str(),
+            "Equihash 200,9" | "Equihash 192,7" | "Equihash 144,5"
+        )
+    });
+    html! {
+        @for (group, coins) in priority { (coin_group(&group, &coins)) }
+        @if !other.is_empty() {
+            details class="coin-other-params" {
+                summary { "Other parameter sets" span { (other.len()) } }
+                div class="coin-other-params-body" { @for (group, coins) in other { (coin_group(&group, &coins)) } }
             }
         }
     }
@@ -204,7 +270,7 @@ pub fn index(d: &Data) -> Markup {
                     div { h2 id="coins-title" { "Active Equihash networks" } p { "Coins are grouped by their exact Equihash parameters. A Z15 works on 200,9; other parameter sets need different hardware." } }
                     a href="/coins" { "All active and historical coins →" }
                 }
-                (coin_rows(d, true, Some(4)))
+                (coin_rows(d, true))
             }
 
             (crate::views::hashpower::home_market(d))
@@ -254,7 +320,7 @@ pub fn coins(d: &Data) -> Markup {
                 div { p class="eyebrow" { "COIN DIRECTORY" } h1 { "Equihash coins" } p class="lede" { "Choose the parameter set first. Hardware built for 200,9 cannot mine a 144,5 or 192,7 network." } }
                 (search_form("", "Search the directory"))
             }
-            (coin_rows(d, false, None))
+            (coin_rows(d, false))
         }
     })
 }
