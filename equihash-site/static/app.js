@@ -70,7 +70,7 @@
       toggle.addEventListener('click', () => {
         quickStart = false;
         paused = !paused;
-        toggle.textContent = paused ? 'Play' : 'Pause';
+        toggle.textContent = paused ? '▶' : 'Ⅱ';
         toggle.setAttribute('aria-label', paused ? 'Play carousel' : 'Pause carousel');
         toggle.setAttribute('aria-pressed', String(paused));
         schedule();
@@ -81,7 +81,7 @@
       machineCarousel.addEventListener('focusout', (e) => { if (!machineCarousel.contains(e.relatedTarget)) { focused = false; schedule(); } });
       machineCarousel.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); go(e.key === 'ArrowLeft' ? -1 : 1); } });
       document.addEventListener('visibilitychange', schedule);
-      if (paused) { toggle.textContent = 'Play'; toggle.setAttribute('aria-label', 'Play carousel'); toggle.setAttribute('aria-pressed', 'true'); }
+      if (paused) { toggle.textContent = '▶'; toggle.setAttribute('aria-label', 'Play carousel'); toggle.setAttribute('aria-pressed', 'true'); }
       paint(); schedule();
     }
   }

@@ -252,6 +252,7 @@ pub fn index(d: &Data) -> Markup {
                         div class="ed-machine-slides" {
                             @if let Some(offer) = offer_860 {
                                 article class="ed-machine-slide is-active" data-machine-slide aria-hidden="false" role="group" aria-roledescription="slide" aria-label={"1 of " (slide_count) ": Antminer Z15 Pro 860"} {
+                                    header class="ed-machine-card-top" { span { "Featured hardware" } span class="ed-machine-live" { "● Live" } }
                                     div class="ed-hero-machine-image" {
                                         img src="/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp" alt="Bitmain Antminer Z15 Pro 860 kSol/s offer" width="1200" height="1200" decoding="async";
                                     }
@@ -273,6 +274,7 @@ pub fn index(d: &Data) -> Markup {
                                 @let calculator = format!("/calculator?hashrate={}&watts={}", fmt::opt_num(m.hashrate_ksol), fmt::opt_num(m.watts));
                                 @let has_listing = d.listings.iter().any(|l| l.miner_id == m.id);
                                 article class={"ed-machine-slide" @if i == 0 { " is-active" }} data-machine-slide aria-hidden=(if i == 0 { "false" } else { "true" }) role="group" aria-roledescription="slide" aria-label={(i + 1) " of " (slide_count) ": " (m.maker) " " (m.model)} {
+                                    header class="ed-machine-card-top" { span { "Featured hardware" } span class="ed-machine-live" { "● Live" } }
                                     div class="ed-hero-machine-image" {
                                         img src=(image) alt=(alt) width=(width) height=(height) loading=[(i > 0).then_some("lazy")] decoding="async";
                                     }
@@ -300,7 +302,7 @@ pub fn index(d: &Data) -> Markup {
                             nav class="ed-machine-switcher" data-machine-controls aria-label="Choose featured machine" hidden {
                                 button type="button" data-machine-prev aria-label="Previous machine" { "←" }
                                 span class="ed-machine-position" aria-hidden="true" { strong data-machine-current { "1" } " / " (slide_count) }
-                                button class="ed-machine-toggle" type="button" data-machine-toggle aria-label="Pause carousel" aria-pressed="false" { "Pause" }
+                                button class="ed-machine-toggle" type="button" data-machine-toggle aria-label="Pause carousel" aria-pressed="false" { "Ⅱ" }
                                 button type="button" data-machine-next aria-label="Next machine" { "→" }
                             }
                         }
