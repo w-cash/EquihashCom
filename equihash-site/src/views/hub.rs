@@ -152,6 +152,12 @@ pub fn index(d: &Data) -> Markup {
         .live_pools()
         .filter(|p| p.coin_id == "zcash" && p.merged())
         .count();
+    // This seller rates its current Z15 Pro offer at 860 kSol/s and 2,847 W. Keep it distinct
+    // from BITMAIN's manufacturer specification (840 kSol/s typical), which is the next slide.
+    let offer_860 = d
+        .listings
+        .iter()
+        .find(|l| l.id == "hashlabs-antminer-z15-pro-860");
     let featured: Vec<_> = [
         (
             "antminer-z15-pro",
@@ -168,11 +174,18 @@ pub fn index(d: &Data) -> Markup {
             1000,
         ),
         (
-            "antminer-z11",
-            "/static/shop/machines/antminer-z11.1c5e36ca87.webp",
-            "Bitmain Antminer Z11 ASIC miner",
-            1200,
-            630,
+            "antminer-z15j",
+            "/static/shop/machines/antminer-z15.8dc9fd7a98.webp",
+            "Bitmain Antminer Z15 series ASIC miner",
+            924,
+            1000,
+        ),
+        (
+            "antminer-z15e",
+            "/static/shop/machines/antminer-z15.8dc9fd7a98.webp",
+            "Bitmain Antminer Z15 series ASIC miner",
+            924,
+            1000,
         ),
         (
             "innosilicon-a9pp-zmaster",
@@ -180,6 +193,27 @@ pub fn index(d: &Data) -> Markup {
             "Innosilicon A9++ ZMaster ASIC miner",
             1000,
             680,
+        ),
+        (
+            "antminer-z11",
+            "/static/shop/machines/antminer-z11.1c5e36ca87.webp",
+            "Bitmain Antminer Z11 ASIC miner",
+            1200,
+            630,
+        ),
+        (
+            "antminer-z9",
+            "/static/shop/machines/antminer-z9.4e480dbe7c.webp",
+            "Bitmain Antminer Z9 ASIC miner",
+            1140,
+            586,
+        ),
+        (
+            "antminer-z9-mini",
+            "/static/shop/machines/antminer-z9-mini.712b4180db.webp",
+            "Bitmain Antminer Z9 Mini ASIC miner",
+            1140,
+            525,
         ),
     ]
     .into_iter()
@@ -190,6 +224,7 @@ pub fn index(d: &Data) -> Markup {
             .map(|m| (m, image, alt, width, height))
     })
     .collect();
+    let slide_count = featured.len() + usize::from(offer_860.is_some());
     layout(d, Page {
         title: "Equihash mining: coins, pools, hardware and guides · equihash.com",
         description: "Look up Equihash coins and mining pools, see which networks support a Z15 Pro, and estimate mining costs and output.",
@@ -214,10 +249,29 @@ pub fn index(d: &Data) -> Markup {
                     }
                     aside class="ed-hero-machine" data-machine-carousel role="region" aria-roledescription="carousel" aria-label="Featured Equihash hardware" {
                         div class="ed-machine-slides" {
-                            @for (i, (m, image, alt, width, height)) in featured.iter().enumerate() {
+                            @if let Some(offer) = offer_860 {
+                                article class="ed-machine-slide is-active" data-machine-slide aria-hidden="false" role="group" aria-roledescription="slide" aria-label={"1 of " (slide_count) ": Antminer Z15 Pro 860"} {
+                                    div class="ed-hero-machine-image" {
+                                        img src="/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp" alt="Bitmain Antminer Z15 Pro 860 kSol/s offer" width="1200" height="1200" decoding="async";
+                                    }
+                                    div class="ed-hero-machine-info" {
+                                        p { "VENDOR-RATED · EQUIHASH 200,9" }
+                                        h2 { "Antminer Z15 Pro 860" }
+                                        p class="ed-machine-note" { "Offer-page rating; BITMAIN publishes 840 kSol/s as the typical specification." }
+                                        dl { div { dt { "Hashrate" } dd { (fmt::opt_num(offer.shop_hashrate_ksol)) " kSol/s" } } div { dt { "Power" } dd { "2,847 W" } } }
+                                        nav aria-label="Antminer Z15 Pro 860 actions" {
+                                            a href="/hardware/antminer-z15-pro" { "Official 840 spec" }
+                                            a href="/calculator?hashrate=860&watts=2847" { "Calculate" }
+                                            a href="/buy?machine=antminer-z15-pro" { "See offers" }
+                                        }
+                                    }
+                                }
+                            }
+                            @for (j, (m, image, alt, width, height)) in featured.iter().enumerate() {
+                                @let i = j + usize::from(offer_860.is_some());
                                 @let calculator = format!("/calculator?hashrate={}&watts={}", fmt::opt_num(m.hashrate_ksol), fmt::opt_num(m.watts));
                                 @let has_listing = d.listings.iter().any(|l| l.miner_id == m.id);
-                                article class={"ed-machine-slide" @if i == 0 { " is-active" }} data-machine-slide aria-hidden=(if i == 0 { "false" } else { "true" }) role="group" aria-roledescription="slide" aria-label={(i + 1) " of " (featured.len()) ": " (m.maker) " " (m.model)} {
+                                article class={"ed-machine-slide" @if i == 0 { " is-active" }} data-machine-slide aria-hidden=(if i == 0 { "false" } else { "true" }) role="group" aria-roledescription="slide" aria-label={(i + 1) " of " (slide_count) ": " (m.maker) " " (m.model)} {
                                     div class="ed-hero-machine-image" {
                                         img src=(image) alt=(alt) width=(width) height=(height) loading=[(i > 0).then_some("lazy")] decoding="async";
                                     }
@@ -235,10 +289,10 @@ pub fn index(d: &Data) -> Markup {
                                 }
                             }
                         }
-                        @if featured.len() > 1 {
+                        @if slide_count > 1 {
                             nav class="ed-machine-switcher" data-machine-controls aria-label="Choose featured machine" hidden {
                                 button type="button" data-machine-prev aria-label="Previous machine" { "←" }
-                                span class="ed-machine-position" aria-hidden="true" { strong data-machine-current { "1" } " / " (featured.len()) }
+                                span class="ed-machine-position" aria-hidden="true" { strong data-machine-current { "1" } " / " (slide_count) }
                                 button class="ed-machine-toggle" type="button" data-machine-toggle aria-label="Pause carousel" aria-pressed="false" { "Pause" }
                                 button type="button" data-machine-next aria-label="Next machine" { "→" }
                             }

@@ -33,7 +33,7 @@
       const current = $('[data-machine-current]', controls);
       const toggle = $('[data-machine-toggle]', controls);
       const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-      let index = 0, timer = null, paused = reduceMotion.matches, hovering = false, focused = false;
+      let index = 0, timer = null, paused = reduceMotion.matches, hovering = false, focused = false, quickStart = true;
       controls.hidden = false;
       const paint = () => {
         slides.forEach((slide, i) => {
@@ -47,12 +47,16 @@
       const stop = () => { clearTimeout(timer); timer = null; };
       const schedule = () => {
         stop();
-        if (!paused && !hovering && !focused && !document.hidden) timer = setTimeout(() => { index = (index + 1) % slides.length; paint(); schedule(); }, 7000);
+        if (!paused && !hovering && !focused && !document.hidden) {
+          const delay = quickStart ? 900 : 6500;
+          timer = setTimeout(() => { quickStart = false; index = (index + 1) % slides.length; paint(); schedule(); }, delay);
+        }
       };
-      const go = (step) => { index = (index + step + slides.length) % slides.length; paint(); schedule(); };
+      const go = (step) => { quickStart = false; index = (index + step + slides.length) % slides.length; paint(); schedule(); };
       $('[data-machine-prev]', controls).addEventListener('click', () => go(-1));
       $('[data-machine-next]', controls).addEventListener('click', () => go(1));
       toggle.addEventListener('click', () => {
+        quickStart = false;
         paused = !paused;
         toggle.textContent = paused ? 'Play' : 'Pause';
         toggle.setAttribute('aria-label', paused ? 'Play carousel' : 'Pause carousel');
