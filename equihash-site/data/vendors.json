@@ -7,75 +7,109 @@
       "slug": "bitmain",
       "name": "BITMAIN",
       "url": "https://shop.bitmain.com/",
-      "regions": ["Global"],
+      "regions": [
+        "Global"
+      ],
       "region_focus": "Manufacturer direct",
       "region_note": "BITMAIN's own online shop. Delivery eligibility and cost depend on the destination selected in its checkout.",
       "channel": "manufacturer",
-      "verification_label": "Official manufacturer shop. BITMAIN says it has no official distributor or reseller in any country.",
+      "verification_label": "Official sales channel confirmed on BITMAIN Support",
       "verification_url": "https://support.bitmain.com/hc/en-us/articles/4563169497497-Is-there-any-recommended-dealers-Are-there-any-distributors-overseas",
       "notes": "Use shop.bitmain.com for manufacturer-direct orders. Other sellers in this directory are independent businesses.",
       "source_url": "https://shop.bitmain.com/",
-      "observed_at": "2026-10-07T12:00:03.000Z"
+      "observed_at": "2026-10-07T12:00:03.000Z",
+      "legal_name": "BITMAIN / ANTMINER",
+      "registration": "Official manufacturer domain",
+      "registry_url": null
     },
     {
       "id": "the-mining-shop-uk",
       "slug": "the-mining-shop-uk",
       "name": "The Mining Shop UK",
       "url": "https://www.theminingshop.co.uk/",
-      "regions": ["UK", "EU"],
+      "regions": [
+        "UK",
+        "EU"
+      ],
       "region_focus": "UK",
       "region_note": "Independent UK retailer in Hartlepool. Its Z15 Pro page states UK delivery is included and describes DDP delivery from a UK/EU warehouse.",
       "channel": "independent_retailer",
-      "verification_label": "Independent retailer with a public product page, company location and delivery terms.",
+      "verification_label": "Legal name and active status matched in Companies House",
       "verification_url": "https://www.theminingshop.co.uk/bitmain-antminer-z15-pro-860ksol-equihash-zcash-miner/",
       "notes": "Not an official BITMAIN distributor; BITMAIN says it has no official distributors or resellers.",
       "source_url": "https://www.theminingshop.co.uk/",
-      "observed_at": "2026-10-07T12:00:03.000Z"
+      "observed_at": "2026-10-07T12:00:03.000Z",
+      "legal_name": "THE MINING SHOP UK LTD",
+      "registration": "UK company 14666497 · active",
+      "registry_url": "https://find-and-update.company-information.service.gov.uk/company/14666497"
     },
     {
       "id": "antminer-distribution-europe",
       "slug": "antminer-distribution-europe",
       "name": "Antminer Distribution Europe B.V.",
       "url": "https://www.antminerdistribution.com/",
-      "regions": ["EU", "UK", "USA", "Global"],
+      "regions": [
+        "EU",
+        "UK",
+        "USA",
+        "Global"
+      ],
       "region_focus": "EU",
       "region_note": "Independent Dutch retailer shipping from Breda. It states worldwide delivery, EU pickup and EU VAT registration.",
       "channel": "independent_retailer",
-      "verification_label": "Independent retailer; the public site supplies a Dutch company number, VAT status, warehouse location and product terms.",
+      "verification_label": "Legal name, address and KvK number matched to an external company record",
       "verification_url": "https://www.antminerdistribution.com/",
       "notes": "Despite its name, this is not an official BITMAIN distributor; BITMAIN says it has no official distributors or resellers.",
       "source_url": "https://www.antminerdistribution.com/",
-      "observed_at": "2026-10-07T12:00:03.000Z"
+      "observed_at": "2026-10-07T12:00:03.000Z",
+      "legal_name": "Antminer Distribution Europe B.V.",
+      "registration": "KvK 70307180 · incorporated 2017",
+      "registry_url": "https://www.creditsafe.com/business-index/en-gb/company/antminer-distribution-europe-bv-nl04677406"
     },
     {
       "id": "apexto-mining",
       "slug": "apexto-mining",
       "name": "Apexto Mining",
       "url": "https://apextomining.com/",
-      "regions": ["USA", "Canada", "EU", "Global"],
+      "regions": [
+        "USA",
+        "Canada",
+        "EU",
+        "Global"
+      ],
       "region_focus": "Global",
       "region_note": "Independent retailer. Its product page describes international shipping and DDP service for selected destinations.",
       "channel": "independent_retailer",
-      "verification_label": "Independent retailer with a public Z15 Pro page, staff verification page and shipping terms.",
+      "verification_label": "Legal name and registration numbers matched to Hong Kong Companies Registry notices",
       "verification_url": "https://apextomining.com/product/antminer-z15-pro/",
       "notes": "Not an official BITMAIN distributor; BITMAIN says it has no official distributors or resellers.",
       "source_url": "https://apextomining.com/product/antminer-z15-pro/",
-      "observed_at": "2026-10-07T12:00:03.000Z"
+      "observed_at": "2026-10-07T12:00:03.000Z",
+      "legal_name": "APEXTO COMPANY LIMITED",
+      "registration": "Hong Kong CR 3152922 · BRN 74045670",
+      "registry_url": "https://www.cr.gov.hk/docs/wrpt/wk_new%26changednamecoys_20240318.pdf"
     },
     {
       "id": "hashlabs",
       "slug": "hashlabs",
       "name": "Hashlabs",
       "url": "https://www.hashlabs.io/",
-      "regions": ["USA", "Brazil", "Global"],
+      "regions": [
+        "USA",
+        "Brazil",
+        "Global"
+      ],
       "region_focus": "Delivery or hosting",
       "region_note": "Broker and hosting provider. Its Z15 Pro page presents destination-specific delivered and hosted offers, confirmed by written quote.",
       "channel": "broker_hosting",
-      "verification_label": "Public Z15 Pro offer page with pricing, delivery, payment and warranty terms.",
+      "verification_label": "Legal name and UEN matched to a Singapore company directory record",
       "verification_url": "https://www.hashlabs.io/miners/antminer-z15-pro",
       "notes": "Offers are confirmed by Hashlabs in writing before payment. This is not an official BITMAIN distributor.",
       "source_url": "https://www.hashlabs.io/miners/antminer-z15-pro",
-      "observed_at": "2026-10-07T12:00:03.000Z"
+      "observed_at": "2026-10-07T12:00:03.000Z",
+      "legal_name": "HASHLABS PTE. LTD.",
+      "registration": "Singapore UEN 202416632G",
+      "registry_url": "https://www.companies.sg/cat/63119/DEVELOPMENT-OF-SOFTWARE-CONSULTANCY-PROGRAMMING-FOR-E-COMMERCE-APPLICATIONS?page=21&per-page=100&sort=-entity_name"
     }
   ]
 }

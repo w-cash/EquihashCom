@@ -508,6 +508,9 @@ pub struct Vendor {
     pub regions: Vec<String>,
     pub region_focus: Option<String>,
     pub region_note: Option<String>,
+    pub legal_name: Option<String>,
+    pub registration: Option<String>,
+    pub registry_url: Option<String>,
     /// Sales relationship shown to readers: manufacturer, independent retailer, or broker/hosting.
     pub channel: Option<String>,
     /// Short, sourced trust label. This must not imply manufacturer authorization unless sourced.
@@ -1688,6 +1691,11 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         clean_url(
             &mut v.verification_url,
             &format!("vendor {} verification_url", v.id),
+            &mut dropped,
+        );
+        clean_url(
+            &mut v.registry_url,
+            &format!("vendor {} registry_url", v.id),
             &mut dropped,
         );
         clean_url(

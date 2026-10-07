@@ -79,45 +79,39 @@ fn listing_card(d: &Data, l: &Listing) -> Markup {
         1
     };
     html! {
-        article class="buy-card" data-machine=(l.miner_id) data-vendor=(l.vendor_id) data-region=(l.shipping_regions.join(",")) data-price=[l.price_amount.map(|x| x.to_string())] data-stock=(l.availability.as_deref().unwrap_or("unknown")) data-stock-rank=(stock_rank) data-region-rank=(region_rank) {
-            div class="buy-card-media" {
-                @if let Some(image) = &l.image {
-                    img src=(image) alt=(format!("{} product view", l.title)) loading="lazy" width="1200" height="1200";
-                } @else {
-                    div class="miner-plate" aria-hidden="true" { span { "EQUIHASH 200,9" } strong { "Z15 PRO" } small { "ASIC MINER" } }
+        article class="seller-row buy-card" data-machine=(l.miner_id) data-vendor=(l.vendor_id) data-region=(l.shipping_regions.join(",")) data-price=[l.price_amount.map(|x| x.to_string())] data-stock=(l.availability.as_deref().unwrap_or("unknown")) data-stock-rank=(stock_rank) data-region-rank=(region_rank) {
+            header class="seller-org" {
+                @if let Some(v) = v { span class={"vendor-badge" (channel_class(v))} { (channel_label(v)) } }
+                h3 { @if !slug.is_empty() { a href={"/buy/vendor/" (slug)} { (vendor_name) } } @else { (vendor_name) } }
+                @if let Some(v) = v {
+                    @if let Some(n) = &v.legal_name { small { (n) } }
+                    @if let Some(r) = &v.registration { span class="mono seller-registration" { (r) } }
                 }
             }
-            div class="buy-card-body" {
-                header class="buy-card-head" {
-                    @if let Some(v) = v { span class={"vendor-badge" (channel_class(v))} { (channel_label(v)) } }
-                    h3 class="buy-card-title" { (l.title) }
-                    p class="buy-card-shop" {
-                        @if let Some(v) = v { (vendor_mark(v, false)) }
-                        @if !slug.is_empty() { a href={"/buy/vendor/" (slug)} { (vendor_name) } } @else { (vendor_name) }
-                    }
-                }
-                dl class="buy-specs" {
-                    div { dt { "Shop hashrate" } dd class="mono" { (fmt::opt_num(l.shop_hashrate_ksol)) " kSol/s" } }
-                    div {
-                        dt { "Price" }
-                        dd {
-                            span class="buy-price mono" { (currency(l.price_amount, l.price_currency.as_deref())) }
-                            @if l.price_includes_vat == Some(false) {
-                                span class="buy-vat" { "ex VAT" }
-                            }
-                        }
-                    }
-                    div { dt { "Availability" } dd { (l.availability_label.as_deref().unwrap_or("n/a")) } }
-                    div { dt { "Ships" } dd { @if l.shipping_regions.is_empty() { "n/a" } @else { (l.shipping_regions.join(", ")) } } }
-                }
-                @if let Some(n) = &l.hashrate_note { p class="buy-note" { (n) } }
-                @if let Some(n) = &l.shipping_note { p class="buy-note" { (n) } }
-                p class="buy-prov" { "Observed " (fmt::utc(l.observed_at.as_deref())) @if let Some(u) = &l.source_url { " from " (ext(u, &fmt::host(Some(u)))) } "." }
-                div class="buy-actions" {
-                    @if let Some(u) = &l.product_url { a class="buy-cta" href=(u) rel="noopener nofollow" target="_blank" { "View at " (vendor_name) } }
-                    a class="buy-quiet" href={"/hardware/" (l.miner_id)} { "Manufacturer specs" }
-                }
+            div class="seller-offer" {
+                p class="seller-label" { "PUBLIC OFFER" }
+                strong class="seller-price mono" { (currency(l.price_amount, l.price_currency.as_deref())) }
+                @if l.price_includes_vat == Some(false) { span { "ex VAT" } }
+                span class="seller-status" { (l.availability_label.as_deref().unwrap_or("n/a")) }
             }
+            dl class="seller-facts" {
+                div { dt { "Hashrate" } dd class="mono" { (fmt::opt_num(l.shop_hashrate_ksol)) " kSol/s" } }
+                div { dt { "Ships to" } dd { @if l.shipping_regions.is_empty() { "n/a" } @else { (l.shipping_regions.join(", ")) } } }
+                div { dt { "Condition" } dd { (l.condition.as_deref().unwrap_or("n/a")) } }
+            }
+            div class="seller-evidence" {
+                p class="seller-label" { "EVIDENCE" }
+                @if let Some(v) = v {
+                    strong { (v.verification_label.as_deref().unwrap_or("Public seller page checked")) }
+                    p { @if let Some(u) = &v.registry_url { (ext(u, "Registry record")) " · " } @if let Some(u) = &l.source_url { (ext(u, "Offer page")) } }
+                }
+                small { "Checked " (fmt::utc(l.observed_at.as_deref())) }
+            }
+            div class="seller-action" {
+                @if let Some(u) = &l.product_url { a class="buy-cta" href=(u) rel="noopener nofollow" target="_blank" { "Open offer" } }
+                a class="buy-quiet" href={"/hardware/" (l.miner_id)} { "Specifications" }
+            }
+            details class="seller-notes" { summary { "Offer notes" } @if let Some(n) = &l.hashrate_note { p { (n) } } @if let Some(n) = &l.shipping_note { p { (n) } } }
         }
     }
 }
@@ -170,19 +164,19 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
     layout(d, Page { title: "Buy Equihash ASICs: Z15 Pro shop directory", description: "Where to buy Equihash ASICs including the Antminer Z15 Pro. Prices, stock and shipping are copied from each vendor’s public product page.", path: "/buy", nav: "buy" }, html! {
         div class="wrap page buy-page" {
             header class="page-head buy-head" {
-                p class="eyebrow" { "EQUIHASH ASIC SHOPS" }
-                h1 { "Where to buy Equihash ASICs" }
-                p class="lede" { "Prices and stock come from the vendors’ public product pages. Open the vendor’s site to buy. " strong { "equihash.com never sells hardware" } " and does not take payment for placement." }
+                p class="eyebrow" { "WHERE TO BUY" }
+                h1 { "Antminer Z15 Pro sellers" }
+                p class="lede" { "Current public offers from BITMAIN and independent sellers. Each row links the company record, product page and the details observed there." }
             }
             aside class="official-channel" aria-labelledby="official-channel-title" {
                 div {
-                    p class="eyebrow" { "MANUFACTURER DIRECT" }
-                    h2 id="official-channel-title" { "BITMAIN’s official sales channel" }
-                    p { "BITMAIN says it sells only through shop.bitmain.com and has no official distributors or resellers. Other shops below are independent businesses, even when they sell new ANTMINER hardware." }
+                    p class="eyebrow" { "START HERE" }
+                    h2 id="official-channel-title" { "BITMAIN sells direct. Its current Z15 Pro batch is sold out." }
+                    p { "BITMAIN says shop.bitmain.com is its only sales channel and that it has no official distributors or resellers. Every other name below is an independent seller." }
                 }
                 div class="official-channel-actions" {
                     a class="buy-cta" href="https://shop.bitmain.com/" rel="noopener nofollow" target="_blank" { "Open BITMAIN Shop" }
-                    a href="https://support.bitmain.com/hc/en-us/articles/4563169497497-Is-there-any-recommended-dealers-Are-there-any-distributors-overseas" rel="noopener" target="_blank" { "Read BITMAIN’s channel notice" }
+                    a href="https://support.bitmain.com/hc/en-us/articles/4563169497497-Is-there-any-recommended-dealers-Are-there-any-distributors-overseas" rel="noopener" target="_blank" { "BITMAIN’s own statement" }
                 }
             }
             form class="filters buy-filters" id="buy-filters" action="/buy" method="get" {
@@ -196,19 +190,21 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             @for m in &machines {
                 @let rows: Vec<_> = listings.iter().filter(|l| l.miner_id == m.id).cloned().collect();
                 @if !rows.is_empty() { section class="buy-machine" id={"machine-" (m.id)} data-machine=(m.id) {
-                    header class="buy-machine-head" { h2 { (m.maker) " " (m.model) } p class="section-sub" { "See manufacturer specifications under " a href={"/hardware/" (m.id)} { "Hardware" } ". Each card keeps the hashrate stated by the shop." } }
-                    div class="buy-gallery" data-buy-gallery { @for l in rows { (listing_card(d, l)) } }
+                    header class="buy-machine-head seller-sheet-head" { h2 { (m.maker) " " (m.model) " offers" } p class="section-sub" { "Public asking prices are snapshots, not quotes. Availability is the seller’s claim. " a href={"/hardware/" (m.id)} { "Check BITMAIN specifications" } "." } }
+                    div class="seller-sheet-labels" aria-hidden="true" { span { "Seller" } span { "Offer" } span { "Machine" } span { "Evidence" } span { "Link" } }
+                    div class="buy-gallery seller-sheet" data-buy-gallery { @for l in rows { (listing_card(d, l)) } }
                 } }
             }
-            section class="buy-vendors" id="vendors" {
-                header class="buy-machine-head" { h2 { "Vendor directory" } p class="section-sub" { "Official manufacturer sales and independent sellers are labelled separately. A listing means its public page was checked; it is not an endorsement. " a href="/add-vendor" { "Add a vendor" } "." } }
-                div class="buy-vendor-grid" { @for v in &d.vendors { @let n = d.listings.iter().filter(|l| l.vendor_id == v.id).count(); article class="buy-vendor-card" {
-                    span class={"vendor-badge" (channel_class(v))} { (channel_label(v)) }
-                    a class="buy-vendor-link" href={"/buy/vendor/" (v.slug)} { (vendor_mark(v, true)) span class="buy-vendor-meta" { strong { (v.name) } span class="buy-vendor-regions" { (v.regions.join(" · ")) } span class="buy-vendor-count" { (n) @if n == 1 { " listing" } @else { " listings" } } } }
-                    p class="buy-vendor-site" { @if let Some(u) = &v.url { (ext(u, &fmt::host(Some(u)))) } }
-                } } }
+            section class="buy-standard" aria-labelledby="buy-standard-title" {
+                header { p class="eyebrow" { "LISTING METHOD" } h2 id="buy-standard-title" { "How listings are checked" } }
+                div class="buy-standard-grid" {
+                    article { span class="audit-number" { "01" } h3 { "Seller identity" } p { "The seller’s legal name and registration number were matched to a public company record where one was available." } }
+                    article { span class="audit-number" { "02" } h3 { "Published offer" } p { "Price, stated availability, hashrate and shipping claims were copied from the linked offer page at the checked time." } }
+                    article { span class="audit-number" { "03" } h3 { "Before payment" } p { "Stock, serial numbers, warranty coverage and final delivered cost are not independently confirmed. Get them in writing before payment." } }
+                }
+                p class="buy-submit" { "Sell Equihash hardware? " a href="/add-vendor" { "Submit the company record and public offer page" } "." }
             }
-            footer class="buy-honesty" { p { "The “View at …” button opens the vendor’s product page. equihash.com has no checkout and accepts no payment for placement. The checked time appears with each listing; n/a means the vendor did not publish the information." } }
+            footer class="buy-honesty" { p { "equihash.com does not sell hardware, collect payment, receive referral fees or guarantee a seller. A listing records public evidence; it is not an endorsement." } }
         }
     })
 }
@@ -233,11 +229,11 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
             div class="wrap page buy-page buy-vendor-page" {
                 p class="crumb" { a href="/buy" { "All Buy listings" } }
             header class="page-head" { div class="title-row" { h1 { (vendor_mark(v, true)) (v.name) } (crate::views::pages::copy_link(&path, "Copy link to this vendor")) } p class="lede" { (v.region_note.as_deref().unwrap_or("Vendor listing.")) @if let Some(u) = &v.url { " Site: " (ext(u, &fmt::host(Some(u)))) "." } } }
-                dl class="buy-vendor-kv" { div { dt { "Channel" } dd { span class={"vendor-badge" (channel_class(v))} { (channel_label(v)) } } } div { dt { "Listings here" } dd { (rows.len()) } } div { dt { "Regions" } dd { (v.regions.join(", ")) } } div { dt { "Checked" } dd { (fmt::utc(v.observed_at.as_deref())) @if let Some(u) = &v.source_url { " · " (ext(u, &fmt::host(Some(u)))) } } } }
-                @if let Some(label) = &v.verification_label { p class="vendor-verification" { strong { "Verification: " } (label) @if let Some(u) = &v.verification_url { " · " (ext(u, "source")) } } }
+                dl class="vendor-dossier" { div { dt { "Relationship" } dd { (channel_label(v)) } } div { dt { "Legal entity" } dd { (v.legal_name.as_deref().unwrap_or("Not established")) } } div { dt { "Registration" } dd { (v.registration.as_deref().unwrap_or("Not established")) } } div { dt { "Regions claimed" } dd { (v.regions.join(", ")) } } div { dt { "Checked" } dd { (fmt::utc(v.observed_at.as_deref())) } } }
+                @if let Some(label) = &v.verification_label { p class="vendor-verification" { strong { (label) } @if let Some(u) = &v.registry_url { " · " (ext(u, "Company record")) } @if let Some(u) = &v.verification_url { " · " (ext(u, "Relationship source")) } } }
                 @if let Some(n) = &v.notes { p class="small" { (n) } }
-                div class="buy-gallery" data-buy-gallery { @for l in rows { (listing_card(d, l)) } }
-                p class="buy-honesty" { "To buy, open the listing on " (v.name) "'s own site. equihash.com does not sell hardware." }
+                div class="buy-gallery seller-sheet vendor-offers" data-buy-gallery { @for l in rows { (listing_card(d, l)) } }
+                p class="buy-honesty" { "This page records public evidence about " (v.name) ". It does not confirm inventory or guarantee fulfillment. equihash.com does not sell hardware." }
             }
         },
     )
