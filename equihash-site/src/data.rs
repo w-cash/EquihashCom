@@ -681,6 +681,30 @@ pub struct CypherpunkReport {
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(default)]
+pub struct GrayscaleReport {
+    pub published_at: Option<String>,
+    pub updated_at: Option<String>,
+    pub current_name: String,
+    pub former_name: String,
+    pub ticker: String,
+    pub status: String,
+    pub formed_at: Option<String>,
+    pub otc_listed_at: Option<String>,
+    pub nyse_listed_at: Option<String>,
+    pub primary_market: String,
+    pub sponsor: String,
+    pub sponsor_fee_pct: Option<f64>,
+    pub primary_custodian: String,
+    pub additional_custodian: String,
+    pub issuer_aum_usd: Option<f64>,
+    pub issuer_aum_observed_at: Option<String>,
+    pub split_ratio: String,
+    pub split_at: Option<String>,
+    pub sources: Vec<CypherpunkSource>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
 pub struct Meta {
     pub generated_at: Option<String>,
     pub pool_count: u32,
@@ -754,6 +778,7 @@ pub struct Data {
     pub research: Vec<ResearchItem>,
     pub research_coins: Vec<ResearchCoin>,
     pub cypherpunk: CypherpunkReport,
+    pub grayscale: GrayscaleReport,
     pub meta: Meta,
     /// Newest fetched_at across pools (what "last updated" shows).
     pub last_updated: Option<String>,
@@ -1523,6 +1548,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
     let mut hf: HashpowerFile = read(dir, "hashpower.json").unwrap_or_default();
     let mut rf: ResearchFile = read(dir, "research.json").unwrap_or_default();
     let mut cypherpunk: CypherpunkReport = read(dir, "cypherpunk-zcash.json").unwrap_or_default();
+    let mut grayscale: GrayscaleReport = read(dir, "grayscale-zcash.json").unwrap_or_default();
     // Upstream URLs are rendered as links: only http(s) ones are kept (see safe_url).
     let mut dropped: Vec<String> = Vec::new();
     // Social/community links (written by a separate research step). Missing file = no links;
@@ -1867,6 +1893,13 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         }
         ok
     });
+    grayscale.sources.retain(|s| {
+        let ok = safe_url(&s.url).is_some();
+        if !ok {
+            dropped.push(format!("grayscale source {}: unsafe URL", s.id));
+        }
+        ok
+    });
     meta.sources.retain(|s| {
         let ok = safe_url(&s.url).is_some();
         if !ok {
@@ -1903,6 +1936,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         research: rf.items,
         research_coins: rf.coins,
         cypherpunk,
+        grayscale,
         meta,
         last_updated,
         links_generated_at: links.generated_at,

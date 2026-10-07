@@ -1,0 +1,65 @@
+{
+  "_doc": "Filed facts for the Grayscale Zcash vehicle. This record describes a ZEC-holding investment product, not a mining operator or a source of Equihash hashpower.",
+  "published_at": "2026-10-07",
+  "updated_at": "2026-10-07T22:00:00.000Z",
+  "current_name": "The Zcash ETF",
+  "former_name": "Grayscale Zcash Trust (ZEC)",
+  "ticker": "ZCSH",
+  "status": "Trading on NYSE Arca",
+  "formed_at": "2017-10-23",
+  "otc_listed_at": "2021-10-18",
+  "nyse_listed_at": "2026-08-25",
+  "primary_market": "NYSE Arca",
+  "sponsor": "Grayscale Investments Sponsors, LLC",
+  "sponsor_fee_pct": 2.5,
+  "primary_custodian": "Coinbase Custody Trust Company, LLC",
+  "additional_custodian": "Anchorage Digital Bank National Association",
+  "issuer_aum_usd": 500000000,
+  "issuer_aum_observed_at": "2026-09-08",
+  "split_ratio": "3-for-1",
+  "split_at": "2026-09-30",
+  "sources": [
+    {
+      "id": "zcsh-8a",
+      "label": "ZCSH Form 8-A registration",
+      "url": "https://www.sec.gov/Archives/edgar/data/1720265/000119312526362505/zcsh_8-a12b.htm",
+      "source_type": "SEC filing"
+    },
+    {
+      "id": "zcsh-prospectus",
+      "label": "The Zcash ETF prospectus",
+      "url": "https://www.sec.gov/Archives/edgar/data/1720265/000119312526363603/zcsh__424b3.htm",
+      "source_type": "SEC prospectus"
+    },
+    {
+      "id": "zcsh-aum-8k",
+      "label": "8 September ZCSH Form 8-K",
+      "url": "https://www.sec.gov/Archives/edgar/data/1720265/000119312526385317/zcsh-20260908.htm",
+      "source_type": "SEC filing"
+    },
+    {
+      "id": "zcsh-aum-exhibit",
+      "label": "Issuer statement on assets under management",
+      "url": "https://www.sec.gov/Archives/edgar/data/1720265/000119312526385317/zcsh-ex99_1.htm",
+      "source_type": "SEC filing exhibit"
+    },
+    {
+      "id": "zcsh-split",
+      "label": "3-for-1 forward split filing",
+      "url": "https://www.sec.gov/Archives/edgar/data/1720265/000119312526408382/zcsh-20260930.htm",
+      "source_type": "SEC filing"
+    },
+    {
+      "id": "zcsh-custodian",
+      "label": "Additional custodian prospectus supplement",
+      "url": "https://www.sec.gov/Archives/edgar/data/1720265/000119312526414323/zcsh_424b3_secondary_cus.htm",
+      "source_type": "SEC prospectus supplement"
+    },
+    {
+      "id": "zcsh-site",
+      "label": "Official ZCSH product page",
+      "url": "https://www.thezcashetf.com/",
+      "source_type": "Issuer website"
+    }
+  ]
+}

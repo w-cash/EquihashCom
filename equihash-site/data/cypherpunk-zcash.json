@@ -1,5 +1,5 @@
 {
-  "_doc": "Sourced facts used by /research/cypherpunk-zcash-mining. Company-reported fleet figures are never presented as live telemetry. The current-equivalent network share is computed at render time from data/network.json and labelled as a comparison of separate snapshots.",
+  "_doc": "Sourced facts used by /industry/cypherpunk-zcash-mining. Company-reported fleet figures are never presented as live telemetry. The current-equivalent network share is computed at render time from data/network.json and labelled as a comparison of separate snapshots.",
   "published_at": "2026-10-07",
   "updated_at": "2026-10-07T21:30:00.000Z",
   "company": "Cypherpunk Technologies Inc.",
@@ -27,7 +27,7 @@
     "sponsor": "Winklevoss Asset Services, LLC",
     "custodian": "Gemini Trust Company, LLC",
     "annual_fee_pct": 0.25,
-    "cypherpunk_role": "Proposed Zcash Ecosystem Partner",
+    "cypherpunk_role": "Zcash Ecosystem Partner under a disclosed agreement",
     "source_id": "wink-etf-s1"
   },
   "sources": [

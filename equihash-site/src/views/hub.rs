@@ -565,7 +565,6 @@ pub fn guides(d: &Data) -> Markup {
                 article { p class="step" { "START HERE · 7 MIN" } h2 { a href="/hardware/antminer-z15-pro" { "Z15 Pro: from power-on to a compatible pool" } } p { "Check exact parameters, choose a coin, compare regions and fees, calculate power cost, and verify accepted shares." } }
                 article { p class="step" { "POOL CHOICE · 5 MIN" } h2 { a href="/pools#pools" { "How to compare Zcash pools" } } p { "Read hashrate, concentration, PPLNS/PPS variants, fees, minimum payouts, regions and observation times." } }
                 article { p class="step" { "MERGED MINING · 10 MIN" } h2 { a href="/merged-mining" { "How Zcash + Wcash merged mining works" } } p { "See what the miner sends, what the pool adds and how qualifying work reaches Zcash and Wcash." } }
-                article { p class="step" { "NETWORK NOTE · 7 MIN" } h2 { a href="/research/cypherpunk-zcash-mining" { "Cypherpunk’s 4.2 GSol/s Zcash fleet" } } p { "A sourced look at 4,902 Z15 Pro miners, the Winklevoss transactions and the preliminary WINK ETF filing." } }
                 article { p class="step" { "PARAMETERS · 4 MIN" } h2 { a href="/coins" { "Why Equihash n,k decides compatibility" } } p { "Understand why 200,9 hardware cannot mine every coin carrying the Equihash name." } }
                 article { p class="step" { "ECONOMICS · 5 MIN" } h2 { a href="/calculator" { "Estimate revenue and electricity cost" } } p { "Start with the listed network figures, then enter your hashrate, watts, fee and electricity price." } }
                 article { p class="step" { "VERIFY · 6 MIN" } h2 { a href="/sources" { "Where the pool and network figures come from" } } p { "See which pages and APIs are read, when each field was checked and how missing values are shown." } }
@@ -750,16 +749,41 @@ pub fn search(d: &Data, q: &SearchQuery) -> Markup {
         && ["buy", "vendor", "shop", "seller", "where to buy"]
             .iter()
             .any(|term| term.contains(&needle) || needle.contains(term));
+    let industry: Vec<(&str, &str, &str)> = if needle.is_empty() {
+        Vec::new()
+    } else {
+        [
+            (
+                "/industry/cypherpunk-zcash-mining",
+                "Cypherpunk reports a 4.2 GSol/s Zcash mining fleet",
+                "Cypherpunk CYPH Zcash mining 4902 Z15 Pro hashrate fleet Winklevoss",
+            ),
+            (
+                "/industry/grayscale-zcash-etf",
+                "From OTC trust to ZCSH: Grayscale’s Zcash vehicle",
+                "Grayscale ZCSH Zcash ETF trust NYSE Arca institutional capital custody",
+            ),
+            (
+                "/industry/winklevoss-zcash-etf",
+                "WINK filed: the preliminary Winklevoss Zcash ETF",
+                "Winklevoss WINK Zcash ETF Gemini Cypherpunk filing Nasdaq",
+            ),
+        ]
+        .into_iter()
+        .filter(|(_, title, terms)| matches(&needle, &[title, terms, "industry briefing"]))
+        .collect()
+    };
     let count = coins.len()
         + miners.len()
         + pools.len()
         + vendors.len()
+        + industry.len()
         + usize::from(merged)
         + usize::from(buying);
-    layout(d, Page { title: "Search Equihash coins, pools, hardware and vendors", description: "Search the equihash.com directory for coins, mining pools, hardware, vendors and guides.", path: "/search", nav: "" }, html! {
+    layout(d, Page { title: "Search Equihash coins, pools, hardware, vendors and industry briefings", description: "Search the equihash.com directory for coins, mining pools, hardware, vendors, guides and sourced industry briefings.", path: "/search", nav: "" }, html! {
         div class="wrap page search-page" {
             header class="page-head" { h1 { "Search equihash.com" } (search_form(raw, "Coin, pool, hardware or parameter set")) }
-            @if raw.is_empty() { div class="empty-state" { h2 { "Search the whole directory" } p { "Try “Z15 Pro”, “Zcash”, “Wcash”, “merged mining”, a vendor, pool or region." } } }
+            @if raw.is_empty() { div class="empty-state" { h2 { "Search the whole directory" } p { "Try “Z15 Pro”, “Zcash”, “Wcash”, “merged mining”, “Cypherpunk”, “Grayscale”, a vendor, pool or region." } } }
             @else if count == 0 { div class="empty-state" { h2 { "No results for “" (raw) "”" } p { "Try a coin symbol, miner model, exact parameter set or shorter pool name." } a href="/contribute" { "Suggest a missing listing" } } }
             @else {
                 p class="result-count" { (count) " result" @if count != 1 { "s" } " for “" (raw) "”" }
@@ -768,6 +792,7 @@ pub fn search(d: &Data, q: &SearchQuery) -> Markup {
                     @if !miners.is_empty() { section { h2 { "Hardware" } div class="result-list" { @for m in miners { a href={"/hardware/" (m.id)} { span { strong { (m.maker) " " (m.model) } } small { "Equihash " (m.equihash) " · " (fmt::opt_num(m.hashrate_ksol)) " kSol/s" } } } } } }
                     @if !pools.is_empty() { section { h2 { "Pools" } div class="result-list" { @for p in pools { a href={"/pool/" (p.slug)} { span { (logo::chip(&p.logo, &p.name, At::List, true)) strong { (p.name) } } small { (p.coin_label) " · " (p.region.as_deref().unwrap_or("region n/a")) } } } } } }
                     @if !vendors.is_empty() { section { h2 { "Vendors" } div class="result-list" { @for v in vendors { a href={"/vendors/" (v.slug)} { span { strong { (v.name) } } small { (v.region_focus.as_deref().unwrap_or("Region not stated")) " · " (v.regions.join(", ")) } } } } } }
+                    @if !industry.is_empty() { section { h2 { "Industry" } div class="result-list" { @for (href, title, _) in industry { a href=(href) { span { strong { (title) } } small { "Source-backed Equihash industry briefing" } } } } } }
                     @if merged || buying { section { h2 { "Guides and tools" } div class="result-list" {
                         @if merged { a href="/merged-mining" { span { strong { "Zcash + Wcash merged mining" } } small { "Miner overview and pool operator guide" } } }
                         @if buying { a href="/vendors" { span { strong { "Equihash ASIC vendor directory" } } small { "Seller identity checks and dated listing snapshots" } } }

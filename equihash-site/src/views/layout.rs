@@ -4,7 +4,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "38";
+pub const ASSET_V: &str = "39";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -49,6 +49,7 @@ const NAV: &[(&str, &str, &str)] = &[
     ("pools", "/pools", "Pools"),
     ("merged-mining", "/merged-mining", "Merged mining"),
     ("hashpower", "/hashpower", "Hashpower"),
+    ("industry", "/industry", "Industry"),
     ("hardware", "/hardware", "Hardware"),
     ("vendors", "/vendors", "Vendors"),
     ("guides", "/guides", "Guides"),
@@ -76,10 +77,9 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
     } else {
         "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     };
-    let og_type = if matches!(
-        p.path,
-        "/zcash-mining" | "/merged-mining" | "/research/cypherpunk-zcash-mining"
-    ) {
+    let og_type = if matches!(p.path, "/zcash-mining" | "/merged-mining") {
+        "article"
+    } else if p.path.starts_with("/industry/") {
         "article"
     } else {
         "website"
@@ -185,7 +185,7 @@ fn data_alternates(path: &str) -> Vec<(&'static str, &'static str)> {
         ]
     } else if path == "/hashpower" {
         vec![("/data/hashpower.json", "Equihash hashpower market data")]
-    } else if path == "/research/cypherpunk-zcash-mining" {
+    } else if path == "/industry/cypherpunk-zcash-mining" {
         vec![
             (
                 "/data/cypherpunk-zcash.json",
@@ -193,6 +193,16 @@ fn data_alternates(path: &str) -> Vec<(&'static str, &'static str)> {
             ),
             ("/data/network.json", "Equihash network data"),
         ]
+    } else if path == "/industry/grayscale-zcash-etf" {
+        vec![(
+            "/data/grayscale-zcash.json",
+            "Grayscale Zcash product research data",
+        )]
+    } else if path == "/industry/winklevoss-zcash-etf" {
+        vec![(
+            "/data/cypherpunk-zcash.json",
+            "Cypherpunk and WINK filing research data",
+        )]
     } else {
         Vec::new()
     }
@@ -205,11 +215,13 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
     let publisher_id = format!("{SITE}/#publisher");
     let webpage_id = format!("{canonical}#webpage");
     let page_type = match p.path {
-        "/coins" | "/hardware" | "/vendors" | "/guides" | "/archive" => "CollectionPage",
+        "/coins" | "/hardware" | "/vendors" | "/guides" | "/archive" | "/industry" => {
+            "CollectionPage"
+        }
         "/about" => "AboutPage",
         "/calculator" => "WebApplication",
         "/zcash-mining" | "/merged-mining" => "TechArticle",
-        "/research/cypherpunk-zcash-mining" => "Article",
+        path if path.starts_with("/industry/") => "Article",
         path if path.starts_with("/pools") => "CollectionPage",
         path if path.starts_with("/coin/")
             || path.starts_with("/pool/")
@@ -261,42 +273,69 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
     if let Some(ts) = d.last_updated.as_deref() {
         webpage.insert("dateModified".into(), json!(ts));
     }
-    if matches!(
-        p.path,
-        "/zcash-mining" | "/merged-mining" | "/research/cypherpunk-zcash-mining"
-    ) {
+    if matches!(p.path, "/zcash-mining" | "/merged-mining") {
         webpage.insert("headline".into(), json!(p.title));
         webpage.insert("author".into(), json!({"@id": publisher_id}));
         webpage.insert("datePublished".into(), json!("2026-10-07"));
         webpage.insert("dateModified".into(), json!("2026-10-07"));
         webpage.insert(
             "about".into(),
-            if p.path == "/research/cypherpunk-zcash-mining" {
+            json!([
+                {"@type": "Thing", "name": "Zcash mining"},
+                {"@type": "Thing", "name": "Equihash"},
+                {"@type": "Thing", "name": "Antminer Z15 Pro"}
+            ]),
+        );
+    } else if p.path.starts_with("/industry/") {
+        webpage.insert("headline".into(), json!(p.title));
+        webpage.insert("author".into(), json!({"@id": publisher_id}));
+        webpage.insert("datePublished".into(), json!("2026-10-07"));
+        webpage.insert("dateModified".into(), json!("2026-10-07"));
+        webpage.insert("articleSection".into(), json!("Equihash industry"));
+        webpage.insert(
+            "about".into(),
+            if p.path == "/industry/cypherpunk-zcash-mining" {
                 json!([
                     {"@type": "Organization", "name": "Cypherpunk Technologies Inc."},
                     {"@type": "Thing", "name": "Zcash mining"},
                     {"@type": "Thing", "name": "Antminer Z15 Pro"},
                     {"@type": "Thing", "name": "Winklevoss Zcash ETF"}
                 ])
+            } else if p.path == "/industry/grayscale-zcash-etf" {
+                json!([
+                    {"@type": "Organization", "name": "Grayscale"},
+                    {"@type": "FinancialProduct", "name": "The Zcash ETF", "tickerSymbol": "ZCSH"},
+                    {"@type": "Thing", "name": "Zcash"}
+                ])
             } else {
                 json!([
-                    {"@type": "Thing", "name": "Zcash mining"},
-                    {"@type": "Thing", "name": "Equihash"},
-                    {"@type": "Thing", "name": "Antminer Z15 Pro"}
+                    {"@type": "Organization", "name": "Winklevoss Asset Services, LLC"},
+                    {"@type": "FinancialProduct", "name": "Winklevoss Zcash ETF", "tickerSymbol": "WINK"},
+                    {"@type": "Thing", "name": "Zcash"}
                 ])
             },
         );
-        if p.path == "/research/cypherpunk-zcash-mining" {
-            webpage.insert(
-                "citation".into(),
-                json!(d
-                    .cypherpunk
-                    .sources
-                    .iter()
-                    .map(|s| s.url.as_str())
-                    .collect::<Vec<_>>()),
-            );
-        }
+        let citations = if p.path == "/industry/grayscale-zcash-etf" {
+            d.grayscale
+                .sources
+                .iter()
+                .map(|s| s.url.as_str())
+                .collect::<Vec<_>>()
+        } else if p.path == "/industry/winklevoss-zcash-etf" {
+            d.cypherpunk
+                .sources
+                .iter()
+                .filter(|s| s.id == "wink-etf-s1")
+                .map(|s| s.url.as_str())
+                .collect::<Vec<_>>()
+        } else {
+            d.cypherpunk
+                .sources
+                .iter()
+                .map(|s| s.url.as_str())
+                .collect::<Vec<_>>()
+        };
+        webpage.insert("citation".into(), json!(citations));
     }
     if entity.is_some() {
         webpage.insert(
@@ -322,6 +361,17 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
 fn structured_entity(d: &Data, p: &Page<'_>, canonical: &str) -> Option<serde_json::Value> {
     use serde_json::json;
     let id = format!("{canonical}#entity");
+    if p.path == "/industry" {
+        return Some(json!({
+            "@type": "ItemList", "@id": id, "name": "Equihash industry briefings",
+            "url": canonical, "numberOfItems": 3,
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "url": format!("{SITE}/industry/cypherpunk-zcash-mining"), "name": "Cypherpunk reports a 4.2 GSol/s Zcash mining fleet"},
+                {"@type": "ListItem", "position": 2, "url": format!("{SITE}/industry/winklevoss-zcash-etf"), "name": "WINK filed: what the preliminary Zcash ETF prospectus says"},
+                {"@type": "ListItem", "position": 3, "url": format!("{SITE}/industry/grayscale-zcash-etf"), "name": "From OTC trust to ZCSH: Grayscale’s Zcash vehicle changed shape"}
+            ]
+        }));
+    }
     if p.path == "/sources" {
         let datasets = [
             ("Equihash pool records", "Sourced pool hashrate, fee, payout and region records.", "/data/pools.json"),
@@ -329,6 +379,8 @@ fn structured_entity(d: &Data, p: &Page<'_>, canonical: &str) -> Option<serde_js
             ("Equihash hardware records", "Manufacturer ASIC specifications and parameter compatibility.", "/data/miners.json"),
             ("Equihash vendor records", "Public seller identity evidence and observed sales channels.", "/data/vendors.json"),
             ("Equihash hashpower market snapshot", "Aggregate EQUIHASH order-book observations.", "/data/hashpower.json"),
+            ("Cypherpunk Zcash mining record", "Company-reported fleet figures and primary filing sources.", "/data/cypherpunk-zcash.json"),
+            ("Grayscale Zcash product record", "Filed product status, structure, dates and primary sources.", "/data/grayscale-zcash.json"),
         ]
         .into_iter()
         .map(|(name, description, path)| json!({
@@ -397,10 +449,9 @@ fn breadcrumbs(p: &Page<'_>, canonical: &str) -> Option<serde_json::Value> {
         Some(("Hardware", "/hardware"))
     } else if p.path.starts_with("/vendors/") {
         Some(("Vendors", "/vendors"))
-    } else if matches!(
-        p.path,
-        "/zcash-mining" | "/merged-mining" | "/research/cypherpunk-zcash-mining"
-    ) {
+    } else if p.path.starts_with("/industry/") {
+        Some(("Industry", "/industry"))
+    } else if matches!(p.path, "/zcash-mining" | "/merged-mining") {
         Some(("Guides", "/guides"))
     } else {
         None

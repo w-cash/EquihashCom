@@ -178,8 +178,22 @@ async fn sources(s: web::Data<AppState>) -> impl Responder {
 async fn guides(s: web::Data<AppState>) -> impl Responder {
     html(views::hub::guides(&s.get()))
 }
+async fn industry(s: web::Data<AppState>) -> impl Responder {
+    html(views::research::index(&s.get()))
+}
 async fn cypherpunk_research(s: web::Data<AppState>) -> impl Responder {
-    html(views::research::render(&s.get()))
+    html(views::research::cypherpunk(&s.get()))
+}
+async fn wink_research(s: web::Data<AppState>) -> impl Responder {
+    html(views::research::wink(&s.get()))
+}
+async fn grayscale_research(s: web::Data<AppState>) -> impl Responder {
+    html(views::research::grayscale(&s.get()))
+}
+async fn research_legacy() -> HttpResponse {
+    HttpResponse::MovedPermanently()
+        .insert_header((header::LOCATION, views::research::CYPHERPUNK_PATH))
+        .finish()
 }
 async fn search(s: web::Data<AppState>, q: web::Query<views::hub::SearchQuery>) -> impl Responder {
     html(views::hub::search(&s.get(), &q))
@@ -314,6 +328,7 @@ async fn data_file(
         "meta.json",
         "research.json",
         "cypherpunk-zcash.json",
+        "grayscale-zcash.json",
         "current.json",
     ];
     if !ALLOWED.contains(&path.as_str()) {
@@ -373,7 +388,10 @@ Updated: {updated}
 - [Antminer Z15 Pro]({site}/hardware/antminer-z15-pro): manufacturer specifications and compatible coins.
 - [Equihash coins]({site}/coins): networks grouped by exact n,k parameters.
 - [Merged mining guide]({site}/merged-mining): Zcash parent-chain and Wcash auxiliary-chain flow.
-- [Cypherpunk Zcash mining fleet]({site}/research/cypherpunk-zcash-mining): SEC-sourced account of the reported 4.2 GSol/s fleet and preliminary WINK ETF filing.
+- [Equihash industry]({site}/industry): source-backed briefings on companies, mining fleets, investment products and infrastructure around Equihash.
+- [Cypherpunk Zcash mining fleet]({site}/industry/cypherpunk-zcash-mining): SEC-sourced account of the reported 4.2 GSol/s fleet.
+- [Grayscale ZCSH]({site}/industry/grayscale-zcash-etf): filed timeline and structure of the NYSE Arca-traded ZEC product.
+- [Winklevoss WINK filing]({site}/industry/winklevoss-zcash-etf): what the preliminary Zcash ETF filing says and does not establish.
 - [Sources and method]({site}/sources): provenance, refresh method and known limits.
 
 ## Machine-readable data
@@ -385,6 +403,7 @@ Updated: {updated}
 - [Listings JSON]({site}/data/listings.json)
 - [Hashpower JSON]({site}/data/hashpower.json)
 - [Cypherpunk Zcash research data]({site}/data/cypherpunk-zcash.json)
+- [Grayscale Zcash product data]({site}/data/grayscale-zcash.json)
 
 ## Editorial notes
 
@@ -442,8 +461,17 @@ async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
         ("/zcash-mining".into(), Some("2026-10-07".into())),
         ("/calculator".into(), data_updated.clone()),
         ("/merged-mining".into(), Some("2026-10-07".into())),
+        ("/industry".into(), Some("2026-10-07".into())),
         (
-            "/research/cypherpunk-zcash-mining".into(),
+            "/industry/cypherpunk-zcash-mining".into(),
+            Some("2026-10-07".into()),
+        ),
+        (
+            "/industry/grayscale-zcash-etf".into(),
+            Some("2026-10-07".into()),
+        ),
+        (
+            "/industry/winklevoss-zcash-etf".into(),
             Some("2026-10-07".into()),
         ),
         ("/archive".into(), data_updated.clone()),
@@ -562,9 +590,20 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
         .service(web::resource("/merged-mining").route(get_head().to(guide)))
         .service(web::resource("/zcash-mining").route(get_head().to(zcash_mining)))
         .service(web::resource("/guides").route(get_head().to(guides)))
+        .service(web::resource("/industry").route(get_head().to(industry)))
+        .service(
+            web::resource("/industry/cypherpunk-zcash-mining")
+                .route(get_head().to(cypherpunk_research)),
+        )
+        .service(
+            web::resource("/industry/winklevoss-zcash-etf").route(get_head().to(wink_research)),
+        )
+        .service(
+            web::resource("/industry/grayscale-zcash-etf").route(get_head().to(grayscale_research)),
+        )
         .service(
             web::resource("/research/cypherpunk-zcash-mining")
-                .route(get_head().to(cypherpunk_research)),
+                .route(get_head().to(research_legacy)),
         )
         .service(web::resource("/search").route(get_head().to(search)))
         .service(web::resource("/contribute").route(get_head().to(contribute)))
@@ -751,7 +790,10 @@ mod tests {
             "/add-vendor".into(),
             "/guides".into(),
             "/zcash-mining".into(),
-            "/research/cypherpunk-zcash-mining".into(),
+            "/industry".into(),
+            "/industry/cypherpunk-zcash-mining".into(),
+            "/industry/grayscale-zcash-etf".into(),
+            "/industry/winklevoss-zcash-etf".into(),
             "/search?q=Z15+Pro".into(),
             "/contribute".into(),
             "/calculator".into(),
@@ -765,6 +807,7 @@ mod tests {
             "/data/listings.json".into(),
             "/data/hashpower.json".into(),
             "/data/cypherpunk-zcash.json".into(),
+            "/data/grayscale-zcash.json".into(),
             "/favicon.ico".into(),
             "/robots.txt".into(),
             "/llms.txt".into(),
@@ -1006,14 +1049,16 @@ mod tests {
                 .await;
         let llms = String::from_utf8(llms.to_vec()).unwrap();
         assert!(llms.contains("https://equihash.com/zcash-mining"));
-        assert!(llms.contains("https://equihash.com/research/cypherpunk-zcash-mining"));
+        assert!(llms.contains("https://equihash.com/industry/cypherpunk-zcash-mining"));
+        assert!(llms.contains("https://equihash.com/industry/grayscale-zcash-etf"));
+        assert!(llms.contains("https://equihash.com/industry/winklevoss-zcash-etf"));
         assert!(llms.contains("https://equihash.com/data/pools.json"));
         assert!(llms.contains("Wcash receives work only from participating merged-mining pools"));
 
         let research = test::call_and_read_body(
             &app,
             test::TestRequest::get()
-                .uri("/research/cypherpunk-zcash-mining")
+                .uri("/industry/cypherpunk-zcash-mining")
                 .to_request(),
         )
         .await;
@@ -1021,6 +1066,49 @@ mod tests {
         assert!(research.contains("4,902 Z15 Pro miners"));
         assert!(research.contains("FILED · NOT LAUNCHED"));
         assert!(research.contains("not live telemetry"));
+
+        let industry =
+            test::call_and_read_body(&app, test::TestRequest::get().uri("/industry").to_request())
+                .await;
+        let industry = String::from_utf8(industry.to_vec()).unwrap();
+        assert!(industry.contains("aria-current=\"page\">Industry"));
+        assert!(industry.contains("/industry/grayscale-zcash-etf"));
+        assert!(industry.contains("/industry/winklevoss-zcash-etf"));
+
+        let grayscale = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/industry/grayscale-zcash-etf")
+                .to_request(),
+        )
+        .await;
+        let grayscale = String::from_utf8(grayscale.to_vec()).unwrap();
+        assert!(grayscale.contains("Trading on NYSE Arca"));
+        assert!(grayscale.contains("Not a miner"));
+
+        let wink = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/industry/winklevoss-zcash-etf")
+                .to_request(),
+        )
+        .await;
+        let wink = String::from_utf8(wink.to_vec()).unwrap();
+        assert!(wink.contains("Not effective, launched or trading"));
+        assert!(wink.contains("does not mean WINK owns Cypherpunk’s miners"));
+
+        let old = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri("/research/cypherpunk-zcash-mining")
+                .to_request(),
+        )
+        .await;
+        assert_eq!(old.status(), 301);
+        assert_eq!(
+            old.headers().get(header::LOCATION).unwrap(),
+            "/industry/cypherpunk-zcash-mining"
+        );
 
         for path in ["/api/live", "/healthz", "/data/pools.json"] {
             let response =
