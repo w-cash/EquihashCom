@@ -32,22 +32,27 @@
     if (slides.length > 1 && controls) {
       const current = $('[data-machine-current]', controls);
       const toggle = $('[data-machine-toggle]', controls);
-      const peek = $('[data-machine-peek]', machineCarousel);
+      const peekPrev = $('[data-machine-peek-prev]', machineCarousel);
+      const peekNext = $('[data-machine-peek-next]', machineCarousel);
       const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
       let index = 0, timer = null, paused = reduceMotion.matches, hovering = false, focused = false, quickStart = true;
       controls.hidden = false;
-      if (peek) peek.hidden = false;
+      if (peekPrev) peekPrev.hidden = false;
+      if (peekNext) peekNext.hidden = false;
       const paint = () => {
+        const prevIndex = (index - 1 + slides.length) % slides.length;
         const nextIndex = (index + 1) % slides.length;
         slides.forEach((slide, i) => {
           const active = i === index;
           slide.classList.toggle('is-active', active);
+          slide.classList.toggle('is-prev', i === prevIndex);
           slide.classList.toggle('is-next', i === nextIndex);
           slide.setAttribute('aria-hidden', String(!active));
           $$('a, button, input, select, textarea', slide).forEach((el) => { if (active) el.removeAttribute('tabindex'); else el.setAttribute('tabindex', '-1'); });
         });
         current.textContent = String(index + 1);
-        if (peek) peek.setAttribute('aria-label', `Show next machine: ${slides[nextIndex].getAttribute('aria-label') || `slide ${nextIndex + 1}`}`);
+        if (peekPrev) peekPrev.setAttribute('aria-label', `Show previous machine: ${slides[prevIndex].getAttribute('aria-label') || `slide ${prevIndex + 1}`}`);
+        if (peekNext) peekNext.setAttribute('aria-label', `Show next machine: ${slides[nextIndex].getAttribute('aria-label') || `slide ${nextIndex + 1}`}`);
       };
       const stop = () => { clearTimeout(timer); timer = null; };
       const schedule = () => {
@@ -60,7 +65,8 @@
       const go = (step) => { quickStart = false; index = (index + step + slides.length) % slides.length; paint(); schedule(); };
       $('[data-machine-prev]', controls).addEventListener('click', () => go(-1));
       $('[data-machine-next]', controls).addEventListener('click', () => go(1));
-      if (peek) peek.addEventListener('click', () => go(1));
+      if (peekPrev) peekPrev.addEventListener('click', () => go(-1));
+      if (peekNext) peekNext.addEventListener('click', () => go(1));
       toggle.addEventListener('click', () => {
         quickStart = false;
         paused = !paused;

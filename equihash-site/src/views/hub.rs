@@ -291,7 +291,10 @@ pub fn index(d: &Data) -> Markup {
                             }
                         }
                         @if slide_count > 1 {
-                            button class="ed-machine-peek" type="button" data-machine-peek aria-label="Show next machine" hidden {
+                            button class="ed-machine-peek ed-machine-peek-prev" type="button" data-machine-peek-prev aria-label="Show previous machine" hidden {
+                                span aria-hidden="true" { "‹" }
+                            }
+                            button class="ed-machine-peek ed-machine-peek-next" type="button" data-machine-peek-next aria-label="Show next machine" hidden {
                                 span aria-hidden="true" { "›" }
                             }
                             nav class="ed-machine-switcher" data-machine-controls aria-label="Choose featured machine" hidden {
