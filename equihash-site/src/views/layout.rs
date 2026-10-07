@@ -119,7 +119,7 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::
                 footer class="foot" {
                     div class="wrap foot-inner" {
                         p {
-                            strong { "equihash.com" } " is maintained by " a href="https://x.com/RustDev_" rel="noopener" { "@RustDev_" } ". "
+                            strong { "equihash.com" } " is maintained by " a href="https://x.com/MykytaSamardak" rel="noopener" { "@MykytaSamardak" } ". Community updates: " a href="https://t.me/EquihashCom" rel="noopener" { "t.me/EquihashCom" } ". "
                             "Pool figures come from miningpoolstats and the pools' own public APIs; last refresh "
                             time class="ago" datetime=[updated.as_deref()] { (fmt::utc(updated.as_deref())) } ". "
                             "Nothing on this site is paid for, and none of it is financial advice."

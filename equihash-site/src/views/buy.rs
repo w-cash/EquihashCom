@@ -214,7 +214,7 @@ pub fn add_vendor(d: &Data) -> Markup {
             div class="wrap page narrow prose" {
                 header class="page-head" { h1 { "Add a vendor" } p class="lede" { "Listing is free. equihash.com does not sell hardware or take payment for placement. A row only shows what can be checked on a public product page." } }
                 h2 { "If you sell Equihash ASICs" }
-                ol { li { strong { "Publish a product page. " } "Price, stock and shipping must be visible without an account. Anything you do not publish shows as n/a." } li { strong { "Send the details. " } "Copy the template and send it to " a href="https://x.com/RustDev_" rel="noopener" { "@RustDev_" } ". It is checked against your public pages before listing." } }
+                ol { li { strong { "Publish a product page. " } "Price, stock and shipping must be visible without an account. Anything you do not publish shows as n/a." } li { strong { "Send the details. " } "Copy the template and send it to " a href="https://x.com/MykytaSamardak" rel="noopener" { "@MykytaSamardak on X" } " or " a href="https://t.me/EquihashCom" rel="noopener" { "EquihashCom on Telegram" } ". It is checked against your public pages before listing." } }
                 div class="tpl" { div class="tpl-head" { span { "Vendor template" } button class="btn small" type="button" data-copy="#tpl-vendor" { "Copy" } } pre id="tpl-vendor" { (template) } }
                 p class="small" { "Manufacturer specifications stay on " a href="/hardware" { "Hardware" } "; this directory only indexes where to buy." }
             }

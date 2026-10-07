@@ -344,7 +344,7 @@ pub fn add_pool(d: &Data) -> Markup {
                 ol {
                     li { strong { "Publish your stats. " } "A row can only show what can be fetched from a public page or JSON API: hashrate, miners or workers, blocks, fee and payout scheme. Anything you don't publish shows as n/a." }
                     li { strong { "Get listed on miningpoolstats. " } "Most rows come from " (ext("https://miningpoolstats.stream/zcash", "miningpoolstats.stream")) ". If you are there, you show up here on the next refresh without doing anything else." }
-                    li { strong { "Or send the details. " } "Copy the template below and send it to " a href="https://x.com/RustDev_" rel="noopener" { "@RustDev_" } ". It gets checked against your public pages before a row is added, and the row cites its source and the time it was checked." }
+                    li { strong { "Or send the details. " } "Copy the template below and send it to " a href="https://x.com/MykytaSamardak" rel="noopener" { "@MykytaSamardak on X" } " or " a href="https://t.me/EquihashCom" rel="noopener" { "EquihashCom on Telegram" } ". It gets checked against your public pages before a row is added, and the row cites its source and the time it was checked." }
                 }
                 div class="tpl" {
                     div class="tpl-head" { span { "Template" } button class="btn small" type="button" data-copy="#tpl" { "Copy" } }
@@ -363,7 +363,7 @@ pub fn about(d: &Data) -> Markup {
     layout(d, Page { title: "About", description: "About equihash.com, the open directory for Equihash coins, mining pools, hardware and guides.", path: "/about", nav: "about" }, html! {
         div class="wrap page narrow prose" {
             header class="page-head" { h1 { "About equihash.com" } p class="lede" { "A practical, source-backed map of the Equihash mining ecosystem." } }
-            p class="about-line" { "Maintained by " a href="https://x.com/RustDev_" rel="noopener" target="_blank" { "@RustDev_" } ", who also builds " a href="https://w.cash" rel="noopener" target="_blank" { "Wcash" } "." }
+            p class="about-line" { "Maintained by " a href="https://x.com/MykytaSamardak" rel="noopener" target="_blank" { "@MykytaSamardak" } ", who also builds " a href="https://w.cash" rel="noopener" target="_blank" { "Wcash" } ". Community updates are on " a href="https://t.me/EquihashCom" rel="noopener" target="_blank" { "Telegram" } "." }
             p { "That relationship is disclosed wherever it matters. Wcash receives merged-mined work only from pools that explicitly support it; equihash.com does not treat all Zcash hashrate as Wcash backing." }
             h2 { "How it's run" }
             p { "Pools are ordered by their data and nothing else. There are no paid placements, sponsored rows or badges for sale." }
