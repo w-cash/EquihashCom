@@ -24,6 +24,52 @@
   function relTimes(scope) { $$("time.ago[datetime]", scope).forEach((el) => { const a = ago(el.getAttribute("datetime")); if (a) { el.title = el.textContent; el.textContent = a; } }); }
   relTimes(document);
 
+  // ---------- homepage hardware carousel ----------
+  const machineCarousel = $("[data-machine-carousel]");
+  if (machineCarousel) {
+    const slides = $$('[data-machine-slide]', machineCarousel);
+    const controls = $('[data-machine-controls]', machineCarousel);
+    if (slides.length > 1 && controls) {
+      const current = $('[data-machine-current]', controls);
+      const toggle = $('[data-machine-toggle]', controls);
+      const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+      let index = 0, timer = null, paused = reduceMotion.matches, hovering = false, focused = false;
+      controls.hidden = false;
+      const paint = () => {
+        slides.forEach((slide, i) => {
+          const active = i === index;
+          slide.classList.toggle('is-active', active);
+          slide.setAttribute('aria-hidden', String(!active));
+          $$('a, button, input, select, textarea', slide).forEach((el) => { if (active) el.removeAttribute('tabindex'); else el.setAttribute('tabindex', '-1'); });
+        });
+        current.textContent = String(index + 1);
+      };
+      const stop = () => { clearTimeout(timer); timer = null; };
+      const schedule = () => {
+        stop();
+        if (!paused && !hovering && !focused && !document.hidden) timer = setTimeout(() => { index = (index + 1) % slides.length; paint(); schedule(); }, 7000);
+      };
+      const go = (step) => { index = (index + step + slides.length) % slides.length; paint(); schedule(); };
+      $('[data-machine-prev]', controls).addEventListener('click', () => go(-1));
+      $('[data-machine-next]', controls).addEventListener('click', () => go(1));
+      toggle.addEventListener('click', () => {
+        paused = !paused;
+        toggle.textContent = paused ? 'Play' : 'Pause';
+        toggle.setAttribute('aria-label', paused ? 'Play carousel' : 'Pause carousel');
+        toggle.setAttribute('aria-pressed', String(paused));
+        schedule();
+      });
+      machineCarousel.addEventListener('mouseenter', () => { hovering = true; stop(); });
+      machineCarousel.addEventListener('mouseleave', () => { hovering = false; schedule(); });
+      machineCarousel.addEventListener('focusin', () => { focused = true; stop(); });
+      machineCarousel.addEventListener('focusout', (e) => { if (!machineCarousel.contains(e.relatedTarget)) { focused = false; schedule(); } });
+      machineCarousel.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); go(e.key === 'ArrowLeft' ? -1 : 1); } });
+      document.addEventListener('visibilitychange', schedule);
+      if (paused) { toggle.textContent = 'Play'; toggle.setAttribute('aria-label', 'Play carousel'); toggle.setAttribute('aria-pressed', 'true'); }
+      paint(); schedule();
+    }
+  }
+
   // ---------- copy buttons ----------
   $$("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
     const t = $(b.dataset.copy)?.textContent || "";

@@ -86,6 +86,44 @@ pub fn index(d: &Data) -> Markup {
         .live_pools()
         .filter(|p| p.coin_id == "zcash" && p.merged())
         .count();
+    let featured: Vec<_> = [
+        (
+            "antminer-z15-pro",
+            "/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp",
+            "Bitmain Antminer Z15 Pro ASIC miner",
+            1200,
+            1200,
+        ),
+        (
+            "antminer-z15",
+            "/static/shop/machines/antminer-z15.8dc9fd7a98.webp",
+            "Bitmain Antminer Z15 ASIC miner",
+            924,
+            1000,
+        ),
+        (
+            "antminer-z11",
+            "/static/shop/machines/antminer-z11.1c5e36ca87.webp",
+            "Bitmain Antminer Z11 ASIC miner",
+            1200,
+            630,
+        ),
+        (
+            "innosilicon-a9pp-zmaster",
+            "/static/shop/machines/innosilicon-a9pp-zmaster.e4b128723d.webp",
+            "Innosilicon A9++ ZMaster ASIC miner",
+            1000,
+            680,
+        ),
+    ]
+    .into_iter()
+    .filter_map(|(id, image, alt, width, height)| {
+        d.miners
+            .iter()
+            .find(|m| m.id == id)
+            .map(|m| (m, image, alt, width, height))
+    })
+    .collect();
     layout(d, Page {
         title: "Equihash mining: coins, pools, hardware and guides · equihash.com",
         description: "Look up Equihash coins and mining pools, see which networks support a Z15 Pro, and estimate mining costs and output.",
@@ -108,15 +146,36 @@ pub fn index(d: &Data) -> Markup {
                         }
                         p class="ed-method" { "Figures from public pool and project pages · no paid listings · " a href="/about" { "ownership and method" } }
                     }
-                    aside class="ed-hero-machine" aria-label="Featured Equihash hardware" {
-                        div class="ed-hero-machine-image" {
-                            img src="/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp" alt="Bitmain Antminer Z15 Pro ASIC miner" width="1200" height="1200";
+                    aside class="ed-hero-machine" data-machine-carousel role="region" aria-roledescription="carousel" aria-label="Featured Equihash hardware" {
+                        div class="ed-machine-slides" {
+                            @for (i, (m, image, alt, width, height)) in featured.iter().enumerate() {
+                                @let calculator = format!("/calculator?hashrate={}&watts={}", fmt::opt_num(m.hashrate_ksol), fmt::opt_num(m.watts));
+                                @let has_listing = d.listings.iter().any(|l| l.miner_id == m.id);
+                                article class={"ed-machine-slide" @if i == 0 { " is-active" }} data-machine-slide aria-hidden=(if i == 0 { "false" } else { "true" }) role="group" aria-roledescription="slide" aria-label={(i + 1) " of " (featured.len()) ": " (m.maker) " " (m.model)} {
+                                    div class="ed-hero-machine-image" {
+                                        img src=(image) alt=(alt) width=(width) height=(height) loading=[(i > 0).then_some("lazy")] decoding="async";
+                                    }
+                                    div class="ed-hero-machine-info" {
+                                        p { (m.maker.to_uppercase()) " · EQUIHASH " (m.equihash) }
+                                        h2 { (m.model) }
+                                        dl { div { dt { "Hashrate" } dd { (fmt::opt_num(m.hashrate_ksol)) " kSol/s" } } div { dt { "Power" } dd { (fmt::int(m.watts)) " W" } } }
+                                        nav aria-label={(m.model) " actions"} {
+                                            a href={"/hardware/" (m.id)} { "Specifications" }
+                                            a href=(calculator) { "Calculate" }
+                                            @if has_listing { a href={"/buy?machine=" (m.id)} { "Where to buy" } }
+                                            @else { a href="/hardware" { "Compare hardware" } }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        div class="ed-hero-machine-info" {
-                            p { "EQUIHASH 200,9" }
-                            h2 { "Antminer Z15 Pro" }
-                            dl { div { dt { "Hashrate" } dd { "840 kSol/s" } } div { dt { "Power" } dd { "2,780 W" } } }
-                            nav aria-label="Z15 Pro actions" { a href="/hardware/antminer-z15-pro" { "Specifications" } a href="/calculator?hashrate=840&watts=2780" { "Calculate" } a href="/buy?machine=antminer-z15-pro" { "Where to buy" } }
+                        @if featured.len() > 1 {
+                            nav class="ed-machine-switcher" data-machine-controls aria-label="Choose featured machine" hidden {
+                                button type="button" data-machine-prev aria-label="Previous machine" { "←" }
+                                span class="ed-machine-position" aria-hidden="true" { strong data-machine-current { "1" } " / " (featured.len()) }
+                                button class="ed-machine-toggle" type="button" data-machine-toggle aria-label="Pause carousel" aria-pressed="false" { "Pause" }
+                                button type="button" data-machine-next aria-label="Next machine" { "→" }
+                            }
                         }
                     }
                 }
