@@ -47,12 +47,12 @@ pub struct Page<'a> {
 const NAV: &[(&str, &str, &str)] = &[
     ("coins", "/coins", "Coins"),
     ("pools", "/pools", "Pools"),
+    ("merged-mining", "/merged-mining", "Merged mining"),
     ("hashpower", "/hashpower", "Hashpower"),
     ("hardware", "/hardware", "Hardware"),
     ("buy", "/buy", "Buy"),
     ("guides", "/guides", "Guides"),
     ("calculator", "/calculator", "Calculator"),
-    ("merged-mining", "/merged-mining", "Merged mining"),
 ];
 
 pub fn layout(d: &Data, p: Page, body: Markup) -> Markup {
