@@ -1,6 +1,7 @@
 pub mod calc;
 pub mod guide;
 pub mod home;
+pub mod hub;
 pub mod layout;
 pub mod links;
 pub mod logo;

@@ -1,6 +1,6 @@
 {
   "_doc": "Written by scripts/fetch-logos.mjs (see README, 'Logos'). kind: official | repo | third_party | fallback. file is relative to static/logos/; fallback entries have file null and render as a monogram.",
-  "generated_at": "2026-10-03T16:59:32.819Z",
+  "generated_at": "2026-10-07T10:28:49.902Z",
   "coins": {
     "zcash": {
       "file": "coins/zcash.47590b6def.svg",
@@ -1702,31 +1702,7 @@
       "source_px": "vector",
       "domain": "solopool.site"
     },
-    "kerrigan-equihash:nitopool.online:44": {
-      "file": "pools/nitopool.online.8ae82097d8.webp",
-      "source_url": "https://pool.nitopool.online/assets/brand/nitopool-icon-192.png",
-      "source_page": "https://pool.nitopool.online/#krgnequihash200solo",
-      "fetched_at": "2026-10-03T15:51:33.505Z",
-      "kind": "official",
-      "license_note": "nitopool.online's own logo, from its own website. Trademark of its owner; shown only to identify it.",
-      "format": "webp",
-      "bytes": 6844,
-      "source_px": "192x192",
-      "domain": "nitopool.online"
-    },
     "kerrigan-equihash:nitopool.online:46": {
-      "file": "pools/nitopool.online.8ae82097d8.webp",
-      "source_url": "https://pool.nitopool.online/assets/brand/nitopool-icon-192.png",
-      "source_page": "https://pool.nitopool.online/#krgnequihash200solo",
-      "fetched_at": "2026-10-03T15:51:33.505Z",
-      "kind": "official",
-      "license_note": "nitopool.online's own logo, from its own website. Trademark of its owner; shown only to identify it.",
-      "format": "webp",
-      "bytes": 6844,
-      "source_px": "192x192",
-      "domain": "nitopool.online"
-    },
-    "kerrigan-equihash192:nitopool.online:50": {
       "file": "pools/nitopool.online.8ae82097d8.webp",
       "source_url": "https://pool.nitopool.online/assets/brand/nitopool-icon-192.png",
       "source_page": "https://pool.nitopool.online/#krgnequihash200solo",
@@ -1898,6 +1874,37 @@
       "fetched_at": "2026-10-03T16:59:34.004Z",
       "kind": "official",
       "license_note": "ZProMiners's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "svg",
+      "bytes": 823,
+      "source_px": "vector",
+      "domain": "zprominers.com"
+    },
+    "zcash:xppool.in:142": {
+      "file": null,
+      "source_url": null,
+      "fetched_at": "2026-10-07T10:28:55.431Z",
+      "kind": "fallback",
+      "license_note": "Generated monogram: no logo could be fetched from an official or reputable source.",
+      "monogram": "XP",
+      "tried": [
+        "https://zec.xppool.in/favicon.svg → score 302",
+        "https://xppool.in/favicon.svg → score 302",
+        "https://zec.xppool.in/apple-touch-icon.png → score 296",
+        "https://xppool.in/apple-touch-icon.png → score 296",
+        "https://zec.xppool.in/xp-pool.png → score 280",
+        "https://xppool.in/xp-pool.png → score 280",
+        "https://zec.xppool.in/favicon.ico → ico needs sharp",
+        "https://xppool.in/favicon.ico → ico needs sharp"
+      ],
+      "domain": "xppool.in"
+    },
+    "zcash:zprominers.com:144": {
+      "file": "pools/zprominers.com.290257175e.svg",
+      "source_url": "https://zprominers.com/favicon.svg?v=484e4d1283",
+      "source_page": "https://zprominers.com",
+      "fetched_at": "2026-10-07T10:28:57.310Z",
+      "kind": "official",
+      "license_note": "zprominers.com's own logo, from its own website. Trademark of its owner; shown only to identify it.",
       "format": "svg",
       "bytes": 823,
       "source_px": "vector",

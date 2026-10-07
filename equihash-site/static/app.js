@@ -89,7 +89,7 @@
       const qs = new URLSearchParams();
       for (const [k, v] of Object.entries(f)) if (v) qs.set(k, v);
       const s = sortState(); if (s.key !== "hashrate" || s.dir !== "desc") { qs.set("sort", s.key); qs.set("dir", s.dir); }
-      history.replaceState(null, "", "/?" + qs.toString() + location.hash);
+      history.replaceState(null, "", "/pools?" + qs.toString() + location.hash);
     }
   }
   let t;
@@ -98,7 +98,7 @@
       if (e.target.name === "coin") return;
       if (e.target.matches("[data-filter]")) { clearTimeout(t); t = setTimeout(applyFilters, e.target.type === "search" ? 120 : 0); }
     });
-    form.addEventListener("change", (e) => { if (e.target.name === "coin") location.href = "/?coin=" + encodeURIComponent(e.target.value) + "#pools"; });
+    form.addEventListener("change", (e) => { if (e.target.name === "coin") location.href = "/pools?coin=" + encodeURIComponent(e.target.value) + "#pools"; });
     form.addEventListener("submit", (e) => { e.preventDefault(); applyFilters(); });
     $(".reset", form)?.addEventListener("click", (e) => {
       e.preventDefault();

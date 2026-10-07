@@ -1,14 +1,10 @@
 # equihash.com
 
-A directory of Equihash mining pools for people who run the machines. For every pool on every Equihash coin it lists:
-- hashrate and share of the network
-- fee and payout scheme
-- minimum payout, recent blocks and region
-- where each number came from
+A source-backed directory for the Equihash mining ecosystem. It connects exact parameter sets to coins, pools and compatible hardware, then provides calculators and guides for people who run the machines. For every pool it lists hashrate and share, fee and payout scheme, minimum payout, recent blocks, region and the source of each number.
 
-Any pool over 30% of a network is flagged. The site also has a hardware page, an earnings calculator, an archive of retired pools and ended coins, and a merged-mining guide for pool operators.
+Any pool over 30% of a network is flagged. The homepage is a discovery hub; dedicated coin, pool and hardware pages provide the detail; and the site also has search, an earnings calculator, an archive, contribution templates and a merged-mining guide.
 
-This is a proof of concept. It is kept simple on purpose:
+The production architecture is kept simple on purpose:
 
 - **Backend:** one Rust binary built on [actix-web 4](https://actix.rs). HTML is rendered on the server with [maud](https://maud.lambda.xyz), whose templates are checked at compile time.
 - **Data:** plain JSON files in `data/`. The server loads them into typed serde structs and reloads them when they change.
@@ -42,7 +38,7 @@ src/
   main.rs          server, routes, env config, hot reload of data/
   data.rs          serde types + load-time derivations (slugs, regions, shares)
   fmt.rs           number/hashrate/date formatting (unknown → "n/a")
-  views/           maud templates: layout, home, pages, guide, calc; logo.rs (logo chips, checks)
+  views/           maud templates: hub/discovery, pool directory, entity pages, guides, calculator
 static/            app.css, app.js, fonts/, icons, og.png (served as /static/*)
                    logos/coins/, logos/pools/ (local logo copies, see "Logos")
 data/              current.json (manifest of the live snapshot), snapshots/<id>/ with
@@ -80,9 +76,11 @@ cargo run --release
 Routes:
 
 - Pages:
-  - `/` shows the pools. `?coin=<id>` picks a coin and `?coin=all` shows every coin. The page also has filters, "How to pick a pool", "What can a Z15 mine?" and all networks.
-  - `/pool/{slug}`, `/archive` and `/miners` (the Hardware page).
-  - `/calculator`, `/merged-mining`, `/add-pool`, `/about` and `/sources`.
+  - `/` is the discovery homepage and `/search?q=...` searches coins, pools and hardware.
+  - `/coins` and `/coin/{id}` provide coin records grouped by exact Equihash parameters.
+  - `/pools?coin=<id>` is the full pool comparison. Old `/?coin=<id>` links redirect there.
+  - `/pool/{slug}`, `/hardware`, `/hardware/{id}`, `/guides` and `/merged-mining` provide the main research paths.
+  - `/calculator`, `/contribute`, `/archive`, `/about` and `/sources` provide tools, submissions and methodology. `/miners` and `/add-pool` remain available for older links.
 - Raw data: `/data/{pools,network,miners,archive,meta,research,current}.json`. The generated files come from the same snapshot the pages were rendered from.
 - Live figures: `/api/live` (JSON; see "API" below). The page polls it every 60 s.
 - Health: `/healthz` (JSON; see "Monitoring" under Deploy).
@@ -448,7 +446,7 @@ cargo test
 node --test scripts/   # the refresh script's pure functions
 ```
 
-`cargo test` runs 85 tests and `node --test scripts/` runs 36 (the refresh script, snapshot publishing, and the page's live-update and copy-link code against a small fake DOM). Tests that need a fixed snapshot read `testdata/snapshot-2026-10-02/`, a frozen copy of `data/` from the 2 Oct refresh, so they don't change when the data does.
+`cargo test` currently runs 88 tests and `node --test scripts/` runs 38 (the refresh script, snapshot publishing, and the page's live-update and copy-link code against a small fake DOM). Tests that need a fixed snapshot read `testdata/snapshot-2026-10-02/`, a frozen copy of `data/` from the 2 Oct refresh, so they don't change when the data does.
 
 They cover:
 - **Ranking:**

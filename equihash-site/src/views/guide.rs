@@ -275,7 +275,7 @@ pub fn render(d: &Data) -> Markup {
                             }
                         }
                     }
-                    p class="small" { "All values from the Wcash protocol specification" (cite(1)) " and the AuxPoW README" (cite(2)) ". ZecWec is the only listed WEC pool (and the only known public one); see its row in the " a href="/?coin=wcash#pools" { "pool table" } "." }
+                    p class="small" { "All values from the Wcash protocol specification" (cite(1)) " and the AuxPoW README" (cite(2)) ". ZecWec is the only listed WEC pool (and the only known public one); see its row in the " a href="/pools?coin=wcash#pools" { "pool table" } "." }
 
                     h2 id="refs" { "References" }
                     ol class="refs" {

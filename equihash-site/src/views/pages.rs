@@ -93,7 +93,7 @@ pub fn pool_page(d: &Data, p: &Pool) -> Markup {
     let path = format!("/pool/{}", p.slug);
     layout(d, Page { title: &title, description: &desc, path: &path, nav: "pools" }, html! {
         div class="wrap page narrow" {
-            p class="crumb" { a href={"/?coin=" (p.coin_id) "#pools"} { "All " (p.coin_label) " pools" } }
+            p class="crumb" { a href={"/pools?coin=" (p.coin_id) "#pools"} { "All " (p.coin_label) " pools" } }
             header class="page-head" {
                 div class="title-row" {
                     h1 { (logo::chip(&p.logo, &p.name, At::Head, false)) (p.name) " " span class="sym" { (p.coin) } }
@@ -103,6 +103,15 @@ pub fn pool_page(d: &Data, p: &Pool) -> Markup {
                 @if p.share_flag { p class="alert" { strong { "Concentration. " } "This pool has more than 30% of the hashrate on " (p.coin_label) "." } }
             }
             (pool_fields(d, p))
+            div class="pool-next" {
+                h2 { "Next steps" }
+                div class="card-actions" {
+                    a href={"/coin/" (p.coin_id)} { "Open " (p.coin_label) " overview" }
+                    a href={"/calculator?coin=" (p.coin_id)} { "Calculate mining output" }
+                    a href={"/pools?coin=" (p.coin_id) "#pools"} { "Compare with other pools" }
+                    a href="/contribute#pool" { "Correct this listing" }
+                }
+            }
         }
     })
 }
@@ -202,7 +211,7 @@ pub fn miners(d: &Data) -> Markup {
     let zec = d.coin("zcash");
     let pro = d.miners.iter().find(|m| m.model.ends_with("Z15 Pro"));
     let best = d.miners.iter().filter_map(|m| m.efficiency()).fold(f64::INFINITY, f64::min);
-    layout(d, Page { title: "Equihash ASICs: Antminer Z15, Z15 Pro, Z11, Z9, Innosilicon A9++", description: "Equihash 200,9 ASIC specifications (hashrate, power, computed J/kSol) from manufacturer spec pages, and which coins a Z15 can mine.", path: "/miners", nav: "miners" }, html! {
+    layout(d, Page { title: "Equihash ASICs: Antminer Z15, Z15 Pro, Z11, Z9, Innosilicon A9++", description: "Equihash 200,9 ASIC specifications (hashrate, power, computed J/kSol) from manufacturer spec pages, and which coins a Z15 can mine.", path: "/hardware", nav: "hardware" }, html! {
         div class="wrap page" {
             header class="page-head" {
                 h1 { "Equihash hardware" }
@@ -221,7 +230,7 @@ pub fn miners(d: &Data) -> Markup {
                         @for m in ms {
                         @let eff = m.efficiency();
                         tr {
-                            td { (m.maker) " " strong { (m.model) } @if let Some(n) = &m.notes { br; span class="na hw-note" { (n) } }
+                            td { a class="entity-link" href={"/hardware/" (m.id)} { (m.maker) " " strong { (m.model) } } @if let Some(n) = &m.notes { br; span class="na hw-note" { (n) } }
                                 @if let Some(u) = &m.source_url { span class="m-only" { " " (ext(u, "spec")) } } }
                             td class="mono nk" { (m.equihash) }
                             td class="num" { (fmt::opt_num(m.hashrate_ksol)) }
@@ -251,7 +260,7 @@ pub fn miners(d: &Data) -> Markup {
                         tbody data-rank-list { @for c in &z15_coins {
                             @let per = pro.and_then(|m| m.hashrate_ksol).and_then(|h| calc::coins_per_day(c, h, 1.0));
                             tr data-rank-id=(c.id) {
-                                td { a href={"/?coin=" (c.id)} { (logo::chip(&c.logo, &c.name, At::List, true)) (c.name) } " " span class="sym" { (c.symbol) } }
+                                td { a href={"/coin/" (c.id)} { (logo::chip(&c.logo, &c.name, At::List, true)) (c.name) } " " span class="sym" { (c.symbol) } }
                                 td class="num" { @if c.network.hashrate.is_some() { span data-rank-f="network" { (fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s"))) } } @else { span class="na" data-rank-f="network" { "unavailable" } } }
                                 td class="num" { @let (rep, dag) = fmt::reported(c); span data-rank-f="reported" { (rep) } @if dag { span class="dag" { "†" } } }
                                 td class="num" { (c.pool_count) }
@@ -303,10 +312,11 @@ pub fn add_pool(d: &Data) -> Markup {
 }
 
 pub fn about(d: &Data) -> Markup {
-    layout(d, Page { title: "About", description: "About equihash.com, a directory of Equihash mining pools.", path: "/about", nav: "about" }, html! {
+    layout(d, Page { title: "About", description: "About equihash.com, the open directory for Equihash coins, mining pools, hardware and guides.", path: "/about", nav: "about" }, html! {
         div class="wrap page narrow prose" {
-            header class="page-head" { h1 { "About" } }
+            header class="page-head" { h1 { "About equihash.com" } p class="lede" { "A practical, source-backed map of the Equihash mining ecosystem." } }
             p class="about-line" { "Maintained by " a href="https://x.com/RustDev_" rel="noopener" target="_blank" { "@RustDev_" } ", who also builds " a href="https://w.cash" rel="noopener" target="_blank" { "Wcash" } "." }
+            p { "That relationship is disclosed wherever it matters. Wcash receives merged-mined work only from pools that explicitly support it; equihash.com does not treat all Zcash hashrate as Wcash backing." }
             h2 { "How it's run" }
             p { "Pools are ordered by their data and nothing else. There are no paid placements, sponsored rows or badges for sale." }
             p { "Every row links to where its numbers came from and says when they were fetched. When a pool doesn't publish something, the cell says n/a; nothing is estimated to fill the gap." }
@@ -345,7 +355,7 @@ pub fn sources(d: &Data) -> Markup {
                 li { (ext("https://w.cash/whitepaper", "Wcash protocol specification")) " (merged-mining guide, WEC parameters)" }
                 li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-zcash-aux/README.md", "wcash-zcash-aux README at 3e6b8044")) }
                 li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-merge-miner/README.md", "wcash-merge-miner README at 3e6b8044")) }
-                li { "ASIC specs: Bitmain support spec pages and the Innosilicon product page, linked per row on " a href="/miners" { "Hardware" } "." }
+                li { "ASIC specs: Bitmain support spec pages and the Innosilicon product page, linked per row on " a href="/hardware" { "Hardware" } "." }
                 li { "Archive: pool and operator announcements and community threads, linked per entry on the " a href="/archive" { "Archive" } "." }
             }
             h2 { "Method" }
@@ -391,7 +401,7 @@ pub fn not_found(d: &Data) -> Markup {
         div class="wrap page narrow prose" {
             header class="page-head" {
                 h1 { "Nothing here" }
-                p class="lede" { "That page doesn't exist, or a pool was renamed. " a href="/" { "Back to the pool list" } "." }
+                p class="lede" { "That page doesn't exist, or a listing was renamed. " a href="/" { "Back to the Equihash directory" } "." }
             }
         }
     })

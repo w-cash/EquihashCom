@@ -119,7 +119,9 @@
     "bitcoinz:aikapool.com:6": "bitcoinz-aikapool-com-aikapool-com-btcz",
     "litecoinz:aikapool.com:3": "litecoinz-aikapool-com-aikapool-com-ltz",
     "zcash:unmineable.com": "zcash-unmineable-unmineable-com",
-    "zcash:zprominers.com": "zcash-zprominers-zprominers-com"
+    "zcash:zprominers.com": "zcash-zprominers-zprominers-com",
+    "zcash:xppool.in:142": "zcash-xppool-in-zec-xppool-in",
+    "zcash:zprominers.com:144": "zcash-zprominers-com-zprominers-com"
   },
   "aliases": {}
 }

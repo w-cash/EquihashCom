@@ -49,8 +49,28 @@ fn html(m: maud::Markup) -> HttpResponse {
 
 // Every page route answers GET and HEAD (HEAD gets the same status and headers, no body).
 
-async fn home(s: web::Data<AppState>, q: web::Query<views::home::Filters>) -> impl Responder {
+async fn home(s: web::Data<AppState>, req: HttpRequest) -> HttpResponse {
+    // Preserve old shared/indexed pool-filter URLs while making `/` the discovery homepage.
+    if !req.query_string().is_empty() {
+        return HttpResponse::MovedPermanently().insert_header((header::LOCATION, format!("/pools?{}", req.query_string()))).finish();
+    }
+    html(views::hub::index(&s.get()))
+}
+
+async fn pools(s: web::Data<AppState>, q: web::Query<views::home::Filters>) -> impl Responder {
     html(views::home::render(&s.get(), &q))
+}
+
+async fn coins(s: web::Data<AppState>) -> impl Responder {
+    html(views::hub::coins(&s.get()))
+}
+
+async fn coin(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
+    let d = s.get();
+    match d.coin(path.as_str()) {
+        Some(c) => html(views::hub::coin(&d, c)),
+        None => HttpResponse::NotFound().content_type("text/html; charset=utf-8").body(views::pages::not_found(&d).into_string()),
+    }
 }
 
 /// Pool pages live at their permanent slug (data/curated/permalinks.json). An old URL (the slug
@@ -72,6 +92,13 @@ async fn archive(s: web::Data<AppState>) -> impl Responder {
 async fn miners(s: web::Data<AppState>) -> impl Responder {
     html(views::pages::miners(&s.get()))
 }
+async fn hardware_detail(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
+    let d = s.get();
+    match d.miners.iter().find(|m| m.id == *path) {
+        Some(m) => html(views::hub::hardware_detail(&d, m)),
+        None => HttpResponse::NotFound().content_type("text/html; charset=utf-8").body(views::pages::not_found(&d).into_string()),
+    }
+}
 async fn calculator(s: web::Data<AppState>, q: web::Query<views::calc::CalcQuery>) -> impl Responder {
     html(views::calc::render(&s.get(), &q))
 }
@@ -86,6 +113,15 @@ async fn about(s: web::Data<AppState>) -> impl Responder {
 }
 async fn sources(s: web::Data<AppState>) -> impl Responder {
     html(views::pages::sources(&s.get()))
+}
+async fn guides(s: web::Data<AppState>) -> impl Responder {
+    html(views::hub::guides(&s.get()))
+}
+async fn search(s: web::Data<AppState>, q: web::Query<views::hub::SearchQuery>) -> impl Responder {
+    html(views::hub::search(&s.get(), &q))
+}
+async fn contribute(s: web::Data<AppState>) -> impl Responder {
+    html(views::hub::contribute(&s.get()))
 }
 
 /// Live figures for the page to poll (every 60 s). Read from the server's own last good readings,
@@ -167,8 +203,10 @@ async fn robots() -> HttpResponse {
 
 async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
     let d = s.get();
-    let mut urls: Vec<String> = ["/", "/miners", "/calculator", "/merged-mining", "/archive", "/add-pool", "/about", "/sources"].iter().map(|p| p.to_string()).collect();
+    let mut urls: Vec<String> = ["/", "/coins", "/pools", "/hardware", "/guides", "/calculator", "/merged-mining", "/archive", "/contribute", "/about", "/sources"].iter().map(|p| p.to_string()).collect();
+    urls.extend(d.coins.iter().map(|c| format!("/coin/{}", c.id)));
     urls.extend(d.pools.iter().map(|p| format!("/pool/{}", p.slug)));
+    urls.extend(d.miners.iter().map(|m| format!("/hardware/{}", m.id)));
     let body: String = urls.iter().map(|u| format!("<url><loc>{}{}</loc></url>", views::layout::SITE, u)).collect();
     HttpResponse::Ok().content_type("application/xml").body(format!(r#"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>"#))
 }
@@ -203,11 +241,19 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
     // binary) changed from build to build.
     let get_head = || web::route().guard(guard::Any(guard::Get()).or(guard::Head()));
     cfg.service(web::resource("/").route(get_head().to(home)))
+        .service(web::resource("/pools").route(get_head().to(pools)))
+        .service(web::resource("/coins").route(get_head().to(coins)))
+        .service(web::resource("/coin/{id}").route(get_head().to(coin)))
         .service(web::resource("/pool/{slug}").route(get_head().to(pool)))
         .service(web::resource("/archive").route(get_head().to(archive)))
         .service(web::resource("/miners").route(get_head().to(miners)))
+        .service(web::resource("/hardware").route(get_head().to(miners)))
+        .service(web::resource("/hardware/{id}").route(get_head().to(hardware_detail)))
         .service(web::resource("/calculator").route(get_head().to(calculator)))
         .service(web::resource("/merged-mining").route(get_head().to(guide)))
+        .service(web::resource("/guides").route(get_head().to(guides)))
+        .service(web::resource("/search").route(get_head().to(search)))
+        .service(web::resource("/contribute").route(get_head().to(contribute)))
         .service(web::resource("/add-pool").route(get_head().to(add_pool)))
         .service(web::resource("/about").route(get_head().to(about)))
         .service(web::resource("/sources").route(get_head().to(sources)))
@@ -343,12 +389,21 @@ mod tests {
         let s = state();
         let app = app!(s);
         let slug = s.get().pools[0].slug.clone();
+        let coin = s.get().coins[0].id.clone();
+        let miner = s.get().miners[0].id.clone();
         let paths = [
             "/".to_string(),
-            "/?coin=wcash".into(),
+            "/pools?coin=wcash".into(),
+            "/coins".into(),
+            format!("/coin/{coin}"),
             format!("/pool/{slug}"),
             "/archive".into(),
             "/miners".into(),
+            "/hardware".into(),
+            format!("/hardware/{miner}"),
+            "/guides".into(),
+            "/search?q=Z15+Pro".into(),
+            "/contribute".into(),
             "/calculator".into(),
             "/merged-mining".into(),
             "/add-pool".into(),
@@ -368,6 +423,11 @@ mod tests {
             assert_eq!(get.status(), 200, "GET {p}");
             assert_eq!(head.status(), get.status(), "HEAD {p}");
             assert_eq!(head.headers().get(header::CONTENT_TYPE), get.headers().get(header::CONTENT_TYPE), "HEAD {p} content type");
+        }
+        for m in [Method::GET, Method::HEAD] {
+            let r = test::call_service(&app, test::TestRequest::default().method(m).uri("/?coin=wcash").to_request()).await;
+            assert_eq!(r.status(), 301);
+            assert_eq!(r.headers().get(header::LOCATION).unwrap(), "/pools?coin=wcash");
         }
         // /healthz answers both too (200 or 503 depending on the data's age).
         for m in [Method::GET, Method::HEAD] {

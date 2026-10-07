@@ -4,7 +4,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "8";
+pub const ASSET_V: &str = "9";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -42,13 +42,14 @@ pub struct Page<'a> {
     pub nav: &'a str,
 }
 
-/// Main navigation: five places a miner actually goes. About, Add a pool and Sources live in the footer.
+/// Main navigation follows the four things people come here to find. Calculator stays visible as
+/// the primary working tool; About, Contribute, Sources and the archive live in the footer.
 const NAV: &[(&str, &str, &str)] = &[
-    ("pools", "/", "Pools"),
-    ("miners", "/miners", "Hardware"),
+    ("coins", "/coins", "Coins"),
+    ("pools", "/pools", "Pools"),
+    ("hardware", "/hardware", "Hardware"),
+    ("guides", "/guides", "Guides"),
     ("calculator", "/calculator", "Calculator"),
-    ("merged-mining", "/merged-mining", "Merged mining"),
-    ("archive", "/archive", "Archive"),
 ];
 
 pub fn layout(d: &Data, p: Page, body: Markup) -> Markup {
@@ -92,7 +93,7 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::
                 link rel="stylesheet" href={"/static/app.css?v=" (ASSET_V)};
                 script { (PreEscaped(INLINE_SCRIPT)) }
                 script type="application/ld+json" {
-                    (PreEscaped(format!(r#"{{"@context":"https://schema.org","@type":"WebSite","name":"equihash.com","url":"{SITE}","description":"Equihash mining pools, hardware and network stats, with sources."}}"#)))
+                    (PreEscaped(format!(r#"{{"@context":"https://schema.org","@type":"WebSite","name":"equihash.com","url":"{SITE}","description":"The practical directory for Equihash coins, mining pools, hardware, calculators and guides.","potentialAction":{{"@type":"SearchAction","target":"{SITE}/search?q={{search_term_string}}","query-input":"required name=search_term_string"}}}}"#)))
                 }
             }
             body data-page=(p.nav) {
@@ -118,7 +119,8 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::
                             "Nothing on this site is paid for, and none of it is financial advice."
                         }
                         p class="foot-links" {
-                            a href="/add-pool" { "Add or correct a pool" }
+                            a href="/contribute" { "Add a listing or correction" }
+                            a href="/archive" { "Archive" }
                             a href="/sources" { "Sources and method" }
                             a href="/about" { "About" }
                             span { "Raw data: " a href="/data/pools.json" { "pools" } ", " a href="/data/network.json" { "networks" } ", " a href="/data/miners.json" { "hardware" } }

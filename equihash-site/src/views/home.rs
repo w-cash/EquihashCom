@@ -505,7 +505,7 @@ fn coin_head(d: &Data, c: &Coin, now: chrono::DateTime<chrono::Utc>) -> Markup {
             div class="coin-title" {
                 div class="title-row" {
                     h2 { (logo::chip(&c.logo, &c.label, At::Head, false)) (c.label) " " span class="sym" { (c.symbol) } }
-                    (super::pages::copy_link(&format!("/?coin={}", c.id), &format!("Copy link to {}", c.label)))
+                    (super::pages::copy_link(&format!("/coin/{}", c.id), &format!("Copy link to {}", c.label)))
                 }
                 (links::render(&c.links, &format!("{} links", c.label), "coin-links"))
                 (hashrate_pair(c))
@@ -560,7 +560,7 @@ fn concentration(c: Option<&Coin>, flagged: &[&Pool]) -> Markup {
                         strong { "Over 30% of a network: " }
                         @for (i, p) in flagged.iter().enumerate() {
                             @if i > 0 { "; " }
-                            a href={"/?coin=" (p.coin_id)} { (p.name) " on " (p.coin) } " " (fmt::pct(p.network_share_pct))
+                            a href={"/pools?coin=" (p.coin_id)} { (p.name) " on " (p.coin) } " " (fmt::pct(p.network_share_pct))
                         }
                         "."
                     }
@@ -601,7 +601,7 @@ fn coin_nav(d: &Data, current: &str, live_total: usize) -> Markup {
     let item = |c: &Coin| {
         let (rep, dag) = fmt::reported(c);
         html! {
-            li class=[(c.pool_count == 0).then_some("none")] data-rank-id=(c.id) { a href={"/?coin=" (c.id)} aria-current=[(c.id == current).then_some("true")] title=(coin_title(c)) data-rank-title {
+            li class=[(c.pool_count == 0).then_some("none")] data-rank-id=(c.id) { a href={"/pools?coin=" (c.id)} aria-current=[(c.id == current).then_some("true")] title=(coin_title(c)) data-rank-title {
                 span class="cn" { (logo::chip(&c.logo, &c.name, At::Nav, false)) (c.name) } span class="ch" { span data-rank-f="reported" { (rep) } @if dag { span class="dag" { "†" } } } span class="cc" { span class="sep" { "· " } (pools_text(c.pool_count as usize)) }
             } }
         }
@@ -610,7 +610,7 @@ fn coin_nav(d: &Data, current: &str, live_total: usize) -> Markup {
     html! {
         nav class="coin-nav" aria-label="Coins" {
             div class="cn-head" aria-hidden="true" { span class="cn" { "Coin" } span class="ch" title="Sum of what the listed pools report" { "Hashrate" } span class="cc" { "Pools" } }
-            ul { li { a href="/?coin=all" aria-current=[(current == "all").then_some("true")] { span class="cn" { "All coins" } span class="ch" {} span class="cc" { span class="sep" { "· " } (pools_text(live_total)) } } } }
+            ul { li { a href="/pools?coin=all" aria-current=[(current == "all").then_some("true")] { span class="cn" { "All coins" } span class="ch" {} span class="cc" { span class="sep" { "· " } (pools_text(live_total)) } } } }
             @for (label, coins) in d.param_groups(true) {
                 h3 { (label) " " span { (group_hint(&label)) } }
                 ul data-rank-list { @for c in &coins { (item(c)) } }
@@ -713,7 +713,7 @@ fn z15_box(d: &Data) -> Markup {
                     @for c in &coins {
                         @let (rep, dag) = fmt::reported(c);
                         tr data-rank-id=(c.id) {
-                            td { a href={"/?coin=" (c.id)} { (logo::chip(&c.logo, &c.name, At::List, true)) (c.name) } " " span class="sym" { (c.symbol) } }
+                            td { a href={"/coin/" (c.id)} { (logo::chip(&c.logo, &c.name, At::List, true)) (c.name) } " " span class="sym" { (c.symbol) } }
                             td class="num" { span data-rank-f="reported" { (rep) } @if dag { span class="dag" { "†" } } }
                             td class="num" { (c.pool_count) }
                         }
@@ -725,7 +725,7 @@ fn z15_box(d: &Data) -> Markup {
             }
             p class="small" {
                 "The rest use other parameter sets (" (other_params.join(", ")) ") and need GPUs or different hardware. "
-                a href="/miners" { "Machine specs" } " and " a href="/calculator" { "earnings estimate" } "."
+                a href="/hardware" { "Machine specs" } " and " a href="/calculator" { "earnings estimate" } "."
             }
         }
     }
@@ -753,7 +753,7 @@ fn networks(d: &Data, now: chrono::DateTime<chrono::Utc>) -> Markup {
                                 @let seen = c.network.hashrate_observed_at.clone().or(c.network.height_observed_at.clone()).or(c.fetched_at.clone());
                                 @let dq = c.discrepancy().is_some();
                                 tr class=[(!c.active()).then_some("ended")] data-rank-id=(c.id) {
-                                    td { (logo::chip(&c.logo, &c.name, At::Row, true)) @if c.active() { a href={"/?coin=" (c.id)} { (c.name) } } @else { (c.name) } " " span class="sym" { (c.symbol) }
+                                    td { (logo::chip(&c.logo, &c.name, At::Row, true)) @if c.active() { a href={"/coin/" (c.id)} { (c.name) } } @else { (c.name) } " " span class="sym" { (c.symbol) }
                                         @if !c.active() { " " span class="tag" title=[c.status_note.clone()] { "PoW ended" } } }
                                     td { (c.hardware.clone().unwrap_or("n/a".into())) }
                                     td class="num" title=(field_title(c.network.hashrate_source.as_deref(), c.network.hashrate_observed_at.as_deref())) {
@@ -958,7 +958,7 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                         }
                     }
                     (concentration_view(d, cur))
-                    form class="filters" method="get" action="/#pools" id="filters" role="search" {
+                    form class="filters" method="get" action="/pools#pools" id="filters" role="search" {
                         (coin_select(d, &coin, live.len()))
                         label class="f f-q" {
                             span { "Search" }
@@ -977,7 +977,7 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                         input type="hidden" name="dir" value=(dir);
                         div class="f-actions" {
                             button class="btn nojs-only" type="submit" { "Apply" }
-                            a class="reset" href={"/?coin=" (coin) "#pools"} { "Clear" }
+                            a class="reset" href={"/pools?coin=" (coin) "#pools"} { "Clear" }
                         }
                     }
                     p class="count" { span id="pool-count" { (visible) } " of " (in_scope.len()) " pool rows. Click a pool for every field and its source." }
@@ -1006,7 +1006,7 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                             }
                         }
                     }
-                    p class="empty" id="empty" hidden[visible > 0] { "No pool matches these filters. " a href={"/?coin=" (coin) "#pools"} { "Clear them" } "." }
+                    p class="empty" id="empty" hidden[visible > 0] { "No pool matches these filters. " a href={"/pools?coin=" (coin) "#pools"} { "Clear them" } "." }
                     div class="notes" {
                         h3 { "About these numbers" }
                         ul {
@@ -1032,8 +1032,8 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
         None => "Equihash mining pools: Zcash, Komodo, Pirate Chain, Bitcoin Gold and more · equihash.com".to_string(),
     };
     let path = match cur {
-        Some(c) if c.id != "zcash" => format!("/?coin={}", c.id),
-        _ => "/".to_string(),
+        Some(c) if c.id != "zcash" => format!("/pools?coin={}", c.id),
+        _ => "/pools".to_string(),
     };
     layout_at(
         d,
