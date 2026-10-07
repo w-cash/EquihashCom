@@ -1064,8 +1064,8 @@ mod tests {
         .await;
         let research = String::from_utf8(research.to_vec()).unwrap();
         assert!(research.contains("4,902 Z15 Pro miners"));
-        assert!(research.contains("FILED · NOT LAUNCHED"));
-        assert!(research.contains("not live telemetry"));
+        assert!(research.contains("Preliminary WINK filing"));
+        assert!(research.contains("not fleet telemetry"));
 
         let industry =
             test::call_and_read_body(&app, test::TestRequest::get().uri("/industry").to_request())

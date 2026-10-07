@@ -43,7 +43,8 @@ pub fn current_equivalent(d: &Data) -> Option<(f64, f64, String)> {
     ))
 }
 
-pub fn cypherpunk(d: &Data) -> Markup {
+#[allow(dead_code)]
+fn cypherpunk_legacy(d: &Data) -> Markup {
     let r = &d.cypherpunk;
     let fleet = r
         .reported_hashrate_gsol
@@ -191,7 +192,8 @@ pub fn cypherpunk(d: &Data) -> Markup {
     )
 }
 
-pub fn index(d: &Data) -> Markup {
+#[allow(dead_code)]
+fn index_legacy(d: &Data) -> Markup {
     let share = current_equivalent(d)
         .map(|(p, _, _)| format!("{p:.1}%"))
         .unwrap_or_else(|| "n/a".into());
@@ -238,6 +240,193 @@ pub fn index(d: &Data) -> Markup {
                         h3 { a href=(GRAYSCALE_PATH) { "From OTC trust to ZCSH: Grayscale’s Zcash vehicle changed shape" } }
                         p { "The product formed in 2017 now trades on NYSE Arca. The filings show its structure, fee, split and custody arrangements—and that it is not a miner." }
                         div class="industry-meta" { time datetime="2026-10-07" { "Updated 7 October 2026" } span { "TRADING · NYSE ARCA" } }
+                    }
+                }
+            }
+        },
+    )
+}
+
+pub fn cypherpunk(d: &Data) -> Markup {
+    let r = &d.cypherpunk;
+    let fleet = r
+        .reported_hashrate_gsol
+        .map(|v| format!("{v:.1}"))
+        .unwrap_or_else(|| "n/a".into());
+    let machines = r
+        .machine_count
+        .map(|v| fmt::group(v as i128))
+        .unwrap_or_else(|| "n/a".into());
+    let output = r
+        .mined_zec
+        .map(|v| format!("{} ZEC", fmt::num_short(v)))
+        .unwrap_or_else(|| "n/a".into());
+    let share = current_equivalent(d);
+    let share_text = share
+        .as_ref()
+        .map(|(p, _, _)| format!("{p:.1}%"))
+        .unwrap_or_else(|| "n/a".into());
+    let network_text = share
+        .as_ref()
+        .map(|(_, n, _)| format!("{n:.2} GSol/s"))
+        .unwrap_or_else(|| "n/a".into());
+
+    layout(
+        d,
+        Page {
+            title: "Cypherpunk reports a 4.2 GSol/s Zcash mining fleet",
+            description: "A sourced account of Cypherpunk’s reported 4.2 GSol/s Zcash fleet, 4,902 Z15 Pro miners, first production and transaction records.",
+            path: CYPHERPUNK_PATH,
+            nav: "industry",
+        },
+        html! {
+            article class="briefing" {
+                header class="wrap briefing-head" {
+                    a class="briefing-crumb" href=(INDUSTRY_PATH) { "Industry / Cypherpunk" }
+                    p class="eyebrow" { "MINING FLEET · COMPANY DISCLOSURE" }
+                    h1 { "Cypherpunk reports a 4.2 GSol/s Zcash mining fleet" }
+                    p class="briefing-deck" { "The company reports 4,902 Z15 Pro miners at three U.S. sites. Its filings set out the fleet acquisition, hosting agreements and first production figures." }
+                    p class="briefing-byline" { "equihash.com · 7 October 2026 · " (source_link(d, "mining-follow-up", "Company update: 22 September 2026 ↗")) }
+                }
+                div class="wrap briefing-main" {
+                    dl class="briefing-facts" {
+                        div { dt { "Reported capacity" } dd { (&fleet) " GSol/s" } small { "Company figure" } }
+                        div { dt { "Antminer Z15 Pro units" } dd { (&machines) } small { "Three U.S. sites" } }
+                        div { dt { "18–31 August output" } dd { (&output) } small { "Company-reported production" } }
+                    }
+                    figure class="briefing-record" aria-labelledby="fleet-record-title" {
+                        div class="briefing-machine" {
+                            img src="/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp" alt="Bitmain Antminer Z15 Pro mining machine" width="1200" height="1200";
+                            figcaption { strong { "Antminer Z15 Pro" } "Product image · " (source_link(d, "asset-agreement", "fleet equipment record ↗")) }
+                        }
+                        div class="briefing-timeline" {
+                            p id="fleet-record-title" { "FLEET RECORD · AUG–SEP 2026" }
+                            ol {
+                                li { time datetime="2026-08-17" { "17 AUG" } div { strong { "4,902 machines" } span { "Miners and hosting agreements acquired." } (source_link(d, "asset-agreement", "Purchase agreement ↗")) } }
+                                li { time datetime="2026-08-18" { "18 AUG" } div { strong { "Mining announced" } span { "Sites in Texas, Tennessee and West Virginia." } (source_link(d, "fleet-8k", "Company announcement ↗")) } }
+                                li { time datetime="2026-09-22" { "22 SEP" } div { strong { "3,023.13 ZEC" } span { "Reported output for 18–31 August." } (source_link(d, "mining-follow-up", "Production update ↗")) } }
+                            }
+                            small { "Company-reported figures, published as SEC filing exhibits." }
+                        }
+                    }
+                    div class="briefing-layout" {
+                        nav class="briefing-contents" aria-label="In this briefing" {
+                            p { "IN THIS BRIEFING" }
+                            a href="#fleet" { "The fleet" }
+                            a href="#production" { "First production" }
+                            a href="#miners" { "For other miners" }
+                            a href="#connections" { "Connected moves" }
+                            a href="#primary-sources" { "Sources" }
+                        }
+                        div class="briefing-copy" {
+                            section id="fleet" aria-labelledby="what-happened" {
+                                h2 id="what-happened" { "4,902 Z15 Pro miners at three U.S. sites" }
+                                p { "Cypherpunk Technologies announced the fleet on 18 August 2026 after its mining subsidiary acquired 4,902 Bitmain Antminer Z15 Pro units and their hosting agreements. The agreement names facilities in Barstow, Texas; Morristown, Tennessee; and Fairview, West Virginia." }
+                                p { "The company reported approximately " strong { (&fleet) " GSol/s" } " of Equihash 200,9 capacity. It described this as approximately " strong { (r.launch_network_share_pct.map(|v| format!("{v:.0}%")).unwrap_or_else(|| "n/a".into())) } " of Zcash network hashpower on 18 August. That percentage is a dated company estimate." }
+                                p class="source-line" { (source_link(d, "asset-agreement", "Asset Purchase Agreement")) " · " (source_link(d, "fleet-8k", "18 August announcement")) }
+                            }
+                            section id="production" aria-labelledby="production-title" {
+                                h2 id="production-title" { "3,023.13 ZEC in the first reported period" }
+                                p { "In its 22 September update, Cypherpunk said the operation produced 3,023.13 ZEC from 18 through 31 August and added it to the company treasury." }
+                                p { "The figure comes from the company’s filing exhibit. The sources reviewed do not include independent fleet telemetry or a public pool endpoint." }
+                                p class="source-line" { (source_link(d, "mining-follow-up", "22 September production update")) }
+                            }
+                            section id="miners" aria-labelledby="miners-watch" {
+                                h2 id="miners-watch" { "What this means for other Zcash miners" }
+                                p { "A fleet of this size can materially affect the network hashrate that other miners compete against. Its share depends on both its operating capacity and the rest of the network." }
+                                @if let Some((_, _, observed)) = &share {
+                                    aside class="briefing-comparison" {
+                                        strong { "Share if the reported fleet remains online: " (&share_text) }
+                                        span { "4.2 GSol/s compared with a " (&network_text) " network estimate observed " (observed) ". This combines separate snapshots; it is not fleet telemetry." }
+                                        a href="/coin/zcash" { "Open the current Zcash record →" }
+                                    }
+                                }
+                                p { "Fleet ownership does not identify the pool receiving its work. The documents reviewed establish Zcash mining; they do not establish Wcash merged mining." }
+                            }
+                            section id="connections" aria-labelledby="connections-title" {
+                                h2 id="connections-title" { "Three connected moves, kept separate" }
+                                ol class="briefing-events" {
+                                    li { time datetime="2025-10" { "October 2025" } div { strong { "Treasury financing" } p { "Winklevoss Capital led a $58.88 million private placement that began Cypherpunk’s Zcash treasury strategy. The total deal size is not a disclosed personal contribution from the twins." } } }
+                                    li { time datetime="2026-08-17" { "17 August 2026" } div { strong { "Fleet transaction" } p { "Cypherpunk Mining acquired the fleet from Moria Mining in an equity transaction involving Winklevoss Treasury Investments." } } }
+                                    li { time datetime="2026-10-06" { "6 October 2026" } div { strong { "Preliminary WINK filing" } p { "Winklevoss Asset Services filed for a ZEC-holding exchange-traded product and named Cypherpunk as Zcash Ecosystem Partner." } } }
+                                }
+                                p class="source-line" { (source_link(d, "cyph-10k", "Cypherpunk 10-K")) " · " (source_link(d, "fleet-8k-cover", "Fleet transaction 8-K")) " · " a href=(WINK_PATH) { "WINK filing briefing" } }
+                            }
+                            section id="primary-sources" class="briefing-sources" aria-labelledby="sources-title" {
+                                h2 id="sources-title" { "Sources" }
+                                ol {
+                                    @for s in &r.sources { li { (ext(&s.url, &s.label)) span { (&s.source_type) } } }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    )
+}
+
+pub fn index(d: &Data) -> Markup {
+    layout(
+        d,
+        Page {
+            title: "Equihash industry: companies, capital and infrastructure",
+            description: "Briefings on companies, mining operations, investment products and infrastructure around Equihash and Zcash, linked to primary records.",
+            path: INDUSTRY_PATH,
+            nav: "industry",
+        },
+        html! {
+            div class="industry-index industry-desk" {
+                header class="wrap industry-head" {
+                    p class="eyebrow" { "COMPANIES, CAPITAL AND INFRASTRUCTURE" }
+                    h1 { "Industry" }
+                    p class="lede" { "Mining companies, funds and infrastructure connected to Zcash and other Equihash networks." }
+                }
+                section class="wrap industry-lead" aria-labelledby="industry-lead-title" {
+                    div class="industry-lead-grid" {
+                        article class="industry-feature" {
+                            p class="research-kicker" { "MINING · CYPHERPUNK" }
+                            h2 id="industry-lead-title" { a href=(CYPHERPUNK_PATH) { "Cypherpunk reports a 4.2 GSol/s Zcash mining fleet" } }
+                            p { "The company reports 4,902 Z15 Pro miners at three U.S. sites. Its filings detail the acquisition, hosting agreements and first production figures." }
+                            p class="industry-date" { "7 October 2026 · Company disclosures" }
+                            a class="industry-read" href=(CYPHERPUNK_PATH) { "Read the fleet briefing →" }
+                            figure class="industry-machine" {
+                                img src="/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp" alt="Bitmain Antminer Z15 Pro mining machine" width="1200" height="1200";
+                                figcaption { strong { "Antminer Z15 Pro" } "Product image · " (source_link(d, "asset-agreement", "fleet equipment record ↗")) }
+                            }
+                        }
+                        figure class="industry-evidence" {
+                            figcaption { "FLEET RECORD · AUG–SEP 2026" }
+                            ol {
+                                li { time datetime="2026-08-17" { "17 AUG" } div { strong { "4,902 machines" } span { "Miners and hosting agreements acquired." } (source_link(d, "asset-agreement", "Purchase agreement ↗")) } }
+                                li { time datetime="2026-08-18" { "18 AUG" } div { strong { "Mining announced" } span { "Sites in Texas, Tennessee and West Virginia." } (source_link(d, "fleet-8k", "Company announcement ↗")) } }
+                                li { time datetime="2026-09-22" { "22 SEP" } div { strong { "3,023.13 ZEC" } span { "Reported output for 18–31 August." } (source_link(d, "mining-follow-up", "Production update ↗")) } }
+                            }
+                            small { "Company-reported figures, published as SEC filing exhibits." }
+                        }
+                    }
+                }
+                section class="wrap industry-list" aria-labelledby="industry-list-title" {
+                    header { p class="ed-section-index" { "MORE BRIEFINGS" } h2 id="industry-list-title" { "Funds and filings" } }
+                    article {
+                        p class="research-kicker" { "FUND · GRAYSCALE" }
+                        h3 { a href=(GRAYSCALE_PATH) { "Grayscale’s Zcash fund: listing, fees and holdings" } }
+                        p { "ZCSH trades on NYSE Arca and holds ZEC. The filings record its listing, custody arrangements and annual sponsor fee." }
+                        div class="industry-meta" { time datetime="2026-10-07" { "Updated 7 October 2026" } span { "TRADING · NYSE ARCA" } }
+                    }
+                    article {
+                        p class="research-kicker" { "FILING · WINKLEVOSS" }
+                        h3 { a href=(WINK_PATH) { "Winklevoss files for a Zcash ETF under proposed ticker WINK" } }
+                        p { "The 6 October filing proposes direct ZEC holdings, a 0.25% annual sponsor fee and Gemini custody. The registration statement remains preliminary." }
+                        div class="industry-meta" { time datetime="2026-10-06" { "6 October 2026" } span { "PRELIMINARY FILING" } }
+                    }
+                }
+                section class="wrap industry-companies" aria-labelledby="industry-companies-title" {
+                    h2 id="industry-companies-title" { "Companies in focus" }
+                    ul {
+                        li { a href=(CYPHERPUNK_PATH) { span { strong { "Cypherpunk Technologies" } small { "Zcash mining and treasury" } } b aria-hidden="true" { "→" } } }
+                        li { a href=(GRAYSCALE_PATH) { span { strong { "Grayscale" } small { "Zcash investment product" } } b aria-hidden="true" { "→" } } }
+                        li { a href=(WINK_PATH) { span { strong { "Winklevoss Asset Services" } small { "Proposed WINK sponsor" } } b aria-hidden="true" { "→" } } }
                     }
                 }
             }
@@ -408,9 +597,9 @@ pub fn home_note(d: &Data) -> Markup {
             div class="wrap" {
                 header class="industry-home-head" {
                     div {
-                        p class="ed-section-index" { "INDUSTRY / COMPANIES, CAPITAL AND INFRASTRUCTURE" }
-                        h2 id="industry-home-title" { "Who is moving around Equihash." }
-                        p { "Primary-source briefings on disclosed mining fleets, listed products and new filings around Zcash." }
+                        p class="ed-section-index" { "INDUSTRY / COMPANIES AND CAPITAL" }
+                        h2 id="industry-home-title" { "Equihash industry" }
+                        p { "Mining fleets, company filings and investment products connected to Zcash." }
                     }
                     a class="ed-light-button" href=(INDUSTRY_PATH) { "View all Industry briefings" }
                 }
@@ -418,12 +607,12 @@ pub fn home_note(d: &Data) -> Markup {
                     a href=(CYPHERPUNK_PATH) {
                         span { "MINING FLEET · CYPHERPUNK" }
                         strong { "4.2 GSol/s and 4,902 Z15 Pro miners" }
-                        small { "About " (share) " of the latest network estimate shown here" }
+                        small { "Share if the reported fleet remains online: " (share) }
                     }
                     a href=(GRAYSCALE_PATH) {
                         span { "FUND BRIEF · GRAYSCALE" }
                         strong { "ZCSH is trading on NYSE Arca" }
-                        small { "Structure, fee, custody and the boundary with mining" }
+                        small { "Listing, fee, holdings and custody" }
                     }
                     a href=(WINK_PATH) {
                         span { "FILING BRIEF · WINKLEVOSS" }

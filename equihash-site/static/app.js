@@ -35,10 +35,16 @@
       const peekPrev = $('[data-machine-peek-prev]', machineCarousel);
       const peekNext = $('[data-machine-peek-next]', machineCarousel);
       const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-      let index = 0, timer = null, paused = reduceMotion.matches, hovering = false, focused = false, quickStart = true;
+      let index = 0, timer = null, paused = reduceMotion.matches, hovering = false, quickStart = true, visible = false;
       controls.hidden = false;
       if (peekPrev) peekPrev.hidden = false;
       if (peekNext) peekNext.hidden = false;
+      const paintToggle = () => {
+        toggle.textContent = paused ? '▶' : 'Ⅱ';
+        toggle.setAttribute('aria-label', paused ? 'Play carousel' : 'Pause carousel');
+        toggle.setAttribute('aria-pressed', String(paused));
+        machineCarousel.setAttribute('aria-live', paused ? 'polite' : 'off');
+      };
       const paint = () => {
         const prevIndex = (index - 1 + slides.length) % slides.length;
         const nextIndex = (index + 1) % slides.length;
@@ -57,7 +63,7 @@
       const stop = () => { clearTimeout(timer); timer = null; };
       const schedule = () => {
         stop();
-        if (!paused && !hovering && !focused && !document.hidden) {
+        if (!paused && !hovering && visible && !document.hidden) {
           const delay = quickStart ? 1500 : 6500;
           timer = setTimeout(() => { quickStart = false; index = (index + 1) % slides.length; paint(); schedule(); }, delay);
         }
@@ -70,19 +76,35 @@
       toggle.addEventListener('click', () => {
         quickStart = false;
         paused = !paused;
-        toggle.textContent = paused ? '▶' : 'Ⅱ';
-        toggle.setAttribute('aria-label', paused ? 'Play carousel' : 'Pause carousel');
-        toggle.setAttribute('aria-pressed', String(paused));
+        paintToggle();
         schedule();
       });
       machineCarousel.addEventListener('mouseenter', () => { hovering = true; stop(); });
       machineCarousel.addEventListener('mouseleave', () => { hovering = false; schedule(); });
-      machineCarousel.addEventListener('focusin', () => { focused = true; stop(); });
-      machineCarousel.addEventListener('focusout', (e) => { if (!machineCarousel.contains(e.relatedTarget)) { focused = false; schedule(); } });
+      machineCarousel.addEventListener('focusin', () => {
+        paused = true;
+        paintToggle();
+        stop();
+      });
       machineCarousel.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); go(e.key === 'ArrowLeft' ? -1 : 1); } });
       document.addEventListener('visibilitychange', schedule);
-      if (paused) { toggle.textContent = '▶'; toggle.setAttribute('aria-label', 'Play carousel'); toggle.setAttribute('aria-pressed', 'true'); }
-      paint(); schedule();
+      reduceMotion.addEventListener('change', (e) => {
+        if (e.matches) {
+          paused = true;
+          paintToggle();
+          stop();
+        }
+      });
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          visible = entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.2);
+          if (visible) schedule(); else stop();
+        }, { threshold: [0, 0.2] });
+        observer.observe(machineCarousel);
+      } else {
+        visible = true;
+      }
+      paint(); paintToggle(); schedule();
     }
   }
 

@@ -152,6 +152,32 @@ pub fn index(d: &Data) -> Markup {
         .live_pools()
         .filter(|p| p.coin_id == "zcash" && p.merged())
         .count();
+    let zcash = d.coin("zcash");
+    let zcash_network = zcash
+        .map(|c| {
+            fmt::hashrate(
+                c.network.hashrate,
+                c.network.unit.as_deref().unwrap_or("Sol/s"),
+            )
+        })
+        .unwrap_or_else(|| "n/a".into());
+    let zcash_reported = zcash
+        .map(|c| fmt::reported(c).0)
+        .unwrap_or_else(|| "n/a".into());
+    let zcash_observed = zcash
+        .and_then(|c| c.network.hashrate_observed_at.as_deref())
+        .map(|v| fmt::utc(Some(v)))
+        .unwrap_or_else(|| "n/a".into());
+    let mut zcash_pools: Vec<&Pool> = d
+        .live_pools()
+        .filter(|p| p.coin_id == "zcash" && p.hashrate.unwrap_or(0.0) > 0.0)
+        .collect();
+    zcash_pools.sort_by(|a, b| {
+        b.hashrate
+            .partial_cmp(&a.hashrate)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+    zcash_pools.truncate(3);
     // This seller rates its current Z15 Pro offer at 860 kSol/s and 2,847 W. Keep it distinct
     // from BITMAIN's manufacturer specification (840 kSol/s typical), which is the next slide.
     let offer_860 = d
@@ -238,6 +264,11 @@ pub fn index(d: &Data) -> Markup {
                         p class="ed-edition" { "COINS / POOLS / HARDWARE / MERGED MINING" }
                         h1 id="ed-title" { "Equihash mining." }
                         p class="ed-lede" { "Find coins your hardware can mine, compare pools, estimate electricity costs and check current Z15 Pro offers." }
+                        dl class="ed-hero-signal" aria-label="Latest Zcash mining snapshot" {
+                            div { dt { "Zcash network" } dd { (&zcash_network) } }
+                            div { dt { "Listed pools report" } dd { (&zcash_reported) } }
+                            div { dt { "Observed" } dd { (&zcash_observed) } }
+                        }
                         (search_form("", "Search coins, pools or hardware"))
                         div class="ed-hero-links" {
                             a class="ed-primary" href="/pools" { "Compare pools" }
@@ -249,10 +280,24 @@ pub fn index(d: &Data) -> Markup {
                         p class="ed-method" { "Figures from public pool and project pages · no paid listings · " a href="/about" { "ownership and method" } }
                     }
                     aside class="ed-hero-machine" data-machine-carousel role="region" aria-roledescription="carousel" aria-label="Featured Equihash hardware" {
+                        @if slide_count > 1 {
+                            nav class="ed-machine-switcher" data-machine-controls aria-label="Featured hardware controls" hidden {
+                                button type="button" data-machine-prev aria-label="Previous machine" { "←" }
+                                span class="ed-machine-position" aria-hidden="true" { strong data-machine-current { "1" } " / " (slide_count) }
+                                button class="ed-machine-toggle" type="button" data-machine-toggle aria-label="Pause carousel" aria-pressed="false" { "Ⅱ" }
+                                button type="button" data-machine-next aria-label="Next machine" { "→" }
+                            }
+                            button class="ed-machine-peek ed-machine-peek-prev" type="button" data-machine-peek-prev aria-label="Show previous machine" hidden {
+                                span aria-hidden="true" { "‹" }
+                            }
+                            button class="ed-machine-peek ed-machine-peek-next" type="button" data-machine-peek-next aria-label="Show next machine" hidden {
+                                span aria-hidden="true" { "›" }
+                            }
+                        }
                         div class="ed-machine-slides" {
                             @if let Some(offer) = offer_860 {
                                 article class="ed-machine-slide is-active" data-machine-slide aria-hidden="false" role="group" aria-roledescription="slide" aria-label={"1 of " (slide_count) ": Antminer Z15 Pro 860"} {
-                                    header class="ed-machine-card-top" { span { "Featured hardware" } span class="ed-machine-live" { "● Live" } }
+                                    header class="ed-machine-card-top" { span { "Featured hardware" } span class="ed-machine-record" { "Vendor listing" } }
                                     div class="ed-hero-machine-image" {
                                         img src="/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp" alt="Bitmain Antminer Z15 Pro 860 kSol/s offer" width="1200" height="1200" decoding="async";
                                     }
@@ -274,7 +319,7 @@ pub fn index(d: &Data) -> Markup {
                                 @let calculator = format!("/calculator?hashrate={}&watts={}", fmt::opt_num(m.hashrate_ksol), fmt::opt_num(m.watts));
                                 @let has_listing = d.listings.iter().any(|l| l.miner_id == m.id);
                                 article class={"ed-machine-slide" @if i == 0 { " is-active" }} data-machine-slide aria-hidden=(if i == 0 { "false" } else { "true" }) role="group" aria-roledescription="slide" aria-label={(i + 1) " of " (slide_count) ": " (m.maker) " " (m.model)} {
-                                    header class="ed-machine-card-top" { span { "Featured hardware" } span class="ed-machine-live" { "● Live" } }
+                                    header class="ed-machine-card-top" { span { "Featured hardware" } span class="ed-machine-record" { "Manufacturer spec" } }
                                     div class="ed-hero-machine-image" {
                                         img src=(image) alt=(alt) width=(width) height=(height) loading=[(i > 0).then_some("lazy")] decoding="async";
                                     }
@@ -290,20 +335,6 @@ pub fn index(d: &Data) -> Markup {
                                         }
                                     }
                                 }
-                            }
-                        }
-                        @if slide_count > 1 {
-                            button class="ed-machine-peek ed-machine-peek-prev" type="button" data-machine-peek-prev aria-label="Show previous machine" hidden {
-                                span aria-hidden="true" { "‹" }
-                            }
-                            button class="ed-machine-peek ed-machine-peek-next" type="button" data-machine-peek-next aria-label="Show next machine" hidden {
-                                span aria-hidden="true" { "›" }
-                            }
-                            nav class="ed-machine-switcher" data-machine-controls aria-label="Choose featured machine" hidden {
-                                button type="button" data-machine-prev aria-label="Previous machine" { "←" }
-                                span class="ed-machine-position" aria-hidden="true" { strong data-machine-current { "1" } " / " (slide_count) }
-                                button class="ed-machine-toggle" type="button" data-machine-toggle aria-label="Pause carousel" aria-pressed="false" { "Ⅱ" }
-                                button type="button" data-machine-next aria-label="Next machine" { "→" }
                             }
                         }
                     }
@@ -328,17 +359,40 @@ pub fn index(d: &Data) -> Markup {
                 }
             }
 
-            (crate::views::research::home_note(d))
-
-            section class="wrap ed-directory" aria-labelledby="coins-title" {
+            section class="wrap ed-workspace" aria-labelledby="workspace-title" {
                 header class="ed-section-head" {
-                    div { h2 id="coins-title" { "Active Equihash networks" } p { "Coins are grouped by their exact Equihash parameters. A Z15 works on 200,9; other parameter sets need different hardware." } }
-                    a href="/coins" { "All active and historical coins →" }
+                    div {
+                        p class="ed-section-index" { "ZCASH / START HERE" }
+                        h2 id="workspace-title" { "Choose a pool, then check the power cost." }
+                        p { "The three largest Zcash pool listings with reported hashrate. Check the full comparison before pointing your hardware." }
+                    }
+                    a href="/pools?coin=zcash#pools" { "Compare all Zcash pools →" }
                 }
-                (coin_rows(d, true))
+                div class="ed-workspace-grid" {
+                    div class="ed-workspace-pools" aria-label="Largest listed Zcash pool rows" {
+                        @for (i, p) in zcash_pools.iter().enumerate() {
+                            a href={"/pool/" (&p.slug)} {
+                                span class="ed-workspace-rank" { (i + 1) }
+                                span class="ed-workspace-name" { (logo::chip(&p.logo, &p.name, At::Row, true)) strong { (&p.name) } }
+                                span { small { "Hashrate" } b class="mono" { (fmt::hashrate(p.hashrate, p.hashrate_unit.as_deref().unwrap_or("Sol/s"))) } }
+                                span { small { "Fee" } b class="mono" { (fmt::fee(p.fee_range())) } }
+                                span { small { "Payout" } b { @if p.payout_schemes.is_empty() { "n/a" } @else { (p.payout_schemes.join(", ")) } } }
+                                span class="ed-workspace-arrow" aria-hidden="true" { "→" }
+                            }
+                        }
+                    }
+                    aside class="ed-workspace-calc" {
+                        p class="ed-section-index" { "Z15 PRO / 840 kSol/s" }
+                        h3 { "What does 2,780 W cost where you mine?" }
+                        p { "Start with the manufacturer-rated Z15 Pro figures, then enter your electricity price and pool fee." }
+                        dl {
+                            div { dt { "Hashrate" } dd { "840 kSol/s" } }
+                            div { dt { "Power" } dd { "2,780 W" } }
+                        }
+                        a class="ed-dark-button" href="/calculator?hashrate=840&watts=2780" { "Open the calculator" }
+                    }
+                }
             }
-
-            (crate::views::hashpower::home_market(d))
 
             section class="ed-merge" aria-labelledby="merge-feature-title" {
                 div class="wrap ed-merge-grid" {
@@ -364,6 +418,18 @@ pub fn index(d: &Data) -> Markup {
                     }
                 }
             }
+
+            section class="wrap ed-directory" aria-labelledby="coins-title" {
+                header class="ed-section-head" {
+                    div { h2 id="coins-title" { "Active Equihash networks" } p { "Coins are grouped by their exact Equihash parameters. A Z15 works on 200,9; other parameter sets need different hardware." } }
+                    a href="/coins" { "All active and historical coins →" }
+                }
+                (coin_rows(d, true))
+            }
+
+            (crate::views::hashpower::home_market(d))
+
+            (crate::views::research::home_note(d))
 
             aside class="wrap ed-contribute" {
                 div { h2 { "Run a pool, coin project or ASIC shop?" } p { "Send a public page or API. Listings and corrections are free." } }

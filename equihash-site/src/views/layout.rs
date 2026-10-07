@@ -3,7 +3,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "40";
+pub const ASSET_V: &str = "42";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -75,9 +75,9 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
     } else {
         "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     };
-    let og_type = if matches!(p.path, "/zcash-mining" | "/merged-mining") {
-        "article"
-    } else if p.path.starts_with("/industry/") {
+    let og_type = if matches!(p.path, "/zcash-mining" | "/merged-mining")
+        || p.path.starts_with("/industry/")
+    {
         "article"
     } else {
         "website"
@@ -134,7 +134,18 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                         a class="wordmark" href="/" { "equihash" span { ".com" } }
                         nav class="nav" aria-label="Main" {
                             @for (key, href, label) in NAV {
-                                a href=(href) aria-current=[(*key == p.nav).then_some("page")] { (label) }
+                                a class=[matches!(*key, "coins" | "pools" | "merged-mining" | "calculator").then_some("nav-primary")] href=(href) aria-current=[(*key == p.nav).then_some("page")] { (label) }
+                            }
+                        }
+                        details class="nav-more" {
+                            summary { "Menu" }
+                            nav aria-label="More destinations" {
+                                a href="/search" { "Search" }
+                                @for (key, href, label) in NAV {
+                                    @if !matches!(*key, "coins" | "pools" | "merged-mining" | "calculator") {
+                                        a href=(href) aria-current=[(*key == p.nav).then_some("page")] { (label) }
+                                    }
+                                }
                             }
                         }
                     }
