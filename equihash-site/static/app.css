@@ -82,9 +82,10 @@ td.mono { font-size: 13px; }
 .nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
 
 /* ---------- footer ---------- */
-.foot { border-top: 1px solid var(--rule); margin-top: 64px; padding: 22px 0 40px; color: var(--ink-2); font-size: 13.5px; }
-.foot p { max-width: 820px; }
-.foot-links { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.foot { border-top: 1px solid var(--rule); margin-top: 36px; padding: 15px 0 18px; color: var(--ink-2); font-size: 12.5px; }
+.foot-inner { display: flex; align-items: baseline; justify-content: space-between; gap: 16px 30px; }
+.foot-owner { margin: 0; white-space: nowrap; }
+.foot-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 20px; }
 
 /* ---------- home: intro ---------- */
 /* Title and lede share one row, like a section head in a printed ledger; the heavy rule of
@@ -1517,4 +1518,8 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
   .industry-home-grid { grid-template-columns: 1fr; }
   .industry-home-grid a { min-height: 125px; padding-left: 0; padding-right: 0; }
   .industry-home-grid a + a { border-left: 0; border-top: 1px solid #596057; }
+  .foot { margin-top: 28px; padding: 14px 0 17px; }
+  .foot-inner { display: grid; gap: 8px; }
+  .foot-owner { white-space: normal; }
+  .foot-links { justify-content: flex-start; }
 }

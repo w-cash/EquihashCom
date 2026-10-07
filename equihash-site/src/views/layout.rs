@@ -1,10 +1,9 @@
 use crate::data::Data;
-use crate::fmt;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "39";
+pub const ASSET_V: &str = "40";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -68,7 +67,6 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
     } else {
         format!("{} · equihash.com", p.title)
     };
-    let updated = d.last_updated.clone();
     let robots = if matches!(
         p.path,
         "/search" | "/404" | "/contribute" | "/add-vendor" | "/add-pool"
@@ -144,19 +142,11 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                 main id="main" { (body) }
                 footer class="foot" {
                     div class="wrap foot-inner" {
-                        p {
-                            strong { "equihash.com" } " is maintained by " a href="https://x.com/MykytaSamardak" rel="me noopener" { "@MykytaSamardak" } ". Community updates: " a href="https://t.me/EquihashCom" rel="noopener" { "t.me/EquihashCom" } ". "
-                            "Pool figures come from miningpoolstats and the pools' own public APIs; last refresh "
-                            time class="ago" datetime=[updated.as_deref()] { (fmt::utc(updated.as_deref())) } ". "
-                            "Nothing on this site is paid for, and none of it is financial advice."
-                        }
-                        p class="foot-links" {
-                            a href="/contribute" { "Add a listing or correction" }
-                            a href="/add-vendor" { "Add a vendor" }
-                            a href="/archive" { "Archive" }
-                            a href="/sources" { "Sources and method" }
+                        p class="foot-owner" { strong { "equihash.com" } " · " a href="https://x.com/MykytaSamardak" rel="me noopener" { "@MykytaSamardak" } " · " a href="https://t.me/EquihashCom" rel="noopener" { "Telegram" } }
+                        nav class="foot-links" aria-label="Footer" {
+                            a href="/contribute" { "Corrections" }
+                            a href="/sources" { "Sources" }
                             a href="/about" { "About" }
-                            span { "Raw data: " a href="/data/pools.json" { "pools" } ", " a href="/data/network.json" { "networks" } ", " a href="/data/miners.json" { "hardware" } ", " a href="/data/vendors.json" { "vendors" } ", " a href="/data/listings.json" { "listings" } ", " a href="/data/hashpower.json" { "hashpower" } }
                         }
                     }
                 }
