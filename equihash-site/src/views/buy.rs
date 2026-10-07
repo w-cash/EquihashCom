@@ -8,16 +8,6 @@ use crate::views::logo;
 use maud::{html, Markup};
 use serde::Deserialize;
 
-const SELLER_REGIONS: &[&str] = &[
-    "Manufacturer direct",
-    "United Kingdom",
-    "United States",
-    "Europe",
-    "China & Hong Kong",
-    "Asia-Pacific",
-    "Other",
-];
-
 #[derive(Debug, Deserialize, Default)]
 #[serde(default)]
 pub struct BuyQuery {
@@ -28,31 +18,6 @@ pub struct BuyQuery {
 
 fn vendor<'a>(d: &'a Data, id: &str) -> Option<&'a Vendor> {
     d.vendors.iter().find(|v| v.id == id)
-}
-
-fn seller_region(v: Option<&Vendor>) -> &str {
-    let Some(v) = v else { return "Other" };
-    if v.channel.as_deref() == Some("manufacturer") {
-        "Manufacturer direct"
-    } else {
-        v.base_region.as_deref().unwrap_or("Other")
-    }
-}
-
-fn seller_region_name_rank(region: &str) -> usize {
-    match region {
-        "Manufacturer direct" => 0,
-        "United Kingdom" => 1,
-        "United States" => 2,
-        "Europe" => 3,
-        "China & Hong Kong" => 4,
-        "Asia-Pacific" => 5,
-        _ => 6,
-    }
-}
-
-fn seller_region_rank(v: Option<&Vendor>) -> usize {
-    seller_region_name_rank(seller_region(v))
 }
 
 fn currency(amount: Option<f64>, code: Option<&str>) -> String {
@@ -106,9 +71,15 @@ fn listing_card(d: &Data, l: &Listing) -> Markup {
     } else {
         1
     };
-    let region_rank = seller_region_rank(v);
+    let region_rank = if v.and_then(|x| x.channel.as_deref()) == Some("manufacturer") {
+        -1
+    } else if l.shipping_regions.iter().any(|r| r == "UK") {
+        0
+    } else {
+        1
+    };
     html! {
-        article class="seller-row buy-card" data-machine=(l.miner_id) data-vendor=(l.vendor_id) data-region=(l.shipping_regions.join(",")) data-seller-region=(seller_region(v)) data-price=[l.price_amount.map(|x| x.to_string())] data-stock=(l.availability.as_deref().unwrap_or("unknown")) data-stock-rank=(stock_rank) data-region-rank=(region_rank) {
+        article class="seller-row buy-card" data-machine=(l.miner_id) data-vendor=(l.vendor_id) data-region=(l.shipping_regions.join(",")) data-price=[l.price_amount.map(|x| x.to_string())] data-stock=(l.availability.as_deref().unwrap_or("unknown")) data-stock-rank=(stock_rank) data-region-rank=(region_rank) {
             header class="seller-org" {
                 @if let Some(v) = v { span class={"vendor-badge" (channel_class(v))} { (channel_label(v)) } }
                 h3 { @if !slug.is_empty() { a href={"/buy/vendor/" (slug)} { (vendor_name) } } @else { (vendor_name) } }
@@ -163,12 +134,19 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
     listings.sort_by(|a, b| match sort {
         "stock" => (a.availability.as_deref() != Some("in_stock"))
             .cmp(&(b.availability.as_deref() != Some("in_stock"))),
-        _ => seller_region_rank(vendor(d, &a.vendor_id))
-            .cmp(&seller_region_rank(vendor(d, &b.vendor_id)))
+        _ => (vendor(d, &a.vendor_id).and_then(|v| v.channel.as_deref()) != Some("manufacturer"))
+            .cmp(
+                &(vendor(d, &b.vendor_id).and_then(|v| v.channel.as_deref())
+                    != Some("manufacturer")),
+            )
             .then_with(|| {
-                a.price_amount
-                    .partial_cmp(&b.price_amount)
-                    .unwrap_or(std::cmp::Ordering::Equal)
+                (!a.shipping_regions.iter().any(|r| r == "UK"))
+                    .cmp(&(!b.shipping_regions.iter().any(|r| r == "UK")))
+                    .then_with(|| {
+                        a.price_amount
+                            .partial_cmp(&b.price_amount)
+                            .unwrap_or(std::cmp::Ordering::Equal)
+                    })
             }),
     });
     let mut machines: Vec<_> = d
@@ -189,7 +167,7 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             header class="page-head buy-head" {
                 p class="eyebrow" { "WHERE TO BUY" }
                 h1 { "Antminer Z15 Pro sellers" }
-                p class="lede" { "Current public offers from BITMAIN and independent sellers, grouped by the seller’s disclosed operating region. Each row links the company record, product page and the details observed there." }
+                p class="lede" { "Current public offers from BITMAIN and independent sellers. Each row links the company record, product page and the details observed there." }
             }
             aside class="official-channel" aria-labelledby="official-channel-title" {
                 div {
@@ -204,7 +182,7 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             }
             form class="filters buy-filters" id="buy-filters" action="/buy" method="get" {
                 div class="f" { label for="buy-machine" { "Machine" } select id="buy-machine" name="machine" data-buy-filter="machine" { option value="" selected[machine.is_empty()] { "All machines" } @for m in &machines { option value=(m.id) selected[m.id == machine] { (m.maker) " " (m.model) } } } }
-                div class="f" { label for="buy-region" { "Ships to" } select id="buy-region" name="region" data-buy-filter="region" { option value="" selected[region.is_empty()] { "All destinations" } @for r in &regions { option value=(r) selected[r == region] { (r) } } } }
+                div class="f" { label for="buy-region" { "Region" } select id="buy-region" name="region" data-buy-filter="region" { option value="" selected[region.is_empty()] { "All regions" } @for r in &regions { option value=(r) selected[r == region] { (r) } } } }
                 div class="f f-sort" { label for="buy-sort" { "Sort" } select id="buy-sort" name="sort" data-buy-sort { option value="region" selected[sort == "region"] { "Channel and region" } option value="stock" selected[sort == "stock"] { "Availability" } } }
                 button class="buy-apply" type="submit" { "Apply" }
                 p class="buy-count" id="buy-count" aria-live="polite" { (listings.len()) @if listings.len() == 1 { " listing" } @else { " listings" } @if let Some(t) = d.listings_verified_at.as_deref().or(d.vendors_verified_at.as_deref()) { " · checked " (fmt::utc(Some(t))) } }
@@ -213,17 +191,9 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             @for m in &machines {
                 @let rows: Vec<_> = listings.iter().filter(|l| l.miner_id == m.id).cloned().collect();
                 @if !rows.is_empty() { section class="buy-machine" id={"machine-" (m.id)} data-machine=(m.id) {
-                    header class="buy-machine-head seller-sheet-head" { h2 { (m.maker) " " (m.model) " offers" } p class="section-sub" { "Seller base and shipping destinations are separate. Public prices are snapshots; availability is the seller’s claim. " a href={"/hardware/" (m.id)} { "Check BITMAIN specifications" } "." } }
-                    @for group in SELLER_REGIONS {
-                        @let group_rows: Vec<_> = rows.iter().filter(|l| seller_region(vendor(d, &l.vendor_id)) == *group).cloned().collect();
-                        @if !group_rows.is_empty() {
-                            section class="seller-region-group" data-buy-region-group {
-                                header class="seller-region-head" { h3 { (*group) } p { (group_rows.len()) @if group_rows.len() == 1 { " seller" } @else { " sellers" } } }
-                                div class="seller-sheet-labels" aria-hidden="true" { span { "Seller" } span { "Offer" } span { "Machine" } span { "Evidence" } span { "Link" } }
-                                div class="buy-gallery seller-sheet" data-buy-gallery { @for l in group_rows { (listing_card(d, l)) } }
-                            }
-                        }
-                    }
+                    header class="buy-machine-head seller-sheet-head" { h2 { (m.maker) " " (m.model) " offers" } p class="section-sub" { "Public asking prices are snapshots, not quotes. Availability is the seller’s claim. " a href={"/hardware/" (m.id)} { "Check BITMAIN specifications" } "." } }
+                    div class="seller-sheet-labels" aria-hidden="true" { span { "Seller" } span { "Offer" } span { "Machine" } span { "Evidence" } span { "Link" } }
+                    div class="buy-gallery seller-sheet" data-buy-gallery { @for l in rows { (listing_card(d, l)) } }
                 } }
             }
             section class="buy-standard" aria-labelledby="buy-standard-title" {
@@ -260,7 +230,7 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
             div class="wrap page buy-page buy-vendor-page" {
                 p class="crumb" { a href="/buy" { "All Buy listings" } }
             header class="page-head" { div class="title-row" { h1 { (vendor_mark(v, true)) (v.name) } (crate::views::pages::copy_link(&path, "Copy link to this vendor")) } p class="lede" { (v.region_note.as_deref().unwrap_or("Vendor listing.")) @if let Some(u) = &v.url { " Site: " (ext(u, &fmt::host(Some(u)))) "." } } }
-                dl class="vendor-dossier" { div { dt { "Relationship" } dd { (channel_label(v)) } } div { dt { "Seller base" } dd { (v.base_region.as_deref().unwrap_or("Not established")) } } div { dt { "Legal entity" } dd { (v.legal_name.as_deref().unwrap_or("Not established")) } } div { dt { "Registration" } dd { (v.registration.as_deref().unwrap_or("Not established")) } } div { dt { "Ships to" } dd { (v.regions.join(", ")) } } div { dt { "Checked" } dd { (fmt::utc(v.observed_at.as_deref())) } } }
+                dl class="vendor-dossier" { div { dt { "Relationship" } dd { (channel_label(v)) } } div { dt { "Legal entity" } dd { (v.legal_name.as_deref().unwrap_or("Not established")) } } div { dt { "Registration" } dd { (v.registration.as_deref().unwrap_or("Not established")) } } div { dt { "Regions claimed" } dd { (v.regions.join(", ")) } } div { dt { "Checked" } dd { (fmt::utc(v.observed_at.as_deref())) } } }
                 @if let Some(label) = &v.verification_label { p class="vendor-verification" { strong { (label) } @if let Some(u) = &v.registry_url { " · " (ext(u, "Company record")) } @if let Some(u) = &v.verification_url { " · " (ext(u, "Relationship source")) } } }
                 @if let Some(n) = &v.notes { p class="small" { (n) } }
                 div class="buy-gallery seller-sheet vendor-offers" data-buy-gallery { @for l in rows { (listing_card(d, l)) } }

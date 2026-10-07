@@ -1,6 +1,6 @@
 {
   "_doc": "Equihash ASIC seller directory. Manufacturer-direct and independent channels are labelled separately. equihash.com does not sell hardware, does not accept payment for placement, and does not treat a public listing as an endorsement. null = n/a.",
-  "verified_at": "2026-10-07T20:48:20.000Z",
+  "verified_at": "2026-10-07T14:10:00.000Z",
   "vendors": [
     {
       "id": "bitmain",
@@ -20,8 +20,7 @@
       "observed_at": "2026-10-07T12:00:03.000Z",
       "legal_name": "BITMAIN / ANTMINER",
       "registration": "Official manufacturer domain",
-      "registry_url": null,
-      "base_region": "China"
+      "registry_url": null
     },
     {
       "id": "the-mining-shop-uk",
@@ -41,9 +40,8 @@
       "source_url": "https://www.theminingshop.co.uk/",
       "observed_at": "2026-10-07T12:00:03.000Z",
       "legal_name": "THE MINING SHOP UK LTD",
-      "registration": "UK company 14666497 · active",
-      "registry_url": "https://find-and-update.company-information.service.gov.uk/company/14666497",
-      "base_region": "United Kingdom"
+      "registration": "UK company 14666497 \u00b7 active",
+      "registry_url": "https://find-and-update.company-information.service.gov.uk/company/14666497"
     },
     {
       "id": "antminer-distribution-europe",
@@ -65,9 +63,8 @@
       "source_url": "https://www.antminerdistribution.com/",
       "observed_at": "2026-10-07T12:00:03.000Z",
       "legal_name": "Antminer Distribution Europe B.V.",
-      "registration": "KvK 70307180 · incorporated 2017",
-      "registry_url": "https://www.creditsafe.com/business-index/en-gb/company/antminer-distribution-europe-bv-nl04677406",
-      "base_region": "Europe"
+      "registration": "KvK 70307180 \u00b7 incorporated 2017",
+      "registry_url": "https://www.creditsafe.com/business-index/en-gb/company/antminer-distribution-europe-bv-nl04677406"
     },
     {
       "id": "apexto-mining",
@@ -89,9 +86,8 @@
       "source_url": "https://apextomining.com/product/antminer-z15-pro/",
       "observed_at": "2026-10-07T12:00:03.000Z",
       "legal_name": "APEXTO COMPANY LIMITED",
-      "registration": "Hong Kong CR 3152922 · BRN 74045670",
-      "registry_url": "https://www.cr.gov.hk/docs/wrpt/wk_new%26changednamecoys_20240318.pdf",
-      "base_region": "China & Hong Kong"
+      "registration": "Hong Kong CR 3152922 \u00b7 BRN 74045670",
+      "registry_url": "https://www.cr.gov.hk/docs/wrpt/wk_new%26changednamecoys_20240318.pdf"
     },
     {
       "id": "hashlabs",
@@ -113,8 +109,7 @@
       "observed_at": "2026-10-07T12:00:03.000Z",
       "legal_name": "HASHLABS PTE. LTD.",
       "registration": "Singapore UEN 202416632G",
-      "registry_url": "https://www.companies.sg/cat/63119/DEVELOPMENT-OF-SOFTWARE-CONSULTANCY-PROGRAMMING-FOR-E-COMMERCE-APPLICATIONS?page=21&per-page=100&sort=-entity_name",
-      "base_region": "Asia-Pacific"
+      "registry_url": "https://www.companies.sg/cat/63119/DEVELOPMENT-OF-SOFTWARE-CONSULTANCY-PROGRAMMING-FOR-E-COMMERCE-APPLICATIONS?page=21&per-page=100&sort=-entity_name"
     },
     {
       "id": "bt-miners",
@@ -140,8 +135,7 @@
       "observed_at": "2026-10-07T14:10:00.000Z",
       "legal_name": "BT ECOMMERCE CO., LIMITED",
       "registration": "Hong Kong BRN 73175434-000-07-22-5",
-      "registry_url": null,
-      "base_region": "China & Hong Kong"
+      "registry_url": null
     },
     {
       "id": "oneminers",
@@ -163,80 +157,8 @@
       "source_url": "https://oneminers.com/products/antminer-z15-pro-860-kh-s",
       "observed_at": "2026-10-07T14:10:00.000Z",
       "legal_name": "CIRCLEHASH LLC d/b/a OneMiners",
-      "registration": "Wyoming filing 2024-001431792 · active NY foreign LLC 7751857",
-      "registry_url": "https://sos.wyo.gov/Business/docs/24Q1Domestic.pdf",
-      "base_region": "United States"
-    },
-    {
-      "id": "the-bitcoin-miner-uk",
-      "slug": "the-bitcoin-miner-uk",
-      "name": "The Bitcoin Miner",
-      "url": "https://thebitcoinminer.co.uk/",
-      "regions": [
-        "UK",
-        "EU"
-      ],
-      "region_focus": "United Kingdom",
-      "region_note": "Independent UK ASIC retailer registered in Newport, Wales. Its Z15 Pro page offers setup support and describes insured or palletised delivery for high-value miners.",
-      "channel": "independent_retailer",
-      "verification_label": "Legal name, registered address and active status matched in Companies House",
-      "verification_url": "https://thebitcoinminer.co.uk/products/bitmain-antminer-z15-pro-840k",
-      "notes": "The product page contains both “In stock” copy and a disabled “Sold out” purchase state; this directory records the disabled checkout state. This is not an official BITMAIN distributor.",
-      "source_url": "https://thebitcoinminer.co.uk/products/bitmain-antminer-z15-pro-840k",
-      "observed_at": "2026-10-07T20:48:20.000Z",
-      "legal_name": "THE BITCOIN MINER LTD",
-      "registration": "UK company 17112083 · active · incorporated 24 March 2026",
-      "registry_url": "https://find-and-update.company-information.service.gov.uk/company/17112083",
-      "base_region": "United Kingdom"
-    },
-    {
-      "id": "805-mining",
-      "slug": "805-mining",
-      "name": "805 Mining",
-      "url": "https://805mining.com/",
-      "regions": [
-        "USA",
-        "Canada",
-        "Global"
-      ],
-      "region_focus": "United States",
-      "region_note": "Independent ASIC retailer operated from California. The site publishes US and international shipping, a legal operator name and public links for checking its California business and seller permit.",
-      "channel": "independent_retailer",
-      "verification_label": "Legal operator is disclosed in the terms; California registration and seller-permit lookup details are published by the seller",
-      "verification_url": "https://805mining.com/terms-of-sale/",
-      "notes": "Registration and permit numbers are seller-published evidence, not manufacturer authorization. This is not an official BITMAIN distributor.",
-      "source_url": "https://805mining.com/product/antminer-z15-pro/",
-      "observed_at": "2026-10-07T20:48:20.000Z",
-      "legal_name": "805 Mining Services LLC",
-      "registration": "California LLC · seller permit 241-520064 (seller-published)",
-      "registry_url": "https://bizfileonline.sos.ca.gov/search/business",
-      "base_region": "United States"
-    },
-    {
-      "id": "crypto-miner-bros",
-      "slug": "crypto-miner-bros",
-      "name": "Crypto Miner Bros",
-      "url": "https://www.cryptominerbros.com/",
-      "regions": [
-        "USA",
-        "Canada",
-        "UK",
-        "EU",
-        "Australia",
-        "Global"
-      ],
-      "region_focus": "Hong Kong",
-      "region_note": "Independent Hong Kong ASIC retailer. The seller publishes worldwide express delivery and identifies the Hong Kong operating company on its Z15 Pro page.",
-      "channel": "independent_retailer",
-      "verification_label": "Legal name and incorporation number matched to a Hong Kong Companies Registry incorporation list",
-      "verification_url": "https://www.cryptominerbros.com/product/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
-      "notes": "A company record establishes seller identity, not fulfillment quality. Confirm the selected batch, customs treatment and refund terms in writing. This is not an official BITMAIN distributor.",
-      "source_url": "https://www.cryptominerbros.com/product/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
-      "observed_at": "2026-10-07T20:48:20.000Z",
-      "legal_name": "MINER BROS LIMITED",
-      "registration": "Hong Kong company 2654208 · incorporated 8 February 2018",
-      "registry_url": "https://www.cr.gov.hk/docs/wrpt/RNC063_2018.02.05-2018.02.11.pdf",
-      "base_region": "China & Hong Kong"
+      "registration": "Wyoming filing 2024-001431792 \u00b7 active NY foreign LLC 7751857",
+      "registry_url": "https://sos.wyo.gov/Business/docs/24Q1Domestic.pdf"
     }
   ]
 }

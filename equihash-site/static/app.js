@@ -535,11 +535,11 @@
         if (!card.hidden) count++;
       }
       for (const gallery of galleries) {
+        const section = gallery.closest(".buy-machine");
+        if (section) section.hidden = !$$('.buy-card', gallery).some((c) => !c.hidden);
         const number = (c, key, fallback = 9) => c.dataset[key] === "" || c.dataset[key] == null ? fallback : +c.dataset[key];
         $$('.buy-card', gallery).sort((a, b) => sort === "price" ? number(a, "price", Infinity) - number(b, "price", Infinity) : sort === "stock" ? number(a, "stockRank") - number(b, "stockRank") : number(a, "regionRank") - number(b, "regionRank")).forEach((c) => gallery.appendChild(c));
       }
-      for (const group of $$('[data-buy-region-group]')) group.hidden = !$$('.buy-card', group).some((c) => !c.hidden);
-      for (const section of $$('.buy-machine')) section.hidden = !$$('.buy-card', section).some((c) => !c.hidden);
       const out = $("#buy-count");
       if (out) { const checked = out.textContent.split("·").slice(1).join("·").trim(); out.textContent = `${count} listing${count === 1 ? "" : "s"}${checked ? " · " + checked : ""}`; }
       const qs = new URLSearchParams(); if (machine) qs.set("machine", machine); if (region) qs.set("region", region); if (sort !== "region") qs.set("sort", sort);
