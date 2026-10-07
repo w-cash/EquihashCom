@@ -25,7 +25,7 @@
     {
       "id": "zprominers-pool",
       "target": "pool",
-      "pool_id": "zcash:zprominers.com",
+      "pool_id": "zcash:zprominers.com:144",
       "url": "https://zprominers.com/api/live.json",
       "label": "ZProMiners aggregate pool hashrate (official site feed; page labels it as the last 10 minutes)",
       "unit": "Sol/s",

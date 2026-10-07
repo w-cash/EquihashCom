@@ -241,6 +241,7 @@ pub fn index(d: &Data) -> Markup {
                         (search_form("", "Search coins, pools or hardware"))
                         div class="ed-hero-links" {
                             a class="ed-primary" href="/pools" { "Compare pools" }
+                            a href="/zcash-mining" { "Zcash mining guide" }
                             a href="/hashpower" { "Hashpower market" }
                             a href="/hardware/antminer-z15-pro" { "Z15 Pro profile" }
                             a href="/buy" { "Vendor listings" }
@@ -406,6 +407,7 @@ pub fn coin(d: &Data, c: &Coin) -> Markup {
     let pools = coin_pools(d, c);
     let miners = compatible_miners(d, c);
     let is_wcash = c.id == "wcash";
+    let is_zcash = c.id == "zcash";
     layout(
         d,
         Page {
@@ -420,6 +422,7 @@ pub fn coin(d: &Data, c: &Coin) -> Markup {
                 header class="entity-hero" {
                     div class="entity-title" { (logo::chip(&c.logo, &c.name, At::Head, false)) div { h1 { (c.name) " " span class="sym" { (c.symbol) } } p { "Equihash " span class="mono" { (c.params()) } " · " (status(c)) } } }
                     (links::render(&c.links, &format!("{} official and community links", c.name), "coin-links"))
+                    @if is_zcash { p { "New to Zcash proof of work? " a href="/zcash-mining" { "Read the mining setup, pool and privacy guide" } "." } }
                     @if is_wcash { p class="disclosure" { strong { "Disclosure: " } "equihash.com and Wcash share a maintainer. Wcash receives merged-mined work only through pools that explicitly support it; the pool directory uses the same source and ordering rules for every coin." } }
                 }
 
@@ -488,10 +491,7 @@ pub fn hardware_detail(d: &Data, m: &Miner) -> Markup {
         .iter()
         .filter(|c| c.active() && c.params() == m.equihash)
         .collect();
-    let title = format!(
-        "{} {}: compatible Equihash coins and mining calculator",
-        m.maker, m.model
-    );
+    let title = format!("{} {} specs and mining coins", m.maker, m.model);
     let desc = format!("{} {} specifications, efficiency, compatible Equihash {} coins, pools and prefilled mining calculator.", m.maker, m.model, m.equihash);
     let path = format!("/hardware/{}", m.id);
     layout(
@@ -522,9 +522,10 @@ pub fn hardware_detail(d: &Data, m: &Miner) -> Markup {
                         div class="section-head" { div { h2 { "Compatible active coins" } p { "Exact parameter match: Equihash " (m.equihash) "." } } }
                         div class="entity-grid" {
                             @for c in &coins { article {
+                                @let pools_href = if c.id == "zcash" { "/pools#pools".to_string() } else { format!("/pools?coin={}#pools", c.id) };
                                 div class="entity-title small" { a href={"/coin/" (c.id)} { (logo::chip(&c.logo, &c.name, At::List, true)) strong { (c.name) } } span class="sym" { (c.symbol) } }
                                 p { (c.pool_count) " listed pool" @if c.pool_count != 1 { "s" } " · " (fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s"))) " network" }
-                                div class="card-actions" { a href={"/pools?coin=" (c.id) "#pools"} { "Pools" } a href={"/calculator?coin=" (c.id) "&hashrate=" (fmt::opt_num(m.hashrate_ksol)) "&watts=" (fmt::opt_num(m.watts))} { "Calculate" } }
+                                div class="card-actions" { a href=(pools_href) { "Pools" } a href={"/calculator?coin=" (c.id) "&hashrate=" (fmt::opt_num(m.hashrate_ksol)) "&watts=" (fmt::opt_num(m.watts))} { "Calculate" } }
                             } }
                         }
                         section class="qa" { div class="section-head" { div { h2 { "Before you point the miner" } } }
@@ -549,14 +550,103 @@ pub fn guides(d: &Data) -> Markup {
         div class="wrap page guides-page" {
             header class="page-head" { p class="eyebrow" { "SETUP AND REFERENCE" } h1 { "Equihash guides" } p class="lede" { "Set up a Z15 Pro, compare pools, check mining costs or learn how Zcash + Wcash merged mining works." } }
             div class="guide-grid featured-guides" {
+                article { p class="step" { "ZCASH MINING · 8 MIN" } h2 { a href="/zcash-mining" { "How to mine Zcash with an Equihash ASIC" } } p { "Choose compatible hardware, compare pool evidence, configure a worker and separate mining from Zcash transaction privacy." } }
                 article { p class="step" { "START HERE · 7 MIN" } h2 { a href="/hardware/antminer-z15-pro" { "Z15 Pro: from power-on to a compatible pool" } } p { "Check exact parameters, choose a coin, compare regions and fees, calculate power cost, and verify accepted shares." } }
-                article { p class="step" { "POOL CHOICE · 5 MIN" } h2 { a href="/pools?coin=zcash#pools" { "How to compare Zcash pools" } } p { "Read hashrate, concentration, PPLNS/PPS variants, fees, minimum payouts, regions and observation times." } }
+                article { p class="step" { "POOL CHOICE · 5 MIN" } h2 { a href="/pools#pools" { "How to compare Zcash pools" } } p { "Read hashrate, concentration, PPLNS/PPS variants, fees, minimum payouts, regions and observation times." } }
                 article { p class="step" { "MERGED MINING · 10 MIN" } h2 { a href="/merged-mining" { "How Zcash + Wcash merged mining works" } } p { "See what the miner sends, what the pool adds and how qualifying work reaches Zcash and Wcash." } }
                 article { p class="step" { "PARAMETERS · 4 MIN" } h2 { a href="/coins" { "Why Equihash n,k decides compatibility" } } p { "Understand why 200,9 hardware cannot mine every coin carrying the Equihash name." } }
                 article { p class="step" { "ECONOMICS · 5 MIN" } h2 { a href="/calculator" { "Estimate revenue and electricity cost" } } p { "Start with the listed network figures, then enter your hashrate, watts, fee and electricity price." } }
                 article { p class="step" { "VERIFY · 6 MIN" } h2 { a href="/sources" { "Where the pool and network figures come from" } } p { "See which pages and APIs are read, when each field was checked and how missing values are shown." } }
             }
             aside class="listing-callout" { div { p class="eyebrow" { "MISSING A QUESTION?" } h2 { "Couldn’t find your question?" } p { "Send the miner, pool or coin name and a link that helps answer it. We will add the answer to the relevant page." } } a class="btn" href="/contribute#question" { "Ask a question" } }
+        }
+    })
+}
+
+pub fn zcash_mining(d: &Data) -> Markup {
+    let zcash = d.coin("zcash");
+    let z15 = d.miners.iter().find(|m| m.id == "antminer-z15-pro");
+    let pools = zcash.map(|c| coin_pools(d, c)).unwrap_or_default();
+    let network = zcash
+        .map(|c| fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s")))
+        .unwrap_or_else(|| "n/a".into());
+    layout(d, Page {
+        title: "Zcash mining guide: pools, Z15 Pro setup and costs",
+        description: "A source-backed Zcash mining guide: Equihash 200,9 hardware, Antminer Z15 Pro specifications, pool selection, setup, electricity costs and merged mining.",
+        path: "/zcash-mining",
+        nav: "guides",
+    }, html! {
+        div class="wrap page narrow prose zcash-guide" {
+            p class="crumb" { a href="/guides" { "All guides" } " / Zcash mining" }
+            header class="page-head" {
+                p class="eyebrow" { "ZCASH · EQUIHASH 200,9" }
+                h1 { "How to mine Zcash" }
+                p class="lede" { "Zcash uses Equihash 200,9 proof of work. A compatible ASIC such as the Antminer Z15 Pro sends shares to a Zcash pool, and the pool pays according to its published fee and payout rules." }
+                p class="small" { "Maintained by " a href="https://x.com/MykytaSamardak" rel="me noopener" { "Mykyta Samardak" } " · network and pool data refreshed " time datetime=[d.last_updated.as_deref()] { (fmt::utc(d.last_updated.as_deref())) } " · " a href="/sources" { "method and sources" } }
+            }
+
+            section aria-labelledby="zcash-answer" {
+                h2 id="zcash-answer" { "What you need" }
+                p { "You need an Equihash 200,9 miner, a Zcash address accepted by the pool, a pool endpoint near the miner, and enough electrical capacity for the machine. A Bitcoin SHA-256 ASIC cannot mine Zcash, and a Zcash Z15 cannot mine Bitcoin: the proof-of-work algorithms are different." }
+                dl class="fact-strip" {
+                    div { dt { "Algorithm" } dd { "Equihash 200,9" } }
+                    div { dt { "Network estimate" } dd { (network) } }
+                    div { dt { "Listed pools" } dd { (pools.len()) } }
+                    div { dt { "Z15 Pro typical" } dd { @if let Some(m) = z15 { (fmt::opt_num(m.hashrate_ksol)) " kSol/s" } @else { "840 kSol/s" } } }
+                    div { dt { "Z15 Pro power" } dd { @if let Some(m) = z15 { (fmt::int(m.watts)) " W" } @else { "2,780 W" } } }
+                }
+                p class="small" { "Network and pool values are snapshots, not forecasts. Hardware figures come from the linked manufacturer specification." }
+            }
+
+            section aria-labelledby="zcash-steps" {
+                h2 id="zcash-steps" { "Zcash mining setup, step by step" }
+                ol {
+                    li { strong { "Check the machine and power circuit. " } "Confirm Equihash 200,9 compatibility, input voltage, plug, airflow and the published wattage. " a href="/hardware/antminer-z15-pro" { "Open the Z15 Pro specification record" } "." }
+                    li { strong { "Create a Zcash address. " } "Check the pool's own payout instructions before choosing an address type. Mining secures Zcash consensus; transaction privacy depends on the wallet and whether funds move through shielded addresses." }
+                    li { strong { "Compare pools. " } "Look at reported hashrate, network concentration, payout method, fee, minimum payout, server region and the age of each source. No single pool is best for every miner. " a href="/pools#pools" { "Compare Zcash pools" } "." }
+                    li { strong { "Copy the pool's current endpoint. " } "Take the stratum host, port, worker format and password from the pool's own setup page. Do not copy an endpoint from an undated forum post." }
+                    li { strong { "Configure the miner. " } "Enter the pool endpoint, worker or wallet identifier and password in the miner interface. Save the primary pool and at least one fallback operated independently." }
+                    li { strong { "Verify accepted shares. " } "After startup, check the miner and pool dashboards for accepted shares, rejects, hashrate and payout progress. Investigate sustained rejects before treating the machine as stable." }
+                    li { strong { "Run the cost estimate. " } "Enter the machine's actual wall power and your delivered electricity rate. Hardware cost, tax, downtime, pool luck, stale shares, hosting and import charges remain outside the basic estimate. " a href="/calculator?coin=zcash&hashrate=840&watts=2780" { "Open the Zcash calculator" } "." }
+                }
+            }
+
+            section aria-labelledby="zcash-pools" {
+                div class="section-head" { div { h2 id="zcash-pools" { "Zcash pool snapshot" } p { "These are the largest currently listed rows by reported hashrate. Open the comparison for sources, payout details and all active rows." } } a href="/pools#pools" { "Full comparison →" } }
+                @if pools.is_empty() {
+                    p { "No active Zcash pool is currently listed." }
+                } @else {
+                    div class="table-scroll" { table class="data mini" {
+                        thead { tr { th scope="col" { "Pool" } th class="num" scope="col" { "Reported hashrate" } th scope="col" { "Payout" } th class="num" scope="col" { "Fee" } th scope="col" { "Region" } } }
+                        tbody { @for p in pools.iter().take(8) { tr {
+                            td { a href={"/pool/" (p.slug)} { strong { (p.name) } } }
+                            td class="num" { (fmt::hashrate(p.hashrate, p.hashrate_unit.as_deref().unwrap_or("Sol/s"))) }
+                            td { (schemes_text(p)) }
+                            td class="num" { (fmt::fee(p.fee_range())) }
+                            td { (p.region.as_deref().unwrap_or("n/a")) }
+                        } } }
+                    } }
+                }
+            }
+
+            section aria-labelledby="zcash-z15" {
+                h2 id="zcash-z15" { "Z15 Pro: 840 kSol/s manufacturer specification" }
+                p { "BITMAIN publishes 840 kSol/s typical and 2,780 W typical for the Antminer Z15 Pro under its stated operating conditions. Some retailer pages advertise 860 kSol/s; equihash.com keeps that seller claim separate from the manufacturer's typical specification." }
+                p { a href="/hardware/antminer-z15-pro" { "Read the sourced Z15 Pro specifications" } " · " a href="/buy?machine=antminer-z15-pro" { "Review public seller listings" } }
+            }
+
+            section aria-labelledby="zcash-privacy" {
+                h2 id="zcash-privacy" { "Mining and Zcash privacy are separate" }
+                p { "Proof of work orders blocks and secures consensus. Zcash privacy comes from shielded transactions and compatible wallet software; mining with Equihash does not by itself make a payout private. Check the address types supported by your wallet and pool before mining." }
+            }
+
+            section aria-labelledby="zcash-merged" {
+                h2 id="zcash-merged" { "Merged mining" }
+                p { "A participating Zcash pool can reuse qualifying Equihash work for Wcash without splitting the miner's Zcash hashrate. Wcash is secured only by work routed through participating pools, not by all Zcash hashrate. Pools account for ZEC and WEC separately." }
+                p { a href="/merged-mining" { "Read the Zcash + Wcash merged-mining guide" } }
+            }
+
+            aside class="listing-callout" { div { h2 { "Check the live record" } p { "Pool conditions, network hashrate and coin price change. Use the current directory and then verify the chosen pool's own page before pointing a miner." } } a class="btn" href="/coin/zcash" { "Open the Zcash mining record" } }
         }
     })
 }

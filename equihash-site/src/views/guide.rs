@@ -66,8 +66,8 @@ pub fn render(d: &Data) -> Markup {
         ("refs", "References"),
     ];
     layout(d, Page {
-        title: "Merged mining guide for Equihash pools (Zcash parent, Wcash example)",
-        description: "Technical, step-by-step guide for Equihash pool operators: add an aux chain with createauxblock/submitauxblock and a 44-byte coinbase commitment. No miner firmware change. Worked example: Wcash on Zcash.",
+        title: "Zcash + Wcash merged mining guide",
+        description: "Technical Equihash merged-mining guide for pool operators using Zcash as the parent chain and Wcash as the AuxPoW example, with RPC flow and coinbase layout.",
         path: "/merged-mining",
         nav: "merged-mining",
     }, html! {
@@ -79,6 +79,7 @@ pub fn render(d: &Data) -> Markup {
                     "A participating pool can reuse the work from an Equihash 200,9 miner for both Zcash and Wcash. "
                     "Miners keep the same ASIC and do not divide their Zcash hashrate; the pool adds the auxiliary-chain work and separate WEC accounting."
                 }
+                p class="small" { "Maintained by " a href="https://x.com/MykytaSamardak" rel="me noopener" { "Mykyta Samardak" } " · published and reviewed 7 October 2026 · " a href="#refs" { "primary references" } }
                 p class="disclosure" {
                     "The worked example is " (ext("https://w.cash", "Wcash")) " (WEC), an independent Zcash-derived chain merged-mined with Zcash as the "
                     em { "parent" } " through AuxPoW v2. Every Wcash detail below comes from its "

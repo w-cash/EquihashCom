@@ -132,6 +132,11 @@ async fn archive(s: web::Data<AppState>) -> impl Responder {
 async fn miners(s: web::Data<AppState>) -> impl Responder {
     html(views::pages::miners(&s.get()))
 }
+async fn miners_legacy() -> HttpResponse {
+    HttpResponse::MovedPermanently()
+        .insert_header((header::LOCATION, "/hardware"))
+        .finish()
+}
 async fn hardware_detail(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
     let d = s.get();
     match d.miners.iter().find(|m| m.id == *path) {
@@ -150,14 +155,19 @@ async fn calculator(
 async fn guide(s: web::Data<AppState>) -> impl Responder {
     html(views::guide::render(&s.get()))
 }
+async fn zcash_mining(s: web::Data<AppState>) -> impl Responder {
+    html(views::hub::zcash_mining(&s.get()))
+}
 async fn hashpower(
     s: web::Data<AppState>,
     q: web::Query<views::hashpower::HashpowerQuery>,
 ) -> impl Responder {
     html(views::hashpower::render(&s.get(), &q))
 }
-async fn add_pool(s: web::Data<AppState>) -> impl Responder {
-    html(views::pages::add_pool(&s.get()))
+async fn add_pool_legacy() -> HttpResponse {
+    HttpResponse::MovedPermanently()
+        .insert_header((header::LOCATION, "/contribute#pool"))
+        .finish()
 }
 async fn about(s: web::Data<AppState>) -> impl Responder {
     html(views::pages::about(&s.get()))
@@ -196,6 +206,7 @@ async fn api_live(s: web::Data<AppState>) -> HttpResponse {
     let d = s.get();
     HttpResponse::Ok()
         .insert_header((header::CACHE_CONTROL, "public, max-age=15"))
+        .insert_header(("X-Robots-Tag", "noindex"))
         .json(views::live_json(&d, chrono::Utc::now()))
 }
 
@@ -261,6 +272,7 @@ async fn healthz(s: web::Data<AppState>) -> HttpResponse {
     );
     HttpResponse::build(actix_web::http::StatusCode::from_u16(code).unwrap())
         .insert_header((header::CACHE_CONTROL, "no-store"))
+        .insert_header(("X-Robots-Tag", "noindex"))
         .json(body)
 }
 
@@ -293,7 +305,14 @@ async fn data_file(
         s.data_dir.join(path.as_str())
     };
     match NamedFile::open(file) {
-        Ok(f) => f.into_response(&req),
+        Ok(f) => {
+            let mut response = f.into_response(&req);
+            response.headers_mut().insert(
+                actix_web::http::header::HeaderName::from_static("x-robots-tag"),
+                actix_web::http::header::HeaderValue::from_static("noindex"),
+            );
+            response
+        }
         Err(_) => HttpResponse::NotFound().finish(),
     }
 }
@@ -306,42 +325,144 @@ async fn favicon(req: HttpRequest) -> HttpResponse {
 }
 
 async fn robots() -> HttpResponse {
-    HttpResponse::Ok().content_type("text/plain").body(format!(
-        "User-agent: *\nAllow: /\nSitemap: {}/sitemap.xml\n",
-        views::layout::SITE
-    ))
+    HttpResponse::Ok()
+        .content_type("text/plain; charset=utf-8")
+        .body(format!(
+            "User-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: ChatGPT-User\nAllow: /\n\nUser-agent: *\nAllow: /\n\nSitemap: {}/sitemap.xml\n",
+            views::layout::SITE
+        ))
+}
+
+async fn llms(s: web::Data<AppState>) -> HttpResponse {
+    let d = s.get();
+    let updated = d.last_updated.as_deref().unwrap_or("unknown");
+    let site = views::layout::SITE;
+    let body = format!(r#"# equihash.com
+
+> Source-backed Equihash mining directory for coins, pools, ASIC hardware, seller evidence, calculators and technical guides.
+
+Updated: {updated}
+
+## Start here
+
+- [Zcash mining guide]({site}/zcash-mining): Equihash 200,9 hardware, pool selection, setup, costs, privacy and merged mining.
+- [Zcash mining record]({site}/coin/zcash): current network, compatible miners, listed pools and sources.
+- [Zcash pool comparison]({site}/pools): reported hashrate, fees, payout methods, minimum payouts, regions and source ages.
+- [Antminer Z15 Pro]({site}/hardware/antminer-z15-pro): manufacturer specifications and compatible coins.
+- [Equihash coins]({site}/coins): networks grouped by exact n,k parameters.
+- [Merged mining guide]({site}/merged-mining): Zcash parent-chain and Wcash auxiliary-chain flow.
+- [Sources and method]({site}/sources): provenance, refresh method and known limits.
+
+## Machine-readable data
+
+- [Pools JSON]({site}/data/pools.json)
+- [Networks JSON]({site}/data/network.json)
+- [Hardware JSON]({site}/data/miners.json)
+- [Vendors JSON]({site}/data/vendors.json)
+- [Listings JSON]({site}/data/listings.json)
+- [Hashpower JSON]({site}/data/hashpower.json)
+
+## Editorial notes
+
+- Pool and market figures are time-stamped snapshots from public project, pool and API sources.
+- Missing values remain n/a; listings are free and cannot buy ranking.
+- equihash.com and Wcash share a maintainer. Wcash receives work only from participating merged-mining pools.
+- Mining estimates are not forecasts or financial advice.
+"#);
+    HttpResponse::Ok()
+        .insert_header((header::CACHE_CONTROL, "public, max-age=300"))
+        .content_type("text/plain; charset=utf-8")
+        .body(body)
+}
+
+fn xml_escape(value: &str) -> String {
+    value
+        .replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&apos;")
+}
+
+fn sitemap_lastmod(value: Option<&str>) -> Option<String> {
+    value.and_then(|v| {
+        chrono::DateTime::parse_from_rfc3339(v)
+            .ok()
+            .map(|t| t.to_rfc3339_opts(chrono::SecondsFormat::Secs, true))
+            .or_else(|| {
+                (v.len() == 10 && chrono::NaiveDate::parse_from_str(v, "%Y-%m-%d").is_ok())
+                    .then(|| v.to_string())
+            })
+    })
 }
 
 async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
     let d = s.get();
-    let mut urls: Vec<String> = [
-        "/",
-        "/coins",
-        "/pools",
-        "/hashpower",
-        "/hardware",
-        "/buy",
-        "/guides",
-        "/calculator",
-        "/merged-mining",
-        "/archive",
-        "/contribute",
-        "/add-vendor",
-        "/about",
-        "/sources",
-    ]
-    .iter()
-    .map(|p| p.to_string())
-    .collect();
-    urls.extend(d.coins.iter().map(|c| format!("/coin/{}", c.id)));
-    urls.extend(d.pools.iter().map(|p| format!("/pool/{}", p.slug)));
-    urls.extend(d.miners.iter().map(|m| format!("/hardware/{}", m.id)));
-    urls.extend(d.vendors.iter().map(|v| format!("/buy/vendor/{}", v.slug)));
+    let data_updated = sitemap_lastmod(d.last_updated.as_deref());
+    let hardware_updated = sitemap_lastmod(d.miners_verified_at.as_deref());
+    let vendor_updated = sitemap_lastmod(
+        d.listings_verified_at
+            .as_deref()
+            .or(d.vendors_verified_at.as_deref()),
+    );
+    let hashpower_updated = sitemap_lastmod(d.hashpower.observed_at.as_deref());
+    let mut urls: Vec<(String, Option<String>)> = vec![
+        ("/".into(), data_updated.clone()),
+        ("/coins".into(), data_updated.clone()),
+        ("/pools".into(), data_updated.clone()),
+        ("/hashpower".into(), hashpower_updated),
+        ("/hardware".into(), hardware_updated.clone()),
+        ("/buy".into(), vendor_updated.clone()),
+        ("/guides".into(), Some("2026-10-07".into())),
+        ("/zcash-mining".into(), Some("2026-10-07".into())),
+        ("/calculator".into(), data_updated.clone()),
+        ("/merged-mining".into(), Some("2026-10-07".into())),
+        ("/archive".into(), data_updated.clone()),
+        ("/about".into(), Some("2026-10-07".into())),
+        ("/sources".into(), Some("2026-10-07".into())),
+    ];
+    urls.extend(d.coins.iter().map(|c| (format!("/coin/{}", c.id), data_updated.clone())));
+    for c in d.coins.iter().filter(|c| c.active() && c.id != "zcash") {
+        if d.live_pools().any(|p| p.coin_id == c.id && !p.is_hashpower_marketplace()) {
+            urls.push((format!("/pools?coin={}", c.id), data_updated.clone()));
+        }
+    }
+    urls.extend(
+        d.live_pools()
+            .filter(|p| !p.is_hashpower_marketplace())
+            .map(|p| {
+                (
+                    format!("/pool/{}", p.slug),
+                    sitemap_lastmod(
+                        p.hashrate_observed_at
+                            .as_deref()
+                            .or(p.fetched_at.as_deref())
+                            .or(d.last_updated.as_deref()),
+                    ),
+                )
+            }),
+    );
+    urls.extend(d.miners.iter().map(|m| (format!("/hardware/{}", m.id), hardware_updated.clone())));
+    urls.extend(d.vendors.iter().map(|v| {
+        (
+            format!("/buy/vendor/{}", v.slug),
+            sitemap_lastmod(v.observed_at.as_deref()).or_else(|| vendor_updated.clone()),
+        )
+    }));
     let body: String = urls
         .iter()
-        .map(|u| format!("<url><loc>{}{}</loc></url>", views::layout::SITE, u))
+        .map(|(path, lastmod)| {
+            let loc = xml_escape(&format!("{}{}", views::layout::SITE, path));
+            let modified = lastmod
+                .as_deref()
+                .map(|v| format!("<lastmod>{}</lastmod>", xml_escape(v)))
+                .unwrap_or_default();
+            format!("<url><loc>{loc}</loc>{modified}</url>")
+        })
         .collect();
-    HttpResponse::Ok().content_type("application/xml").body(format!(r#"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>"#))
+    HttpResponse::Ok()
+        .content_type("application/xml; charset=utf-8")
+        .body(format!(r#"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>"#))
 }
 
 async fn not_found(s: web::Data<AppState>) -> HttpResponse {
@@ -390,7 +511,7 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
         .service(web::resource("/coin/{id}").route(get_head().to(coin)))
         .service(web::resource("/pool/{slug}").route(get_head().to(pool)))
         .service(web::resource("/archive").route(get_head().to(archive)))
-        .service(web::resource("/miners").route(get_head().to(miners)))
+        .service(web::resource("/miners").route(get_head().to(miners_legacy)))
         .service(web::resource("/hardware").route(get_head().to(miners)))
         .service(web::resource("/hardware/{id}").route(get_head().to(hardware_detail)))
         .service(web::resource("/buy").route(get_head().to(buy)))
@@ -398,10 +519,11 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
         .service(web::resource("/add-vendor").route(get_head().to(add_vendor)))
         .service(web::resource("/calculator").route(get_head().to(calculator)))
         .service(web::resource("/merged-mining").route(get_head().to(guide)))
+        .service(web::resource("/zcash-mining").route(get_head().to(zcash_mining)))
         .service(web::resource("/guides").route(get_head().to(guides)))
         .service(web::resource("/search").route(get_head().to(search)))
         .service(web::resource("/contribute").route(get_head().to(contribute)))
-        .service(web::resource("/add-pool").route(get_head().to(add_pool)))
+        .service(web::resource("/add-pool").route(get_head().to(add_pool_legacy)))
         .service(web::resource("/about").route(get_head().to(about)))
         .service(web::resource("/sources").route(get_head().to(sources)))
         .service(web::resource("/api/live").route(get_head().to(api_live)))
@@ -409,6 +531,7 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
         .service(web::resource("/data/{file}").route(get_head().to(data_file)))
         .service(web::resource("/favicon.ico").route(get_head().to(favicon)))
         .service(web::resource("/robots.txt").route(get_head().to(robots)))
+        .service(web::resource("/llms.txt").route(get_head().to(llms)))
         .service(web::resource("/sitemap.xml").route(get_head().to(sitemap)))
         // Logos first: long immutable cache and a CSP of their own (src/views/logo.rs).
         .service(views::logo::service(&sdir))
@@ -575,7 +698,6 @@ mod tests {
             format!("/coin/{coin}"),
             format!("/pool/{slug}"),
             "/archive".into(),
-            "/miners".into(),
             "/hardware".into(),
             format!("/hardware/{miner}"),
             "/buy".into(),
@@ -583,11 +705,11 @@ mod tests {
             format!("/buy/vendor/{}", s.get().vendors[0].slug),
             "/add-vendor".into(),
             "/guides".into(),
+            "/zcash-mining".into(),
             "/search?q=Z15+Pro".into(),
             "/contribute".into(),
             "/calculator".into(),
             "/merged-mining".into(),
-            "/add-pool".into(),
             "/about".into(),
             "/sources".into(),
             "/api/live".into(),
@@ -598,6 +720,7 @@ mod tests {
             "/data/hashpower.json".into(),
             "/favicon.ico".into(),
             "/robots.txt".into(),
+            "/llms.txt".into(),
             "/sitemap.xml".into(),
             "/static/app.js".into(),
         ];
@@ -633,6 +756,17 @@ mod tests {
                 r.headers().get(header::LOCATION).unwrap(),
                 "/pools?coin=wcash"
             );
+        }
+        for (from, to) in [("/miners", "/hardware"), ("/add-pool", "/contribute#pool")] {
+            for m in [Method::GET, Method::HEAD] {
+                let r = test::call_service(
+                    &app,
+                    test::TestRequest::default().method(m).uri(from).to_request(),
+                )
+                .await;
+                assert_eq!(r.status(), 301, "{from}");
+                assert_eq!(r.headers().get(header::LOCATION).unwrap(), to, "{from}");
+            }
         }
         let campaign = test::call_service(
             &app,
@@ -699,6 +833,146 @@ mod tests {
         assert_eq!(h("x-content-type-options"), "nosniff");
         assert_eq!(h("referrer-policy"), "strict-origin-when-cross-origin");
         assert_eq!(h("x-frame-options"), "DENY");
+    }
+
+    #[actix_web::test]
+    async fn discovery_metadata_is_indexable_and_structured() {
+        let s = state();
+        let app = app!(s);
+
+        let home = test::call_and_read_body(
+            &app,
+            test::TestRequest::get().uri("/").to_request(),
+        )
+        .await;
+        let home = String::from_utf8(home.to_vec()).unwrap();
+        assert!(home.contains(
+            r#"<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">"#
+        ));
+        assert!(home.contains(r#"<link rel="canonical" href="https://equihash.com/">"#));
+        assert!(home.contains(r#"<link rel="alternate" type="text/plain" href="/llms.txt""#));
+        let json = home
+            .split(r#"<script type="application/ld+json">"#)
+            .nth(1)
+            .and_then(|s| s.split("</script>").next())
+            .expect("JSON-LD block");
+        let graph: serde_json::Value = serde_json::from_str(json).expect("valid JSON-LD");
+        let nodes = graph["@graph"].as_array().unwrap();
+        assert_eq!(
+            nodes.iter().filter(|n| n["@type"] == "WebSite").count(),
+            1,
+            "WebSite is declared once on the homepage"
+        );
+
+        let product = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/hardware/antminer-z15-pro")
+                .to_request(),
+        )
+        .await;
+        let product = String::from_utf8(product.to_vec()).unwrap();
+        let json = product
+            .split(r#"<script type="application/ld+json">"#)
+            .nth(1)
+            .and_then(|s| s.split("</script>").next())
+            .expect("product JSON-LD block");
+        let graph: serde_json::Value = serde_json::from_str(json).expect("valid product JSON-LD");
+        let nodes = graph["@graph"].as_array().unwrap();
+        assert!(nodes.iter().any(|n| n["@type"] == "Product"));
+        assert!(nodes.iter().any(|n| n["@type"] == "BreadcrumbList"));
+        assert!(!nodes.iter().any(|n| n["@type"] == "WebSite"));
+
+        for path in ["/search?q=zcash", "/contribute", "/add-vendor"] {
+            let body = test::call_and_read_body(
+                &app,
+                test::TestRequest::get().uri(path).to_request(),
+            )
+            .await;
+            let body = String::from_utf8(body.to_vec()).unwrap();
+            assert!(
+                body.contains(r#"<meta name="robots" content="noindex, follow">"#),
+                "{path} must stay out of search results"
+            );
+        }
+    }
+
+    #[actix_web::test]
+    async fn sitemap_contains_only_canonical_working_pages() {
+        let s = state();
+        let app = app!(s.clone());
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get().uri("/sitemap.xml").to_request(),
+        )
+        .await;
+        assert_eq!(response.status(), 200);
+        let body = test::read_body(response).await;
+        let body = String::from_utf8(body.to_vec()).unwrap();
+        assert!(body.contains("<lastmod>"));
+        assert!(body.contains("https://equihash.com/zcash-mining"));
+        assert!(!body.contains("https://equihash.com/miners"));
+        assert!(!body.contains("https://equihash.com/add-pool"));
+        assert!(!body.contains("https://equihash.com/contribute"));
+        for old in s.get().slug_redirects.keys() {
+            assert!(
+                !body.contains(&format!("https://equihash.com/pool/{old}<")),
+                "redirecting pool slug in sitemap: {old}"
+            );
+        }
+
+        let mut seen = std::collections::HashSet::new();
+        for loc in body.split("<loc>").skip(1).filter_map(|x| x.split("</loc>").next()) {
+            let path = loc
+                .strip_prefix(views::layout::SITE)
+                .expect("same-origin sitemap URL")
+                .replace("&amp;", "&");
+            assert!(seen.insert(path.clone()), "duplicate sitemap URL: {path}");
+            let response = test::call_service(
+                &app,
+                test::TestRequest::get().uri(&path).to_request(),
+            )
+            .await;
+            assert_eq!(response.status(), 200, "sitemap URL must resolve: {path}");
+        }
+        assert!(seen.len() > 25, "sitemap unexpectedly small: {}", seen.len());
+    }
+
+    #[actix_web::test]
+    async fn crawler_files_are_clear_and_data_is_noindex() {
+        let s = state();
+        let app = app!(s);
+        let robots = test::call_and_read_body(
+            &app,
+            test::TestRequest::get().uri("/robots.txt").to_request(),
+        )
+        .await;
+        let robots = String::from_utf8(robots.to_vec()).unwrap();
+        assert!(robots.contains("User-agent: OAI-SearchBot\nAllow: /"));
+        assert!(robots.contains("Sitemap: https://equihash.com/sitemap.xml"));
+
+        let llms = test::call_and_read_body(
+            &app,
+            test::TestRequest::get().uri("/llms.txt").to_request(),
+        )
+        .await;
+        let llms = String::from_utf8(llms.to_vec()).unwrap();
+        assert!(llms.contains("https://equihash.com/zcash-mining"));
+        assert!(llms.contains("https://equihash.com/data/pools.json"));
+        assert!(llms.contains("Wcash receives work only from participating merged-mining pools"));
+
+        for path in ["/api/live", "/healthz", "/data/pools.json"] {
+            let response = test::call_service(
+                &app,
+                test::TestRequest::get().uri(path).to_request(),
+            )
+            .await;
+            assert_eq!(
+                response.headers().get("x-robots-tag").unwrap(),
+                "noindex",
+                "{path}"
+            );
+        }
     }
 
     #[actix_web::test]
