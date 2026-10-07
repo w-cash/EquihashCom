@@ -508,6 +508,11 @@ pub struct Vendor {
     pub regions: Vec<String>,
     pub region_focus: Option<String>,
     pub region_note: Option<String>,
+    /// Sales relationship shown to readers: manufacturer, independent retailer, or broker/hosting.
+    pub channel: Option<String>,
+    /// Short, sourced trust label. This must not imply manufacturer authorization unless sourced.
+    pub verification_label: Option<String>,
+    pub verification_url: Option<String>,
     pub notes: Option<String>,
     pub source_url: Option<String>,
     pub observed_at: Option<String>,
@@ -1680,6 +1685,11 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
     }
     for v in vf.vendors.iter_mut() {
         clean_url(&mut v.url, &format!("vendor {} url", v.id), &mut dropped);
+        clean_url(
+            &mut v.verification_url,
+            &format!("vendor {} verification_url", v.id),
+            &mut dropped,
+        );
         clean_url(
             &mut v.source_url,
             &format!("vendor {} source_url", v.id),

@@ -46,6 +46,22 @@ fn vendor_mark(v: &Vendor, head: bool) -> Markup {
     }
 }
 
+fn channel_label(v: &Vendor) -> &str {
+    match v.channel.as_deref() {
+        Some("manufacturer") => "Official manufacturer",
+        Some("broker_hosting") => "Broker & hosting",
+        _ => "Independent retailer",
+    }
+}
+
+fn channel_class(v: &Vendor) -> &str {
+    if v.channel.as_deref() == Some("manufacturer") {
+        " official"
+    } else {
+        ""
+    }
+}
+
 fn listing_card(d: &Data, l: &Listing) -> Markup {
     let v = vendor(d, &l.vendor_id);
     let vendor_name = v.map(|x| x.name.as_str()).unwrap_or("Vendor");
@@ -55,7 +71,9 @@ fn listing_card(d: &Data, l: &Listing) -> Markup {
     } else {
         1
     };
-    let region_rank = if l.shipping_regions.iter().any(|r| r == "UK") {
+    let region_rank = if v.and_then(|x| x.channel.as_deref()) == Some("manufacturer") {
+        -1
+    } else if l.shipping_regions.iter().any(|r| r == "UK") {
         0
     } else {
         1
@@ -71,6 +89,7 @@ fn listing_card(d: &Data, l: &Listing) -> Markup {
             }
             div class="buy-card-body" {
                 header class="buy-card-head" {
+                    @if let Some(v) = v { span class={"vendor-badge" (channel_class(v))} { (channel_label(v)) } }
                     h3 class="buy-card-title" { (l.title) }
                     p class="buy-card-shop" {
                         @if let Some(v) = v { (vendor_mark(v, false)) }
@@ -115,7 +134,7 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
                 && (region.is_empty()
                     || l.shipping_regions
                         .iter()
-                        .any(|r| r.eq_ignore_ascii_case(region)))
+                        .any(|r| r.eq_ignore_ascii_case(region) || r == "Global"))
         })
         .collect();
     listings.sort_by(|a, b| match sort {
@@ -125,13 +144,15 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             .unwrap_or(std::cmp::Ordering::Equal),
         "stock" => (a.availability.as_deref() != Some("in_stock"))
             .cmp(&(b.availability.as_deref() != Some("in_stock"))),
-        _ => (!a.shipping_regions.iter().any(|r| r == "UK"))
+        _ => (vendor(d, &a.vendor_id).and_then(|v| v.channel.as_deref()) != Some("manufacturer"))
+            .cmp(&(vendor(d, &b.vendor_id).and_then(|v| v.channel.as_deref()) != Some("manufacturer")))
+            .then_with(|| (!a.shipping_regions.iter().any(|r| r == "UK"))
             .cmp(&(!b.shipping_regions.iter().any(|r| r == "UK")))
             .then_with(|| {
                 a.price_amount
                     .partial_cmp(&b.price_amount)
                     .unwrap_or(std::cmp::Ordering::Equal)
-            }),
+            })),
     });
     let mut machines: Vec<_> = d
         .miners
@@ -153,6 +174,17 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
                 h1 { "Where to buy Equihash ASICs" }
                 p class="lede" { "Prices and stock come from the vendors’ public product pages. Open the vendor’s site to buy. " strong { "equihash.com never sells hardware" } " and does not take payment for placement." }
             }
+            aside class="official-channel" aria-labelledby="official-channel-title" {
+                div {
+                    p class="eyebrow" { "MANUFACTURER DIRECT" }
+                    h2 id="official-channel-title" { "BITMAIN’s official sales channel" }
+                    p { "BITMAIN says it sells only through shop.bitmain.com and has no official distributors or resellers. Other shops below are independent businesses, even when they sell new ANTMINER hardware." }
+                }
+                div class="official-channel-actions" {
+                    a class="buy-cta" href="https://shop.bitmain.com/" rel="noopener nofollow" target="_blank" { "Open BITMAIN Shop" }
+                    a href="https://support.bitmain.com/hc/en-us/articles/4563169497497-Is-there-any-recommended-dealers-Are-there-any-distributors-overseas" rel="noopener" target="_blank" { "Read BITMAIN’s channel notice" }
+                }
+            }
             form class="filters buy-filters" id="buy-filters" action="/buy" method="get" {
                 div class="f" { label for="buy-machine" { "Machine" } select id="buy-machine" name="machine" data-buy-filter="machine" { option value="" selected[machine.is_empty()] { "All machines" } @for m in &machines { option value=(m.id) selected[m.id == machine] { (m.maker) " " (m.model) } } } }
                 div class="f" { label for="buy-region" { "Region" } select id="buy-region" name="region" data-buy-filter="region" { option value="" selected[region.is_empty()] { "All regions" } @for r in &regions { option value=(r) selected[r == region] { (r) } } } }
@@ -169,8 +201,9 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
                 } }
             }
             section class="buy-vendors" id="vendors" {
-                header class="buy-machine-head" { h2 { "Vendors" } p class="section-sub" { "We list shops that publish an Equihash ASIC product page, stock information and shipping regions. " a href="/add-vendor" { "Add a vendor" } "." } }
+                header class="buy-machine-head" { h2 { "Vendor directory" } p class="section-sub" { "Official manufacturer sales and independent sellers are labelled separately. A listing means its public page was checked; it is not an endorsement. " a href="/add-vendor" { "Add a vendor" } "." } }
                 div class="buy-vendor-grid" { @for v in &d.vendors { @let n = d.listings.iter().filter(|l| l.vendor_id == v.id).count(); article class="buy-vendor-card" {
+                    span class={"vendor-badge" (channel_class(v))} { (channel_label(v)) }
                     a class="buy-vendor-link" href={"/buy/vendor/" (v.slug)} { (vendor_mark(v, true)) span class="buy-vendor-meta" { strong { (v.name) } span class="buy-vendor-regions" { (v.regions.join(" · ")) } span class="buy-vendor-count" { (n) @if n == 1 { " listing" } @else { " listings" } } } }
                     p class="buy-vendor-site" { @if let Some(u) = &v.url { (ext(u, &fmt::host(Some(u)))) } }
                 } } }
@@ -200,7 +233,8 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
             div class="wrap page buy-page buy-vendor-page" {
                 p class="crumb" { a href="/buy" { "All Buy listings" } }
             header class="page-head" { div class="title-row" { h1 { (vendor_mark(v, true)) (v.name) } (crate::views::pages::copy_link(&path, "Copy link to this vendor")) } p class="lede" { (v.region_note.as_deref().unwrap_or("Vendor listing.")) @if let Some(u) = &v.url { " Site: " (ext(u, &fmt::host(Some(u)))) "." } } }
-                dl class="buy-vendor-kv" { div { dt { "Listings here" } dd { (rows.len()) } } div { dt { "Regions" } dd { (v.regions.join(", ")) } } div { dt { "Checked" } dd { (fmt::utc(v.observed_at.as_deref())) @if let Some(u) = &v.source_url { " · " (ext(u, &fmt::host(Some(u)))) } } } }
+                dl class="buy-vendor-kv" { div { dt { "Channel" } dd { span class={"vendor-badge" (channel_class(v))} { (channel_label(v)) } } } div { dt { "Listings here" } dd { (rows.len()) } } div { dt { "Regions" } dd { (v.regions.join(", ")) } } div { dt { "Checked" } dd { (fmt::utc(v.observed_at.as_deref())) @if let Some(u) = &v.source_url { " · " (ext(u, &fmt::host(Some(u)))) } } } }
+                @if let Some(label) = &v.verification_label { p class="vendor-verification" { strong { "Verification: " } (label) @if let Some(u) = &v.verification_url { " · " (ext(u, "source")) } } }
                 @if let Some(n) = &v.notes { p class="small" { (n) } }
                 div class="buy-gallery" data-buy-gallery { @for l in rows { (listing_card(d, l)) } }
                 p class="buy-honesty" { "To buy, open the listing on " (v.name) "'s own site. equihash.com does not sell hardware." }

@@ -454,7 +454,7 @@
       let count = 0;
       for (const card of cards()) {
         const regions = (card.dataset.region || "").split(",").map((x) => x.trim().toLowerCase());
-        card.hidden = !!((machine && card.dataset.machine !== machine) || (region && !regions.includes(region.toLowerCase())));
+        card.hidden = !!((machine && card.dataset.machine !== machine) || (region && !regions.includes("global") && !regions.includes(region.toLowerCase())));
         if (!card.hidden) count++;
       }
       for (const gallery of galleries) {

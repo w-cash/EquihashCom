@@ -615,6 +615,15 @@ table.data td > .logo:first-child, table.mini td .logo { margin-right: 6px; }
 .buy-vendor-kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px 18px; margin: 0 0 22px; }
 .buy-vendor-kv dt { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-3); }
 .buy-vendor-kv dd { margin: 2px 0 0; }
+.official-channel { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 30px; align-items: end; margin: 0 0 30px; padding: 23px 25px; border: 1px solid #817b69; border-top: 4px solid var(--ink); background: var(--sheet); }
+.official-channel h2 { margin: 2px 0 7px; font-size: 25px; }
+.official-channel p { max-width: 52em; margin: 0; color: var(--ink-2); }
+.official-channel .eyebrow { margin-bottom: 6px; color: #6b5a20; }
+.official-channel-actions { display: flex; flex-direction: column; gap: 9px; align-items: flex-start; min-width: 190px; }
+.official-channel-actions > a:not(.buy-cta) { font-size: 12.5px; }
+.vendor-badge { display: inline-flex; align-items: center; width: fit-content; margin-bottom: 7px; padding: 3px 7px; border: 1px solid var(--rule); color: var(--ink-2); font: 600 10px/1.2 var(--sans); letter-spacing: .055em; text-transform: uppercase; }
+.vendor-badge.official { border-color: #8b7427; background: #f4cc43; color: #211f1a; }
+.vendor-verification { max-width: 58em; margin: -8px 0 24px; padding: 12px 14px; border-left: 3px solid #8b7427; background: var(--sheet); font-size: 13px; color: var(--ink-2); }
 @media (min-width: 681px) {
   .buy-gallery:has(> .buy-card:only-child) { grid-template-columns: minmax(0, 1fr); }
   .buy-gallery:has(> .buy-card:only-child) > .buy-card { display: grid; grid-template-columns: minmax(320px, .8fr) minmax(420px, 1.2fr); }
@@ -624,6 +633,7 @@ table.data td > .logo:first-child, table.mini td .logo { margin-right: 6px; }
   .buy-gallery:has(> .buy-card:only-child) .buy-card-title { font-size: 25px; }
 }
 @media (max-width: 680px) {
+  .official-channel { grid-template-columns: 1fr; gap: 18px; padding: 20px 16px; }
   .buy-gallery { grid-template-columns: 1fr; }
   .buy-filters .buy-count { margin: 4px 0 0; flex-basis: 100%; }
   .buy-card-media { min-height: 150px; }
