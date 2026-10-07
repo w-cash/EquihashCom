@@ -142,7 +142,7 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                 main id="main" { (body) }
                 footer class="foot" {
                     div class="wrap foot-inner" {
-                        p class="foot-owner" { strong { "equihash.com" } " · " a href="https://x.com/MykytaSamardak" rel="me noopener" { "@MykytaSamardak" } " · " a href="https://t.me/EquihashCom" rel="noopener" { "Telegram" } }
+                        p class="foot-owner" { strong { "equihash.com" } " · " a href="https://x.com/MykytaSamardak" rel="me noopener" { "@MykytaSamardak" } }
                         nav class="foot-links" aria-label="Footer" {
                             a href="/contribute" { "Corrections" }
                             a href="/sources" { "Sources" }
@@ -228,7 +228,7 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
         "@id": publisher_id,
         "name": "Mykyta Samardak",
         "url": "https://equihash.com/about",
-        "sameAs": ["https://x.com/MykytaSamardak", "https://t.me/EquihashCom"]
+        "sameAs": ["https://x.com/MykytaSamardak"]
     })];
     if p.path == "/" {
         graph.insert(0, json!({

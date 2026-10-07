@@ -343,7 +343,7 @@ pub fn add_vendor(d: &Data) -> Markup {
         div class="wrap page narrow prose" {
             header class="page-head" { h1 { "Add a vendor" } p class="lede" { "Directory inclusion is free. Submit public company and listing pages that readers can inspect without an account." } }
             h2 { "What to send" }
-            ol { li { strong { "Publish the facts. " } "Company identity, seller location, availability, price and delivery wording must be visible on public pages." } li { strong { "Send the sources. " } "Copy the template and send it to " a href="https://x.com/MykytaSamardak" rel="noopener" { "@MykytaSamardak on X" } " or " a href="https://t.me/EquihashCom" rel="noopener" { "EquihashCom on Telegram" } "." } }
+            ol { li { strong { "Publish the facts. " } "Company identity, seller location, availability, price and delivery wording must be visible on public pages." } li { strong { "Send the sources. " } "Copy the template and send it to " a href="https://x.com/MykytaSamardak" rel="noopener" { "@MykytaSamardak on X" } "." } }
             div class="tpl" { div class="tpl-head" { span { "Vendor template" } button class="btn small" type="button" data-copy="#tpl-vendor" { "Copy" } } pre id="tpl-vendor" { (template) } }
             p class="small" { "Manufacturer specifications stay on " a href="/hardware" { "Hardware" } "; the vendor directory records seller-published listings and source checks." }
         }

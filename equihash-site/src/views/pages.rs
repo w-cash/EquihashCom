@@ -327,7 +327,7 @@ pub fn about(d: &Data) -> Markup {
     layout(d, Page { title: "About", description: "About equihash.com, the open directory for Equihash coins, mining pools, hardware and guides.", path: "/about", nav: "about" }, html! {
         div class="wrap page narrow prose" {
             header class="page-head" { h1 { "About equihash.com" } p class="lede" { "equihash.com lists Equihash coins, mining pools, ASICs, sellers and hashpower markets, and shows where each number came from." } }
-            p class="about-line" { "Maintained by " a href="https://x.com/MykytaSamardak" rel="me noopener" target="_blank" { "Mykyta Samardak (@MykytaSamardak)" } ", who also builds " a href="https://w.cash" rel="noopener" target="_blank" { "Wcash" } ". Community updates are on " a href="https://t.me/EquihashCom" rel="noopener" target="_blank" { "Telegram" } "." }
+            p class="about-line" { "Maintained by " a href="https://x.com/MykytaSamardak" rel="me noopener" target="_blank" { "Mykyta Samardak (@MykytaSamardak)" } "." }
             p { "The same person maintains this site and Wcash. Only Zcash pools that support Wcash send work to it, so this site never counts all Zcash hashrate as Wcash hashrate." }
             h2 { "How it's run" }
             p { "Pool order comes from the figures in the table. Nobody can pay for a row, a higher position or a badge." }
