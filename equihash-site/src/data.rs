@@ -523,6 +523,9 @@ pub struct Vendor {
     pub name: String,
     pub url: Option<String>,
     pub regions: Vec<String>,
+    /// Where the seller's disclosed legal/operating entity is based. This is kept separate from
+    /// `regions`, which records destinations the seller says it serves.
+    pub base_region: Option<String>,
     pub region_focus: Option<String>,
     pub region_note: Option<String>,
     pub legal_name: Option<String>,
