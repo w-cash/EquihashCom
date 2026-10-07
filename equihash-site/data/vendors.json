@@ -1,0 +1,18 @@
+{
+  "_doc": "Equihash ASIC shop directory. equihash.com does not sell hardware and does not take payment for placement. Every vendor is checked by hand; regions and site URL come from the vendor's own pages. null = n/a.",
+  "verified_at": "2026-10-05T20:15:00.000Z",
+  "vendors": [
+    {
+      "id": "the-mining-shop-uk",
+      "slug": "the-mining-shop-uk",
+      "name": "The Mining Shop UK",
+      "url": "https://www.theminingshop.co.uk/",
+      "regions": ["UK", "EU"],
+      "region_focus": "UK",
+      "region_note": "UK company (Hartlepool). Schema lists free standard delivery to GB; DDP UK/EU warehouse.",
+      "notes": "Also listed as The Mining Shop UK LTD.",
+      "source_url": "https://www.theminingshop.co.uk/",
+      "observed_at": "2026-10-05T20:15:00.000Z"
+    }
+  ]
+}

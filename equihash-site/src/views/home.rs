@@ -24,7 +24,10 @@ pub struct Filters {
 
 impl Filters {
     pub fn coin(&self) -> String {
-        self.coin.clone().filter(|s| !s.is_empty()).unwrap_or_else(|| "zcash".into())
+        self.coin
+            .clone()
+            .filter(|s| !s.is_empty())
+            .unwrap_or_else(|| "zcash".into())
     }
     fn s(v: &Option<String>) -> String {
         v.clone().unwrap_or_default()
@@ -34,7 +37,11 @@ impl Filters {
 /// Payout filter options, built from the data so every scheme a pool lists is selectable.
 pub fn scheme_options(d: &Data) -> Vec<(String, String)> {
     let mut v = vec![(String::new(), "Any payout".to_string())];
-    v.extend(d.payout_schemes().into_iter().map(|(s, n)| (s.clone(), format!("{s} ({n})"))));
+    v.extend(
+        d.payout_schemes()
+            .into_iter()
+            .map(|(s, n)| (s.clone(), format!("{s} ({n})"))),
+    );
     v
 }
 
@@ -79,7 +86,11 @@ pub fn matches(p: &Pool, f: &Filters) -> bool {
     if f.hide_empty.as_deref() == Some("1") && !p.hashrate.map(|h| h > 0.0).unwrap_or(false) {
         return false;
     }
-    if let Some(q) = f.q.as_deref().map(|q| q.trim().to_lowercase()).filter(|q| !q.is_empty()) {
+    if let Some(q) =
+        f.q.as_deref()
+            .map(|q| q.trim().to_lowercase())
+            .filter(|q| !q.is_empty())
+    {
         if !search_text(p).contains(&q) {
             return false;
         }
@@ -88,7 +99,15 @@ pub fn matches(p: &Pool, f: &Filters) -> bool {
 }
 
 fn search_text(p: &Pool) -> String {
-    format!("{} {} {} {} {}", p.name, p.coin, p.coin_label, p.url.clone().unwrap_or_default(), p.region.clone().unwrap_or_default()).to_lowercase()
+    format!(
+        "{} {} {} {} {}",
+        p.name,
+        p.coin,
+        p.coin_label,
+        p.url.clone().unwrap_or_default(),
+        p.region.clone().unwrap_or_default()
+    )
+    .to_lowercase()
 }
 
 fn sort_key(p: &Pool, key: &str) -> (i32, f64, String) {
@@ -105,7 +124,11 @@ fn sort_key(p: &Pool, key: &str) -> (i32, f64, String) {
         "fee" => n(p.min_fee()),
         "minpay" => n(p.min_payout),
         "blocks" => n(p.blocks_last_1000),
-        "region" => (if p.region.is_some() { 1 } else { 0 }, 0.0, p.region.clone().unwrap_or_default().to_lowercase()),
+        "region" => (
+            if p.region.is_some() { 1 } else { 0 },
+            0.0,
+            p.region.clone().unwrap_or_default().to_lowercase(),
+        ),
         _ => n(p.hashrate),
     }
 }
@@ -118,7 +141,10 @@ pub fn sort_pools<'a>(mut v: Vec<&'a Pool>, key: &str, dir: &str) -> Vec<&'a Poo
         if ha != hb {
             return hb.cmp(&ha);
         }
-        let o = na.partial_cmp(&nb).unwrap_or(std::cmp::Ordering::Equal).then(ta.cmp(&tb));
+        let o = na
+            .partial_cmp(&nb)
+            .unwrap_or(std::cmp::Ordering::Equal)
+            .then(ta.cmp(&tb));
         if desc {
             o.reverse()
         } else {
@@ -132,7 +158,9 @@ pub fn urlenc(s: &str) -> String {
     let mut o = String::new();
     for b in s.bytes() {
         match b {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => o.push(b as char),
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                o.push(b as char)
+            }
             b' ' => o.push('+'),
             _ => o.push_str(&format!("%{b:02X}")),
         }
@@ -158,7 +186,11 @@ fn median(mut v: Vec<f64>) -> Option<f64> {
     }
     v.sort_by(|a, b| a.partial_cmp(b).unwrap());
     let n = v.len();
-    Some(if n % 2 == 1 { v[n / 2] } else { (v[n / 2 - 1] + v[n / 2]) / 2.0 })
+    Some(if n % 2 == 1 {
+        v[n / 2]
+    } else {
+        (v[n / 2 - 1] + v[n / 2]) / 2.0
+    })
 }
 
 /// Fee a pool charges on one of the given schemes (scheme fee if published, else headline fee).
@@ -170,7 +202,10 @@ fn scheme_fee(p: &Pool, family: &[&str]) -> Option<f64> {
         .filter_map(|s| s.fee_pct.or(p.fee_pct))
         .collect();
     if fees.is_empty() {
-        if p.payout_schemes.iter().any(|s| family.iter().any(|f| s.eq_ignore_ascii_case(f))) {
+        if p.payout_schemes
+            .iter()
+            .any(|s| family.iter().any(|f| s.eq_ignore_ascii_case(f)))
+        {
             return p.fee_pct;
         }
         return None;
@@ -185,17 +220,49 @@ fn th(f: &Filters, key: &str, label: &str, class: &str, title: Option<&str>) -> 
     let cur = f.sort.clone().unwrap_or("hashrate".into());
     let dir = f.dir.clone().unwrap_or("desc".into());
     let text_key = matches!(key, "name" | "coin" | "region");
-    let next = if cur == key { if dir == "desc" { "asc" } else { "desc" } } else if text_key { "asc" } else { "desc" };
+    let next = if cur == key {
+        if dir == "desc" {
+            "asc"
+        } else {
+            "desc"
+        }
+    } else if text_key {
+        "asc"
+    } else {
+        "desc"
+    };
     let mut qs = vec![("coin", f.coin())];
-    for (k, v) in [("scheme", &f.scheme), ("region", &f.region), ("q", &f.q), ("fee", &f.fee), ("hr", &f.hr), ("merged", &f.merged), ("hide_empty", &f.hide_empty)] {
+    for (k, v) in [
+        ("scheme", &f.scheme),
+        ("region", &f.region),
+        ("q", &f.q),
+        ("fee", &f.fee),
+        ("hr", &f.hr),
+        ("merged", &f.merged),
+        ("hide_empty", &f.hide_empty),
+    ] {
         if let Some(v) = v.as_ref().filter(|v| !v.is_empty()) {
             qs.push((k, v.clone()));
         }
     }
     qs.push(("sort", key.into()));
     qs.push(("dir", next.into()));
-    let href = format!("/?{}#pools", qs.iter().map(|(k, v)| format!("{k}={}", urlenc(v))).collect::<Vec<_>>().join("&"));
-    let aria = if cur == key { if dir == "asc" { "ascending" } else { "descending" } } else { "none" };
+    let href = format!(
+        "/pools?{}#pools",
+        qs.iter()
+            .map(|(k, v)| format!("{k}={}", urlenc(v)))
+            .collect::<Vec<_>>()
+            .join("&")
+    );
+    let aria = if cur == key {
+        if dir == "asc" {
+            "ascending"
+        } else {
+            "descending"
+        }
+    } else {
+        "none"
+    };
     html! {
         th class=(class) aria-sort=(aria) data-sort=(key) title=[title] scope="col" {
             a href=(href) { (label) }
@@ -203,7 +270,13 @@ fn th(f: &Filters, key: &str, label: &str, class: &str, title: Option<&str>) -> 
     }
 }
 
-fn sel(name: &str, current: &str, options: &[(String, String)], label: &str, class: &str) -> Markup {
+fn sel(
+    name: &str,
+    current: &str,
+    options: &[(String, String)],
+    label: &str,
+    class: &str,
+) -> Markup {
     html! {
         label class={"f " (class)} {
             span { (label) }
@@ -217,7 +290,11 @@ fn sel(name: &str, current: &str, options: &[(String, String)], label: &str, cla
 }
 
 fn region_short(r: &str) -> Markup {
-    let parts: Vec<&str> = r.split(',').map(|x| x.trim()).filter(|x| !x.is_empty()).collect();
+    let parts: Vec<&str> = r
+        .split(',')
+        .map(|x| x.trim())
+        .filter(|x| !x.is_empty())
+        .collect();
     html! {
         @if r.chars().count() <= 20 { (r) }
         @else { (parts.first().copied().unwrap_or("")) " " span class="more" { "+" (parts.len().saturating_sub(1)) } }
@@ -292,7 +369,9 @@ pub fn m_share(p: &Pool) -> String {
     if p.share_note.is_some() {
         share_text(p)
     } else {
-        p.network_share_pct.map(|s| fmt::pct(Some(s))).unwrap_or_default()
+        p.network_share_pct
+            .map(|s| fmt::pct(Some(s)))
+            .unwrap_or_default()
     }
 }
 
@@ -314,7 +393,13 @@ pub fn hashrate_title(p: &Pool) -> String {
         _ if p.hashrate.is_none() => "Not published",
         _ => "Published by the pool",
     };
-    let src = p.hashrate_source.as_deref().map(|u| fmt::host(Some(u)).split('/').next().unwrap_or("").to_string());
+    let src = p.hashrate_source.as_deref().map(|u| {
+        fmt::host(Some(u))
+            .split('/')
+            .next()
+            .unwrap_or("")
+            .to_string()
+    });
     match (src, p.hashrate_observed_at.as_deref()) {
         (Some(s), Some(t)) => format!("{basis}; {s}, observed {}", fmt::utc(Some(t))),
         (Some(s), None) => format!("{basis}; {s}"),
@@ -325,8 +410,16 @@ pub fn hashrate_title(p: &Pool) -> String {
 /// One stacked bar: who holds the coin's hashrate. Red for any pool over 30%, hatched for hashrate
 /// no listed pool reports. Every variant carries data-split-coin, so /api/live can swap it whole.
 pub fn split_bar(d: &Data, c: &Coin) -> Markup {
-    let mut pools: Vec<&Pool> = d.pools.iter().filter(|p| p.coin_id == c.id && p.network_share_pct.map(|s| s > 0.0).unwrap_or(false)).collect();
-    pools.sort_by(|a, b| b.network_share_pct.partial_cmp(&a.network_share_pct).unwrap());
+    let mut pools: Vec<&Pool> = d
+        .pools
+        .iter()
+        .filter(|p| p.coin_id == c.id && p.network_share_pct.map(|s| s > 0.0).unwrap_or(false))
+        .collect();
+    pools.sort_by(|a, b| {
+        b.network_share_pct
+            .partial_cmp(&a.network_share_pct)
+            .unwrap()
+    });
     if pools.is_empty() {
         return html! { p class="split-none" data-split-coin=(c.id) { "No pool on " (c.label) " publishes its hashrate, so there is no split to show." } };
     }
@@ -343,13 +436,29 @@ pub fn split_bar(d: &Data, c: &Coin) -> Markup {
     }
     let by_network = c.share_basis == "network";
     let all: f64 = pools.iter().filter_map(|p| p.network_share_pct).sum();
-    let unknown = if by_network { (100.0 - all).max(0.0) } else { 0.0 };
+    let unknown = if by_network {
+        (100.0 - all).max(0.0)
+    } else {
+        0.0
+    };
     let named: Vec<&Pool> = pools.iter().take(3).cloned().collect();
-    let rest: f64 = pools.iter().skip(3).filter_map(|p| p.network_share_pct).sum();
+    let rest: f64 = pools
+        .iter()
+        .skip(3)
+        .filter_map(|p| p.network_share_pct)
+        .sum();
     let unit = c.network.unit.as_deref().unwrap_or("Sol/s");
     // Pools under 2% are drawn as one segment so the bar stays readable.
-    let big: Vec<&Pool> = pools.iter().filter(|p| p.network_share_pct.unwrap_or(0.0) >= 2.0 || p.share_flag).cloned().collect();
-    let small: f64 = pools.iter().filter(|p| !(p.network_share_pct.unwrap_or(0.0) >= 2.0 || p.share_flag)).filter_map(|p| p.network_share_pct).sum();
+    let big: Vec<&Pool> = pools
+        .iter()
+        .filter(|p| p.network_share_pct.unwrap_or(0.0) >= 2.0 || p.share_flag)
+        .cloned()
+        .collect();
+    let small: f64 = pools
+        .iter()
+        .filter(|p| !(p.network_share_pct.unwrap_or(0.0) >= 2.0 || p.share_flag))
+        .filter_map(|p| p.network_share_pct)
+        .sum();
     html! {
         figure class="split" data-split-coin=(c.id) {
             figcaption {
@@ -392,9 +501,18 @@ pub fn split_bar(d: &Data, c: &Coin) -> Markup {
 pub fn hashrate_pair(c: &Coin) -> Markup {
     let unit = c.network.unit.as_deref().unwrap_or("Sol/s");
     let (rep, dag) = fmt::reported(c);
-    let net_title = match (c.network.hashrate_source.as_deref(), c.network.hashrate_observed_at.as_deref()) {
+    let net_title = match (
+        c.network.hashrate_source.as_deref(),
+        c.network.hashrate_observed_at.as_deref(),
+    ) {
         (Some(s), Some(t)) => {
-            let host = |u: &str| fmt::host(Some(u)).split('/').next().unwrap_or("").to_string();
+            let host = |u: &str| {
+                fmt::host(Some(u))
+                    .split('/')
+                    .next()
+                    .unwrap_or("")
+                    .to_string()
+            };
             let via = match c.network.hashrate_upstream.as_deref() {
                 Some(u) if u.starts_with("http") => format!(", which cites {}", host(u)),
                 Some(u) => format!(", which gives its basis as \"{u}\""),
@@ -426,16 +544,29 @@ pub fn live_line(d: &Data, c: &Coin, now: chrono::DateTime<chrono::Utc>) -> Mark
     let stale_after = d.live_stale_after_secs;
     for s in d.live.iter() {
         let (what, ts) = match s.target.as_str() {
-            "network" if s.coin_id.as_deref() == Some(c.id.as_str()) => ("network estimate".to_string(), c.network.hashrate_observed_at.clone()),
+            "network" if s.coin_id.as_deref() == Some(c.id.as_str()) => (
+                "network estimate".to_string(),
+                c.network.hashrate_observed_at.clone(),
+            ),
             // Name the pool: on a coin with many pools, "pool hashrate" alone would read as all of them.
-            "pool" => match d.pools.iter().find(|p| s.pool_ids.contains(&p.id) && p.coin_id == c.id) {
-                Some(p) => (format!("{} hashrate", p.name), p.hashrate_observed_at.clone()),
+            "pool" => match d
+                .pools
+                .iter()
+                .find(|p| s.pool_ids.contains(&p.id) && p.coin_id == c.id)
+            {
+                Some(p) => (
+                    format!("{} hashrate", p.name),
+                    p.hashrate_observed_at.clone(),
+                ),
                 None => continue,
             },
             _ => continue,
         };
-        let stale = age_secs(ts.as_deref(), now).map(|a| a > stale_after).unwrap_or(true);
-        let down = matches!(s.status.as_str(), "unavailable" | "error").then(|| s.error.clone().unwrap_or_default());
+        let stale = age_secs(ts.as_deref(), now)
+            .map(|a| a > stale_after)
+            .unwrap_or(true);
+        let down = matches!(s.status.as_str(), "unavailable" | "error")
+            .then(|| s.error.clone().unwrap_or_default());
         items.push((s.id.clone(), what, ts, stale, down));
     }
     if items.is_empty() {
@@ -460,7 +591,10 @@ pub fn live_line(d: &Data, c: &Coin, now: chrono::DateTime<chrono::Utc>) -> Mark
 
 /// "(estimated from the last 120 blocks)" for network figures that say how they were averaged.
 pub fn network_note(c: &Coin) -> Option<String> {
-    c.network.hashrate_sample_blocks.filter(|_| c.network.hashrate.is_some()).map(|b| format!("(estimated from the last {b} blocks)"))
+    c.network
+        .hashrate_sample_blocks
+        .filter(|_| c.network.hashrate.is_some())
+        .map(|b| format!("(estimated from the last {b} blocks)"))
 }
 
 /// Share cell text: a percentage, or "only listed pool" when the pool reads above a network
@@ -489,7 +623,12 @@ pub fn freshness(ts: Option<&str>, now: chrono::DateTime<chrono::Utc>, what: &st
 
 /// What the coin's age line is about: automatic pool figures when there are any, else the chain.
 fn freshness_label(d: &Data, c: &Coin) -> &'static str {
-    if d.pools.iter().any(|p| p.coin_id == c.id && !p.operator_reported() && p.live_source.is_none() && p.hashrate_observed_at.is_some()) {
+    if d.pools.iter().any(|p| {
+        p.coin_id == c.id
+            && !p.operator_reported()
+            && p.live_source.is_none()
+            && p.hashrate_observed_at.is_some()
+    }) {
         "Pool figures"
     } else if c.network.hashrate_observed_at.is_some() {
         "Network figures"
@@ -532,8 +671,16 @@ fn coin_head(d: &Data, c: &Coin, now: chrono::DateTime<chrono::Utc>) -> Markup {
 /// The concentration alert for one coin view (or all coins), in a wrapper /api/live can refill
 /// when a live reading moves a pool over or under 30%, or changes what shares are measured against.
 pub fn concentration_view(d: &Data, cur: Option<&Coin>) -> Markup {
-    let mut flagged: Vec<&Pool> = d.live_pools().filter(|p| cur.map(|c| p.coin_id == c.id).unwrap_or(true)).filter(|p| p.share_flag && (cur.is_some() || p.share_basis == "network")).collect();
-    flagged.sort_by(|a, b| b.network_share_pct.partial_cmp(&a.network_share_pct).unwrap());
+    let mut flagged: Vec<&Pool> = d
+        .live_pools()
+        .filter(|p| cur.map(|c| p.coin_id == c.id).unwrap_or(true))
+        .filter(|p| p.share_flag && (cur.is_some() || p.share_basis == "network"))
+        .collect();
+    flagged.sort_by(|a, b| {
+        b.network_share_pct
+            .partial_cmp(&a.network_share_pct)
+            .unwrap()
+    });
     html! { div class="conc" data-conc-view=(cur.map(|c| c.id.as_str()).unwrap_or("all")) { (concentration(cur, &flagged)) } }
 }
 
@@ -582,7 +729,12 @@ pub fn group_hint(label: &str) -> &'static str {
 /// "≥440 kSol/s† · 1 pool": a coin's listed-pool total and row count, as plain text.
 pub fn coin_summary(c: &Coin) -> String {
     let (rep, dag) = fmt::reported(c);
-    format!("{rep}{} · {} {}", if dag { "†" } else { "" }, c.pool_count, if c.pool_count == 1 { "pool" } else { "pools" })
+    format!(
+        "{rep}{} · {} {}",
+        if dag { "†" } else { "" },
+        c.pool_count,
+        if c.pool_count == 1 { "pool" } else { "pools" }
+    )
 }
 
 /// The sidebar link's tooltip: "Wcash (WEC): 586 kSol/s · 1 pool".
@@ -595,7 +747,9 @@ pub fn coin_option_text(c: &Coin) -> String {
     format!("{} {} · {}", c.name, c.symbol, coin_summary(c))
 }
 
-fn pools_text(n: usize) -> String { format!("{n} {}", if n == 1 { "pool" } else { "pools" }) }
+fn pools_text(n: usize) -> String {
+    format!("{n} {}", if n == 1 { "pool" } else { "pools" })
+}
 
 fn coin_nav(d: &Data, current: &str, live_total: usize) -> Markup {
     let item = |c: &Coin| {
@@ -606,7 +760,10 @@ fn coin_nav(d: &Data, current: &str, live_total: usize) -> Markup {
             } }
         }
     };
-    let any_dag = d.coins.iter().any(|c| c.active() && c.reported.operator_pools > 0);
+    let any_dag = d
+        .coins
+        .iter()
+        .any(|c| c.active() && c.reported.operator_pools > 0);
     html! {
         nav class="coin-nav" aria-label="Coins" {
             div class="cn-head" aria-hidden="true" { span class="cn" { "Coin" } span class="ch" title="Sum of what the listed pools report" { "Hashrate" } span class="cc" { "Pools" } }
@@ -627,18 +784,32 @@ fn coin_nav(d: &Data, current: &str, live_total: usize) -> Markup {
 
 fn how_to_pick(d: &Data, c: &Coin) -> Markup {
     let pools: Vec<&Pool> = d.pools.iter().filter(|p| p.coin_id == c.id).collect();
-    let pps: Vec<f64> = pools.iter().filter_map(|p| scheme_fee(p, PPS_FAMILY)).collect();
-    let shared: Vec<f64> = pools.iter().filter_map(|p| scheme_fee(p, SHARED_FAMILY)).collect();
+    let pps: Vec<f64> = pools
+        .iter()
+        .filter_map(|p| scheme_fee(p, PPS_FAMILY))
+        .collect();
+    let shared: Vec<f64> = pools
+        .iter()
+        .filter_map(|p| scheme_fee(p, SHARED_FAMILY))
+        .collect();
     let pro = d.miners.iter().find(|m| m.model.ends_with("Z15 Pro"));
     let z15 = c.z15_compatible == Some(true);
     let pro_hr = pro.and_then(|m| m.hashrate_ksol).filter(|_| z15);
     // Expected days between blocks for one Z15 Pro solo: 1 / (share × blocks per day).
     let solo_days = match (pro_hr, c.network.hashrate, c.network.block_time_target_s) {
-        (Some(h), Some(n), Some(bt)) if n > 0.0 && bt > 0.0 && !calc::outweighs_network(c, h) => Some(1.0 / ((h * 1000.0 / n) * 86400.0 / bt)),
+        (Some(h), Some(n), Some(bt)) if n > 0.0 && bt > 0.0 && !calc::outweighs_network(c, h) => {
+            Some(1.0 / ((h * 1000.0 / n) * 86400.0 / bt))
+        }
         _ => None,
     };
     let per_day = pro_hr.and_then(|h| calc::coins_per_day(c, h, 1.0));
-    let minpay = median(pools.iter().filter_map(|p| p.min_payout).filter(|m| *m > 0.0).collect());
+    let minpay = median(
+        pools
+            .iter()
+            .filter_map(|p| p.min_payout)
+            .filter(|m| *m > 0.0)
+            .collect(),
+    );
     let days = |d: f64| -> String {
         if d < 1.0 / 24.0 {
             format!("{:.0} minutes", (d * 1440.0).max(1.0))
@@ -699,8 +870,18 @@ fn how_to_pick(d: &Data, c: &Coin) -> Markup {
 
 fn z15_box(d: &Data) -> Markup {
     // d.coins is already in rank order within each parameter set.
-    let coins: Vec<&Coin> = d.coins.iter().filter(|c| c.active() && c.nk() == Some((200, 9)) && c.pool_count > 0).collect();
-    let mut other_params: Vec<String> = d.coins.iter().filter(|c| c.active() && c.z15_compatible != Some(true)).map(|c| c.params()).filter(|p| p != "n/a").collect();
+    let coins: Vec<&Coin> = d
+        .coins
+        .iter()
+        .filter(|c| c.active() && c.nk() == Some((200, 9)) && c.pool_count > 0)
+        .collect();
+    let mut other_params: Vec<String> = d
+        .coins
+        .iter()
+        .filter(|c| c.active() && c.z15_compatible != Some(true))
+        .map(|c| c.params())
+        .filter(|p| p != "n/a")
+        .collect();
     other_params.sort();
     other_params.dedup();
     html! {
@@ -789,7 +970,11 @@ fn networks(d: &Data, now: chrono::DateTime<chrono::Utc>) -> Markup {
 }
 
 fn host_of(u: &str) -> String {
-    fmt::host(Some(u)).split('/').next().unwrap_or("").to_string()
+    fmt::host(Some(u))
+        .split('/')
+        .next()
+        .unwrap_or("")
+        .to_string()
 }
 
 /// Tooltip naming where one figure was read and when.
@@ -807,9 +992,17 @@ pub fn field_source_list(c: &Coin) -> Vec<(&'static str, String)> {
     let mut v: Vec<(&'static str, String)> = Vec::new();
     for (label, has, src) in [
         ("hashrate", n.hashrate.is_some(), n.hashrate_source.as_ref()),
-        ("difficulty", n.difficulty.is_some(), n.difficulty_source.as_ref()),
+        (
+            "difficulty",
+            n.difficulty.is_some(),
+            n.difficulty_source.as_ref(),
+        ),
         ("height", n.height.is_some(), n.height_source.as_ref()),
-        ("block time", n.block_time_avg_s.is_some(), n.block_time_source.as_ref()),
+        (
+            "block time",
+            n.block_time_avg_s.is_some(),
+            n.block_time_source.as_ref(),
+        ),
         ("price", c.price_usd.is_some(), c.price_source.as_ref()),
     ] {
         if let (true, Some(u)) = (has, src.filter(|u| u.starts_with("http"))) {
@@ -893,25 +1086,66 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
     if coin != "all" && !active_coins.iter().any(|c| c.id == coin) {
         coin = "all".into();
     }
-    let f = &Filters { coin: Some(coin.clone()), ..f.clone() };
+    let f = &Filters {
+        coin: Some(coin.clone()),
+        ..f.clone()
+    };
     let cur: Option<&Coin> = active_coins.iter().find(|c| c.id == coin).cloned();
     let sort = f.sort.clone().unwrap_or("hashrate".into());
     let dir = f.dir.clone().unwrap_or("desc".into());
-    let in_scope: Vec<&Pool> = live.iter().filter(|p| coin == "all" || p.coin_id == coin).cloned().collect();
+    let in_scope: Vec<&Pool> = live
+        .iter()
+        .filter(|p| coin == "all" || p.coin_id == coin)
+        .cloned()
+        .collect();
     let rows = sort_pools(in_scope.clone(), &sort, &dir);
     let show_coin = cur.is_none();
-    let help_coin: &Coin = cur.unwrap_or_else(|| active_coins.iter().find(|c| c.id == "zcash").or(active_coins.first()).unwrap());
+    let help_coin: &Coin = cur.unwrap_or_else(|| {
+        active_coins
+            .iter()
+            .find(|c| c.id == "zcash")
+            .or(active_coins.first())
+            .unwrap()
+    });
 
     let scheme_opts = scheme_options(d);
     let region_opts = region_options(d);
-    let fee_opts: Vec<(String, String)> = vec![("", "Any fee"), ("0", "No fee"), ("0.5", "0.5% or less"), ("1", "1% or less"), ("2", "2% or less"), ("3", "3% or less")].into_iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    let fee_opts: Vec<(String, String)> = vec![
+        ("", "Any fee"),
+        ("0", "No fee"),
+        ("0.5", "0.5% or less"),
+        ("1", "1% or less"),
+        ("2", "2% or less"),
+        ("3", "3% or less"),
+    ]
+    .into_iter()
+    .map(|(a, b)| (a.to_string(), b.to_string()))
+    .collect();
     // Size thresholds only within one coin: across coins they would compare different parameter sets.
-    let mut hr_opts: Vec<(String, String)> = vec![("", "Any size"), ("1", "Reporting hashrate")].into_iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    let mut hr_opts: Vec<(String, String)> = vec![("", "Any size"), ("1", "Reporting hashrate")]
+        .into_iter()
+        .map(|(a, b)| (a.to_string(), b.to_string()))
+        .collect();
     if cur.is_some() {
-        hr_opts.extend([("1000000", "1 MSol/s or more"), ("100000000", "100 MSol/s or more"), ("1000000000", "1 GSol/s or more")].into_iter().map(|(a, b)| (a.to_string(), b.to_string())));
+        hr_opts.extend(
+            [
+                ("1000000", "1 MSol/s or more"),
+                ("100000000", "100 MSol/s or more"),
+                ("1000000000", "1 GSol/s or more"),
+            ]
+            .into_iter()
+            .map(|(a, b)| (a.to_string(), b.to_string())),
+        );
     }
-    let hr_cur = if cur.is_none() && f.hr.as_deref().map(|v| v != "1").unwrap_or(false) { String::new() } else { Filters::s(&f.hr) };
-    let f = &Filters { hr: Some(hr_cur.clone()).filter(|v| !v.is_empty()), ..f.clone() };
+    let hr_cur = if cur.is_none() && f.hr.as_deref().map(|v| v != "1").unwrap_or(false) {
+        String::new()
+    } else {
+        Filters::s(&f.hr)
+    };
+    let f = &Filters {
+        hr: Some(hr_cur.clone()).filter(|v| !v.is_empty()),
+        ..f.clone()
+    };
     let visible = rows.iter().filter(|p| matches(p, f)).count();
     // All-coins view: one table section per parameter set, ranked inside it.
     let groups: Vec<(String, Vec<&Pool>)> = if cur.is_some() {
@@ -921,7 +1155,13 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
             .into_iter()
             .map(|(label, cs)| {
                 let ids: Vec<&str> = cs.iter().map(|c| c.id.as_str()).collect();
-                (label, rows.iter().filter(|p| ids.contains(&p.coin_id.as_str())).cloned().collect::<Vec<&Pool>>())
+                (
+                    label,
+                    rows.iter()
+                        .filter(|p| ids.contains(&p.coin_id.as_str()))
+                        .cloned()
+                        .collect::<Vec<&Pool>>(),
+                )
             })
             .filter(|(_, v)| !v.is_empty())
             .collect()
@@ -1063,7 +1303,11 @@ mod tests {
         let opts: Vec<String> = scheme_options(&d).into_iter().map(|(v, _)| v).collect();
         for p in d.live_pools() {
             for s in &p.payout_schemes {
-                assert!(opts.contains(s), "scheme {s} on {} missing from the payout filter", p.name);
+                assert!(
+                    opts.contains(s),
+                    "scheme {s} on {} missing from the payout filter",
+                    p.name
+                );
             }
         }
         assert!(opts.iter().any(|o| o == "PPLNT"), "PPLNT missing");
@@ -1073,25 +1317,53 @@ mod tests {
     #[test]
     fn every_scheme_option_finds_at_least_one_pool() {
         let d = real();
-        for (v, _) in scheme_options(&d).into_iter().filter(|(v, _)| !v.is_empty()) {
-            let f = Filters { coin: Some("all".into()), scheme: Some(v.clone()), ..Default::default() };
-            assert!(d.live_pools().any(|p| matches(p, &f)), "payout option {v} matches nothing");
+        for (v, _) in scheme_options(&d)
+            .into_iter()
+            .filter(|(v, _)| !v.is_empty())
+        {
+            let f = Filters {
+                coin: Some("all".into()),
+                scheme: Some(v.clone()),
+                ..Default::default()
+            };
+            assert!(
+                d.live_pools().any(|p| matches(p, &f)),
+                "payout option {v} matches nothing"
+            );
         }
     }
 
     #[test]
     fn every_region_option_finds_at_least_one_pool() {
         let d = real();
-        for (v, _) in region_options(&d).into_iter().filter(|(v, _)| !v.is_empty()) {
-            let f = Filters { coin: Some("all".into()), region: Some(v.clone()), ..Default::default() };
-            assert!(d.live_pools().any(|p| matches(p, &f)), "region option {v} matches nothing");
+        for (v, _) in region_options(&d)
+            .into_iter()
+            .filter(|(v, _)| !v.is_empty())
+        {
+            let f = Filters {
+                coin: Some("all".into()),
+                region: Some(v.clone()),
+                ..Default::default()
+            };
+            assert!(
+                d.live_pools().any(|p| matches(p, &f)),
+                "region option {v} matches nothing"
+            );
         }
     }
 
     #[test]
     fn scheme_filter_is_case_insensitive() {
-        let p = Pool { coin_id: "zcash".into(), payout_schemes: vec!["PPLNT".into()], ..Default::default() };
-        let f = Filters { coin: Some("zcash".into()), scheme: Some("pplnt".into()), ..Default::default() };
+        let p = Pool {
+            coin_id: "zcash".into(),
+            payout_schemes: vec!["PPLNT".into()],
+            ..Default::default()
+        };
+        let f = Filters {
+            coin: Some("zcash".into()),
+            scheme: Some("pplnt".into()),
+            ..Default::default()
+        };
         assert!(matches(&p, &f));
     }
 
@@ -1107,19 +1379,37 @@ mod tests {
     use crate::data::{Pool, SocialLink};
 
     fn snap() -> Data {
-        crate::data::load(&Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join("snapshot-2026-10-02")).expect("snapshot loads")
+        crate::data::load(
+            &Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("testdata")
+                .join("snapshot-2026-10-02"),
+        )
+        .expect("snapshot loads")
     }
     fn at(s: &str) -> chrono::DateTime<chrono::Utc> {
-        chrono::DateTime::parse_from_rfc3339(s).unwrap().with_timezone(&chrono::Utc)
+        chrono::DateTime::parse_from_rfc3339(s)
+            .unwrap()
+            .with_timezone(&chrono::Utc)
     }
     /// Positions of each needle in the haystack, in order; panics when one is missing.
     fn order(h: &str, needles: &[&str]) -> Vec<usize> {
-        needles.iter().map(|n| h.find(n).unwrap_or_else(|| panic!("{n} missing"))).collect()
+        needles
+            .iter()
+            .map(|n| h.find(n).unwrap_or_else(|| panic!("{n} missing")))
+            .collect()
     }
     fn ascending(v: &[usize]) -> bool {
         v.windows(2).all(|w| w[0] < w[1])
     }
-    const ORDER: [&str; 7] = ["Zcash", "Pirate Chain", "Wcash", "Kerrigan", "Komodo", "Buck", "BitMark"];
+    const ORDER: [&str; 7] = [
+        "Zcash",
+        "Pirate Chain",
+        "Wcash",
+        "Kerrigan",
+        "Komodo",
+        "Buck",
+        "BitMark",
+    ];
 
     #[test]
     fn wcash_keeps_network_and_reported_apart() {
@@ -1131,7 +1421,10 @@ mod tests {
         assert!(h.contains("Reported by listed pools: "));
         assert!(h.contains("≥440 kSol/s"));
         assert!(h.contains("†"));
-        assert!(h.contains("† Operator-reported; one listed pool; verified 2 Oct 2026"), "{h}");
+        assert!(
+            h.contains("† Operator-reported; one listed pool; verified 2 Oct 2026"),
+            "{h}"
+        );
         assert_eq!(coin_summary(w), "≥440 kSol/s† · 1 pool");
         // A coin with a network estimate shows both, and no ≥.
         let z = hashrate_pair(d.coin("zcash").unwrap()).into_string();
@@ -1166,13 +1459,21 @@ mod tests {
 
     #[test]
     fn zero_and_na_render_differently() {
-        let mut p = Pool { name: "P".into(), slug: "p".into(), hashrate: Some(0.0), ..Default::default() };
+        let mut p = Pool {
+            name: "P".into(),
+            slug: "p".into(),
+            hashrate: Some(0.0),
+            ..Default::default()
+        };
         let zero = pool_row(&p, 1, false, false).into_string();
         assert!(zero.contains("0 Sol/s"), "{zero}");
         assert!(zero.contains("data-hashrate=\"0\""));
         p.hashrate = None;
         let na = pool_row(&p, 1, false, false).into_string();
-        assert!(!na.contains("0 Sol/s") && !na.contains("data-hashrate"), "{na}");
+        assert!(
+            !na.contains("0 Sol/s") && !na.contains("data-hashrate"),
+            "{na}"
+        );
         assert!(na.contains("<span class=\"na\">n/a</span>"));
         // Coin totals: n/a when nothing is published, 0 when zero is.
         let mut c = crate::data::Coin::default();
@@ -1180,7 +1481,14 @@ mod tests {
         c.reported.hashrate = Some(0.0);
         assert_eq!(fmt::reported(&c).0, "0 Sol/s");
         let d = snap();
-        assert_eq!(fmt::reported(d.coin("hush").unwrap()).0, if d.coin("hush").unwrap().reported.hashrate.is_some() { "0 Sol/s" } else { "n/a" });
+        assert_eq!(
+            fmt::reported(d.coin("hush").unwrap()).0,
+            if d.coin("hush").unwrap().reported.hashrate.is_some() {
+                "0 Sol/s"
+            } else {
+                "n/a"
+            }
+        );
     }
 
     #[test]
@@ -1190,7 +1498,10 @@ mod tests {
         assert!(t.starts_with("117 tracked pool rows on "), "{t}");
         assert!(t.contains("63 reporting positive hashrate"), "{t}");
         let page = render_at(&d, &Filters::default(), at("2026-10-03T00:00:00Z")).into_string();
-        assert!(!page.contains("active pools"), "no '117 active pools' claim");
+        assert!(
+            !page.contains("active pools"),
+            "no '117 active pools' claim"
+        );
         assert!(!page.to_lowercase().contains("every 30 minutes") && !page.contains("30 min"));
     }
 
@@ -1199,9 +1510,15 @@ mod tests {
         let d = snap();
         let gen = d.meta.generated_at.clone().unwrap();
         let g = at(&gen);
-        let fresh = render_at(&d, &Filters::default(), g + chrono::Duration::minutes(30)).into_string();
-        let i = fresh.find("stale-tag").map(|i| fresh[i.saturating_sub(400)..i + 50].to_string());
-        assert!(!fresh.contains("stale-note") && i.is_none(), "fresh data shows no warning: {i:?}");
+        let fresh =
+            render_at(&d, &Filters::default(), g + chrono::Duration::minutes(30)).into_string();
+        let i = fresh
+            .find("stale-tag")
+            .map(|i| fresh[i.saturating_sub(400)..i + 50].to_string());
+        assert!(
+            !fresh.contains("stale-note") && i.is_none(),
+            "fresh data shows no warning: {i:?}"
+        );
         let old = render_at(&d, &Filters::default(), g + chrono::Duration::hours(5)).into_string();
         assert!(old.contains("class=\"stale-note\"") && old.contains("Stale data."));
         assert!(old.contains("stale-tag"));
@@ -1210,15 +1527,34 @@ mod tests {
     #[test]
     fn coin_view_renders_only_verified_coin_links() {
         let mut d = snap();
-        let mk = |kind: &str, url: &str, status: &str| SocialLink { kind: kind.into(), url: url.into(), label: "L".into(), status: status.into(), ..Default::default() };
-        let raw = vec![mk("website", "https://z.cash/", "verified"), mk("x", "https://x.com/zcash", "unverified"), mk("discord", "https://discord.gg/x", "dead")];
+        let mk = |kind: &str, url: &str, status: &str| SocialLink {
+            kind: kind.into(),
+            url: url.into(),
+            label: "L".into(),
+            status: status.into(),
+            ..Default::default()
+        };
+        let raw = vec![
+            mk("website", "https://z.cash/", "verified"),
+            mk("x", "https://x.com/zcash", "unverified"),
+            mk("discord", "https://discord.gg/x", "dead"),
+        ];
         let z = d.coins.iter_mut().find(|c| c.id == "zcash").unwrap();
         z.links = crate::data::verified_links(&raw);
-        let f = Filters { coin: Some("zcash".into()), ..Default::default() };
+        let f = Filters {
+            coin: Some("zcash".into()),
+            ..Default::default()
+        };
         let page = render_at(&d, &f, at("2026-10-03T00:00:00Z")).into_string();
-        assert!(page.contains("href=\"https://z.cash/\" target=\"_blank\" rel=\"noopener noreferrer\""), "verified link with safe rel");
+        assert!(
+            page.contains("href=\"https://z.cash/\" target=\"_blank\" rel=\"noopener noreferrer\""),
+            "verified link with safe rel"
+        );
         assert!(!page.contains("x.com/zcash") && !page.contains("discord.gg/x"));
-        assert!(!page.contains("#i-x\"") && !page.contains("#i-discord\""), "no empty icons for missing kinds");
+        assert!(
+            !page.contains("#i-x\"") && !page.contains("#i-discord\""),
+            "no empty icons for missing kinds"
+        );
     }
 
     #[test]
@@ -1229,7 +1565,9 @@ mod tests {
         let real = Path::new(env!("CARGO_MANIFEST_DIR")).join("data");
         for sub in ["", "curated"] {
             for e in std::fs::read_dir(real.join(sub)).unwrap().flatten() {
-                if e.path().is_file() && e.file_name() != crate::data::MANIFEST { std::fs::copy(e.path(), dir.join(sub).join(e.file_name())).unwrap(); }
+                if e.path().is_file() && e.file_name() != crate::data::MANIFEST {
+                    std::fs::copy(e.path(), dir.join(sub).join(e.file_name())).unwrap();
+                }
             }
         }
         for f in crate::data::GENERATED {
@@ -1239,25 +1577,69 @@ mod tests {
         let now = chrono::Utc::now();
         let at = now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true);
         let mut st = LiveState::default();
-        st.record("zecwec-pool", Ok(Parsed::Ok(Reading { hashrate: 553_587.0, observed_at: at.clone(), window_seconds: Some(1200), sample_blocks: None, height: None })), now);
-        st.record("zecwec-wcash-network", Ok(Parsed::Ok(Reading { hashrate: 507_977.0, observed_at: at, window_seconds: None, sample_blocks: Some(120), height: Some(16143) })), now);
+        st.record(
+            "zecwec-pool",
+            Ok(Parsed::Ok(Reading {
+                hashrate: 553_587.0,
+                observed_at: at.clone(),
+                window_seconds: Some(1200),
+                sample_blocks: None,
+                height: None,
+            })),
+            now,
+        );
+        st.record(
+            "zecwec-wcash-network",
+            Ok(Parsed::Ok(Reading {
+                hashrate: 507_977.0,
+                observed_at: at,
+                window_seconds: None,
+                sample_blocks: Some(120),
+                height: Some(16143),
+            })),
+            now,
+        );
         let d = crate::data::load_with_live(&dir, Some(&st)).unwrap();
         let _ = std::fs::remove_dir_all(&dir);
         let w = d.coin("wcash").unwrap();
         let pair = hashrate_pair(w).into_string();
-        assert!(pair.contains("508 kSol/s") && pair.contains("(estimated from the last 120 blocks)"), "{pair}");
-        assert!(pair.contains("554 kSol/s") && !pair.contains('†') && !pair.contains('≥') && !pair.contains("unavailable"), "{pair}");
-        let f = Filters { coin: Some("wcash".into()), ..Default::default() };
+        assert!(
+            pair.contains("508 kSol/s") && pair.contains("(estimated from the last 120 blocks)"),
+            "{pair}"
+        );
+        assert!(
+            pair.contains("554 kSol/s")
+                && !pair.contains('†')
+                && !pair.contains('≥')
+                && !pair.contains("unavailable"),
+            "{pair}"
+        );
+        let f = Filters {
+            coin: Some("wcash".into()),
+            ..Default::default()
+        };
         let page = render_at(&d, &f, now).into_string();
         assert!(page.contains("only listed pool"));
-        assert!(!page.contains("109.0%") && !page.contains("109.") , "no share above 100%");
-        assert!(page.contains("data-live-coin=\"wcash\"") && page.contains("data-live-pool=\"wcash:zecwec.com\""));
+        assert!(
+            !page.contains("109.0%") && !page.contains("109."),
+            "no share above 100%"
+        );
+        assert!(
+            page.contains("data-live-coin=\"wcash\"")
+                && page.contains("data-live-pool=\"wcash:zecwec.com\"")
+        );
         assert!(page.contains("Live: ") && page.contains("data-live-age=\"zecwec-wcash-network\""));
-        assert!(!page.contains("Operator-reported; one listed pool"), "the † footnote is gone for Wcash");
+        assert!(
+            !page.contains("Operator-reported; one listed pool"),
+            "the † footnote is gone for Wcash"
+        );
         // /api/live carries the same figures, already formatted.
         let j = crate::views::live_json(&d, now);
         assert_eq!(j["pools"]["wcash:zecwec.com"]["hashrate"], 553_587.0);
-        assert_eq!(j["pools"]["wcash:zecwec.com"]["share_text"], "only listed pool");
+        assert_eq!(
+            j["pools"]["wcash:zecwec.com"]["share_text"],
+            "only listed pool"
+        );
         assert_eq!(j["coins"]["wcash"]["network_text"], "508 kSol/s");
         assert_eq!(j["coins"]["wcash"]["reported_dagger"], false);
         // Hardware: no per-machine WEC figure when one Z15 Pro outweighs the network.
@@ -1270,20 +1652,50 @@ mod tests {
         let d = real();
         for c in &d.coins {
             let n = &c.network;
-            let present = [n.hashrate.is_some(), n.difficulty.is_some(), n.height.is_some(), n.block_time_avg_s.is_some(), c.price_usd.is_some()].iter().filter(|x| **x).count();
-            assert_eq!(field_source_list(c).len(), present, "{}: every figure shown needs its own source", c.id);
+            let present = [
+                n.hashrate.is_some(),
+                n.difficulty.is_some(),
+                n.height.is_some(),
+                n.block_time_avg_s.is_some(),
+                c.price_usd.is_some(),
+            ]
+            .iter()
+            .filter(|x| **x)
+            .count();
+            assert_eq!(
+                field_source_list(c).len(),
+                present,
+                "{}: every figure shown needs its own source",
+                c.id
+            );
         }
         // Wcash: hashrate from ZecWec's 120-block estimate, chain figures from the explorer.
         let w = d.coin("wcash").unwrap();
         let cell = field_sources(w).into_string();
-        assert!(cell.contains("pool.zecwec.com") && cell.contains("hashrate, 120-block estimate"), "{cell}");
-        assert!(cell.contains("wcashexplorer.com") && cell.contains("difficulty, height"), "{cell}");
+        assert!(
+            cell.contains("pool.zecwec.com") && cell.contains("hashrate, 120-block estimate"),
+            "{cell}"
+        );
+        assert!(
+            cell.contains("wcashexplorer.com") && cell.contains("difficulty, height"),
+            "{cell}"
+        );
         assert!(cell.find("pool.zecwec.com").unwrap() < cell.find("wcashexplorer.com").unwrap());
-        assert_eq!(field_title(w.network.hashrate_source.as_deref(), None), "Source: pool.zecwec.com");
-        assert!(field_title(w.network.height_source.as_deref(), w.network.height_observed_at.as_deref()).starts_with("Source: wcashexplorer.com, observed "));
+        assert_eq!(
+            field_title(w.network.hashrate_source.as_deref(), None),
+            "Source: pool.zecwec.com"
+        );
+        assert!(field_title(
+            w.network.height_source.as_deref(),
+            w.network.height_observed_at.as_deref()
+        )
+        .starts_with("Source: wcashexplorer.com, observed "));
         // A coin read from one file gets one link.
         let z = field_sources(d.coin("zcash").unwrap()).into_string();
-        assert!(z.contains("data.miningpoolstats.stream") && !z.contains("src-fields"), "{z}");
+        assert!(
+            z.contains("data.miningpoolstats.stream") && !z.contains("src-fields"),
+            "{z}"
+        );
     }
 
     #[test]
@@ -1294,22 +1706,50 @@ mod tests {
         let k = d.coins.iter_mut().find(|c| c.id == "komodo").unwrap();
         k.network.hashrate = Some(k.reported.hashrate.unwrap() * 1000.0);
         let k = d.coin("komodo").unwrap().clone();
-        assert!(hashrate_pair(&k).into_string().contains("Data check. </strong>The network estimate"));
+        assert!(hashrate_pair(&k)
+            .into_string()
+            .contains("Data check. </strong>The network estimate"));
         let net = networks(&d, now).into_string();
-        assert!(net.contains("id=\"dq-notes\"") && net.contains("<strong>Komodo</strong>") && net.contains("class=\"dq-mark\""), "networks");
+        assert!(
+            net.contains("id=\"dq-notes\"")
+                && net.contains("<strong>Komodo</strong>")
+                && net.contains("class=\"dq-mark\""),
+            "networks"
+        );
         // ...and a coin with ordinary figures is not.
         let z = d.coin("zcash").unwrap();
-        assert!(z.discrepancy().is_none() && !hashrate_pair(z).into_string().contains("Data check."));
+        assert!(
+            z.discrepancy().is_none() && !hashrate_pair(z).into_string().contains("Data check.")
+        );
     }
 
     #[test]
     fn price_notes_say_what_each_coin_actually_shows() {
         use crate::data::Coin;
-        let mk = |id: &str, sym: &str, price: Option<f64>, src: Option<&str>| Coin { id: id.into(), label: id.into(), name: id.into(), symbol: sym.into(), status: "active".into(), price_usd: price, price_source: src.map(String::from), ..Default::default() };
+        let mk = |id: &str, sym: &str, price: Option<f64>, src: Option<&str>| Coin {
+            id: id.into(),
+            label: id.into(),
+            name: id.into(),
+            symbol: sym.into(),
+            status: "active".into(),
+            price_usd: price,
+            price_source: src.map(String::from),
+            ..Default::default()
+        };
         let mut d = Data::default();
         d.coins = vec![
-            mk("zcash", "ZEC", Some(1300.0), Some("https://data.miningpoolstats.stream/data/price/zcash.js")),
-            mk("kerrigan-equihash", "KRGN", Some(0.00916), Some("https://data.miningpoolstats.stream/data/kerrigan-equihash.js")),
+            mk(
+                "zcash",
+                "ZEC",
+                Some(1300.0),
+                Some("https://data.miningpoolstats.stream/data/price/zcash.js"),
+            ),
+            mk(
+                "kerrigan-equihash",
+                "KRGN",
+                Some(0.00916),
+                Some("https://data.miningpoolstats.stream/data/kerrigan-equihash.js"),
+            ),
             mk("bitmark-equihash", "MARKS", None, None),
             mk("buck", "BUCK", None, None),
         ];
@@ -1318,7 +1758,10 @@ mod tests {
             "price kerrigan-equihash: https://data.miningpoolstats.stream/data/price/kerrigan-equihash.js?t=1: HTTP 404".into(),
         ];
         let h = crate::views::pages::price_notes(&d).into_string();
-        assert!(h.contains("1 active coin uses miningpoolstats' dedicated price endpoint"), "{h}");
+        assert!(
+            h.contains("1 active coin uses miningpoolstats' dedicated price endpoint"),
+            "{h}"
+        );
         assert!(h.contains("kerrigan-equihash (KRGN) shows $0.00916 from the fallback price field in its main miningpoolstats coin file, because its dedicated price endpoint failed at the last refresh (HTTP 404)"), "{h}");
         assert!(h.contains("No price (n/a) for bitmark-equihash (MARKS): the dedicated price endpoint failed at the last refresh (HTTP 404) and the coin file has no fallback price"), "{h}");
         assert!(h.contains("No price is published for buck (BUCK)"), "{h}");

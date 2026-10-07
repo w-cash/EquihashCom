@@ -4,7 +4,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "9";
+pub const ASSET_V: &str = "11";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -43,13 +43,15 @@ pub struct Page<'a> {
 }
 
 /// Main navigation follows the four things people come here to find. Calculator stays visible as
-/// the primary working tool; About, Contribute, Sources and the archive live in the footer.
+/// the primary working tools; About, Contribute, Sources and the archive live in the footer.
 const NAV: &[(&str, &str, &str)] = &[
     ("coins", "/coins", "Coins"),
     ("pools", "/pools", "Pools"),
     ("hardware", "/hardware", "Hardware"),
+    ("buy", "/buy", "Buy"),
     ("guides", "/guides", "Guides"),
     ("calculator", "/calculator", "Calculator"),
+    ("merged-mining", "/merged-mining", "Merged mining"),
 ];
 
 pub fn layout(d: &Data, p: Page, body: Markup) -> Markup {
@@ -59,7 +61,11 @@ pub fn layout(d: &Data, p: Page, body: Markup) -> Markup {
 /// `layout` with an explicit clock, so the stale notice can be tested.
 pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::Utc>) -> Markup {
     let canonical = format!("{SITE}{}", p.path);
-    let full_title = if p.path == "/" || p.title.ends_with("· equihash.com") { p.title.to_string() } else { format!("{} · equihash.com", p.title) };
+    let full_title = if p.path == "/" || p.title.ends_with("· equihash.com") {
+        p.title.to_string()
+    } else {
+        format!("{} · equihash.com", p.title)
+    };
     let updated = d.last_updated.clone();
     html! {
         (DOCTYPE)
@@ -120,10 +126,11 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::
                         }
                         p class="foot-links" {
                             a href="/contribute" { "Add a listing or correction" }
+                            a href="/add-vendor" { "Add a vendor" }
                             a href="/archive" { "Archive" }
                             a href="/sources" { "Sources and method" }
                             a href="/about" { "About" }
-                            span { "Raw data: " a href="/data/pools.json" { "pools" } ", " a href="/data/network.json" { "networks" } ", " a href="/data/miners.json" { "hardware" } }
+                            span { "Raw data: " a href="/data/pools.json" { "pools" } ", " a href="/data/network.json" { "networks" } ", " a href="/data/miners.json" { "hardware" } ", " a href="/data/vendors.json" { "vendors" } ", " a href="/data/listings.json" { "listings" } }
                         }
                     }
                 }

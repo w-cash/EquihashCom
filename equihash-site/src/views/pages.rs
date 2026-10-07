@@ -2,9 +2,9 @@ use crate::data::{Data, Pool};
 use crate::fmt;
 use crate::views::calc;
 use crate::views::home::schemes_text;
+use crate::views::layout::{ext, layout, Page};
 use crate::views::links;
 use crate::views::logo::{self, At};
-use crate::views::layout::{ext, layout, Page};
 use maud::{html, Markup};
 
 fn kv(label: &str, value: Markup) -> Markup {
@@ -37,7 +37,11 @@ fn basis_text(p: &Pool) -> &'static str {
 
 /// Label of the pool page's share row: what the share is measured against.
 pub fn share_kv_label(p: &Pool) -> &'static str {
-    if p.share_basis == "pools" { "Share of pool-reported hashrate" } else { "Share of network" }
+    if p.share_basis == "pools" {
+        "Share of pool-reported hashrate"
+    } else {
+        "Share of network"
+    }
 }
 
 /// Value of the pool page's share row (also sent in /api/live).
@@ -89,31 +93,43 @@ pub fn pool_fields(d: &Data, p: &Pool) -> Markup {
 
 pub fn pool_page(d: &Data, p: &Pool) -> Markup {
     let title = format!("{} {} pool", p.name, p.coin);
-    let desc = format!("{} mining pool for {}: hashrate, network share, fee, payout scheme and sources.", p.name, p.coin_label);
+    let desc = format!(
+        "{} mining pool for {}: hashrate, network share, fee, payout scheme and sources.",
+        p.name, p.coin_label
+    );
     let path = format!("/pool/{}", p.slug);
-    layout(d, Page { title: &title, description: &desc, path: &path, nav: "pools" }, html! {
-        div class="wrap page narrow" {
-            p class="crumb" { a href={"/pools?coin=" (p.coin_id) "#pools"} { "All " (p.coin_label) " pools" } }
-            header class="page-head" {
-                div class="title-row" {
-                    h1 { (logo::chip(&p.logo, &p.name, At::Head, false)) (p.name) " " span class="sym" { (p.coin) } }
-                    (copy_link(&path, "Copy link to this pool"))
+    layout(
+        d,
+        Page {
+            title: &title,
+            description: &desc,
+            path: &path,
+            nav: "pools",
+        },
+        html! {
+            div class="wrap page narrow" {
+                p class="crumb" { a href={"/pools?coin=" (p.coin_id) "#pools"} { "All " (p.coin_label) " pools" } }
+                header class="page-head" {
+                    div class="title-row" {
+                        h1 { (logo::chip(&p.logo, &p.name, At::Head, false)) (p.name) " " span class="sym" { (p.coin) } }
+                        (copy_link(&path, "Copy link to this pool"))
+                    }
+                    (links::render(&p.links, &format!("{} links", p.name), "pool-links"))
+                    @if p.share_flag { p class="alert" { strong { "Concentration. " } "This pool has more than 30% of the hashrate on " (p.coin_label) "." } }
                 }
-                (links::render(&p.links, &format!("{} links", p.name), "pool-links"))
-                @if p.share_flag { p class="alert" { strong { "Concentration. " } "This pool has more than 30% of the hashrate on " (p.coin_label) "." } }
-            }
-            (pool_fields(d, p))
-            div class="pool-next" {
-                h2 { "Next steps" }
-                div class="card-actions" {
-                    a href={"/coin/" (p.coin_id)} { "Open " (p.coin_label) " overview" }
-                    a href={"/calculator?coin=" (p.coin_id)} { "Calculate mining output" }
-                    a href={"/pools?coin=" (p.coin_id) "#pools"} { "Compare with other pools" }
-                    a href="/contribute#pool" { "Correct this listing" }
+                (pool_fields(d, p))
+                div class="pool-next" {
+                    h2 { "Next steps" }
+                    div class="card-actions" {
+                        a href={"/coin/" (p.coin_id)} { "Open " (p.coin_label) " overview" }
+                        a href={"/calculator?coin=" (p.coin_id)} { "Calculate mining output" }
+                        a href={"/pools?coin=" (p.coin_id) "#pools"} { "Compare with other pools" }
+                        a href="/contribute#pool" { "Correct this listing" }
+                    }
                 }
             }
-        }
-    })
+        },
+    )
 }
 
 /// "Copy link" for a permanent URL (needs JavaScript, so hidden without it). The button copies the
@@ -183,10 +199,18 @@ pub fn archive(d: &Data) -> Markup {
 
 pub fn miners(d: &Data) -> Markup {
     // d.coins is in rank order within each parameter set; this table is 200,9 only.
-    let z15_coins: Vec<_> = d.coins.iter().filter(|c| c.active() && c.nk() == Some((200, 9)) && c.pool_count > 0).collect();
+    let z15_coins: Vec<_> = d
+        .coins
+        .iter()
+        .filter(|c| c.active() && c.nk() == Some((200, 9)) && c.pool_count > 0)
+        .collect();
     // Other parameter sets that have active coins with listed pools, most common first.
     let mut other_params: Vec<(String, usize)> = Vec::new();
-    for c in d.coins.iter().filter(|c| c.active() && c.pool_count > 0 && c.nk().is_some() && c.nk() != Some((200, 9))) {
+    for c in d
+        .coins
+        .iter()
+        .filter(|c| c.active() && c.pool_count > 0 && c.nk().is_some() && c.nk() != Some((200, 9)))
+    {
         match other_params.iter_mut().find(|(p, _)| *p == c.params()) {
             Some(e) => e.1 += 1,
             None => other_params.push((c.params(), 1)),
@@ -197,9 +221,18 @@ pub fn miners(d: &Data) -> Markup {
     let other_params = match other_params.len() {
         0 => String::new(),
         1 => other_params[0].clone(),
-        n => format!("{} and {}", other_params[..n - 1].join(", "), other_params[n - 1]),
+        n => format!(
+            "{} and {}",
+            other_params[..n - 1].join(", "),
+            other_params[n - 1]
+        ),
     };
-    let z15_empty: Vec<_> = d.coins.iter().filter(|c| c.active() && c.nk() == Some((200, 9)) && c.pool_count == 0).map(|c| c.name.clone()).collect();
+    let z15_empty: Vec<_> = d
+        .coins
+        .iter()
+        .filter(|c| c.active() && c.nk() == Some((200, 9)) && c.pool_count == 0)
+        .map(|c| c.name.clone())
+        .collect();
     // Machines grouped by the parameter set they run, so hashrates are only compared within one.
     let mut mgroups: Vec<(String, Vec<&crate::data::Miner>)> = Vec::new();
     for m in &d.miners {
@@ -210,7 +243,11 @@ pub fn miners(d: &Data) -> Markup {
     }
     let zec = d.coin("zcash");
     let pro = d.miners.iter().find(|m| m.model.ends_with("Z15 Pro"));
-    let best = d.miners.iter().filter_map(|m| m.efficiency()).fold(f64::INFINITY, f64::min);
+    let best = d
+        .miners
+        .iter()
+        .filter_map(|m| m.efficiency())
+        .fold(f64::INFINITY, f64::min);
     layout(d, Page { title: "Equihash ASICs: Antminer Z15, Z15 Pro, Z11, Z9, Innosilicon A9++", description: "Equihash 200,9 ASIC specifications (hashrate, power, computed J/kSol) from manufacturer spec pages, and which coins a Z15 can mine.", path: "/hardware", nav: "hardware" }, html! {
         div class="wrap page" {
             header class="page-head" {
@@ -223,13 +260,13 @@ pub fn miners(d: &Data) -> Markup {
                         th scope="col" { "Machine" } th scope="col" class="nk" { "n,k" } th class="num" scope="col" { "kSol/s" } th class="num" scope="col" { "Watts" }
                         th class="num" scope="col" { "J/kSol" } th class="num stated" scope="col" { "Stated" }
                         @if zec.is_some() { th class="num" scope="col" title="ZEC per day for one unit, at today's network hashrate and block reward, 1% fee, before power" { "ZEC/day*" } }
-                        th scope="col" class="specsrc" { "Spec source" }
+                        th scope="col" class="specsrc" { "Spec source" } th scope="col" { "Buy" }
                     } }
                     @for (g, ms) in &mgroups { tbody {
-                        tr class="group-row" { th colspan="8" scope="rowgroup" { "Equihash " (g) } }
+                        tr class="group-row" { th colspan="9" scope="rowgroup" { "Equihash " (g) } }
                         @for m in ms {
                         @let eff = m.efficiency();
-                        tr {
+                        tr id={"machine-" (m.id)} {
                             td { a class="entity-link" href={"/hardware/" (m.id)} { (m.maker) " " strong { (m.model) } } @if let Some(n) = &m.notes { br; span class="na hw-note" { (n) } }
                                 @if let Some(u) = &m.source_url { span class="m-only" { " " (ext(u, "spec")) } } }
                             td class="mono nk" { (m.equihash) }
@@ -239,6 +276,7 @@ pub fn miners(d: &Data) -> Markup {
                             td class="num stated" { (fmt::opt_num(m.stated_efficiency_j_per_ksol)) }
                             @if let Some(z) = zec { td class="num" { (m.hashrate_ksol.and_then(|h| calc::coins_per_day(z, h, 1.0)).map(|v| format!("{v:.4}")).unwrap_or("n/a".into())) } }
                             td class="src specsrc" { @if let Some(u) = &m.source_url { (ext(u, fmt::host(Some(u)).split('/').next().unwrap_or(""))) } @else { "n/a" } }
+                            td { @if d.listings.iter().any(|l| l.miner_id == m.id) { a class="hw-buy" href={"/buy?machine=" (m.id)} { "Where to buy" } } @else { span class="na" { "—" } } }
                         }
                     } } }
                 }
@@ -287,28 +325,38 @@ pub fn miners(d: &Data) -> Markup {
 
 pub fn add_pool(d: &Data) -> Markup {
     let template = "Pool name:\nWebsite:\nCoin(s) and Equihash parameters:\nStratum host(s), ports and regions:\nPayout scheme(s) and the fee for each:\nMinimum payout:\nMerged mining (aux chains), if any:\nPublic stats page or API (hashrate, miners, blocks):\nListed on miningpoolstats.stream? (link)\nContact for verification:\n";
-    layout(d, Page { title: "Add or correct a pool", description: "How Equihash pool operators can get a pool listed or corrected on equihash.com.", path: "/add-pool", nav: "add-pool" }, html! {
-        div class="wrap page narrow prose" {
-            header class="page-head" {
-                h1 { "Add or correct a pool" }
-                p class="lede" { "Listing is free. Nobody pays for a place or a better position, and the order in the table only ever comes from the data." }
+    layout(
+        d,
+        Page {
+            title: "Add or correct a pool",
+            description:
+                "How Equihash pool operators can get a pool listed or corrected on equihash.com.",
+            path: "/add-pool",
+            nav: "add-pool",
+        },
+        html! {
+            div class="wrap page narrow prose" {
+                header class="page-head" {
+                    h1 { "Add or correct a pool" }
+                    p class="lede" { "Listing is free. Nobody pays for a place or a better position, and the order in the table only ever comes from the data." }
+                }
+                h2 { "If you run a pool" }
+                ol {
+                    li { strong { "Publish your stats. " } "A row can only show what can be fetched from a public page or JSON API: hashrate, miners or workers, blocks, fee and payout scheme. Anything you don't publish shows as n/a." }
+                    li { strong { "Get listed on miningpoolstats. " } "Most rows come from " (ext("https://miningpoolstats.stream/zcash", "miningpoolstats.stream")) ". If you are there, you show up here on the next refresh without doing anything else." }
+                    li { strong { "Or send the details. " } "Copy the template below and send it to " a href="https://x.com/RustDev_" rel="noopener" { "@RustDev_" } ". It gets checked against your public pages before a row is added, and the row cites its source and the time it was checked." }
+                }
+                div class="tpl" {
+                    div class="tpl-head" { span { "Template" } button class="btn small" type="button" data-copy="#tpl" { "Copy" } }
+                    pre id="tpl" { (template) }
+                }
+                h2 { "Corrections" }
+                p { "Send the pool, the field, the right value and a public link that shows it. Pools that stop operating move to the " a href="/archive" { "archive" } " once a source confirms it." }
+                h2 { "For whoever maintains this site" }
+                p { "Pools without an API live in " code { "data/curated/manual-pools.json" } ", one object per row with " code { "source_url" } " and " code { "verified_at" } ". The running server notices the edit within a couple of seconds and reloads; there is no need to restart it or wait for a refresh." }
             }
-            h2 { "If you run a pool" }
-            ol {
-                li { strong { "Publish your stats. " } "A row can only show what can be fetched from a public page or JSON API: hashrate, miners or workers, blocks, fee and payout scheme. Anything you don't publish shows as n/a." }
-                li { strong { "Get listed on miningpoolstats. " } "Most rows come from " (ext("https://miningpoolstats.stream/zcash", "miningpoolstats.stream")) ". If you are there, you show up here on the next refresh without doing anything else." }
-                li { strong { "Or send the details. " } "Copy the template below and send it to " a href="https://x.com/RustDev_" rel="noopener" { "@RustDev_" } ". It gets checked against your public pages before a row is added, and the row cites its source and the time it was checked." }
-            }
-            div class="tpl" {
-                div class="tpl-head" { span { "Template" } button class="btn small" type="button" data-copy="#tpl" { "Copy" } }
-                pre id="tpl" { (template) }
-            }
-            h2 { "Corrections" }
-            p { "Send the pool, the field, the right value and a public link that shows it. Pools that stop operating move to the " a href="/archive" { "archive" } " once a source confirms it." }
-            h2 { "For whoever maintains this site" }
-            p { "Pools without an API live in " code { "data/curated/manual-pools.json" } ", one object per row with " code { "source_url" } " and " code { "verified_at" } ". The running server notices the edit within a couple of seconds and reloads; there is no need to restart it or wait for a refresh." }
-        }
-    })
+        },
+    )
 }
 
 pub fn about(d: &Data) -> Markup {
@@ -329,82 +377,101 @@ pub fn about(d: &Data) -> Markup {
 
 pub fn sources(d: &Data) -> Markup {
     let m = &d.meta;
-    layout(d, Page { title: "Sources and method", description: "Where every number on equihash.com comes from, and what could not be verified.", path: "/sources", nav: "" }, html! {
-        div class="wrap page narrow prose" {
-            header class="page-head" {
-                h1 { "Sources and method" }
-                p class="lede" { "Last generated " (fmt::utc(m.generated_at.as_deref())) ": " (m.pool_count) " pool rows, " (m.mps_pool_count) " from miningpoolstats and " (m.non_mps_pool_count) " checked directly, across " (m.coin_count) " coins." }
-            }
-            h2 { "Read by the refresh script" }
-            ul { @for s in &m.sources { li { (ext(&s.url, &s.label)) } } }
-            @if !d.live.is_empty() {
-                h2 { "Polled live by this server" }
-                p { "These public endpoints are read server-side every " (d.live[0].poll_seconds) " s (listed in " code { "data/curated/live-sources.json" } "). A reading is used only when the endpoint says it is available; otherwise the last good one stays, with its age." }
-                ul {
-                    @for l in &d.live {
-                        li {
-                            (ext(&l.url, l.label.as_deref().unwrap_or(&l.id)))
-                            ": " (l.status)
-                            @if let Some(r) = &l.reading { ", last good reading " (fmt::utc(Some(&r.observed_at))) }
+    layout(
+        d,
+        Page {
+            title: "Sources and method",
+            description:
+                "Where every number on equihash.com comes from, and what could not be verified.",
+            path: "/sources",
+            nav: "",
+        },
+        html! {
+            div class="wrap page narrow prose" {
+                header class="page-head" {
+                    h1 { "Sources and method" }
+                    p class="lede" { "Last generated " (fmt::utc(m.generated_at.as_deref())) ": " (m.pool_count) " pool rows, " (m.mps_pool_count) " from miningpoolstats and " (m.non_mps_pool_count) " checked directly, across " (m.coin_count) " coins." }
+                }
+                h2 { "Read by the refresh script" }
+                ul { @for s in &m.sources { li { (ext(&s.url, &s.label)) } } }
+                @if !d.live.is_empty() {
+                    h2 { "Polled live by this server" }
+                    p { "These public endpoints are read server-side every " (d.live[0].poll_seconds) " s (listed in " code { "data/curated/live-sources.json" } "). A reading is used only when the endpoint says it is available; otherwise the last good one stays, with its age." }
+                    ul {
+                        @for l in &d.live {
+                            li {
+                                (ext(&l.url, l.label.as_deref().unwrap_or(&l.id)))
+                                ": " (l.status)
+                                @if let Some(r) = &l.reading { ", last good reading " (fmt::utc(Some(&r.observed_at))) }
+                            }
                         }
                     }
                 }
-            }
-            h2 { "Curated by hand" }
-            ul {
-                li { (ext("https://w.cash/whitepaper", "Wcash protocol specification")) " (merged-mining guide, WEC parameters)" }
-                li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-zcash-aux/README.md", "wcash-zcash-aux README at 3e6b8044")) }
-                li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-merge-miner/README.md", "wcash-merge-miner README at 3e6b8044")) }
-                li { "ASIC specs: Bitmain support spec pages and the Innosilicon product page, linked per row on " a href="/hardware" { "Hardware" } "." }
-                li { "Archive: pool and operator announcements and community threads, linked per entry on the " a href="/archive" { "Archive" } "." }
-            }
-            h2 { "Method" }
-            ul {
-                li { "miningpoolstats: the coin page is loaded to read its current data timestamp, then " code { "data.miningpoolstats.stream/data/<coin>.js?t=<ts>" } " is fetched with a browser User-Agent and Referer." }
-                li { "miningpoolstats marks unknown or hidden values as −1 or −2. Those become n/a." }
-                li { "Share = pool hashrate ÷ the coin's network hashrate from the same file. On small coins the network estimate is sometimes below the sum of what pools report; then shares are of the listed pools' total, and the page says so." }
-                li { "Equihash parameters come from the miningpoolstats label. Plain \"Equihash\" is 200,9." }
-                li { "Regions are normalised from what each pool writes (\"US, EU, ASIA\", \"Canada\", \"RU\") into the buckets used by the region filter." }
-                (price_notes(d))
-                li { "Every hashrate, fee, miner count, block count and minimum payout carries its own source and observation time, shown on each pool's page. A field's time only moves when that field was fetched: refreshing a fee or a block height never makes a hashrate look newer." }
-                li { "The network estimate and what the listed pools report are separate figures and are never substituted for each other. When no network estimate is published, the pools' total is shown with ≥ (a floor). † marks a figure the operator gave us rather than one we could read." }
-                li { "Coins are ranked within their exact Equihash parameter set by the sum of positive pool-reported hashrate; zero and n/a come last, by name. Hashrates on different parameter sets are never compared, summed or charted together." }
-                li { "n/a means not published; 0 means published as zero. The two are kept apart in the data and on the page." }
-                li { "Figures older than two hours get a visible stale notice." }
-                li { "Social and community links come from " code { "data/curated/links.json" } ". Only entries marked verified are shown, coin links next to the coin and pool links next to the pool."
-                    @if let Some(g) = &d.links_generated_at { " That file was last generated " (fmt::utc(Some(g))) "." } }
-                li { (logo::sources_note(d)) }
-            }
-            h2 { "Research log" }
-            div class="table-scroll" {
-                table class="data" {
-                    thead { tr { th scope="col" { "Pool" } th scope="col" { "Outcome" } th scope="col" { "Detail" } } }
-                    tbody { @for r in &d.research { tr {
-                        td class="nowrap" { (r.pool) }
-                        td class="nowrap" { span class={"outcome " (r.outcome)} { (r.outcome) } }
-                        td { (r.detail) @if let Some(u) = &r.url { " " (ext(u, "link")) } }
-                    } } }
+                h2 { "Curated by hand" }
+                ul {
+                    li { (ext("https://w.cash/whitepaper", "Wcash protocol specification")) " (merged-mining guide, WEC parameters)" }
+                    li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-zcash-aux/README.md", "wcash-zcash-aux README at 3e6b8044")) }
+                    li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-merge-miner/README.md", "wcash-merge-miner README at 3e6b8044")) }
+                    li { "ASIC specs: Bitmain support spec pages and the Innosilicon product page, linked per row on " a href="/hardware" { "Hardware" } "." }
+                    li { "Archive: pool and operator announcements and community threads, linked per entry on the " a href="/archive" { "Archive" } "." }
+                }
+                h2 { "Method" }
+                ul {
+                    li { "miningpoolstats: the coin page is loaded to read its current data timestamp, then " code { "data.miningpoolstats.stream/data/<coin>.js?t=<ts>" } " is fetched with a browser User-Agent and Referer." }
+                    li { "miningpoolstats marks unknown or hidden values as −1 or −2. Those become n/a." }
+                    li { "Share = pool hashrate ÷ the coin's network hashrate from the same file. On small coins the network estimate is sometimes below the sum of what pools report; then shares are of the listed pools' total, and the page says so." }
+                    li { "Equihash parameters come from the miningpoolstats label. Plain \"Equihash\" is 200,9." }
+                    li { "Regions are normalised from what each pool writes (\"US, EU, ASIA\", \"Canada\", \"RU\") into the buckets used by the region filter." }
+                    (price_notes(d))
+                    li { "Every hashrate, fee, miner count, block count and minimum payout carries its own source and observation time, shown on each pool's page. A field's time only moves when that field was fetched: refreshing a fee or a block height never makes a hashrate look newer." }
+                    li { "The network estimate and what the listed pools report are separate figures and are never substituted for each other. When no network estimate is published, the pools' total is shown with ≥ (a floor). † marks a figure the operator gave us rather than one we could read." }
+                    li { "Coins are ranked within their exact Equihash parameter set by the sum of positive pool-reported hashrate; zero and n/a come last, by name. Hashrates on different parameter sets are never compared, summed or charted together." }
+                    li { "n/a means not published; 0 means published as zero. The two are kept apart in the data and on the page." }
+                    li { "Figures older than two hours get a visible stale notice." }
+                    li { "Social and community links come from " code { "data/curated/links.json" } ". Only entries marked verified are shown, coin links next to the coin and pool links next to the pool."
+                        @if let Some(g) = &d.links_generated_at { " That file was last generated " (fmt::utc(Some(g))) "." } }
+                    li { (logo::sources_note(d)) }
+                }
+                h2 { "Research log" }
+                div class="table-scroll" {
+                    table class="data" {
+                        thead { tr { th scope="col" { "Pool" } th scope="col" { "Outcome" } th scope="col" { "Detail" } } }
+                        tbody { @for r in &d.research { tr {
+                            td class="nowrap" { (r.pool) }
+                            td class="nowrap" { span class={"outcome " (r.outcome)} { (r.outcome) } }
+                            td { (r.detail) @if let Some(u) = &r.url { " " (ext(u, "link")) } }
+                        } } }
+                    }
+                }
+                h2 { "Coin notes" }
+                ul { @for c in &d.research_coins { li { strong { (c.coin) } ": " (c.detail) } } }
+                @if !m.errors.is_empty() {
+                    h2 { "Warnings from the last refresh" }
+                    ul class="mono small" { @for e in &m.errors { li { (e) } } }
                 }
             }
-            h2 { "Coin notes" }
-            ul { @for c in &d.research_coins { li { strong { (c.coin) } ": " (c.detail) } } }
-            @if !m.errors.is_empty() {
-                h2 { "Warnings from the last refresh" }
-                ul class="mono small" { @for e in &m.errors { li { (e) } } }
-            }
-        }
-    })
+        },
+    )
 }
 
 pub fn not_found(d: &Data) -> Markup {
-    layout(d, Page { title: "Not found", description: "Page not found.", path: "/404", nav: "" }, html! {
-        div class="wrap page narrow prose" {
-            header class="page-head" {
-                h1 { "Nothing here" }
-                p class="lede" { "That page doesn't exist, or a listing was renamed. " a href="/" { "Back to the Equihash directory" } "." }
+    layout(
+        d,
+        Page {
+            title: "Not found",
+            description: "Page not found.",
+            path: "/404",
+            nav: "",
+        },
+        html! {
+            div class="wrap page narrow prose" {
+                header class="page-head" {
+                    h1 { "Nothing here" }
+                    p class="lede" { "That page doesn't exist, or a listing was renamed. " a href="/" { "Back to the Equihash directory" } "." }
+                }
             }
-        }
-    })
+        },
+    )
 }
 
 /// The Sources page's price line, computed from the data so it can't drift from what is shown:
@@ -412,17 +479,43 @@ pub fn not_found(d: &Data) -> Markup {
 /// field in their main coin file (and why), and which have no price at all.
 pub fn price_notes(d: &Data) -> Markup {
     let active: Vec<&crate::data::Coin> = d.coins.iter().filter(|c| c.active()).collect();
-    let dedicated = |c: &crate::data::Coin| c.price_source.as_deref().map(|s| s.contains("/price/")).unwrap_or(false);
+    let dedicated = |c: &crate::data::Coin| {
+        c.price_source
+            .as_deref()
+            .map(|s| s.contains("/price/"))
+            .unwrap_or(false)
+    };
     // "price <coin id>: <url>: HTTP 404" in meta.json's errors from the last refresh.
     let failed = |c: &crate::data::Coin| -> Option<String> {
         let prefix = format!("price {}:", c.id);
-        d.meta.errors.iter().find(|e| e.starts_with(&prefix)).map(|e| e.rsplit(": ").next().unwrap_or("error").to_string())
+        d.meta
+            .errors
+            .iter()
+            .find(|e| e.starts_with(&prefix))
+            .map(|e| e.rsplit(": ").next().unwrap_or("error").to_string())
     };
-    let n_dedicated = active.iter().filter(|c| c.price_usd.is_some() && dedicated(c)).count();
-    let fallback: Vec<&&crate::data::Coin> = active.iter().filter(|c| c.price_usd.is_some() && !dedicated(c)).collect();
-    let none_failed: Vec<&&crate::data::Coin> = active.iter().filter(|c| c.price_usd.is_none() && failed(c).is_some()).collect();
-    let none_quiet: Vec<&&crate::data::Coin> = active.iter().filter(|c| c.price_usd.is_none() && failed(c).is_none()).collect();
-    let names = |v: &[&&crate::data::Coin]| v.iter().map(|c| format!("{} ({})", c.label, c.symbol)).collect::<Vec<_>>().join(", ");
+    let n_dedicated = active
+        .iter()
+        .filter(|c| c.price_usd.is_some() && dedicated(c))
+        .count();
+    let fallback: Vec<&&crate::data::Coin> = active
+        .iter()
+        .filter(|c| c.price_usd.is_some() && !dedicated(c))
+        .collect();
+    let none_failed: Vec<&&crate::data::Coin> = active
+        .iter()
+        .filter(|c| c.price_usd.is_none() && failed(c).is_some())
+        .collect();
+    let none_quiet: Vec<&&crate::data::Coin> = active
+        .iter()
+        .filter(|c| c.price_usd.is_none() && failed(c).is_none())
+        .collect();
+    let names = |v: &[&&crate::data::Coin]| {
+        v.iter()
+            .map(|c| format!("{} ({})", c.label, c.symbol))
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
     html! {
         li {
             "Prices: " (n_dedicated) @if n_dedicated == 1 { " active coin uses" } @else { " active coins use" } " miningpoolstats' dedicated price endpoint (" code { "data/price/<coin>.js" } "). "

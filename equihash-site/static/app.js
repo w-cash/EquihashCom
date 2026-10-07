@@ -51,6 +51,15 @@
   const coins = json("#coin-data") || [];
   const bySlug = Object.fromEntries(pools.map((p) => [p.slug, p]));
 
+  // Old homepage drawer links used /#pool=<slug>. The discovery homepage no longer carries the
+  // full pool payload, so take those permanent links straight to the pool page.
+  if (location.pathname === "/" && location.hash.startsWith("#pool=")) {
+    const slug = decodeURIComponent(location.hash.slice(6));
+    if (/^[a-z0-9][a-z0-9-]{0,199}$/.test(slug)) location.replace("/pool/" + slug);
+  } else if (location.pathname === "/" && location.hash === "#pools") {
+    location.replace("/pools");
+  }
+
   function readFilters() {
     const f = {};
     if (!form) return f;
@@ -434,4 +443,31 @@
     }
   }
   if (liveEls().length) { setInterval(pollLive, 60000); document.addEventListener("visibilitychange", () => { if (!document.hidden) pollLive(); }); }
+
+  // ---------- Buy directory: filter + sort, still fully usable without JavaScript ----------
+  (function buyDir() {
+    const f = $("#buy-filters"), galleries = $$('[data-buy-gallery]');
+    if (!f || !galleries.length) return;
+    const cards = () => $$(".buy-card");
+    function apply() {
+      const machine = f.elements.machine?.value || "", region = f.elements.region?.value || "", sort = f.elements.sort?.value || "region";
+      let count = 0;
+      for (const card of cards()) {
+        const regions = (card.dataset.region || "").split(",").map((x) => x.trim().toLowerCase());
+        card.hidden = !!((machine && card.dataset.machine !== machine) || (region && !regions.includes(region.toLowerCase())));
+        if (!card.hidden) count++;
+      }
+      for (const gallery of galleries) {
+        const section = gallery.closest(".buy-machine");
+        if (section) section.hidden = !$$('.buy-card', gallery).some((c) => !c.hidden);
+        const number = (c, key, fallback = 9) => c.dataset[key] === "" || c.dataset[key] == null ? fallback : +c.dataset[key];
+        $$('.buy-card', gallery).sort((a, b) => sort === "price" ? number(a, "price", Infinity) - number(b, "price", Infinity) : sort === "stock" ? number(a, "stockRank") - number(b, "stockRank") : number(a, "regionRank") - number(b, "regionRank")).forEach((c) => gallery.appendChild(c));
+      }
+      const out = $("#buy-count");
+      if (out) { const checked = out.textContent.split("·").slice(1).join("·").trim(); out.textContent = `${count} listing${count === 1 ? "" : "s"}${checked ? " · " + checked : ""}`; }
+      const qs = new URLSearchParams(); if (machine) qs.set("machine", machine); if (region) qs.set("region", region); if (sort !== "region") qs.set("sort", sort);
+      history.replaceState(null, "", qs.toString() ? "/buy?" + qs : "/buy");
+    }
+    f.addEventListener("change", apply); apply();
+  })();
 })();

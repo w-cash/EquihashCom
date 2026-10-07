@@ -76,8 +76,15 @@ fn coin_rows(d: &Data, active_only: bool) -> Markup {
 pub fn index(d: &Data) -> Markup {
     let active = d.coins.iter().filter(|c| c.active()).count();
     let pools = d.live_pools().count();
-    let reporting = d.live_pools().filter(|p| p.hashrate.unwrap_or(0.0) > 0.0).count();
-    let z15 = d.coins.iter().filter(|c| c.active() && c.nk() == Some((200, 9))).count();
+    let reporting = d
+        .live_pools()
+        .filter(|p| p.hashrate.unwrap_or(0.0) > 0.0)
+        .count();
+    let z15 = d
+        .coins
+        .iter()
+        .filter(|c| c.active() && c.nk() == Some((200, 9)))
+        .count();
     layout(d, Page {
         title: "Equihash mining: coins, pools, hardware and guides · equihash.com",
         description: "Find Equihash coins, compare mining pools, check Z15 Pro compatibility and calculate mining output from source-backed live data.",
@@ -92,6 +99,7 @@ pub fn index(d: &Data) -> Markup {
                 (search_form("", "What are you looking for?"))
                 nav class="quick-paths" aria-label="Popular starting points" {
                     a href="/hardware/antminer-z15-pro" { strong { "I have a Z15 Pro" } span { "See compatible coins and setup path" } }
+                    a href="/buy?machine=antminer-z15-pro" { strong { "Buy a Z15 Pro" } span { "Compare sourced vendor listings" } }
                     a href="/pools?coin=zcash#pools" { strong { "Zcash pools" } span { "Compare fee, payout and hashrate" } }
                     a href="/merged-mining" { strong { "Explore merged mining" } span { "Understand ZEC + WEC mining" } }
                 }
@@ -148,129 +156,167 @@ pub fn coins(d: &Data) -> Markup {
 
 fn coin_pools<'a>(d: &'a Data, c: &Coin) -> Vec<&'a Pool> {
     let mut rows: Vec<_> = d.live_pools().filter(|p| p.coin_id == c.id).collect();
-    rows.sort_by(|a, b| b.hashrate.partial_cmp(&a.hashrate).unwrap_or(std::cmp::Ordering::Equal));
+    rows.sort_by(|a, b| {
+        b.hashrate
+            .partial_cmp(&a.hashrate)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
     rows
 }
 
 fn compatible_miners<'a>(d: &'a Data, c: &Coin) -> Vec<&'a Miner> {
-    d.miners.iter().filter(|m| m.equihash == c.params()).collect()
+    d.miners
+        .iter()
+        .filter(|m| m.equihash == c.params())
+        .collect()
 }
 
 pub fn coin(d: &Data, c: &Coin) -> Markup {
-    let title = format!("{} ({}) mining: pools, hardware and network", c.name, c.symbol);
+    let title = format!(
+        "{} ({}) mining: pools, hardware and network",
+        c.name, c.symbol
+    );
     let desc = format!("{} Equihash {} mining overview: compatible hardware, pool fees and payouts, network data, calculator and sources.", c.name, c.params());
     let path = format!("/coin/{}", c.id);
     let pools = coin_pools(d, c);
     let miners = compatible_miners(d, c);
     let is_wcash = c.id == "wcash";
-    layout(d, Page { title: &title, description: &desc, path: &path, nav: "coins" }, html! {
-        div class="wrap page entity-page" {
-            p class="crumb" { a href="/coins" { "All coins" } " / " (c.group_label()) }
-            header class="entity-hero" {
-                div class="entity-title" { (logo::chip(&c.logo, &c.name, At::Head, false)) div { h1 { (c.name) " " span class="sym" { (c.symbol) } } p { "Equihash " span class="mono" { (c.params()) } " · " (status(c)) } } }
-                (links::render(&c.links, &format!("{} official and community links", c.name), "coin-links"))
-                @if is_wcash { p class="disclosure" { strong { "Disclosure: " } "equihash.com and Wcash share a maintainer. Wcash receives merged-mined work only through pools that explicitly support it; the pool directory uses the same source and ordering rules for every coin." } }
-            }
-
-            dl class="fact-strip" {
-                div { dt { "Network estimate" } dd { (fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s"))) } }
-                div { dt { "Listed-pool total" } dd { @let (rep, dag) = fmt::reported(c); (rep) @if dag { "†" } } }
-                div { dt { "Active pool rows" } dd { (c.pool_count) } }
-                div { dt { "Price" } dd { (fmt::price(c.price_usd)) } }
-                div { dt { "Block target" } dd { (fmt::seconds(c.network.block_time_target_s)) } }
-            }
-
-            div class="entity-layout" {
-                section class="entity-main" aria-labelledby="pool-title" {
-                    div class="section-head" { div { h2 id="pool-title" { "Mining pools" } p { "A concise view of active listings. Open the full comparison for all fields and filters." } } a href={"/pools?coin=" (c.id) "#pools"} { "Full pool comparison →" } }
-                    @if pools.is_empty() {
-                        div class="empty-state" { h3 { "No active pool is listed" } p { "The network record remains available for research. If a public pool exists, send its evidence for review." } a href="/contribute#pool" { "Submit a pool" } }
-                    } @else {
-                        div class="table-scroll" { table class="data directory pool-summary" {
-                            thead { tr { th scope="col" { "Pool" } th class="num" scope="col" { "Hashrate" } th class="num" scope="col" { "Fee" } th scope="col" { "Payout" } th scope="col" { "Region" } th scope="col" { "Merged" } } }
-                            tbody { @for p in pools.iter().take(12) { tr {
-                                td { a class="entity-link" href={"/pool/" (p.slug)} { (logo::chip(&p.logo, &p.name, At::Row, true)) (p.name) } }
-                                td class="num" { (fmt::hashrate(p.hashrate, p.hashrate_unit.as_deref().unwrap_or("Sol/s"))) }
-                                td class="num" { (fmt::fee(p.fee_range())) }
-                                td { (schemes_text(p)) }
-                                td { (p.region.as_deref().unwrap_or("n/a")) }
-                                td { @if p.merged() { "Yes" } @else { "—" } }
-                            } } }
-                        } }
-                    }
-
-                    section class="qa" aria-labelledby="qa-title" {
-                        div class="section-head" { div { h2 id="qa-title" { "Common questions" } p { "Short answers tied to this network record." } } a href="/contribute#question" { "Ask or improve an answer" } }
-                        details open {
-                            summary { "Can an Antminer Z15 Pro mine " (c.name) "?" }
-                            p { @if c.nk() == Some((200, 9)) { "Yes. The Z15 Pro runs Equihash 200,9, which exactly matches this network. Use the hardware page to compare output and power assumptions." } @else { "No. The Z15 Pro runs Equihash 200,9, while this network uses " (c.params()) ". Matching the Equihash name alone is not enough; n and k must match." } }
-                        }
-                        details {
-                            summary { "How should I choose a pool?" }
-                            p { "Check the pool's current hashrate, fee, payout method, minimum payout, server region and source freshness. Avoid choosing from hashrate alone; concentration and latency matter too." }
-                        }
-                        @if c.id == "zcash" {
-                            details { summary { "Can Zcash work also secure Wcash?" } p { "Yes, when the Zcash pool runs the Wcash auxiliary mining software. The miner submits ordinary Zcash work; the participating pool can reuse valid proof for Wcash without splitting the miner's Zcash hashrate." } }
-                        }
-                    }
+    layout(
+        d,
+        Page {
+            title: &title,
+            description: &desc,
+            path: &path,
+            nav: "coins",
+        },
+        html! {
+            div class="wrap page entity-page" {
+                p class="crumb" { a href="/coins" { "All coins" } " / " (c.group_label()) }
+                header class="entity-hero" {
+                    div class="entity-title" { (logo::chip(&c.logo, &c.name, At::Head, false)) div { h1 { (c.name) " " span class="sym" { (c.symbol) } } p { "Equihash " span class="mono" { (c.params()) } " · " (status(c)) } } }
+                    (links::render(&c.links, &format!("{} official and community links", c.name), "coin-links"))
+                    @if is_wcash { p class="disclosure" { strong { "Disclosure: " } "equihash.com and Wcash share a maintainer. Wcash receives merged-mined work only through pools that explicitly support it; the pool directory uses the same source and ordering rules for every coin." } }
                 }
 
-                aside class="entity-side" {
-                    section class="side-card" { h2 { "Compatible hardware" }
-                        @if miners.is_empty() { p class="na" { "No verified hardware spec in the directory matches this parameter set." } }
-                        @for m in miners.iter().take(5) { a class="side-row" href={"/hardware/" (m.id)} { span { (m.maker) " " strong { (m.model) } } small { (fmt::opt_num(m.hashrate_ksol)) " kSol/s · " (fmt::int(m.watts)) " W" } } }
-                        a class="more-link" href="/hardware" { "All hardware →" }
+                dl class="fact-strip" {
+                    div { dt { "Network estimate" } dd { (fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s"))) } }
+                    div { dt { "Listed-pool total" } dd { @let (rep, dag) = fmt::reported(c); (rep) @if dag { "†" } } }
+                    div { dt { "Active pool rows" } dd { (c.pool_count) } }
+                    div { dt { "Price" } dd { (fmt::price(c.price_usd)) } }
+                    div { dt { "Block target" } dd { (fmt::seconds(c.network.block_time_target_s)) } }
+                }
+
+                div class="entity-layout" {
+                    section class="entity-main" aria-labelledby="pool-title" {
+                        div class="section-head" { div { h2 id="pool-title" { "Mining pools" } p { "A concise view of active listings. Open the full comparison for all fields and filters." } } a href={"/pools?coin=" (c.id) "#pools"} { "Full pool comparison →" } }
+                        @if pools.is_empty() {
+                            div class="empty-state" { h3 { "No active pool is listed" } p { "The network record remains available for research. If a public pool exists, send its evidence for review." } a href="/contribute#pool" { "Submit a pool" } }
+                        } @else {
+                            div class="table-scroll" { table class="data directory pool-summary" {
+                                thead { tr { th scope="col" { "Pool" } th class="num" scope="col" { "Hashrate" } th class="num" scope="col" { "Fee" } th scope="col" { "Payout" } th scope="col" { "Region" } th scope="col" { "Merged" } } }
+                                tbody { @for p in pools.iter().take(12) { tr {
+                                    td { a class="entity-link" href={"/pool/" (p.slug)} { (logo::chip(&p.logo, &p.name, At::Row, true)) (p.name) } }
+                                    td class="num" { (fmt::hashrate(p.hashrate, p.hashrate_unit.as_deref().unwrap_or("Sol/s"))) }
+                                    td class="num" { (fmt::fee(p.fee_range())) }
+                                    td { (schemes_text(p)) }
+                                    td { (p.region.as_deref().unwrap_or("n/a")) }
+                                    td { @if p.merged() { "Yes" } @else { "—" } }
+                                } } }
+                            } }
+                        }
+
+                        section class="qa" aria-labelledby="qa-title" {
+                            div class="section-head" { div { h2 id="qa-title" { "Common questions" } p { "Short answers tied to this network record." } } a href="/contribute#question" { "Ask or improve an answer" } }
+                            details open {
+                                summary { "Can an Antminer Z15 Pro mine " (c.name) "?" }
+                                p { @if c.nk() == Some((200, 9)) { "Yes. The Z15 Pro runs Equihash 200,9, which exactly matches this network. Use the hardware page to compare output and power assumptions." } @else { "No. The Z15 Pro runs Equihash 200,9, while this network uses " (c.params()) ". Matching the Equihash name alone is not enough; n and k must match." } }
+                            }
+                            details {
+                                summary { "How should I choose a pool?" }
+                                p { "Check the pool's current hashrate, fee, payout method, minimum payout, server region and source freshness. Avoid choosing from hashrate alone; concentration and latency matter too." }
+                            }
+                            @if c.id == "zcash" {
+                                details { summary { "Can Zcash work also secure Wcash?" } p { "Yes, when the Zcash pool runs the Wcash auxiliary mining software. The miner submits ordinary Zcash work; the participating pool can reuse valid proof for Wcash without splitting the miner's Zcash hashrate. " a href="/merged-mining" { "Read the merged-mining guide and find supporting pools." } } }
+                            }
+                            @if c.id == "wcash" { details { summary { "Where does Wcash's mining work come from?" } p { "Only work routed through participating merged-mining pools secures Wcash. " a href="/merged-mining" { "See the miner and pool-operator flow." } } } }
+                        }
                     }
-                    section class="side-card action-card" { h2 { "Calculate output" } p { "Use this network's sourced values, then edit fee, power rate or hardware assumptions." } a class="btn" href={"/calculator?coin=" (c.id)} { "Open calculator" } }
-                    section class="side-card" { h2 { "Source trail" } p { "Network and pool values keep their public source and observation time. Raw JSON is available for reuse." } a href="/sources" { "Method and limitations" } br; a href="/data/network.json" { "Download network data" } }
+
+                    aside class="entity-side" {
+                        section class="side-card" { h2 { "Compatible hardware" }
+                            @if miners.is_empty() { p class="na" { "No verified hardware spec in the directory matches this parameter set." } }
+                            @for m in miners.iter().take(5) { a class="side-row" href={"/hardware/" (m.id)} { span { (m.maker) " " strong { (m.model) } } small { (fmt::opt_num(m.hashrate_ksol)) " kSol/s · " (fmt::int(m.watts)) " W" } } }
+                            a class="more-link" href="/hardware" { "All hardware →" }
+                        }
+                        section class="side-card action-card" { h2 { "Calculate output" } p { "Use this network's sourced values, then edit fee, power rate or hardware assumptions." } a class="btn" href={"/calculator?coin=" (c.id)} { "Open calculator" } }
+                        section class="side-card" { h2 { "Source trail" } p { "Network and pool values keep their public source and observation time. Raw JSON is available for reuse." } a href="/sources" { "Method and limitations" } br; a href="/data/network.json" { "Download network data" } }
+                    }
                 }
             }
-        }
-    })
+        },
+    )
 }
 
 pub fn hardware_detail(d: &Data, m: &Miner) -> Markup {
-    let coins: Vec<_> = d.coins.iter().filter(|c| c.active() && c.params() == m.equihash).collect();
-    let title = format!("{} {}: compatible Equihash coins and mining calculator", m.maker, m.model);
+    let coins: Vec<_> = d
+        .coins
+        .iter()
+        .filter(|c| c.active() && c.params() == m.equihash)
+        .collect();
+    let title = format!(
+        "{} {}: compatible Equihash coins and mining calculator",
+        m.maker, m.model
+    );
     let desc = format!("{} {} specifications, efficiency, compatible Equihash {} coins, pools and prefilled mining calculator.", m.maker, m.model, m.equihash);
     let path = format!("/hardware/{}", m.id);
-    layout(d, Page { title: &title, description: &desc, path: &path, nav: "hardware" }, html! {
-        div class="wrap page entity-page" {
-            p class="crumb" { a href="/hardware" { "All hardware" } " / " (m.maker) }
-            header class="entity-hero hardware-hero" {
-                p class="eyebrow" { "VERIFIED MANUFACTURER SPEC" }
-                h1 { (m.maker) " " (m.model) }
-                p class="lede" { "A direct path from this machine to compatible coins, current pools and editable mining estimates." }
-            }
-            dl class="fact-strip" {
-                div { dt { "Parameters" } dd class="mono" { (m.equihash) } }
-                div { dt { "Hashrate" } dd { (fmt::opt_num(m.hashrate_ksol)) " kSol/s" } }
-                div { dt { "Power" } dd { (fmt::int(m.watts)) " W" } }
-                div { dt { "Computed efficiency" } dd { (m.efficiency().map(|v| format!("{v:.2} J/kSol")).unwrap_or("n/a".into())) } }
-                div { dt { "Source" } dd { @if let Some(u) = &m.source_url { (ext(u, m.source_name.as_deref().unwrap_or("Manufacturer page"))) } @else { "n/a" } } }
-            }
-            div class="entity-layout" {
-                section class="entity-main" {
-                    div class="section-head" { div { h2 { "Compatible active coins" } p { "Exact parameter match: Equihash " (m.equihash) "." } } }
-                    div class="entity-grid" {
-                        @for c in &coins { article {
-                            div class="entity-title small" { a href={"/coin/" (c.id)} { (logo::chip(&c.logo, &c.name, At::List, true)) strong { (c.name) } } span class="sym" { (c.symbol) } }
-                            p { (c.pool_count) " listed pool" @if c.pool_count != 1 { "s" } " · " (fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s"))) " network" }
-                            div class="card-actions" { a href={"/pools?coin=" (c.id) "#pools"} { "Pools" } a href={"/calculator?coin=" (c.id) "&hashrate=" (fmt::opt_num(m.hashrate_ksol)) "&watts=" (fmt::opt_num(m.watts))} { "Calculate" } }
-                        } }
+    layout(
+        d,
+        Page {
+            title: &title,
+            description: &desc,
+            path: &path,
+            nav: "hardware",
+        },
+        html! {
+            div class="wrap page entity-page" {
+                p class="crumb" { a href="/hardware" { "All hardware" } " / " (m.maker) }
+                header class="entity-hero hardware-hero" {
+                    p class="eyebrow" { "VERIFIED MANUFACTURER SPEC" }
+                    h1 { (m.maker) " " (m.model) }
+                    p class="lede" { "A direct path from this machine to compatible coins, current pools and editable mining estimates." }
+                }
+                dl class="fact-strip" {
+                    div { dt { "Parameters" } dd class="mono" { (m.equihash) } }
+                    div { dt { "Hashrate" } dd { (fmt::opt_num(m.hashrate_ksol)) " kSol/s" } }
+                    div { dt { "Power" } dd { (fmt::int(m.watts)) " W" } }
+                    div { dt { "Computed efficiency" } dd { (m.efficiency().map(|v| format!("{v:.2} J/kSol")).unwrap_or("n/a".into())) } }
+                    div { dt { "Source" } dd { @if let Some(u) = &m.source_url { (ext(u, m.source_name.as_deref().unwrap_or("Manufacturer page"))) } @else { "n/a" } } }
+                }
+                div class="entity-layout" {
+                    section class="entity-main" {
+                        div class="section-head" { div { h2 { "Compatible active coins" } p { "Exact parameter match: Equihash " (m.equihash) "." } } }
+                        div class="entity-grid" {
+                            @for c in &coins { article {
+                                div class="entity-title small" { a href={"/coin/" (c.id)} { (logo::chip(&c.logo, &c.name, At::List, true)) strong { (c.name) } } span class="sym" { (c.symbol) } }
+                                p { (c.pool_count) " listed pool" @if c.pool_count != 1 { "s" } " · " (fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s"))) " network" }
+                                div class="card-actions" { a href={"/pools?coin=" (c.id) "#pools"} { "Pools" } a href={"/calculator?coin=" (c.id) "&hashrate=" (fmt::opt_num(m.hashrate_ksol)) "&watts=" (fmt::opt_num(m.watts))} { "Calculate" } }
+                            } }
+                        }
+                        section class="qa" { div class="section-head" { div { h2 { "Before you point the miner" } } }
+                            details open { summary { "Does every Equihash coin work on this machine?" } p { "No. A miner must match the exact n,k parameters. This device runs " (m.equihash) "; the compatible list above is generated from that exact match." } }
+                            details { summary { "Which pool should I use?" } p { "Start with a nearby server and a payout method you understand, then compare fee, minimum payout, current hashrate and concentration. Confirm the stratum address on the pool's own site before configuring the miner." } }
+                        }
                     }
-                    section class="qa" { div class="section-head" { div { h2 { "Before you point the miner" } } }
-                        details open { summary { "Does every Equihash coin work on this machine?" } p { "No. A miner must match the exact n,k parameters. This device runs " (m.equihash) "; the compatible list above is generated from that exact match." } }
-                        details { summary { "Which pool should I use?" } p { "Start with a nearby server and a payout method you understand, then compare fee, minimum payout, current hashrate and concentration. Confirm the stratum address on the pool's own site before configuring the miner." } }
+                    aside class="entity-side" {
+                        section class="side-card action-card" { h2 { "Run the numbers" } p { "The calculator opens with this machine's hashrate and power. Choose a coin and enter your electricity rate." } a class="btn" href={"/calculator?hashrate=" (fmt::opt_num(m.hashrate_ksol)) "&watts=" (fmt::opt_num(m.watts))} { "Use " (m.model) " defaults" } }
+                        @if d.listings.iter().any(|l| l.miner_id == m.id) { section class="side-card action-card" { h2 { "Where to buy" } p { "Compare sourced vendor price, stock, VAT and shipping claims for this exact model." } a class="btn" href={"/buy?machine=" (m.id)} { "View vendor listings" } } }
+                        @if m.equihash == "200,9" { section class="side-card" { h2 { "Merged mining" } p { "Some Zcash pools can reuse the same work for Wcash without splitting Zcash hashrate." } a href="/merged-mining" { "How ZEC + WEC mining works →" } } }
+                        section class="side-card" { h2 { "Setup path" } ol { li { "Choose one exact-match coin." } li { "Compare active pools and regions." } li { "Verify the stratum address at the pool." } li { "Enter worker and wallet details in the miner UI." } li { "Check accepted shares and payout threshold." } } }
                     }
                 }
-                aside class="entity-side" {
-                    section class="side-card action-card" { h2 { "Run the numbers" } p { "The calculator opens with this machine's hashrate and power. Choose a coin and enter your electricity rate." } a class="btn" href={"/calculator?hashrate=" (fmt::opt_num(m.hashrate_ksol)) "&watts=" (fmt::opt_num(m.watts))} { "Use " (m.model) " defaults" } }
-                    section class="side-card" { h2 { "Setup path" } ol { li { "Choose one exact-match coin." } li { "Compare active pools and regions." } li { "Verify the stratum address at the pool." } li { "Enter worker and wallet details in the miner UI." } li { "Check accepted shares and payout threshold." } } }
-                }
             }
-        }
-    })
+        },
+    )
 }
 
 pub fn guides(d: &Data) -> Markup {
@@ -291,20 +337,95 @@ pub fn guides(d: &Data) -> Markup {
 }
 
 fn matches(needle: &str, fields: &[&str]) -> bool {
-    fields.iter().any(|v| v.to_ascii_lowercase().contains(needle))
+    fields
+        .iter()
+        .any(|v| v.to_ascii_lowercase().contains(needle))
 }
 
 pub fn search(d: &Data, q: &SearchQuery) -> Markup {
     let raw = q.q.as_deref().unwrap_or("").trim();
     let needle = raw.to_ascii_lowercase();
-    let coins: Vec<_> = if needle.is_empty() { Vec::new() } else { d.coins.iter().filter(|c| matches(&needle, &[&c.name, &c.symbol, &c.id, &c.params()])).take(20).collect() };
-    let miners: Vec<_> = if needle.is_empty() { Vec::new() } else { d.miners.iter().filter(|m| matches(&needle, &[&m.maker, &m.model, &m.equihash])).take(20).collect() };
-    let pools: Vec<_> = if needle.is_empty() { Vec::new() } else { d.pools.iter().filter(|p| matches(&needle, &[&p.name, &p.coin, &p.coin_label, p.region.as_deref().unwrap_or("")])).take(30).collect() };
-    let count = coins.len() + miners.len() + pools.len();
-    layout(d, Page { title: "Search Equihash coins, pools and hardware", description: "Search the equihash.com directory for coins, mining pools and hardware.", path: "/search", nav: "" }, html! {
+    let coins: Vec<_> = if needle.is_empty() {
+        Vec::new()
+    } else {
+        d.coins
+            .iter()
+            .filter(|c| matches(&needle, &[&c.name, &c.symbol, &c.id, &c.params()]))
+            .take(20)
+            .collect()
+    };
+    let miners: Vec<_> = if needle.is_empty() {
+        Vec::new()
+    } else {
+        d.miners
+            .iter()
+            .filter(|m| matches(&needle, &[&m.maker, &m.model, &m.equihash]))
+            .take(20)
+            .collect()
+    };
+    let pools: Vec<_> = if needle.is_empty() {
+        Vec::new()
+    } else {
+        d.pools
+            .iter()
+            .filter(|p| {
+                matches(
+                    &needle,
+                    &[
+                        &p.name,
+                        &p.coin,
+                        &p.coin_label,
+                        p.region.as_deref().unwrap_or(""),
+                    ],
+                )
+            })
+            .take(30)
+            .collect()
+    };
+    let vendors: Vec<_> = if needle.is_empty() {
+        Vec::new()
+    } else {
+        d.vendors
+            .iter()
+            .filter(|v| {
+                matches(
+                    &needle,
+                    &[
+                        &v.name,
+                        &v.slug,
+                        &v.regions.join(" "),
+                        v.region_focus.as_deref().unwrap_or(""),
+                    ],
+                )
+            })
+            .take(20)
+            .collect()
+    };
+    let merged = !needle.is_empty()
+        && [
+            "merged mining",
+            "merge mining",
+            "auxpow",
+            "zec wec",
+            "zcash wcash",
+            "wcash zcash",
+        ]
+        .iter()
+        .any(|term| term.contains(&needle) || needle.contains(term));
+    let buying = !needle.is_empty()
+        && ["buy", "vendor", "shop", "seller", "where to buy"]
+            .iter()
+            .any(|term| term.contains(&needle) || needle.contains(term));
+    let count = coins.len()
+        + miners.len()
+        + pools.len()
+        + vendors.len()
+        + usize::from(merged)
+        + usize::from(buying);
+    layout(d, Page { title: "Search Equihash coins, pools, hardware and vendors", description: "Search the equihash.com directory for coins, mining pools, hardware, vendors and guides.", path: "/search", nav: "" }, html! {
         div class="wrap page search-page" {
             header class="page-head" { h1 { "Search equihash.com" } (search_form(raw, "Coin, pool, hardware or parameter set")) }
-            @if raw.is_empty() { div class="empty-state" { h2 { "Search the whole directory" } p { "Try “Z15 Pro”, “Zcash”, “Wcash”, “200,9”, a pool name or a region." } } }
+            @if raw.is_empty() { div class="empty-state" { h2 { "Search the whole directory" } p { "Try “Z15 Pro”, “Zcash”, “Wcash”, “merged mining”, a vendor, pool or region." } } }
             @else if count == 0 { div class="empty-state" { h2 { "No results for “" (raw) "”" } p { "Try a coin symbol, miner model, exact parameter set or shorter pool name." } a href="/contribute" { "Suggest a missing listing" } } }
             @else {
                 p class="result-count" { (count) " result" @if count != 1 { "s" } " for “" (raw) "”" }
@@ -312,6 +433,11 @@ pub fn search(d: &Data, q: &SearchQuery) -> Markup {
                     @if !coins.is_empty() { section { h2 { "Coins" } div class="result-list" { @for c in coins { a href={"/coin/" (c.id)} { span { (logo::chip(&c.logo, &c.name, At::List, true)) strong { (c.name) } " " span class="sym" { (c.symbol) } } small { "Equihash " (c.params()) " · " (c.pool_count) " pools" } } } } } }
                     @if !miners.is_empty() { section { h2 { "Hardware" } div class="result-list" { @for m in miners { a href={"/hardware/" (m.id)} { span { strong { (m.maker) " " (m.model) } } small { "Equihash " (m.equihash) " · " (fmt::opt_num(m.hashrate_ksol)) " kSol/s" } } } } } }
                     @if !pools.is_empty() { section { h2 { "Pools" } div class="result-list" { @for p in pools { a href={"/pool/" (p.slug)} { span { (logo::chip(&p.logo, &p.name, At::List, true)) strong { (p.name) } } small { (p.coin_label) " · " (p.region.as_deref().unwrap_or("region n/a")) } } } } } }
+                    @if !vendors.is_empty() { section { h2 { "Vendors" } div class="result-list" { @for v in vendors { a href={"/buy/vendor/" (v.slug)} { span { strong { (v.name) } } small { (v.region_focus.as_deref().unwrap_or("Region not stated")) " · " (v.regions.join(", ")) } } } } } }
+                    @if merged || buying { section { h2 { "Guides and tools" } div class="result-list" {
+                        @if merged { a href="/merged-mining" { span { strong { "Zcash + Wcash merged mining" } } small { "Miner overview and pool operator guide" } } }
+                        @if buying { a href="/buy" { span { strong { "Where to buy Equihash miners" } } small { "Sourced prices, stock claims, VAT and shipping notes" } } }
+                    } } }
                 }
             }
         }
@@ -325,7 +451,7 @@ pub fn contribute(d: &Data) -> Markup {
     layout(d, Page { title: "Add a listing, correction or question", description: "Submit an Equihash pool, coin, hardware listing, correction or community question to equihash.com.", path: "/contribute", nav: "" }, html! {
         div class="wrap page narrow prose contribute-page" {
             header class="page-head" { p class="eyebrow" { "CONTRIBUTE" } h1 { "Add what miners need" } p class="lede" { "Listings are free. Public evidence is required for factual claims, and accepted fields keep their source. Send a completed template to " a href="https://x.com/RustDev_" rel="noopener" { "@RustDev_" } "." } }
-            nav class="contribute-nav" aria-label="Contribution types" { a href="#pool" { "Pool" } a href="#project" { "Coin or hardware" } a href="#question" { "Question or correction" } }
+            nav class="contribute-nav" aria-label="Contribution types" { a href="#pool" { "Pool" } a href="#project" { "Coin or hardware" } a href="/add-vendor" { "Vendor" } a href="#question" { "Question or correction" } }
             section id="pool" { h2 { "Pool listing or correction" } p { "A useful pool listing needs a public website plus enough evidence to verify fee, payout, endpoints and current activity. Public machine-readable stats give miners the best record." } div class="tpl" { div class="tpl-head" { span { "Pool template" } button class="btn small" type="button" data-copy="#pool-template" { "Copy" } } pre id="pool-template" { (pool) } } }
             section id="project" { h2 { "Coin or hardware listing" } p { "Compatibility is based on exact n,k parameters. Link an official protocol or manufacturer specification wherever possible." } div class="tpl" { div class="tpl-head" { span { "Project template" } button class="btn small" type="button" data-copy="#project-template" { "Copy" } } pre id="project-template" { (project) } } }
             section id="question" { h2 { "Question, guide idea or correction" } p { "Ask something other miners will search for. Answers are reviewed and attached to the relevant coin, pool, hardware or guide page so they remain useful." } div class="tpl" { div class="tpl-head" { span { "Question template" } button class="btn small" type="button" data-copy="#question-template" { "Copy" } } pre id="question-template" { (question) } } }

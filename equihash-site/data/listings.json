@@ -1,0 +1,29 @@
+{
+  "_doc": "Retail listings for Equihash ASICs. Prices, stock and shipping are copied from the vendor product page and never invented. equihash.com has no checkout; every CTA is an outbound product URL.",
+  "verified_at": "2026-10-05T20:15:00.000Z",
+  "listings": [
+    {
+      "id": "tms-antminer-z15-pro-860",
+      "vendor_id": "the-mining-shop-uk",
+      "miner_id": "antminer-z15-pro",
+      "title": "Bitmain Antminer Z15 Pro 860KSol",
+      "product_url": "https://www.theminingshop.co.uk/bitmain-antminer-z15-pro-860ksol-equihash-zcash-miner/",
+      "shop_hashrate_ksol": 860,
+      "hashrate_note": "Shop states 860 kSol; Bitmain's typical published figure is 840 kSol (see Hardware).",
+      "price_amount": 12800,
+      "price_currency": "GBP",
+      "price_includes_vat": false,
+      "availability": "in_stock",
+      "availability_label": "In stock — ready to ship",
+      "shipping_regions": ["UK", "EU"],
+      "shipping_note": "Free UK delivery (schema shippingRate £0 to GB). DDP UK/EU warehouse; duties and taxes included per shop copy. Handling 1–3 business days; transit 2–10 days.",
+      "condition": "new",
+      "image": null,
+      "image_source_url": "https://www.theminingshop.co.uk/wp-content/uploads/2024/05/bitmain-antminer-z15-pro-860ksol-equihash-zcash-miner-main-product-view-1-12651.webp",
+      "image_license_note": "Product photo from the vendor listing page; omitted from the local build until a reviewed local asset is imported.",
+      "sku": "BIT860KSOL283812651",
+      "source_url": "https://www.theminingshop.co.uk/bitmain-antminer-z15-pro-860ksol-equihash-zcash-miner/",
+      "observed_at": "2026-10-05T20:15:00.000Z"
+    }
+  ]
+}

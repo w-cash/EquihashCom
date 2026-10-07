@@ -9,7 +9,9 @@ mod live;
 mod views;
 
 use actix_files::{Files, NamedFile};
-use actix_web::{guard, http::header, middleware, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{
+    guard, http::header, middleware, web, App, HttpRequest, HttpResponse, HttpServer, Responder,
+};
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
@@ -26,7 +28,13 @@ struct AppState {
 
 impl AppState {
     fn new(d: data::Data, data_dir: PathBuf, live_enabled: bool) -> Self {
-        AppState { data: RwLock::new(Arc::new(d)), data_dir, live: RwLock::new(live::LiveState::default()), live_enabled, reload_error: RwLock::new(None) }
+        AppState {
+            data: RwLock::new(Arc::new(d)),
+            data_dir,
+            live: RwLock::new(live::LiveState::default()),
+            live_enabled,
+            reload_error: RwLock::new(None),
+        }
     }
     fn get(&self) -> Arc<data::Data> {
         self.data.read().unwrap().clone()
@@ -51,8 +59,29 @@ fn html(m: maud::Markup) -> HttpResponse {
 
 async fn home(s: web::Data<AppState>, req: HttpRequest) -> HttpResponse {
     // Preserve old shared/indexed pool-filter URLs while making `/` the discovery homepage.
-    if !req.query_string().is_empty() {
-        return HttpResponse::MovedPermanently().insert_header((header::LOCATION, format!("/pools?{}", req.query_string()))).finish();
+    let legacy_pool_query = req
+        .query_string()
+        .split('&')
+        .filter_map(|part| part.split_once('=').map(|x| x.0))
+        .any(|key| {
+            matches!(
+                key,
+                "coin"
+                    | "scheme"
+                    | "region"
+                    | "q"
+                    | "fee"
+                    | "hr"
+                    | "merged"
+                    | "hide_empty"
+                    | "sort"
+                    | "dir"
+            )
+        });
+    if legacy_pool_query {
+        return HttpResponse::MovedPermanently()
+            .insert_header((header::LOCATION, format!("/pools?{}", req.query_string())))
+            .finish();
     }
     html(views::hub::index(&s.get()))
 }
@@ -69,7 +98,9 @@ async fn coin(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
     let d = s.get();
     match d.coin(path.as_str()) {
         Some(c) => html(views::hub::coin(&d, c)),
-        None => HttpResponse::NotFound().content_type("text/html; charset=utf-8").body(views::pages::not_found(&d).into_string()),
+        None => HttpResponse::NotFound()
+            .content_type("text/html; charset=utf-8")
+            .body(views::pages::not_found(&d).into_string()),
     }
 }
 
@@ -81,9 +112,13 @@ async fn pool(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
         return html(views::pages::pool_page(&d, p));
     }
     if let Some(to) = d.slug_redirects.get(path.as_str()) {
-        return HttpResponse::MovedPermanently().insert_header((header::LOCATION, format!("/pool/{to}"))).finish();
+        return HttpResponse::MovedPermanently()
+            .insert_header((header::LOCATION, format!("/pool/{to}")))
+            .finish();
     }
-    HttpResponse::NotFound().content_type("text/html; charset=utf-8").body(views::pages::not_found(&d).into_string())
+    HttpResponse::NotFound()
+        .content_type("text/html; charset=utf-8")
+        .body(views::pages::not_found(&d).into_string())
 }
 
 async fn archive(s: web::Data<AppState>) -> impl Responder {
@@ -96,10 +131,15 @@ async fn hardware_detail(s: web::Data<AppState>, path: web::Path<String>) -> Htt
     let d = s.get();
     match d.miners.iter().find(|m| m.id == *path) {
         Some(m) => html(views::hub::hardware_detail(&d, m)),
-        None => HttpResponse::NotFound().content_type("text/html; charset=utf-8").body(views::pages::not_found(&d).into_string()),
+        None => HttpResponse::NotFound()
+            .content_type("text/html; charset=utf-8")
+            .body(views::pages::not_found(&d).into_string()),
     }
 }
-async fn calculator(s: web::Data<AppState>, q: web::Query<views::calc::CalcQuery>) -> impl Responder {
+async fn calculator(
+    s: web::Data<AppState>,
+    q: web::Query<views::calc::CalcQuery>,
+) -> impl Responder {
     html(views::calc::render(&s.get(), &q))
 }
 async fn guide(s: web::Data<AppState>) -> impl Responder {
@@ -123,6 +163,21 @@ async fn search(s: web::Data<AppState>, q: web::Query<views::hub::SearchQuery>) 
 async fn contribute(s: web::Data<AppState>) -> impl Responder {
     html(views::hub::contribute(&s.get()))
 }
+async fn buy(s: web::Data<AppState>, q: web::Query<views::buy::BuyQuery>) -> impl Responder {
+    html(views::buy::index(&s.get(), &q))
+}
+async fn buy_vendor(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
+    let d = s.get();
+    match d.vendors.iter().find(|v| v.slug == *path) {
+        Some(v) => html(views::buy::vendor_page(&d, v)),
+        None => HttpResponse::NotFound()
+            .content_type("text/html; charset=utf-8")
+            .body(views::pages::not_found(&d).into_string()),
+    }
+}
+async fn add_vendor(s: web::Data<AppState>) -> impl Responder {
+    html(views::buy::add_vendor(&s.get()))
+}
 
 /// Live figures for the page to poll (every 60 s). Read from the server's own last good readings,
 /// so browsers never call the pool's endpoints.
@@ -138,7 +193,13 @@ const HEALTH_MAX_DATA_AGE_SECS: i64 = 3 * 3600;
 
 /// Body and status of /healthz. 503 when the data is older than `max_age` (or its age is unknown);
 /// "degraded" (still 200) when a reload is failing or a live source is down or stale.
-fn health(d: &data::Data, now: chrono::DateTime<chrono::Utc>, max_age: i64, reload_error: Option<&str>, live_enabled: bool) -> (u16, serde_json::Value) {
+fn health(
+    d: &data::Data,
+    now: chrono::DateTime<chrono::Utc>,
+    max_age: i64,
+    reload_error: Option<&str>,
+    live_enabled: bool,
+) -> (u16, serde_json::Value) {
     let generated = d.meta.generated_at.clone().or(d.last_updated.clone());
     let age = data::age_secs(generated.as_deref(), now);
     let data_ok = age.map(|a| a <= max_age).unwrap_or(false);
@@ -148,7 +209,13 @@ fn health(d: &data::Data, now: chrono::DateTime<chrono::Utc>, max_age: i64, relo
         .map(|s| serde_json::json!({"id": s.id, "status": s.status, "age_secs": s.age_secs, "stale": s.stale, "error": s.error.as_ref().map(|_| "source unavailable"), "last_ok_at": s.last_ok_at}))
         .collect();
     let live_ok = !live_enabled || d.live.iter().all(|s| s.status == "ok" && !s.stale);
-    let status = if !data_ok { "error" } else if reload_error.is_some() || !live_ok { "degraded" } else { "ok" };
+    let status = if !data_ok {
+        "error"
+    } else if reload_error.is_some() || !live_ok {
+        "degraded"
+    } else {
+        "ok"
+    };
     let body = serde_json::json!({
         "status": status,
         "checked_at": now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
@@ -169,21 +236,50 @@ fn health(d: &data::Data, now: chrono::DateTime<chrono::Utc>, max_age: i64, relo
 }
 
 async fn healthz(s: web::Data<AppState>) -> HttpResponse {
-    let max_age = std::env::var("HEALTH_MAX_DATA_AGE_SECS").ok().and_then(|v| v.parse().ok()).unwrap_or(HEALTH_MAX_DATA_AGE_SECS);
+    let max_age = std::env::var("HEALTH_MAX_DATA_AGE_SECS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(HEALTH_MAX_DATA_AGE_SECS);
     let err = s.reload_error.read().unwrap().clone();
-    let (code, body) = health(&s.get(), chrono::Utc::now(), max_age, err.as_deref(), s.live_enabled);
-    HttpResponse::build(actix_web::http::StatusCode::from_u16(code).unwrap()).insert_header((header::CACHE_CONTROL, "no-store")).json(body)
+    let (code, body) = health(
+        &s.get(),
+        chrono::Utc::now(),
+        max_age,
+        err.as_deref(),
+        s.live_enabled,
+    );
+    HttpResponse::build(actix_web::http::StatusCode::from_u16(code).unwrap())
+        .insert_header((header::CACHE_CONTROL, "no-store"))
+        .json(body)
 }
 
 /// Public, read-only copies of the data files (transparency). The generated files are served
 /// from the same snapshot the pages were rendered from.
-async fn data_file(s: web::Data<AppState>, path: web::Path<String>, req: HttpRequest) -> HttpResponse {
-    const ALLOWED: &[&str] = &["pools.json", "network.json", "archive.json", "miners.json", "meta.json", "research.json", "current.json"];
+async fn data_file(
+    s: web::Data<AppState>,
+    path: web::Path<String>,
+    req: HttpRequest,
+) -> HttpResponse {
+    const ALLOWED: &[&str] = &[
+        "pools.json",
+        "network.json",
+        "archive.json",
+        "miners.json",
+        "vendors.json",
+        "listings.json",
+        "meta.json",
+        "research.json",
+        "current.json",
+    ];
     if !ALLOWED.contains(&path.as_str()) {
         return HttpResponse::NotFound().finish();
     }
     let d = s.get();
-    let file = if data::GENERATED.contains(&path.as_str()) { d.snapshot_dir.join(path.as_str()) } else { s.data_dir.join(path.as_str()) };
+    let file = if data::GENERATED.contains(&path.as_str()) {
+        d.snapshot_dir.join(path.as_str())
+    } else {
+        s.data_dir.join(path.as_str())
+    };
     match NamedFile::open(file) {
         Ok(f) => f.into_response(&req),
         Err(_) => HttpResponse::NotFound().finish(),
@@ -198,25 +294,53 @@ async fn favicon(req: HttpRequest) -> HttpResponse {
 }
 
 async fn robots() -> HttpResponse {
-    HttpResponse::Ok().content_type("text/plain").body(format!("User-agent: *\nAllow: /\nSitemap: {}/sitemap.xml\n", views::layout::SITE))
+    HttpResponse::Ok().content_type("text/plain").body(format!(
+        "User-agent: *\nAllow: /\nSitemap: {}/sitemap.xml\n",
+        views::layout::SITE
+    ))
 }
 
 async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
     let d = s.get();
-    let mut urls: Vec<String> = ["/", "/coins", "/pools", "/hardware", "/guides", "/calculator", "/merged-mining", "/archive", "/contribute", "/about", "/sources"].iter().map(|p| p.to_string()).collect();
+    let mut urls: Vec<String> = [
+        "/",
+        "/coins",
+        "/pools",
+        "/hardware",
+        "/buy",
+        "/guides",
+        "/calculator",
+        "/merged-mining",
+        "/archive",
+        "/contribute",
+        "/add-vendor",
+        "/about",
+        "/sources",
+    ]
+    .iter()
+    .map(|p| p.to_string())
+    .collect();
     urls.extend(d.coins.iter().map(|c| format!("/coin/{}", c.id)));
     urls.extend(d.pools.iter().map(|p| format!("/pool/{}", p.slug)));
     urls.extend(d.miners.iter().map(|m| format!("/hardware/{}", m.id)));
-    let body: String = urls.iter().map(|u| format!("<url><loc>{}{}</loc></url>", views::layout::SITE, u)).collect();
+    urls.extend(d.vendors.iter().map(|v| format!("/buy/vendor/{}", v.slug)));
+    let body: String = urls
+        .iter()
+        .map(|u| format!("<url><loc>{}{}</loc></url>", views::layout::SITE, u))
+        .collect();
     HttpResponse::Ok().content_type("application/xml").body(format!(r#"<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>"#))
 }
 
 async fn not_found(s: web::Data<AppState>) -> HttpResponse {
-    HttpResponse::NotFound().content_type("text/html; charset=utf-8").body(views::pages::not_found(&s.get()).into_string())
+    HttpResponse::NotFound()
+        .content_type("text/html; charset=utf-8")
+        .body(views::pages::not_found(&s.get()).into_string())
 }
 
 fn static_dir() -> PathBuf {
-    std::env::var("STATIC_DIR").map(PathBuf::from).unwrap_or_else(|_| PathBuf::from("static"))
+    std::env::var("STATIC_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from("static"))
 }
 
 /// Security headers on every response. HSTS is left to the TLS proxy unless HSTS=1 (the app
@@ -227,10 +351,16 @@ fn security_headers() -> middleware::DefaultHeaders {
         .add((header::X_CONTENT_TYPE_OPTIONS, "nosniff"))
         .add((header::REFERRER_POLICY, "strict-origin-when-cross-origin"))
         .add((header::X_FRAME_OPTIONS, "DENY"))
-        .add(("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"))
+        .add((
+            "Permissions-Policy",
+            "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+        ))
         .add(("Cross-Origin-Opener-Policy", "same-origin"));
     if std::env::var("HSTS").map(|v| v == "1").unwrap_or(false) {
-        h = h.add((header::STRICT_TRANSPORT_SECURITY, "max-age=31536000; includeSubDomains"));
+        h = h.add((
+            header::STRICT_TRANSPORT_SECURITY,
+            "max-age=31536000; includeSubDomains",
+        ));
     }
     h
 }
@@ -249,6 +379,9 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
         .service(web::resource("/miners").route(get_head().to(miners)))
         .service(web::resource("/hardware").route(get_head().to(miners)))
         .service(web::resource("/hardware/{id}").route(get_head().to(hardware_detail)))
+        .service(web::resource("/buy").route(get_head().to(buy)))
+        .service(web::resource("/buy/vendor/{slug}").route(get_head().to(buy_vendor)))
+        .service(web::resource("/add-vendor").route(get_head().to(add_vendor)))
         .service(web::resource("/calculator").route(get_head().to(calculator)))
         .service(web::resource("/merged-mining").route(get_head().to(guide)))
         .service(web::resource("/guides").route(get_head().to(guides)))
@@ -272,7 +405,9 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::default().default_filter_or("info"));
-    let data_dir = std::env::var("DATA_DIR").map(PathBuf::from).unwrap_or_else(|_| PathBuf::from("data"));
+    let data_dir = std::env::var("DATA_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from("data"));
     let d = data::load(&data_dir).unwrap_or_else(|e| {
         eprintln!("error: could not load data: {e}\nRun `npm run refresh` or set DATA_DIR.");
         std::process::exit(1);
@@ -284,7 +419,10 @@ async fn main() -> std::io::Result<()> {
         d.miners.len(),
         d.archive.len(),
         data_dir.display(),
-        d.snapshot.as_deref().map(|s| format!(" (snapshot {s})")).unwrap_or_default()
+        d.snapshot
+            .as_deref()
+            .map(|s| format!(" (snapshot {s})"))
+            .unwrap_or_default()
     );
     let live_enabled = std::env::var("LIVE").map(|v| v != "0").unwrap_or(true);
     let state = web::Data::new(AppState::new(d, data_dir.clone(), live_enabled));
@@ -302,7 +440,14 @@ async fn main() -> std::io::Result<()> {
                 match watcher.poll_with(Some(&l)) {
                     None => {}
                     Some(Ok(d)) => {
-                        println!("Reloaded data: {} pools{}", d.pools.len(), d.snapshot.as_deref().map(|s| format!(" (snapshot {s})")).unwrap_or_default());
+                        println!(
+                            "Reloaded data: {} pools{}",
+                            d.pools.len(),
+                            d.snapshot
+                                .as_deref()
+                                .map(|s| format!(" (snapshot {s})"))
+                                .unwrap_or_default()
+                        );
                         *state.data.write().unwrap() = Arc::new(d);
                         *state.reload_error.write().unwrap() = None;
                     }
@@ -324,7 +469,11 @@ async fn main() -> std::io::Result<()> {
     if live_enabled {
         let state = state.clone();
         actix_web::rt::spawn(async move {
-            let client = match reqwest::Client::builder().timeout(Duration::from_secs(10)).user_agent("equihash.com live poller").build() {
+            let client = match reqwest::Client::builder()
+                .timeout(Duration::from_secs(10))
+                .user_agent("equihash.com live poller")
+                .build()
+            {
                 Ok(c) => c,
                 Err(e) => return eprintln!("live poller disabled: {e}"),
             };
@@ -336,7 +485,11 @@ async fn main() -> std::io::Result<()> {
                     if let Err(e) = &r {
                         log::warn!("live source {}: {e}", src.id);
                     }
-                    changed |= state.live.write().unwrap().record(&src.id, r, chrono::Utc::now());
+                    changed |= state
+                        .live
+                        .write()
+                        .unwrap()
+                        .record(&src.id, r, chrono::Utc::now());
                 }
                 // Rebuild even when nothing changed, so status and ages in /api/live stay current.
                 if let Err(e) = state.rebuild() {
@@ -350,7 +503,10 @@ async fn main() -> std::io::Result<()> {
     }
 
     let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into());
-    let port: u16 = std::env::var("PORT").ok().and_then(|p| p.parse().ok()).unwrap_or(8080);
+    let port: u16 = std::env::var("PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(8080);
     println!("equihash.com serving on http://{host}:{port}");
     let sdir = static_dir();
     HttpServer::new(move || {
@@ -380,7 +536,13 @@ mod tests {
 
     macro_rules! app {
         ($s:expr) => {
-            test::init_service(App::new().app_data($s.clone()).wrap(security_headers()).configure(|c| routes(c, Path::new(env!("CARGO_MANIFEST_DIR")).join("static")))).await
+            test::init_service(
+                App::new()
+                    .app_data($s.clone())
+                    .wrap(security_headers())
+                    .configure(|c| routes(c, Path::new(env!("CARGO_MANIFEST_DIR")).join("static"))),
+            )
+            .await
         };
     }
 
@@ -401,6 +563,10 @@ mod tests {
             "/miners".into(),
             "/hardware".into(),
             format!("/hardware/{miner}"),
+            "/buy".into(),
+            "/buy?machine=antminer-z15-pro&region=UK&sort=price".into(),
+            format!("/buy/vendor/{}", s.get().vendors[0].slug),
+            "/add-vendor".into(),
             "/guides".into(),
             "/search?q=Z15+Pro".into(),
             "/contribute".into(),
@@ -412,6 +578,8 @@ mod tests {
             "/api/live".into(),
             "/data/pools.json".into(),
             "/data/miners.json".into(),
+            "/data/vendors.json".into(),
+            "/data/listings.json".into(),
             "/favicon.ico".into(),
             "/robots.txt".into(),
             "/sitemap.xml".into(),
@@ -419,22 +587,73 @@ mod tests {
         ];
         for p in &paths {
             let get = test::call_service(&app, test::TestRequest::get().uri(p).to_request()).await;
-            let head = test::call_service(&app, test::TestRequest::default().method(Method::HEAD).uri(p).to_request()).await;
+            let head = test::call_service(
+                &app,
+                test::TestRequest::default()
+                    .method(Method::HEAD)
+                    .uri(p)
+                    .to_request(),
+            )
+            .await;
             assert_eq!(get.status(), 200, "GET {p}");
             assert_eq!(head.status(), get.status(), "HEAD {p}");
-            assert_eq!(head.headers().get(header::CONTENT_TYPE), get.headers().get(header::CONTENT_TYPE), "HEAD {p} content type");
+            assert_eq!(
+                head.headers().get(header::CONTENT_TYPE),
+                get.headers().get(header::CONTENT_TYPE),
+                "HEAD {p} content type"
+            );
         }
         for m in [Method::GET, Method::HEAD] {
-            let r = test::call_service(&app, test::TestRequest::default().method(m).uri("/?coin=wcash").to_request()).await;
+            let r = test::call_service(
+                &app,
+                test::TestRequest::default()
+                    .method(m)
+                    .uri("/?coin=wcash")
+                    .to_request(),
+            )
+            .await;
             assert_eq!(r.status(), 301);
-            assert_eq!(r.headers().get(header::LOCATION).unwrap(), "/pools?coin=wcash");
+            assert_eq!(
+                r.headers().get(header::LOCATION).unwrap(),
+                "/pools?coin=wcash"
+            );
         }
+        let campaign = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri("/?utm_source=test")
+                .to_request(),
+        )
+        .await;
+        assert_eq!(
+            campaign.status(),
+            200,
+            "campaign parameters must keep the discovery homepage"
+        );
         // /healthz answers both too (200 or 503 depending on the data's age).
         for m in [Method::GET, Method::HEAD] {
-            let r = test::call_service(&app, test::TestRequest::default().method(m.clone()).uri("/healthz").to_request()).await;
-            assert!(r.status() == 200 || r.status() == 503, "{m} /healthz: {}", r.status());
+            let r = test::call_service(
+                &app,
+                test::TestRequest::default()
+                    .method(m.clone())
+                    .uri("/healthz")
+                    .to_request(),
+            )
+            .await;
+            assert!(
+                r.status() == 200 || r.status() == 503,
+                "{m} /healthz: {}",
+                r.status()
+            );
         }
-        let r = test::call_service(&app, test::TestRequest::default().method(Method::HEAD).uri("/nope").to_request()).await;
+        let r = test::call_service(
+            &app,
+            test::TestRequest::default()
+                .method(Method::HEAD)
+                .uri("/nope")
+                .to_request(),
+        )
+        .await;
         assert_eq!(r.status(), 404);
     }
 
@@ -443,10 +662,24 @@ mod tests {
         let s = state();
         let app = app!(s);
         let r = test::call_service(&app, test::TestRequest::get().uri("/").to_request()).await;
-        let h = |n: &str| r.headers().get(n).map(|v| v.to_str().unwrap().to_string()).unwrap_or_default();
+        let h = |n: &str| {
+            r.headers()
+                .get(n)
+                .map(|v| v.to_str().unwrap().to_string())
+                .unwrap_or_default()
+        };
         let csp = h("content-security-policy");
-        assert!(csp.contains("default-src 'self'") && csp.contains("frame-ancestors 'none'") && csp.contains("object-src 'none'") && csp.contains("base-uri 'none'"), "{csp}");
-        assert!(!csp.contains("script-src 'self' 'unsafe-inline'"), "inline scripts are allowed by hash only");
+        assert!(
+            csp.contains("default-src 'self'")
+                && csp.contains("frame-ancestors 'none'")
+                && csp.contains("object-src 'none'")
+                && csp.contains("base-uri 'none'"),
+            "{csp}"
+        );
+        assert!(
+            !csp.contains("script-src 'self' 'unsafe-inline'"),
+            "inline scripts are allowed by hash only"
+        );
         assert_eq!(h("x-content-type-options"), "nosniff");
         assert_eq!(h("referrer-policy"), "strict-origin-when-cross-origin");
         assert_eq!(h("x-frame-options"), "DENY");
@@ -456,44 +689,110 @@ mod tests {
     async fn health_is_503_when_data_is_stale_and_names_the_snapshot() {
         let s = state();
         let d = s.get();
-        let gen = chrono::DateTime::parse_from_rfc3339(d.meta.generated_at.as_deref().or(d.last_updated.as_deref()).unwrap()).unwrap().with_timezone(&chrono::Utc);
-        let (code, body) = health(&d, gen + chrono::Duration::minutes(30), HEALTH_MAX_DATA_AGE_SECS, None, false);
+        let gen = chrono::DateTime::parse_from_rfc3339(
+            d.meta
+                .generated_at
+                .as_deref()
+                .or(d.last_updated.as_deref())
+                .unwrap(),
+        )
+        .unwrap()
+        .with_timezone(&chrono::Utc);
+        let (code, body) = health(
+            &d,
+            gen + chrono::Duration::minutes(30),
+            HEALTH_MAX_DATA_AGE_SECS,
+            None,
+            false,
+        );
         assert_eq!(code, 200);
         assert_eq!(body["status"], "ok");
         assert_eq!(body["data"]["age_secs"], 1800);
         assert_eq!(body["data"]["snapshot"], serde_json::json!(d.snapshot));
-        let (code, body) = health(&d, gen + chrono::Duration::hours(5), HEALTH_MAX_DATA_AGE_SECS, None, false);
+        let (code, body) = health(
+            &d,
+            gen + chrono::Duration::hours(5),
+            HEALTH_MAX_DATA_AGE_SECS,
+            None,
+            false,
+        );
         assert_eq!(code, 503);
         assert_eq!(body["status"], "error");
-        let (code, body) = health(&d, gen + chrono::Duration::minutes(30), HEALTH_MAX_DATA_AGE_SECS, Some("pools.json: bad"), false);
-        assert_eq!((code, body["status"].as_str()), (200, Some("degraded")), "a failing reload is visible but the old data still serves");
+        let (code, body) = health(
+            &d,
+            gen + chrono::Duration::minutes(30),
+            HEALTH_MAX_DATA_AGE_SECS,
+            Some("pools.json: bad"),
+            false,
+        );
+        assert_eq!(
+            (code, body["status"].as_str()),
+            (200, Some("degraded")),
+            "a failing reload is visible but the old data still serves"
+        );
         assert_eq!(body["data"]["reload_error"], "data reload failed");
-        assert!(!body.to_string().contains("pools.json: bad"), "internal reload details are not public");
+        assert!(
+            !body.to_string().contains("pools.json: bad"),
+            "internal reload details are not public"
+        );
         // Live sources that have not answered yet make it degraded, never down.
-        let (code, body) = health(&d, gen + chrono::Duration::minutes(30), HEALTH_MAX_DATA_AGE_SECS, None, true);
+        let (code, body) = health(
+            &d,
+            gen + chrono::Duration::minutes(30),
+            HEALTH_MAX_DATA_AGE_SECS,
+            None,
+            true,
+        );
         assert_eq!(code, 200);
-        assert_eq!(body["status"], if d.live.is_empty() { "ok" } else { "degraded" });
+        assert_eq!(
+            body["status"],
+            if d.live.is_empty() { "ok" } else { "degraded" }
+        );
     }
 
     #[actix_web::test]
     async fn old_pool_urls_redirect_to_the_permalink() {
         let s = state();
         let d = s.get();
-        let Some((old, to)) = d.slug_redirects.iter().next().map(|(a, b)| (a.clone(), b.clone())) else {
+        let Some((old, to)) = d
+            .slug_redirects
+            .iter()
+            .next()
+            .map(|(a, b)| (a.clone(), b.clone()))
+        else {
             // No renamed pool in the current data: make one.
             let mut d2 = (*d).clone();
-            d2.slug_redirects.insert("old-name-for-a-pool".into(), d2.pools[0].slug.clone());
+            d2.slug_redirects
+                .insert("old-name-for-a-pool".into(), d2.pools[0].slug.clone());
             let to = d2.pools[0].slug.clone();
             *s.data.write().unwrap() = Arc::new(d2);
             let app = app!(s);
-            let r = test::call_service(&app, test::TestRequest::get().uri("/pool/old-name-for-a-pool").to_request()).await;
+            let r = test::call_service(
+                &app,
+                test::TestRequest::get()
+                    .uri("/pool/old-name-for-a-pool")
+                    .to_request(),
+            )
+            .await;
             assert_eq!(r.status(), 301);
-            assert_eq!(r.headers().get(header::LOCATION).unwrap(), &format!("/pool/{to}"));
+            assert_eq!(
+                r.headers().get(header::LOCATION).unwrap(),
+                &format!("/pool/{to}")
+            );
             return;
         };
         let app = app!(s);
-        let r = test::call_service(&app, test::TestRequest::get().uri(&format!("/pool/{old}")).to_request()).await;
+        let r = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri(&format!("/pool/{old}"))
+                .to_request(),
+        )
+        .await;
         assert_eq!(r.status(), 301);
-        assert_eq!(r.headers().get(header::LOCATION).unwrap(), &format!("/pool/{to}"));
+        assert_eq!(
+            r.headers().get(header::LOCATION).unwrap(),
+            &format!("/pool/{to}")
+        );
     }
 }

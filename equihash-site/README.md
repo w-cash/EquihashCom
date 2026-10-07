@@ -2,7 +2,7 @@
 
 A source-backed directory for the Equihash mining ecosystem. It connects exact parameter sets to coins, pools and compatible hardware, then provides calculators and guides for people who run the machines. For every pool it lists hashrate and share, fee and payout scheme, minimum payout, recent blocks, region and the source of each number.
 
-Any pool over 30% of a network is flagged. The homepage is a discovery hub; dedicated coin, pool and hardware pages provide the detail; and the site also has search, an earnings calculator, an archive, contribution templates and a merged-mining guide.
+Any pool over 30% of a network is flagged. The homepage is a discovery hub; dedicated coin, pool, hardware and vendor pages provide the detail; and the site also has search, an earnings calculator, an archive, contribution templates and a miner-first merged-mining guide.
 
 The production architecture is kept simple on purpose:
 

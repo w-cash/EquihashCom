@@ -53,6 +53,7 @@ fn cite(n: u8) -> Markup {
 
 pub fn render(d: &Data) -> Markup {
     let toc = [
+        ("miners", "Start here: miners"),
         ("overview", "How merged mining works"),
         ("costs", "What changes (and what doesn't)"),
         ("architecture", "Pool architecture"),
@@ -72,18 +73,33 @@ pub fn render(d: &Data) -> Markup {
     }, html! {
         div class="wrap page guide" {
             header class="page-head guide-head" {
-                p class="kicker" { "For pool operators" }
+                p class="kicker" { "For miners and pool operators" }
                 h1 { "Merged mining on Equihash" }
                 p class="lede" {
-                    "How an Equihash 200,9 pool can mine an auxiliary chain on top of Zcash: run the aux node, call "
-                    code { "createauxblock" } " and " code { "submitauxblock" } ", and append a 44-byte commitment to the end of the Zcash coinbase miner data. "
-                    "Miners keep their ASICs, firmware and stratum settings exactly as they are."
+                    "A participating pool can reuse the work from an Equihash 200,9 miner for both Zcash and Wcash. "
+                    "Miners keep the same ASIC and do not divide their Zcash hashrate; the pool adds the auxiliary-chain work and separate WEC accounting."
                 }
                 p class="disclosure" {
                     "The worked example is " (ext("https://w.cash", "Wcash")) " (WEC), an independent Zcash-derived chain merged-mined with Zcash as the "
                     em { "parent" } " through AuxPoW v2. Every Wcash detail below comes from its "
                     (ext(WP, "protocol specification")) (cite(1)) " and the pinned source READMEs it references" (cite(2)) (cite(3)) "; all of it was checked against those documents on 3 October 2026, and the coinbase-script limit against the pinned source code and the Zcash protocol specification" (cite(5)) (cite(6)) ". "
                     "The maintainer of this site also builds Wcash (see " a href="/about" { "About" } "). The flow is the general AuxPoW pattern; other aux chains define their own commitment details."
+                }
+            }
+            section id="miners" class="merge-start" {
+                div {
+                    p class="eyebrow" { "MINER QUICK START" }
+                    h2 { "Mine Zcash and Wcash with the same work" }
+                    p { "Use a Zcash-compatible Equihash 200,9 machine, such as the Antminer Z15 Pro, and connect it to a pool that explicitly supports ZEC + WEC merged mining. The pool handles the extra chain connection and tells you how WEC payouts are configured." }
+                    div class="merge-actions" {
+                        a class="btn" href="/pools?coin=zcash&merged=1#pools" { "Find a supporting pool" }
+                        a class="text-link" href="#architecture" { "Pool operator setup →" }
+                    }
+                }
+                dl {
+                    div { dt { "Hardware" } dd { "Equihash 200,9 ASIC" } }
+                    div { dt { "Miner changes" } dd { "None when the pool supports it" } }
+                    div { dt { "Security scope" } dd { "Only participating pool work secures Wcash" } }
                 }
             }
             div class="guide-layout" {
