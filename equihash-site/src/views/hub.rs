@@ -40,7 +40,7 @@ fn coin_rows(d: &Data, active_only: bool, limit: Option<usize>) -> Markup {
     let groups = d.param_groups(active_only);
     html! {
         @for (group, coins) in groups {
-            section class="coin-group" {
+            section class="coin-group" id=[(group == "Equihash 200,9").then_some("equihash-200-9")] {
                 div class="section-head compact" {
                     div { h2 { (group) } p { @if let Some(max) = limit { (coins.len().min(max)) " of " (coins.len()) " active coins shown" } @else { (coins.len()) @if coins.len() == 1 { " listed coin" } @else { " listed coins" } } } }
                     @if group == "Equihash 200,9" { a href="/hardware/antminer-z15-pro" { "Z15 Pro compatible →" } }
@@ -124,12 +124,18 @@ pub fn index(d: &Data) -> Markup {
 
             section class="ed-snapshot" aria-label="Current directory coverage" {
                 div class="wrap" {
-                    p { "Updated " time class="ago" datetime=[d.last_updated.as_deref()] { (fmt::utc(d.last_updated.as_deref())) } a href="/sources" { "See sources" } }
+                    p {
+                        a class="ed-snapshot-link" href="/sources" {
+                            span { "Updated" }
+                            time class="ago" datetime=[d.last_updated.as_deref()] { (fmt::utc(d.last_updated.as_deref())) }
+                            em { "See sources" }
+                        }
+                    }
                     dl {
-                        div { dt { "Active networks" } dd { (active) } }
-                        div { dt { "Pool listings" } dd { (pools) } }
-                        div { dt { "200,9 coins" } dd { (z15) } }
-                        div { dt { "Merged-mining pools" } dd { (merged_pools) } }
+                        div { dt { a class="ed-snapshot-link" href="/coins" { "Active networks" } } dd { (active) } }
+                        div { dt { a class="ed-snapshot-link" href="/pools" { "Pool listings" } } dd { (pools) } }
+                        div { dt { a class="ed-snapshot-link" href="/coins#equihash-200-9" { "200,9 coins" } } dd { (z15) } }
+                        div { dt { a class="ed-snapshot-link" href="/pools?coin=zcash&merged=1#pools" { "Merged-mining pools" } } dd { (merged_pools) } }
                     }
                 }
             }
