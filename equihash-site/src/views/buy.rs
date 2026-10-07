@@ -1,4 +1,4 @@
-//! Source-backed Equihash ASIC shop directory. This is an outbound directory only: no checkout,
+//! Equihash ASIC shop directory. This is an outbound directory only: no checkout,
 //! paid placement or inferred stock. Every commercial claim keeps its source and observation time.
 
 use crate::data::{Data, Listing, Vendor};
@@ -146,12 +146,12 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
         .collect();
     regions.sort();
     regions.dedup();
-    layout(d, Page { title: "Buy Equihash ASICs: Z15 Pro shop directory", description: "Where to buy Equihash ASICs including the Antminer Z15 Pro. Compare sourced prices, stock and shipping, then buy on the vendor's own site.", path: "/buy", nav: "buy" }, html! {
+    layout(d, Page { title: "Buy Equihash ASICs: Z15 Pro shop directory", description: "Where to buy Equihash ASICs including the Antminer Z15 Pro. Prices, stock and shipping are copied from each vendor’s public product page.", path: "/buy", nav: "buy" }, html! {
         div class="wrap page buy-page" {
             header class="page-head buy-head" {
-                p class="eyebrow" { "SOURCE-BACKED SHOP DIRECTORY" }
+                p class="eyebrow" { "EQUIHASH ASIC SHOPS" }
                 h1 { "Where to buy Equihash ASICs" }
-                p class="lede" { "Compare sourced vendor listings, then leave to buy on the shop's own site. " strong { "equihash.com never sells hardware" } " and does not take payment for placement." }
+                p class="lede" { "Prices and stock come from the vendors’ public product pages. Open the vendor’s site to buy. " strong { "equihash.com never sells hardware" } " and does not take payment for placement." }
             }
             form class="filters buy-filters" id="buy-filters" action="/buy" method="get" {
                 div class="f" { label for="buy-machine" { "Machine" } select id="buy-machine" name="machine" data-buy-filter="machine" { option value="" selected[machine.is_empty()] { "All machines" } @for m in &machines { option value=(m.id) selected[m.id == machine] { (m.maker) " " (m.model) } } } }
@@ -164,18 +164,18 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             @for m in &machines {
                 @let rows: Vec<_> = listings.iter().filter(|l| l.miner_id == m.id).cloned().collect();
                 @if !rows.is_empty() { section class="buy-machine" id={"machine-" (m.id)} data-machine=(m.id) {
-                    header class="buy-machine-head" { h2 { (m.maker) " " (m.model) } p class="section-sub" { "Manufacturer specs on " a href={"/hardware/" (m.id)} { "Hardware" } ". Shop-stated hashrate is shown on each card." } }
+                    header class="buy-machine-head" { h2 { (m.maker) " " (m.model) } p class="section-sub" { "See manufacturer specifications under " a href={"/hardware/" (m.id)} { "Hardware" } ". Each card keeps the hashrate stated by the shop." } }
                     div class="buy-gallery" data-buy-gallery { @for l in rows { (listing_card(d, l)) } }
                 } }
             }
             section class="buy-vendors" id="vendors" {
-                header class="buy-machine-head" { h2 { "Vendors" } p class="section-sub" { "Shops need clear Equihash ASIC stock, a public product page and a shipping region. " a href="/add-vendor" { "Add a vendor" } "." } }
+                header class="buy-machine-head" { h2 { "Vendors" } p class="section-sub" { "We list shops that publish an Equihash ASIC product page, stock information and shipping regions. " a href="/add-vendor" { "Add a vendor" } "." } }
                 div class="buy-vendor-grid" { @for v in &d.vendors { @let n = d.listings.iter().filter(|l| l.vendor_id == v.id).count(); article class="buy-vendor-card" {
                     a class="buy-vendor-link" href={"/buy/vendor/" (v.slug)} { (vendor_mark(v, true)) span class="buy-vendor-meta" { strong { (v.name) } span class="buy-vendor-regions" { (v.regions.join(" · ")) } span class="buy-vendor-count" { (n) @if n == 1 { " listing" } @else { " listings" } } } }
                     p class="buy-vendor-site" { @if let Some(u) = &v.url { (ext(u, &fmt::host(Some(u)))) } }
                 } } }
             }
-            footer class="buy-honesty" { p { "Every “View at …” button opens the vendor's product page. This site has no checkout, cart or paid placement. Prices and stock are copied from the linked page with the time checked; n/a means not published." } }
+            footer class="buy-honesty" { p { "The “View at …” button opens the vendor’s product page. equihash.com has no checkout and accepts no payment for placement. The checked time appears with each listing; n/a means the vendor did not publish the information." } }
         }
     })
 }
@@ -199,7 +199,7 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
         html! {
             div class="wrap page buy-page buy-vendor-page" {
                 p class="crumb" { a href="/buy" { "All Buy listings" } }
-            header class="page-head" { div class="title-row" { h1 { (vendor_mark(v, true)) (v.name) } (crate::views::pages::copy_link(&path, "Copy link to this vendor")) } p class="lede" { (v.region_note.as_deref().unwrap_or("Sourced vendor listing.")) @if let Some(u) = &v.url { " Site: " (ext(u, &fmt::host(Some(u)))) "." } } }
+            header class="page-head" { div class="title-row" { h1 { (vendor_mark(v, true)) (v.name) } (crate::views::pages::copy_link(&path, "Copy link to this vendor")) } p class="lede" { (v.region_note.as_deref().unwrap_or("Vendor listing.")) @if let Some(u) = &v.url { " Site: " (ext(u, &fmt::host(Some(u)))) "." } } }
                 dl class="buy-vendor-kv" { div { dt { "Listings here" } dd { (rows.len()) } } div { dt { "Regions" } dd { (v.regions.join(", ")) } } div { dt { "Checked" } dd { (fmt::utc(v.observed_at.as_deref())) @if let Some(u) = &v.source_url { " · " (ext(u, &fmt::host(Some(u)))) } } } }
                 @if let Some(n) = &v.notes { p class="small" { (n) } }
                 div class="buy-gallery" data-buy-gallery { @for l in rows { (listing_card(d, l)) } }

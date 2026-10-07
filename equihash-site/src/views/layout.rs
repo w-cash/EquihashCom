@@ -99,7 +99,7 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::
                 link rel="stylesheet" href={"/static/app.css?v=" (ASSET_V)};
                 script { (PreEscaped(INLINE_SCRIPT)) }
                 script type="application/ld+json" {
-                    (PreEscaped(format!(r#"{{"@context":"https://schema.org","@type":"WebSite","name":"equihash.com","url":"{SITE}","description":"The practical directory for Equihash coins, mining pools, hardware, calculators and guides.","potentialAction":{{"@type":"SearchAction","target":"{SITE}/search?q={{search_term_string}}","query-input":"required name=search_term_string"}}}}"#)))
+                    (PreEscaped(format!(r#"{{"@context":"https://schema.org","@type":"WebSite","name":"equihash.com","url":"{SITE}","description":"Equihash coins, mining pools, ASIC hardware, mining calculator and setup guides.","potentialAction":{{"@type":"SearchAction","target":"{SITE}/search?q={{search_term_string}}","query-input":"required name=search_term_string"}}}}"#)))
                 }
             }
             body data-page=(p.nav) {

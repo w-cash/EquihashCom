@@ -362,12 +362,12 @@ pub fn add_pool(d: &Data) -> Markup {
 pub fn about(d: &Data) -> Markup {
     layout(d, Page { title: "About", description: "About equihash.com, the open directory for Equihash coins, mining pools, hardware and guides.", path: "/about", nav: "about" }, html! {
         div class="wrap page narrow prose" {
-            header class="page-head" { h1 { "About equihash.com" } p class="lede" { "A practical, source-backed map of the Equihash mining ecosystem." } }
+            header class="page-head" { h1 { "About equihash.com" } p class="lede" { "equihash.com lists Equihash coins, mining pools and ASICs, and shows where each number came from." } }
             p class="about-line" { "Maintained by " a href="https://x.com/MykytaSamardak" rel="noopener" target="_blank" { "@MykytaSamardak" } ", who also builds " a href="https://w.cash" rel="noopener" target="_blank" { "Wcash" } ". Community updates are on " a href="https://t.me/EquihashCom" rel="noopener" target="_blank" { "Telegram" } "." }
-            p { "That relationship is disclosed wherever it matters. Wcash receives merged-mined work only from pools that explicitly support it; equihash.com does not treat all Zcash hashrate as Wcash backing." }
+            p { "The same person maintains this site and Wcash. Only Zcash pools that support Wcash send work to it, so this site never counts all Zcash hashrate as Wcash hashrate." }
             h2 { "How it's run" }
-            p { "Pools are ordered by their data and nothing else. There are no paid placements, sponsored rows or badges for sale." }
-            p { "Every row links to where its numbers came from and says when they were fetched. When a pool doesn't publish something, the cell says n/a; nothing is estimated to fill the gap." }
+            p { "Pool order comes from the figures in the table. Nobody can pay for a row, a higher position or a badge." }
+            p { "Every number links to its source and has a time checked. If a pool does not publish a value, the table says n/a instead of guessing." }
             p { "Concentration matters to everyone who mines a coin, so any pool above 30% of a network is marked in red." }
             h2 { "Where the data comes from" }
             p { "A small script reads the public miningpoolstats data for every Equihash coin, adds the pools that miningpoolstats doesn't list after checking them by hand, and writes plain JSON files that this site serves as they are. You can download them from the links at the bottom of every page. The details, and what couldn't be verified, are on the " a href="/sources" { "sources page" } "." }
