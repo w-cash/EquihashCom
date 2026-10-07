@@ -36,7 +36,13 @@ fn currency(amount: Option<f64>, code: Option<&str>) -> String {
 
 fn vendor_mark(v: &Vendor, head: bool) -> Markup {
     html! {
-        span class={"logo mono" @if head { " lg-head" } @else { " lg-list" }} aria-hidden="true" { (logo::monogram(&v.name)) }
+        span class={"logo mono" @if head { " lg-head" } @else { " lg-list" }} aria-hidden="true" {
+            @if v.slug == "the-mining-shop-uk" {
+                img src="/static/logos/vendors/the-mining-shop-uk.239a526176.png" alt="" width="512" height="512";
+            } @else {
+                (logo::monogram(&v.name))
+            }
+        }
     }
 }
 
@@ -57,7 +63,11 @@ fn listing_card(d: &Data, l: &Listing) -> Markup {
     html! {
         article class="buy-card" data-machine=(l.miner_id) data-vendor=(l.vendor_id) data-region=(l.shipping_regions.join(",")) data-price=[l.price_amount.map(|x| x.to_string())] data-stock=(l.availability.as_deref().unwrap_or("unknown")) data-stock-rank=(stock_rank) data-region-rank=(region_rank) {
             div class="buy-card-media" {
-                div class="miner-plate" aria-hidden="true" { span { "EQUIHASH 200,9" } strong { "Z15 PRO" } small { "ASIC MINER" } }
+                @if let Some(image) = &l.image {
+                    img src=(image) alt=(format!("{} product view", l.title)) loading="lazy" width="1200" height="1200";
+                } @else {
+                    div class="miner-plate" aria-hidden="true" { span { "EQUIHASH 200,9" } strong { "Z15 PRO" } small { "ASIC MINER" } }
+                }
             }
             div class="buy-card-body" {
                 header class="buy-card-head" {
