@@ -940,3 +940,61 @@ body[data-page="home"] .foot a { color: #f0ede4; }
   .ed-contribute h2 { font-size: 31px; }
   .ed-contribute > div:last-child { align-items: flex-start; flex-direction: column; }
 }
+
+/* ---------- site-wide editorial shell ---------- */
+body {
+  --paper: #f2f0e8; --sheet: #faf9f4; --ink: #211f1a; --ink-2: #56524a; --ink-3: #706b62;
+  --rule: #cec9bb; --rule-2: #e2ded3; --hover: #e9e4d7; --link: #1f4c3f;
+  background: var(--paper); color: var(--ink); color-scheme: light;
+}
+.masthead { position: relative; z-index: 10; border-color: #373630; background: #171813; }
+.wordmark { color: #f5f2e9; }
+.wordmark span { color: #aaa79d; }
+.nav a { color: #c7c4ba; }
+.nav a:hover { color: #fff; border-color: #76776f; }
+.nav a[aria-current="page"] { color: #f4cc43; border-bottom-color: #f4cc43; }
+.foot { border-color: #393a34; background: #171813; color: #bdbab0; }
+.foot a { color: #f0ede4; }
+
+.page { padding-top: 52px; padding-bottom: 42px; }
+.page-head { margin-bottom: 34px; padding-bottom: 26px; border-bottom: 1px solid var(--ink); }
+.page-head h1 { font-size: clamp(39px, 4.2vw, 56px); line-height: 1.02; font-weight: 400; letter-spacing: -.025em; }
+.page-head .lede { max-width: 49em; margin-top: 13px; font: 18px/1.52 var(--sans); color: var(--ink-2); }
+.eyebrow, .kicker, .step { color: #6b5a20; }
+.btn, .buy-apply, .buy-cta, .ed-dark-button { border-radius: 0; }
+.btn:hover, .buy-apply:hover { background: #f4cc43; border-color: #f4cc43; color: var(--ink); }
+.f input, .f select, .calc input, .calc select, .hub-search input { border-radius: 0; }
+.listing-callout, .buy-card, .buy-vendor-card, .entity-grid article, .side-card, .merge-start { border-radius: 0; }
+
+.directory-page .section-head.compact { padding: 12px 15px 10px; border: 1px solid var(--rule); border-bottom: 0; background: #e9e5da; }
+.directory-page .table-scroll { border-bottom: 1px solid var(--rule); }
+.directory-page table.directory { background: var(--sheet); }
+.directory-page .status { padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--ink-2); font-weight: 400; }
+
+body[data-page="pools"] .home > .intro { padding-top: 50px; padding-bottom: 27px; }
+body[data-page="pools"] .home > .intro h1 { font-size: clamp(39px, 4.2vw, 56px); font-weight: 400; letter-spacing: -.025em; }
+body[data-page="pools"] .home > .intro .lede { font-family: var(--sans); font-size: 16px; line-height: 1.5; }
+body[data-page="pools"] .home-grid { padding-top: 23px; }
+.coin-nav li a[aria-current="true"] { background: #211f1a; color: #f8f5ec; }
+
+.buy-card-media > img { background: #e9e7df; }
+.buy-card, .listing-callout, .merge-start { background: var(--sheet); }
+.guide-grid article:hover { background: #ebe7dc; }
+.calc-out { padding: 22px 24px; border-top: 3px solid var(--ink); background: var(--sheet); }
+.guide-head .disclosure { background: #e9e5da; }
+
+@media (max-width: 900px) {
+  .page { padding-top: 42px; }
+  .page-head { margin-bottom: 28px; }
+  body[data-page="pools"] .home > .intro { padding-top: 40px; }
+}
+
+@media (max-width: 680px) {
+  .page { padding-top: 34px; padding-bottom: 30px; }
+  .page-head { margin-bottom: 24px; padding-bottom: 21px; }
+  .page-head h1 { font-size: 38px; }
+  .page-head .lede { font-size: 16px; }
+  body[data-page="pools"] .home > .intro { padding-top: 34px; }
+  body[data-page="pools"] .home > .intro h1 { font-size: 38px; }
+  .calc-out { padding: 18px 15px; }
+}
