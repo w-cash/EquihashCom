@@ -1,6 +1,6 @@
 {
   "_doc": "Equihash ASIC seller directory. Manufacturer-direct and independent channels are labelled separately. equihash.com does not sell hardware, does not accept payment for placement, and does not treat a public listing as an endorsement. null = n/a.",
-  "verified_at": "2026-10-07T12:00:03.000Z",
+  "verified_at": "2026-10-07T14:10:00.000Z",
   "vendors": [
     {
       "id": "bitmain",
@@ -40,7 +40,7 @@
       "source_url": "https://www.theminingshop.co.uk/",
       "observed_at": "2026-10-07T12:00:03.000Z",
       "legal_name": "THE MINING SHOP UK LTD",
-      "registration": "UK company 14666497 · active",
+      "registration": "UK company 14666497 \u00b7 active",
       "registry_url": "https://find-and-update.company-information.service.gov.uk/company/14666497"
     },
     {
@@ -63,7 +63,7 @@
       "source_url": "https://www.antminerdistribution.com/",
       "observed_at": "2026-10-07T12:00:03.000Z",
       "legal_name": "Antminer Distribution Europe B.V.",
-      "registration": "KvK 70307180 · incorporated 2017",
+      "registration": "KvK 70307180 \u00b7 incorporated 2017",
       "registry_url": "https://www.creditsafe.com/business-index/en-gb/company/antminer-distribution-europe-bv-nl04677406"
     },
     {
@@ -86,7 +86,7 @@
       "source_url": "https://apextomining.com/product/antminer-z15-pro/",
       "observed_at": "2026-10-07T12:00:03.000Z",
       "legal_name": "APEXTO COMPANY LIMITED",
-      "registration": "Hong Kong CR 3152922 · BRN 74045670",
+      "registration": "Hong Kong CR 3152922 \u00b7 BRN 74045670",
       "registry_url": "https://www.cr.gov.hk/docs/wrpt/wk_new%26changednamecoys_20240318.pdf"
     },
     {
@@ -110,6 +110,55 @@
       "legal_name": "HASHLABS PTE. LTD.",
       "registration": "Singapore UEN 202416632G",
       "registry_url": "https://www.companies.sg/cat/63119/DEVELOPMENT-OF-SOFTWARE-CONSULTANCY-PROGRAMMING-FOR-E-COMMERCE-APPLICATIONS?page=21&per-page=100&sort=-entity_name"
+    },
+    {
+      "id": "bt-miners",
+      "slug": "bt-miners",
+      "name": "BT-MINERS",
+      "url": "https://bt-miners.com/",
+      "regions": [
+        "USA",
+        "UK",
+        "EU",
+        "UAE",
+        "Australia",
+        "India",
+        "Global"
+      ],
+      "region_focus": "Global",
+      "region_note": "Independent retailer and repair/hosting provider. Its public contact page lists regional phone lines and the Hong Kong operating company.",
+      "channel": "independent_retailer",
+      "verification_label": "Operator name and Hong Kong business registration published in the seller terms",
+      "verification_url": "https://bt-miners.com/terms-of-service/",
+      "notes": "Not an official BITMAIN distributor for purposes of this directory; BITMAIN says it has no official distributors or resellers. Seller claims of manufacturer relationships are not treated as authorization without manufacturer evidence.",
+      "source_url": "https://bt-miners.com/products/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "observed_at": "2026-10-07T14:10:00.000Z",
+      "legal_name": "BT ECOMMERCE CO., LIMITED",
+      "registration": "Hong Kong BRN 73175434-000-07-22-5",
+      "registry_url": null
+    },
+    {
+      "id": "oneminers",
+      "slug": "oneminers",
+      "name": "OneMiners",
+      "url": "https://oneminers.com/",
+      "regions": [
+        "USA",
+        "EU",
+        "UAE",
+        "Global"
+      ],
+      "region_focus": "Delivery or hosting",
+      "region_note": "Retail and hosted-mining brand operated by CircleHash LLC. The company publishes US, Prague and Dubai contact locations.",
+      "channel": "broker_hosting",
+      "verification_label": "Legal name, Wyoming filing and OneMiners trade name matched to public records",
+      "verification_url": "https://oneminers.com/pages/terms-and-conditions",
+      "notes": "Offers include delivery and hosted deployment variants. Read the selected variant, energy charges and hosting agreement before payment. This is not an official BITMAIN distributor.",
+      "source_url": "https://oneminers.com/products/antminer-z15-pro-860-kh-s",
+      "observed_at": "2026-10-07T14:10:00.000Z",
+      "legal_name": "CIRCLEHASH LLC d/b/a OneMiners",
+      "registration": "Wyoming filing 2024-001431792 \u00b7 active NY foreign LLC 7751857",
+      "registry_url": "https://sos.wyo.gov/Business/docs/24Q1Domestic.pdf"
     }
   ]
 }

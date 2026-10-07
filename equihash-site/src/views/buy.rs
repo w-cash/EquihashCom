@@ -132,21 +132,22 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
         })
         .collect();
     listings.sort_by(|a, b| match sort {
-        "price" => a
-            .price_amount
-            .partial_cmp(&b.price_amount)
-            .unwrap_or(std::cmp::Ordering::Equal),
         "stock" => (a.availability.as_deref() != Some("in_stock"))
             .cmp(&(b.availability.as_deref() != Some("in_stock"))),
         _ => (vendor(d, &a.vendor_id).and_then(|v| v.channel.as_deref()) != Some("manufacturer"))
-            .cmp(&(vendor(d, &b.vendor_id).and_then(|v| v.channel.as_deref()) != Some("manufacturer")))
-            .then_with(|| (!a.shipping_regions.iter().any(|r| r == "UK"))
-            .cmp(&(!b.shipping_regions.iter().any(|r| r == "UK")))
+            .cmp(
+                &(vendor(d, &b.vendor_id).and_then(|v| v.channel.as_deref())
+                    != Some("manufacturer")),
+            )
             .then_with(|| {
-                a.price_amount
-                    .partial_cmp(&b.price_amount)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            })),
+                (!a.shipping_regions.iter().any(|r| r == "UK"))
+                    .cmp(&(!b.shipping_regions.iter().any(|r| r == "UK")))
+                    .then_with(|| {
+                        a.price_amount
+                            .partial_cmp(&b.price_amount)
+                            .unwrap_or(std::cmp::Ordering::Equal)
+                    })
+            }),
     });
     let mut machines: Vec<_> = d
         .miners
@@ -182,7 +183,7 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             form class="filters buy-filters" id="buy-filters" action="/buy" method="get" {
                 div class="f" { label for="buy-machine" { "Machine" } select id="buy-machine" name="machine" data-buy-filter="machine" { option value="" selected[machine.is_empty()] { "All machines" } @for m in &machines { option value=(m.id) selected[m.id == machine] { (m.maker) " " (m.model) } } } }
                 div class="f" { label for="buy-region" { "Region" } select id="buy-region" name="region" data-buy-filter="region" { option value="" selected[region.is_empty()] { "All regions" } @for r in &regions { option value=(r) selected[r == region] { (r) } } } }
-                div class="f f-sort" { label for="buy-sort" { "Sort" } select id="buy-sort" name="sort" data-buy-sort { option value="region" selected[sort == "region"] { "Region (UK first)" } option value="price" selected[sort == "price"] { "Price (low → high)" } option value="stock" selected[sort == "stock"] { "Availability" } } }
+                div class="f f-sort" { label for="buy-sort" { "Sort" } select id="buy-sort" name="sort" data-buy-sort { option value="region" selected[sort == "region"] { "Channel and region" } option value="stock" selected[sort == "stock"] { "Availability" } } }
                 button class="buy-apply" type="submit" { "Apply" }
                 p class="buy-count" id="buy-count" aria-live="polite" { (listings.len()) @if listings.len() == 1 { " listing" } @else { " listings" } @if let Some(t) = d.listings_verified_at.as_deref().or(d.vendors_verified_at.as_deref()) { " · checked " (fmt::utc(Some(t))) } }
             }

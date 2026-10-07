@@ -42,7 +42,7 @@ fn coin_rows(d: &Data, active_only: bool, limit: Option<usize>) -> Markup {
         @for (group, coins) in groups {
             section class="coin-group" {
                 div class="section-head compact" {
-                    div { h2 { (group) } p { (coins.len()) @if coins.len() == 1 { " listed coin" } @else { " listed coins" } } }
+                    div { h2 { (group) } p { @if let Some(max) = limit { (coins.len().min(max)) " of " (coins.len()) " active coins shown" } @else { (coins.len()) @if coins.len() == 1 { " listed coin" } @else { " listed coins" } } } }
                     @if group == "Equihash 200,9" { a href="/hardware/antminer-z15-pro" { "Z15 Pro compatible →" } }
                 }
                 div class="table-scroll" {
@@ -102,6 +102,7 @@ pub fn index(d: &Data) -> Markup {
                         (search_form("", "Search coins, pools or hardware"))
                         div class="ed-hero-links" {
                             a class="ed-primary" href="/pools" { "Compare pools" }
+                            a href="/hashpower" { "Hashpower market" }
                             a href="/hardware/antminer-z15-pro" { "Z15 Pro profile" }
                             a href="/buy" { "Vendor listings" }
                         }
@@ -136,10 +137,12 @@ pub fn index(d: &Data) -> Markup {
             section class="wrap ed-directory" aria-labelledby="coins-title" {
                 header class="ed-section-head" {
                     div { h2 id="coins-title" { "Active Equihash networks" } p { "Coins are grouped by their exact Equihash parameters. A Z15 works on 200,9; other parameter sets need different hardware." } }
-                    a href="/coins" { "Complete coin archive →" }
+                    a href="/coins" { "All active and historical coins →" }
                 }
                 (coin_rows(d, true, Some(4)))
             }
+
+            (crate::views::hashpower::home_market(d))
 
             section class="ed-merge" aria-labelledby="merge-feature-title" {
                 div class="wrap ed-merge-grid" {

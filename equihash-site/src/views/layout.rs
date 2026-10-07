@@ -4,7 +4,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "19";
+pub const ASSET_V: &str = "22";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -47,6 +47,7 @@ pub struct Page<'a> {
 const NAV: &[(&str, &str, &str)] = &[
     ("coins", "/coins", "Coins"),
     ("pools", "/pools", "Pools"),
+    ("hashpower", "/hashpower", "Hashpower"),
     ("hardware", "/hardware", "Hardware"),
     ("buy", "/buy", "Buy"),
     ("guides", "/guides", "Guides"),
@@ -114,7 +115,9 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::
                         }
                     }
                 }
-                (stale_notice(updated.as_deref(), now))
+                @if matches!(p.nav, "home" | "coins" | "pools" | "calculator" | "merged-mining") {
+                    (stale_notice(updated.as_deref(), now))
+                }
                 main id="main" { (body) }
                 footer class="foot" {
                     div class="wrap foot-inner" {
@@ -130,7 +133,7 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, now: chrono::DateTime<chrono::
                             a href="/archive" { "Archive" }
                             a href="/sources" { "Sources and method" }
                             a href="/about" { "About" }
-                            span { "Raw data: " a href="/data/pools.json" { "pools" } ", " a href="/data/network.json" { "networks" } ", " a href="/data/miners.json" { "hardware" } ", " a href="/data/vendors.json" { "vendors" } ", " a href="/data/listings.json" { "listings" } }
+                            span { "Raw data: " a href="/data/pools.json" { "pools" } ", " a href="/data/network.json" { "networks" } ", " a href="/data/miners.json" { "hardware" } ", " a href="/data/vendors.json" { "vendors" } ", " a href="/data/listings.json" { "listings" } ", " a href="/data/hashpower.json" { "hashpower" } }
                         }
                     }
                 }

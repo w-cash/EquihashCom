@@ -420,6 +420,110 @@ body.drawer-lock { overflow: hidden; }
   table.kv th { width: 40%; }
   table.data th, table.data td { padding-right: 12px; }
 }
+
+/* ---------- Equihash hashpower market ---------- */
+.ed-market { border-top: 1px solid var(--ink); background: #ddd9ce; }
+.ed-market-grid { display: grid; grid-template-columns: minmax(290px, .72fr) minmax(0, 1.28fr); column-gap: clamp(40px, 7vw, 100px); padding-top: 51px; padding-bottom: 52px; }
+.ed-market header h2 { max-width: 560px; margin-top: 6px; font-size: clamp(31px, 3vw, 44px); line-height: 1.06; }
+.ed-market header > p:not(.ed-section-index) { max-width: 560px; margin: 14px 0 17px; color: var(--ink-2); }
+.ed-market header > a { color: var(--ink); font-weight: 600; }
+.ed-market-tape { display: grid; grid-template-columns: repeat(2, 1fr); align-self: start; margin: 0; border-top: 1px solid var(--ink); }
+.ed-market-tape > div { min-width: 0; padding: 15px 18px 16px 0; border-bottom: 1px solid #b8b3a7; }
+.ed-market-tape > div:nth-child(2n) { padding-left: 18px; border-left: 1px solid #b8b3a7; }
+.ed-market-tape dt { margin-bottom: 5px; color: var(--ink-3); font-size: 11px; letter-spacing: .055em; text-transform: uppercase; }
+.ed-market-tape dd { margin: 0; font: 500 clamp(17px, 1.7vw, 23px)/1.25 var(--mono); overflow-wrap: anywhere; }
+.ed-market-note { grid-column: 2; margin: 11px 0 0; color: var(--ink-3); font-size: 11.5px; }
+
+.market-head { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr); gap: 55px; align-items: end; }
+.market-definition { margin: 0; padding: 0 0 4px 18px; border-left: 2px solid var(--ink); color: var(--ink-2); font-size: 14px; line-height: 1.52; }
+.market-facts { display: grid; grid-template-columns: repeat(4, 1fr); margin: 17px 0 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
+.market-facts > div { min-width: 0; padding: 18px 18px 16px 0; }
+.market-facts > div + div { padding-left: 18px; border-left: 1px solid var(--rule); }
+.market-facts dt { margin-bottom: 6px; color: var(--ink-3); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; }
+.market-facts dd { min-height: 2.5em; margin: 0; font: 500 18px/1.28 var(--mono); overflow-wrap: anywhere; }
+.market-facts small { display: block; margin-top: 5px; color: var(--ink-3); font-size: 11px; }
+.source-line { margin: 10px 0 0; color: var(--ink-3); font-size: 11.5px; }
+.market-compare { margin-top: 61px; }
+.market-compare > header { margin-bottom: 18px; }
+.market-compare h2, .market-connect h2, .market-wec h2 { font-size: clamp(28px, 3vw, 40px); line-height: 1.08; }
+.decision-table th, .decision-table td { vertical-align: top; }
+.decision-table tbody th { min-width: 135px; font-weight: 600; }
+.market-caution { max-width: 77em; margin: 13px 0 0; padding-left: 13px; border-left: 3px solid #b18b22; color: var(--ink-2); font-size: 13px; }
+.rental-estimator { display: grid; grid-template-columns: minmax(260px, .55fr) minmax(0, 1.45fr); gap: 20px clamp(38px, 6vw, 92px); margin-top: 64px; padding: 27px 0 29px; border-top: 3px solid var(--ink); border-bottom: 1px solid var(--rule); }
+.rental-estimator > header p:last-child { max-width: 38em; color: var(--ink-2); }
+.rental-estimator h2 { font-size: clamp(28px, 3vw, 40px); line-height: 1.08; }
+.rental-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 12px; align-items: end; }
+.rental-form label > span { display: block; margin-bottom: 5px; color: var(--ink-3); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; }
+.rental-form label > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; height: 39px; border: 1px solid var(--rule); background: var(--sheet); }
+.rental-form input { min-width: 0; width: 100%; padding: 0 8px; border: 0; background: transparent; font-family: var(--mono); }
+.rental-form b { display: flex; align-items: center; padding: 0 8px; border-left: 1px solid var(--rule); color: var(--ink-3); font: 500 10px/1 var(--mono); white-space: nowrap; }
+.rental-form .btn { min-height: 39px; white-space: nowrap; }
+.rental-output { grid-column: 2; display: grid; grid-template-columns: repeat(4, 1fr); margin: 4px 0 0; border-top: 1px solid var(--rule); }
+.rental-output > div { min-width: 0; padding: 15px 14px 0 0; }
+.rental-output > div + div { padding-left: 14px; border-left: 1px solid var(--rule); }
+.rental-output dt { margin-bottom: 4px; color: var(--ink-3); font-size: 10px; text-transform: uppercase; letter-spacing: .05em; }
+.rental-output dd { margin: 0; font: 500 15px/1.35 var(--mono); overflow-wrap: anywhere; }
+.rental-output small { display: block; margin-top: 4px; color: var(--ink-3); font-size: 10.5px; }
+.rental-output .rental-total dd { color: #5d4b12; font-weight: 700; }
+.rental-estimator > .source-line { grid-column: 2; }
+.market-connect { display: grid; grid-template-columns: minmax(255px, .55fr) minmax(0, 1.45fr); gap: clamp(38px, 6vw, 92px); margin-top: 67px; padding-top: 26px; border-top: 1px solid var(--ink); }
+.market-connect > header > p:last-child { color: var(--ink-2); }
+.connect-ledger { grid-column: 2; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--rule); }
+.connect-ledger li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 15px; padding: 17px 0; border-bottom: 1px solid var(--rule); }
+.connect-ledger li > span { color: #6b5a20; font: 600 11px/1.5 var(--mono); }
+.connect-ledger h3 { margin: 0 0 5px; font-size: 17px; }
+.connect-ledger p { max-width: 64em; margin: 0; color: var(--ink-2); font-size: 13.5px; }
+.connect-ledger code { display: block; width: fit-content; max-width: 100%; margin: 8px 0; padding: 6px 8px; border: 1px solid var(--rule); background: var(--sheet); overflow-wrap: anywhere; }
+.market-actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 10px 25px; margin-top: 16px; }
+.market-actions a { font-weight: 500; }
+.market-wec { display: grid; grid-template-columns: minmax(230px, .75fr) minmax(300px, 1fr) auto; gap: 34px; align-items: end; margin-top: 66px; padding: 29px 0 31px; border-top: 3px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.market-wec p { margin: 0; color: var(--ink-2); }
+.market-wec > a { align-self: center; color: var(--ink); font-weight: 600; white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .ed-market-grid { grid-template-columns: 1fr; row-gap: 31px; }
+  .ed-market-note { grid-column: 1; }
+  .market-head { grid-template-columns: 1fr; gap: 22px; }
+  .market-definition { max-width: 650px; }
+  .market-facts { grid-template-columns: repeat(2, 1fr); }
+  .market-facts > div:nth-child(3) { border-left: 0; border-top: 1px solid var(--rule); }
+  .market-facts > div:nth-child(4) { border-top: 1px solid var(--rule); }
+  .market-connect { grid-template-columns: 1fr; }
+  .rental-estimator { grid-template-columns: 1fr; }
+  .rental-form, .rental-output, .rental-estimator > .source-line { grid-column: 1; }
+  .rental-form { grid-template-columns: repeat(2, 1fr); }
+  .rental-output { grid-template-columns: repeat(2, 1fr); }
+  .rental-output > div:nth-child(3) { border-left: 0; border-top: 1px solid var(--rule); }
+  .rental-output > div:nth-child(4) { border-top: 1px solid var(--rule); }
+  .connect-ledger, .market-actions { grid-column: 1; }
+  .market-wec { grid-template-columns: 1fr 1fr; align-items: start; }
+  .market-wec > a { white-space: normal; }
+}
+
+@media (max-width: 680px) {
+  .masthead-inner { gap: 7px; }
+  .nav { display: flex; gap: 18px; flex-wrap: nowrap; width: calc(100% + 14px); overflow-x: auto; padding: 0 14px 8px 0; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav a { flex: none; font-size: 13.5px; }
+  .coin-directory th:nth-child(2), .coin-directory td:nth-child(2), .coin-directory th:nth-child(5), .coin-directory td:nth-child(5) { display: none; }
+  .coin-directory th:nth-child(3), .coin-directory td:nth-child(3) { display: table-cell; }
+  .ed-market-grid { padding-top: 40px; padding-bottom: 41px; }
+  .ed-market-tape { grid-template-columns: 1fr; }
+  .ed-market-tape > div, .ed-market-tape > div:nth-child(2n) { padding: 12px 0; border-left: 0; }
+  .market-facts { grid-template-columns: 1fr; }
+  .market-facts > div, .market-facts > div + div { padding: 14px 0; border-left: 0; border-top: 1px solid var(--rule); }
+  .market-facts > div:first-child { border-top: 0; }
+  .market-compare { margin-top: 48px; }
+  .decision-table { min-width: 760px; }
+  .market-connect { margin-top: 53px; gap: 20px; }
+  .rental-estimator { margin-top: 48px; gap: 18px; }
+  .rental-form, .rental-output { grid-template-columns: 1fr; }
+  .rental-output > div, .rental-output > div + div { padding: 12px 0; border-left: 0; border-top: 1px solid var(--rule); }
+  .rental-output > div:first-child { border-top: 0; }
+  .connect-ledger li { grid-template-columns: 34px minmax(0, 1fr); gap: 9px; }
+  .market-actions { flex-direction: column; align-items: flex-start; }
+  .market-wec { grid-template-columns: 1fr; gap: 17px; margin-top: 51px; }
+}
 .m-only { display: none; }
 @media (max-width: 680px) {
   .m-only { display: inline; font-size: 12.5px; }
@@ -1082,4 +1186,19 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
 @media (max-width: 680px) {
   .seller-sheet .seller-row.buy-card,
   .buy-gallery.seller-sheet:has(> .buy-card:only-child) > .seller-row.buy-card { grid-template-columns: 1fr !important; }
+}
+
+/* Final responsive shell overrides: keep every primary destination in one swipeable row. */
+@media (min-width: 761px) {
+  .ed-hero-grid { min-height: 470px; padding-top: 42px; padding-bottom: 42px; }
+  .ed-hero-machine-image { min-height: 270px; }
+  .ed-hero-machine-image img { height: 265px; }
+}
+@media (max-width: 680px) {
+  .masthead-inner { gap: 7px; }
+  .nav { display: flex; grid-template-columns: none; gap: 18px; flex-wrap: nowrap; width: calc(100% + 14px); min-width: 0; overflow-x: auto; overflow-y: hidden; padding: 0 14px 8px 0; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav a { flex: none; font-size: 13.5px; }
+  .coin-directory th:nth-child(2), .coin-directory td:nth-child(2), .coin-directory th:nth-child(5), .coin-directory td:nth-child(5) { display: none; }
+  .coin-directory th:nth-child(3), .coin-directory td:nth-child(3) { display: table-cell; }
 }

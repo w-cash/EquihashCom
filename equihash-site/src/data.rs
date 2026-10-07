@@ -107,6 +107,16 @@ pub struct Pool {
 }
 
 impl Pool {
+    /// NiceHash is attributed in upstream block/pool data, but it is a hashpower marketplace:
+    /// sellers receive BTC while buyers choose the destination pool. Keep it out of pool totals.
+    pub fn is_hashpower_marketplace(&self) -> bool {
+        self.name.eq_ignore_ascii_case("nicehash")
+            || self
+                .url
+                .as_deref()
+                .map(|u| u.contains("nicehash.com"))
+                .unwrap_or(false)
+    }
     /// Lowest and highest fee across schemes / headline fee.
     pub fn fee_range(&self) -> Option<(f64, f64)> {
         let mut v: Vec<f64> = self.schemes.iter().filter_map(|s| s.fee_pct).collect();
@@ -412,7 +422,11 @@ pub fn rank_cmp(a: &Coin, b: &Coin) -> std::cmp::Ordering {
 pub fn reported_for(coin_id: &str, pools: &[Pool]) -> Reported {
     let own: Vec<&Pool> = pools
         .iter()
-        .filter(|p| p.coin_id == coin_id && p.hashrate.map(f64::is_finite).unwrap_or(false))
+        .filter(|p| {
+            p.coin_id == coin_id
+                && !p.is_hashpower_marketplace()
+                && p.hashrate.map(f64::is_finite).unwrap_or(false)
+        })
         .collect();
     if own.is_empty() {
         return Reported::default();
@@ -547,6 +561,30 @@ pub struct Listing {
     pub observed_at: Option<String>,
 }
 
+/// Public snapshot of the NiceHash Equihash order book. This is kept separate from pools:
+/// NiceHash matches sellers of hashrate with buyers, and the buyer chooses the destination pool.
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct HashpowerMarket {
+    pub provider: String,
+    pub algorithm: String,
+    pub market: String,
+    pub observed_at: Option<String>,
+    pub total_speed_gsol: Option<f64>,
+    pub active_orders: Option<u32>,
+    pub fixed_orders: Option<u32>,
+    pub standard_orders: Option<u32>,
+    pub top_standard_btc_per_gsol_day: Option<f64>,
+    pub top_fixed_btc_per_gsol_day: Option<f64>,
+    pub display_speed_unit: String,
+    pub display_price_unit: String,
+    pub source_url: Option<String>,
+    pub marketplace_url: Option<String>,
+    pub connection_guide_url: Option<String>,
+    pub stratum_url: Option<String>,
+    pub note: Option<String>,
+}
+
 impl Miner {
     pub fn efficiency(&self) -> Option<f64> {
         match (self.watts, self.hashrate_ksol) {
@@ -636,6 +674,11 @@ struct ListingsFile {
 }
 #[derive(Deserialize, Default)]
 #[serde(default)]
+struct HashpowerFile {
+    nicehash: HashpowerMarket,
+}
+#[derive(Deserialize, Default)]
+#[serde(default)]
 struct ResearchFile {
     items: Vec<ResearchItem>,
     coins: Vec<ResearchCoin>,
@@ -653,6 +696,7 @@ pub struct Data {
     pub vendors_verified_at: Option<String>,
     pub listings: Vec<Listing>,
     pub listings_verified_at: Option<String>,
+    pub hashpower: HashpowerMarket,
     pub research: Vec<ResearchItem>,
     pub research_coins: Vec<ResearchCoin>,
     pub meta: Meta,
@@ -1421,6 +1465,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
     let mut mf: MinersFile = read(dir, "miners.json")?;
     let mut vf: VendorsFile = read(dir, "vendors.json").unwrap_or_default();
     let mut lf: ListingsFile = read(dir, "listings.json").unwrap_or_default();
+    let mut hf: HashpowerFile = read(dir, "hashpower.json").unwrap_or_default();
     let mut rf: ResearchFile = read(dir, "research.json").unwrap_or_default();
     // Upstream URLs are rendered as links: only http(s) ones are kept (see safe_url).
     let mut dropped: Vec<String> = Vec::new();
@@ -1605,7 +1650,10 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         crate::live::apply(&live_cfg, state, &mut pools, &mut coins);
     }
     for c in coins.iter_mut() {
-        c.pool_count = pools.iter().filter(|p| p.coin_id == c.id).count() as u32;
+        c.pool_count = pools
+            .iter()
+            .filter(|p| p.coin_id == c.id && !p.is_hashpower_marketplace())
+            .count() as u32;
         c.reported = reported_for(&c.id, &pools);
         c.links = links
             .coins
@@ -1621,7 +1669,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
     for c in coins.iter_mut() {
         let sum: f64 = pools
             .iter()
-            .filter(|p| p.coin_id == c.id)
+            .filter(|p| p.coin_id == c.id && !p.is_hashpower_marketplace())
             .filter_map(|p| p.hashrate)
             .filter(|h| *h > 0.0)
             .sum();
@@ -1635,9 +1683,16 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         c.share_denominator = denom;
         let reporting = pools
             .iter()
-            .filter(|p| p.coin_id == c.id && p.hashrate.unwrap_or(0.0) > 0.0)
+            .filter(|p| {
+                p.coin_id == c.id
+                    && !p.is_hashpower_marketplace()
+                    && p.hashrate.unwrap_or(0.0) > 0.0
+            })
             .count();
-        for p in pools.iter_mut().filter(|p| p.coin_id == c.id) {
+        for p in pools
+            .iter_mut()
+            .filter(|p| p.coin_id == c.id && !p.is_hashpower_marketplace())
+        {
             let (share, capped) = share_pct(p.hashrate, denom);
             p.network_share_pct = share;
             p.share_capped = capped;
@@ -1724,6 +1779,19 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
             &mut dropped,
         );
     }
+    for (url, label) in [
+        (&mut hf.nicehash.source_url, "hashpower source_url"),
+        (
+            &mut hf.nicehash.marketplace_url,
+            "hashpower marketplace_url",
+        ),
+        (
+            &mut hf.nicehash.connection_guide_url,
+            "hashpower connection_guide_url",
+        ),
+    ] {
+        clean_url(url, label, &mut dropped);
+    }
     lf.listings.retain(|l| {
         vf.vendors.iter().any(|v| v.id == l.vendor_id)
             && mf.miners.iter().any(|m| m.id == l.miner_id)
@@ -1767,6 +1835,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         vendors_verified_at: vf.verified_at,
         listings: lf.listings,
         listings_verified_at: lf.verified_at,
+        hashpower: hf.nicehash,
         research: rf.items,
         research_coins: rf.coins,
         meta,
@@ -1877,7 +1946,7 @@ impl Data {
         let active: HashSet<String> = self.active_coin_ids().into_iter().collect();
         self.pools
             .iter()
-            .filter(move |p| active.contains(&p.coin_id))
+            .filter(move |p| active.contains(&p.coin_id) && !p.is_hashpower_marketplace())
     }
     /// Every payout scheme that appears on a live pool, most common first. The payout filter is
     /// built from this, so a scheme added to the data (PPLNT, PPLNSBF, ...) is never missing.
@@ -2578,7 +2647,7 @@ mod tests {
             (3, 1, 1, 1, 1)
         );
         let h = load(&snap_dir()).unwrap().headline();
-        assert_eq!((h.rows, h.positive), (117, 63));
+        assert_eq!((h.rows, h.positive), (116, 63));
         assert_eq!(h.rows, h.positive + h.zero + h.unavailable);
     }
 

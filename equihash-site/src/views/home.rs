@@ -1495,7 +1495,7 @@ mod tests {
     fn headline_is_computed_not_claimed() {
         let d = snap();
         let t = headline_text(&d);
-        assert!(t.starts_with("117 tracked pool rows on "), "{t}");
+        assert!(t.starts_with("116 tracked pool rows on "), "{t}");
         assert!(t.contains("63 reporting positive hashrate"), "{t}");
         let page = render_at(&d, &Filters::default(), at("2026-10-03T00:00:00Z")).into_string();
         assert!(

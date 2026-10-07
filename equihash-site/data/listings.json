@@ -1,6 +1,6 @@
 {
   "_doc": "Retail listings for Equihash ASICs. Prices, stock and shipping are copied from the vendor product page and never invented. Manufacturer-direct and independent channels are labelled separately. equihash.com has no checkout; every CTA is an outbound product URL.",
-  "verified_at": "2026-10-07T12:00:03.000Z",
+  "verified_at": "2026-10-07T14:10:00.000Z",
   "listings": [
     {
       "id": "bitmain-antminer-z15-pro-840",
@@ -39,7 +39,7 @@
       "price_currency": "GBP",
       "price_includes_vat": false,
       "availability": "in_stock",
-      "availability_label": "In stock — ready to ship",
+      "availability_label": "In stock \u2014 ready to ship",
       "shipping_regions": [
         "UK",
         "EU"
@@ -72,7 +72,7 @@
         "USA",
         "Global"
       ],
-      "shipping_note": "Ships from Breda. The €8,599 option is shown for January/February; the shop states worldwide delivery. Import duties and local taxes apply outside the EU unless agreed otherwise.",
+      "shipping_note": "Ships from Breda. The \u20ac8,599 option is shown for January/February; the shop states worldwide delivery. Import duties and local taxes apply outside the EU unless agreed otherwise.",
       "condition": "new",
       "image": null,
       "image_source_url": null,
@@ -93,7 +93,7 @@
       "price_currency": "USD",
       "price_includes_vat": false,
       "availability": "waitlist",
-      "availability_label": "February 2027 batch — waitlist shown",
+      "availability_label": "February 2027 batch \u2014 waitlist shown",
       "shipping_regions": [
         "USA",
         "Canada",
@@ -117,24 +117,83 @@
       "product_url": "https://www.hashlabs.io/miners/antminer-z15-pro",
       "shop_hashrate_ksol": 860,
       "hashrate_note": "Offer page states 860 kSol/s, 2,847 W and 3.31 J/kSol.",
-      "price_amount": 8700,
+      "price_amount": 10498,
       "price_currency": "USD",
       "price_includes_vat": null,
       "availability": "quote",
-      "availability_label": "Available deals — request an offer",
+      "availability_label": "Available deals \u2014 request an offer",
       "shipping_regions": [
         "USA",
         "Brazil",
         "Global"
       ],
-      "shipping_note": "Displayed price starts at $8,700 delivered for the shown destination. Delivery, hosting and final price are confirmed in a written offer.",
+      "shipping_note": "Displayed price is $10,498 for the shown destination. Delivery, hosting and final price are confirmed in a written offer.",
       "condition": "new",
       "image": null,
       "image_source_url": null,
       "image_license_note": null,
       "sku": null,
       "source_url": "https://www.hashlabs.io/miners/antminer-z15-pro",
-      "observed_at": "2026-10-07T12:00:03.000Z"
+      "observed_at": "2026-10-07T14:10:00.000Z"
+    },
+    {
+      "id": "bt-miners-antminer-z15-pro-840",
+      "vendor_id": "bt-miners",
+      "miner_id": "antminer-z15-pro",
+      "title": "Bitmain Antminer Z15 Pro 840KSol \u2014 new, in stock",
+      "product_url": "https://bt-miners.com/products/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "shop_hashrate_ksol": 840,
+      "hashrate_note": "Selected 840K new in-stock variant states 840 kSol/s and 2,780 W. Other batches and mixed-condition variants have different prices.",
+      "price_amount": 13400,
+      "price_currency": "USD",
+      "price_includes_vat": false,
+      "availability": "in_stock",
+      "availability_label": "840K new variant shown in stock",
+      "shipping_regions": [
+        "USA",
+        "UK",
+        "EU",
+        "UAE",
+        "Australia",
+        "India",
+        "Global"
+      ],
+      "shipping_note": "Seller states global shipping. Freight, duties, tax and final stock depend on destination and selected variant.",
+      "condition": "new",
+      "image": null,
+      "image_source_url": null,
+      "image_license_note": null,
+      "sku": "Antminer Z15 Pro",
+      "source_url": "https://bt-miners.com/products/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "observed_at": "2026-10-07T14:10:00.000Z"
+    },
+    {
+      "id": "oneminers-antminer-z15-pro-860",
+      "vendor_id": "oneminers",
+      "miner_id": "antminer-z15-pro",
+      "title": "Antminer Z15 Pro 860 KH/s \u2014 in stock",
+      "product_url": "https://oneminers.com/products/antminer-z15-pro-860-kh-s",
+      "shop_hashrate_ksol": 860,
+      "hashrate_note": "The in-stock product variant is labelled 860 KH/s. The site also offers dated lower-price future batches.",
+      "price_amount": 14399,
+      "price_currency": "USD",
+      "price_includes_vat": null,
+      "availability": "in_stock",
+      "availability_label": "In Stock variant available",
+      "shipping_regions": [
+        "USA",
+        "EU",
+        "UAE",
+        "Global"
+      ],
+      "shipping_note": "Delivery and hosting are separate options. Customs, shipping, hosting energy and service charges depend on the selected location and agreement.",
+      "condition": "new",
+      "image": null,
+      "image_source_url": null,
+      "image_license_note": null,
+      "sku": null,
+      "source_url": "https://oneminers.com/products/antminer-z15-pro-860-kh-s",
+      "observed_at": "2026-10-07T14:10:00.000Z"
     }
   ]
 }

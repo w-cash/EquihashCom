@@ -1,6 +1,7 @@
 pub mod buy;
 pub mod calc;
 pub mod guide;
+pub mod hashpower;
 pub mod home;
 pub mod hub;
 pub mod layout;
@@ -109,11 +110,10 @@ pub fn live_json(d: &Data, now: chrono::DateTime<chrono::Utc>) -> serde_json::Va
         })
         .collect();
     let mut pools = serde_json::Map::new();
-    for p in d
-        .pools
-        .iter()
-        .filter(|p| p.live_source.is_some() || live_coins.iter().any(|c| c.id == p.coin_id))
-    {
+    for p in d.pools.iter().filter(|p| {
+        !p.is_hashpower_marketplace()
+            && (p.live_source.is_some() || live_coins.iter().any(|c| c.id == p.coin_id))
+    }) {
         let unit = p.hashrate_unit.clone().unwrap_or("Sol/s".into());
         let ts = p.hashrate_observed_at.as_deref();
         let coin = d.coin(&p.coin_id);

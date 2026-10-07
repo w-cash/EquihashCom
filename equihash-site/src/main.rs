@@ -109,6 +109,11 @@ async fn coin(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
 async fn pool(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
     let d = s.get();
     if let Some(p) = d.pools.iter().find(|p| p.slug == *path) {
+        if p.is_hashpower_marketplace() {
+            return HttpResponse::MovedPermanently()
+                .insert_header((header::LOCATION, "/hashpower"))
+                .finish();
+        }
         return html(views::pages::pool_page(&d, p));
     }
     if let Some(to) = d.slug_redirects.get(path.as_str()) {
@@ -144,6 +149,12 @@ async fn calculator(
 }
 async fn guide(s: web::Data<AppState>) -> impl Responder {
     html(views::guide::render(&s.get()))
+}
+async fn hashpower(
+    s: web::Data<AppState>,
+    q: web::Query<views::hashpower::HashpowerQuery>,
+) -> impl Responder {
+    html(views::hashpower::render(&s.get(), &q))
 }
 async fn add_pool(s: web::Data<AppState>) -> impl Responder {
     html(views::pages::add_pool(&s.get()))
@@ -267,6 +278,7 @@ async fn data_file(
         "miners.json",
         "vendors.json",
         "listings.json",
+        "hashpower.json",
         "meta.json",
         "research.json",
         "current.json",
@@ -306,6 +318,7 @@ async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
         "/",
         "/coins",
         "/pools",
+        "/hashpower",
         "/hardware",
         "/buy",
         "/guides",
@@ -372,6 +385,7 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
     let get_head = || web::route().guard(guard::Any(guard::Get()).or(guard::Head()));
     cfg.service(web::resource("/").route(get_head().to(home)))
         .service(web::resource("/pools").route(get_head().to(pools)))
+        .service(web::resource("/hashpower").route(get_head().to(hashpower)))
         .service(web::resource("/coins").route(get_head().to(coins)))
         .service(web::resource("/coin/{id}").route(get_head().to(coin)))
         .service(web::resource("/pool/{slug}").route(get_head().to(pool)))
@@ -556,6 +570,7 @@ mod tests {
         let paths = [
             "/".to_string(),
             "/pools?coin=wcash".into(),
+            "/hashpower".into(),
             "/coins".into(),
             format!("/coin/{coin}"),
             format!("/pool/{slug}"),
@@ -564,7 +579,7 @@ mod tests {
             "/hardware".into(),
             format!("/hardware/{miner}"),
             "/buy".into(),
-            "/buy?machine=antminer-z15-pro&region=UK&sort=price".into(),
+            "/buy?machine=antminer-z15-pro&region=UK&sort=stock".into(),
             format!("/buy/vendor/{}", s.get().vendors[0].slug),
             "/add-vendor".into(),
             "/guides".into(),
@@ -580,6 +595,7 @@ mod tests {
             "/data/miners.json".into(),
             "/data/vendors.json".into(),
             "/data/listings.json".into(),
+            "/data/hashpower.json".into(),
             "/favicon.ico".into(),
             "/robots.txt".into(),
             "/sitemap.xml".into(),

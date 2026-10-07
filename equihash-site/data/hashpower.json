@@ -1,0 +1,22 @@
+{
+  "_doc": "Aggregate NiceHash Equihash hashpower marketplace snapshot. NiceHash is a marketplace, not a mining pool. Prices are order-book bids, not guaranteed miner revenue. Individual orders are intentionally omitted.",
+  "nicehash": {
+    "provider": "NiceHash",
+    "algorithm": "EQUIHASH",
+    "market": "BTC",
+    "observed_at": "2026-10-07T14:03:11.606408161Z",
+    "total_speed_gsol": 0.35165645,
+    "active_orders": 106,
+    "fixed_orders": 7,
+    "standard_orders": 99,
+    "top_standard_btc_per_gsol_day": 0.6872,
+    "top_fixed_btc_per_gsol_day": 1.0091,
+    "display_speed_unit": "GSol",
+    "display_price_unit": "BTC/GSol/day",
+    "source_url": "https://api2.nicehash.com/main/api/v2/hashpower/orderBook?algorithm=EQUIHASH&page=0&size=100",
+    "marketplace_url": "https://www.nicehash.com/marketplace",
+    "connection_guide_url": "https://www.nicehash.com/blog/post/notice-for-equihash-miners-xnsub-support",
+    "stratum_url": "stratum+tcp://equihash.auto.nicehash.com:9200#xnsub",
+    "note": "Order-book prices move continuously. The top bid is not a forecast and does not include the seller's fees or switching effects."
+  }
+}

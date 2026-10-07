@@ -1,6 +1,6 @@
 # equihash.com
 
-A source-backed directory for the Equihash mining ecosystem. It connects exact parameter sets to coins, pools and compatible hardware, then provides calculators and guides for people who run the machines. For every pool it lists hashrate and share, fee and payout scheme, minimum payout, recent blocks, region and the source of each number.
+A source-backed directory for the Equihash mining ecosystem. It connects exact parameter sets to coins, pools, compatible hardware, sellers and the Equihash hashpower market, then provides calculators and guides for people who run the machines. For every pool it lists hashrate and share, fee and payout scheme, minimum payout, recent blocks, region and the source of each number.
 
 Any pool over 30% of a network is flagged. The homepage is a discovery hub; dedicated coin, pool, hardware and vendor pages provide the detail; and the site also has search, an earnings calculator, an archive, contribution templates and a miner-first merged-mining guide.
 
@@ -43,11 +43,13 @@ static/            app.css, app.js, fonts/, icons, og.png (served as /static/*)
                    logos/coins/, logos/pools/ (local logo copies, see "Logos")
 data/              current.json (manifest of the live snapshot), snapshots/<id>/ with
                    pools.json, network.json, meta.json (generated, one directory per refresh)
-                   archive.json, miners.json, research.json (hand-maintained)
+                   archive.json, miners.json, vendors.json, listings.json, hashpower.json,
+                   research.json (hand-maintained or separately refreshed)
 data/curated/      manual-pools.json, coins.json, coin-status.json (hand-maintained),
                    permalinks.json (pool URLs; new ids added by the refresh, never changed),
                    logos.json (logo files and sources, written by fetch-logos.mjs)
-scripts/           refresh-data.mjs (data refresh), snapshot.mjs (atomic publish, rollback),
+scripts/           refresh-data.mjs (pool/network refresh), refresh-hashpower.mjs (NiceHash),
+                   snapshot.mjs (atomic publish, rollback),
                    fetch-logos.mjs (logos, run by hand), screenshots.mjs (dev only)
 deploy/            systemd units, Caddy and nginx examples, check-health.sh
 assets/og.html     source of static/og.png
@@ -79,9 +81,10 @@ Routes:
   - `/` is the discovery homepage and `/search?q=...` searches coins, pools and hardware.
   - `/coins` and `/coin/{id}` provide coin records grouped by exact Equihash parameters.
   - `/pools?coin=<id>` is the full pool comparison. Old `/?coin=<id>` links redirect there.
+  - `/hashpower` separates NiceHash selling/buying from direct pool mining and includes an Equihash order-cost estimator.
   - `/pool/{slug}`, `/hardware`, `/hardware/{id}`, `/guides` and `/merged-mining` provide the main research paths.
   - `/calculator`, `/contribute`, `/archive`, `/about` and `/sources` provide tools, submissions and methodology. `/miners` and `/add-pool` remain available for older links.
-- Raw data: `/data/{pools,network,miners,archive,meta,research,current}.json`. The generated files come from the same snapshot the pages were rendered from.
+- Raw data: `/data/{pools,network,miners,vendors,listings,hashpower,archive,meta,research,current}.json`. The generated pool/network files come from the same snapshot the pages were rendered from.
 - Live figures: `/api/live` (JSON; see "API" below). The page polls it every 60 s.
 - Health: `/healthz` (JSON; see "Monitoring" under Deploy).
 - Also served: `/sitemap.xml`, `/robots.txt` and `/static/*`.
@@ -112,6 +115,7 @@ The exception is fields a live endpoint refreshes. A row marked `"live"` takes `
 
 ```bash
 npm run refresh          # same as: node scripts/refresh-data.mjs
+npm run refresh:hashpower # aggregate NiceHash EQUIHASH order book → data/hashpower.json
 ```
 
 The script needs Node 18 or newer and has no dependencies. It takes about 3 minutes because it waits between requests to be polite to the sources. The running server picks up the result on its own.
@@ -459,7 +463,7 @@ They cover:
   - every row has per-field provenance and a valid `basis`;
   - `live_fields` keeps the refreshed hashrate.
 - **n/a vs zero** in `reported_for`, `fmt::reported`, the pool row and the raw-to-loaded data.
-- **Headline:** synthetic counts, and 117 rows with 63 positive on the snapshot.
+- **Headline:** synthetic counts, and 116 pool rows with 63 positive on the snapshot (NiceHash is classified separately as a marketplace).
 - **Freshness:** the 2-hour boundary, unknown age counting as stale, and the stale notice appearing only past 2 hours.
 - **Links:**
   - only verified, known-kind, http(s) links render, escaped and with `rel="noopener noreferrer"`;
@@ -493,6 +497,7 @@ They cover:
 | What | Source |
 |---|---|
 | Coin list, pools, network stats | https://miningpoolstats.stream (JSON at https://data.miningpoolstats.stream/data/{coin}.js and `coins_data.js`) |
+| Equihash hashpower market | NiceHash public EQUIHASH order book and algorithm metadata at https://api2.nicehash.com |
 | Prices (coin header, network table, Hardware page, calculator) | https://data.miningpoolstats.stream/data/price/{coin}.js; when that fails, the `price` field of the coin file https://data.miningpoolstats.stream/data/{coin}.js (the price source URL says which) |
 | ZEC / BTG cross-checks and block reward | https://zec.2miners.com/api/stats, `/api/blocks`; https://btg.2miners.com/api/stats, `/api/blocks` |
 | zpool | https://zpool.ca/api/currencies, https://zpool.ca/api/status |
@@ -502,6 +507,7 @@ They cover:
 | Wcash network | https://wcashexplorer.com/api/v1/status, `/api/v1/blocks?limit=1` |
 | Merged-mining guide | https://w.cash/whitepaper; READMEs of `wcash-zcash-aux` and `wcash-merge-miner` pinned at commit 3e6b8044; ZIP-244 |
 | ASIC specs | Bitmain support spec pages (support.bitmain.com), innosilicon.shop |
+| ASIC seller offers | Each seller's public product page and legal/company record, linked per listing in `data/vendors.json` and `data/listings.json` |
 | Archive and ended coins | citations in `data/archive.json` and `data/curated/coin-status.json` |
 
 ### Known gaps

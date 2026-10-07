@@ -362,7 +362,7 @@ pub fn add_pool(d: &Data) -> Markup {
 pub fn about(d: &Data) -> Markup {
     layout(d, Page { title: "About", description: "About equihash.com, the open directory for Equihash coins, mining pools, hardware and guides.", path: "/about", nav: "about" }, html! {
         div class="wrap page narrow prose" {
-            header class="page-head" { h1 { "About equihash.com" } p class="lede" { "equihash.com lists Equihash coins, mining pools and ASICs, and shows where each number came from." } }
+            header class="page-head" { h1 { "About equihash.com" } p class="lede" { "equihash.com lists Equihash coins, mining pools, ASICs, sellers and hashpower markets, and shows where each number came from." } }
             p class="about-line" { "Maintained by " a href="https://x.com/MykytaSamardak" rel="noopener" target="_blank" { "@MykytaSamardak" } ", who also builds " a href="https://w.cash" rel="noopener" target="_blank" { "Wcash" } ". Community updates are on " a href="https://t.me/EquihashCom" rel="noopener" target="_blank" { "Telegram" } "." }
             p { "The same person maintains this site and Wcash. Only Zcash pools that support Wcash send work to it, so this site never counts all Zcash hashrate as Wcash hashrate." }
             h2 { "How it's run" }
@@ -407,12 +407,20 @@ pub fn sources(d: &Data) -> Markup {
                         }
                     }
                 }
+                h2 { "Hashpower market" }
+                p { "The " a href="/hashpower" { "Hashpower" } " page reads an aggregate snapshot of the public NiceHash EQUIHASH BTC order book. Connected speed, visible order counts and top bids are observed values, not forecasts or guaranteed miner revenue. Individual order identifiers are discarded. The snapshot was observed " (fmt::utc(d.hashpower.observed_at.as_deref())) "." }
+                ul {
+                    @if let Some(u) = d.hashpower.source_url.as_deref() { li { (ext(u, "NiceHash public EQUIHASH order book")) } }
+                    @if let Some(u) = d.hashpower.connection_guide_url.as_deref() { li { (ext(u, "NiceHash Equihash XNSUB notice")) } }
+                    li { "Refresh script: " code { "scripts/refresh-hashpower.mjs" } "; public aggregate: " a href="/data/hashpower.json" { "data/hashpower.json" } "." }
+                }
                 h2 { "Curated by hand" }
                 ul {
                     li { (ext("https://w.cash/whitepaper", "Wcash protocol specification")) " (merged-mining guide, WEC parameters)" }
                     li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-zcash-aux/README.md", "wcash-zcash-aux README at 3e6b8044")) }
                     li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-merge-miner/README.md", "wcash-merge-miner README at 3e6b8044")) }
                     li { "ASIC specs: Bitmain support spec pages and the Innosilicon product page, linked per row on " a href="/hardware" { "Hardware" } "." }
+                    li { "ASIC offers and seller identities: the seller's product page, terms and public company record where available, linked per row on " a href="/buy" { "Buy" } ". Prices, stock and shipping are snapshots of the seller's own claims, not independent fulfillment checks." }
                     li { "Archive: pool and operator announcements and community threads, linked per entry on the " a href="/archive" { "Archive" } "." }
                 }
                 h2 { "Method" }
