@@ -1337,7 +1337,7 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
 .vendor-directory-notice { display: grid; grid-template-columns: 185px minmax(0, 1fr); gap: 7px 24px; margin: 0 0 24px; padding: 16px 18px; border-left: 3px solid var(--ink); background: #e8ebe4; }
 .vendor-directory-notice strong { grid-row: 1 / span 2; font: 600 11px/1.35 var(--sans); letter-spacing: .06em; text-transform: uppercase; }
 .vendor-directory-notice p { max-width: 920px; margin: 0; color: var(--ink-2); font-size: 12.5px; line-height: 1.5; }
-.vendor-directory-filters { display: grid; grid-template-columns: minmax(210px, 1.35fr) repeat(3, minmax(155px, 1fr)); gap: 12px; align-items: end; margin: 0 0 13px; padding: 17px 0; }
+.vendor-directory-filters { display: grid; grid-template-columns: minmax(200px, 1.25fr) repeat(4, minmax(145px, 1fr)); gap: 12px; align-items: end; margin: 0 0 13px; padding: 17px 0; }
 .vendor-directory-filters .f { display: grid; gap: 6px; }
 .vendor-directory-filters label { color: var(--ink-3); font: 600 9.5px/1.2 var(--sans); letter-spacing: .07em; text-transform: uppercase; }
 .vendor-directory-filters input, .vendor-directory-filters select { width: 100%; min-height: 40px; border: 1px solid var(--rule); border-radius: 0; background: #fff; color: var(--ink); font: 12px/1.25 var(--sans); }
@@ -1505,13 +1505,19 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
 .vendor-market-table thead th { color: var(--ink-3); font: 600 9.5px/1.25 var(--sans); letter-spacing: .075em; text-transform: uppercase; }
 .vendor-market-table tbody tr:last-child th, .vendor-market-table tbody tr:last-child td { border-bottom: 0; }
 .vendor-market-table tbody tr:hover { background: #efebe1; }
-.vendor-directory .vendor-market-table { min-width: 1260px; }
+.vendor-directory .vendor-market-table { min-width: 1080px; }
 .vendor-directory-public-row { scroll-margin-top: 86px; }
 .vendor-directory-public-row th { min-width: 215px; }
 .vendor-directory-public-row th a { color: var(--ink); font-weight: 650; }
 .vendor-directory-public-row th small, .vendor-directory-public-row td small { display: block; margin-top: 5px; color: var(--ink-3); font: 9.5px/1.35 var(--sans); }
 .vendor-directory-availability { min-width: 220px; line-height: 1.45; }
-.vendor-directory-review { min-width: 180px; }
+.vendor-directory-catalog { min-width: 180px; }
+.vendor-directory-catalog > a { color: var(--ink); }
+.vendor-directory-catalog > span { color: var(--ink-2); }
+.vendor-directory-catalog .vendor-catalog-current { color: #435633; font-weight: 600; }
+.vendor-directory-review { min-width: 200px; }
+.vendor-directory-review > strong { font: 600 14px/1.2 var(--mono); }
+.vendor-directory-review > span { color: var(--ink-2); font-size: 11.5px; }
 .vendor-directory-links { display: flex; min-width: 180px; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
 .vendor-directory-links > a, .vendor-directory-sources summary { font-size: 11px; }
 .vendor-directory-sources { position: relative; }

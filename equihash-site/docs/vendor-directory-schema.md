@@ -12,8 +12,7 @@
 | `company_incorporated_year_verified` | Incorporation year only when explicitly stated in the cited evidence; otherwise `null`. |
 | `public_operating_since_year` | Earliest explicitly stated founded/established/operating year; not necessarily the current legal entity's age. |
 | `domain_registered_year_verified` | Registry year only when checked; otherwise `null`. |
-| `review_platform`, `review_snapshot_date`, `review_source_url` | External review-profile link and the date the link was checked. |
-| `review_rating`, `review_count` | Reserved source fields. Public imports set both to `null`; the site does not republish or sort by them without publication clearance. |
+| `review_platform`, `review_rating`, `review_count`, `review_snapshot_date`, `review_source_url` | Attributed third-party review snapshot. These fields are displayed together and are never converted into a house score. |
 | `declared_availability` | Normalized state derived from the seller page, quote, or cited public record. It is not an inventory audit. |
 | `availability_basis` | Required attribution and verification limitation. |
 | `equihash_z15_claim` | Product, hashrate, price, stock, or batch language reported in the source research. |
@@ -28,14 +27,15 @@ The public schema intentionally excludes house trust tiers, house scores, global
 
 The page heading must say `Sorted by: <label>` and show the direction and missing-data rule.
 
-1. **Alphabetical** — default; Unicode-normalized vendor name ascending.
-2. **Seller-declared availability** — `seller_declared_spot_or_near_term`, `preorder_or_future_batch`, `historical_or_used`, `unknown_or_quote_required`, `sold_out_or_no_current_listing`, coverage/warning records. The label must retain “seller-declared.”
-3. **Verified company incorporation year** — oldest first; null last. Explain that company age is not a quality guarantee.
-4. **Verified domain registration year** — oldest first; null last. This sort remains disabled while coverage is zero. When enabled, explain that domain age is not a quality guarantee and can outlive a change of ownership.
-5. **Manufacturer direct** — `true` first, then alphabetical. Explain that current stock and destination support still require checking.
-6. **Last verified** — newest date first, then alphabetical.
-
-Review-count and review-rating sorts are disabled. They can return only after source rights, integrity checks, correction handling, and a documented publication decision are complete.
+1. **Current tracked listings** — default buying view; seller-declared `in_stock` and `dispatch_claim` listing count descending, then total tracked Equihash listings descending, then vendor name. This measures catalog coverage, not seller quality.
+2. **Third-party review count** — descending only when a review source URL is present; missing or unsourced counts last; show the platform and snapshot date.
+3. **Third-party rating** — descending only when a review source URL is present and `review_count >= 20`; tie-break by review count, then alphabetical. Profiles below the minimum or without a source link appear after eligible profiles.
+4. **Alphabetical** — Unicode-normalized vendor name ascending.
+5. **Seller-declared availability** — `seller_declared_spot_or_near_term`, `preorder_or_future_batch`, `historical_or_used`, `unknown_or_quote_required`, `sold_out_or_no_current_listing`, coverage/warning records. The label must retain “seller-declared.”
+6. **Verified company incorporation year** — oldest first; null last. Explain that company age is not a quality guarantee.
+7. **Verified domain registration year** — oldest first; null last. This sort remains disabled while coverage is zero. When enabled, explain that domain age is not a quality guarantee and can outlive a change of ownership.
+8. **Manufacturer direct** — `true` first, then alphabetical. Explain that current stock and destination support still require checking.
+9. **Last verified** — newest date first, then alphabetical.
 
 Do not create a hidden composite of these fields. If Equihash.com later adds another sort, publish its exact formula and source.
 

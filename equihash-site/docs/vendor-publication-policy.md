@@ -4,17 +4,17 @@ This is an editorial operating policy for Equihash.com. It is not a substitute f
 
 ## Short user-facing notice
 
-> **How this directory works:** Vendors are listed alphabetically by default. If you choose another sort, we show the exact factor used, such as seller-declared availability, verified company age, manufacturer-direct status, or the last verification date. Inclusion, position, seller claims, and external links are informational and are not an Equihash.com endorsement or guarantee. Availability is not physically audited unless expressly stated. Verify the legal seller, stock and serials, invoice beneficiary, taxes, warranty, delivery deadline, and refund remedy before payment.
+> **How this directory works:** The buying view starts with vendors for which Equihash.com tracks specific Equihash offers. Every sort states its exact factor. Third-party review figures show the platform and snapshot date; rating sorts require at least 20 reviews. Inclusion, position, seller claims, and third-party reviews are informational and are not an Equihash.com endorsement or guarantee. Availability is not physically audited unless expressly stated. Verify the legal seller, stock and serials, invoice beneficiary, taxes, warranty, delivery deadline, and refund remedy before payment.
 
 Place this notice above the results or behind a clearly visible “How rankings work” link. On each results page show `Sorted by`, direction, evidence date, and how missing data is handled.
 
 ## Editorial rules
 
-1. **Default to alphabetical.** Equihash.com does not declare a “best,” “safest,” or “most trusted” seller.
+1. **Default to useful catalog coverage.** The buying view includes vendors with tracked Equihash offers and sorts seller-declared current listings first. The full research directory remains available. State this rule and never describe it as “best,” “safest,” or “most trusted.”
 2. **Separate evidence types.** Label information as seller-declared, registry-verified, third-party review data, public allegation, regulator/court finding, or Equihash.com physical verification.
 3. **Attribute availability.** Use “seller declares in stock” or “seller advertises dispatch in three days.” Do not shorten either to “available now.”
 4. **Do not infer missing facts.** Unknown domain age, company age, authorization, stock, tax, or warranty fields remain null.
-5. **Do not republish review statistics without clearance.** Ordinary links to third-party review profiles may be shown with a link-check date. Copied ratings, counts, excerpts, summaries, and review-based sorting remain disabled until source rights and review-integrity operations are documented and approved. Never convert reviews into an Equihash.com trust score.
+5. **Attribute review statistics.** Show the platform, rating, count, snapshot date and source link together. Exclude unsourced figures from review sorts. Rating sorting requires at least 20 reviews. Missing, unsourced or smaller samples sort last. Never convert reviews into an Equihash.com trust score or mix platforms into one score.
 6. **Report complaints precisely.** Say, for example, “three cited reviews alleged delayed delivery.” Do not state that a seller committed fraud unless a competent court or regulator made that finding and the source is linked.
 7. **Represent both material directions.** If a profile has substantial positive delivery evidence and material recent complaints, report both using the same date range and platform rules.
 8. **Separate commercial content.** Ads, sponsored positions, affiliate links, commissions, free equipment, or seller payments must be clearly disclosed next to the affected content. They must not influence the default directory order or factual fields.
@@ -32,7 +32,7 @@ Place this notice above the results or behind a clearly visible “How rankings 
 
 ## Why this structure matters
 
-UK consumer-protection law can apply to misleading commercial practices and to the presentation of consumer-review information. Because an ordinary link is materially different from republishing a score or review summary, this release provides review-profile links only. The Digital Markets, Competition and Consumers Act 2024 addresses publishing review information in a misleading way and requires reasonable and proportionate steps concerning fake reviews. The CMA publishes guidance on unfair commercial practices and fake reviews. The Defamation Act 2013 provides defences including truth, honest opinion, and publication on a matter of public interest, but each has legal requirements; a generic disclaimer does not make unsupported accusations safe.
+UK consumer-protection law can apply to misleading commercial practices and to the presentation of consumer-review information. This release attributes every published review figure to its source platform and date, uses a disclosed minimum sample for rating sorts, and offers a correction route. The Digital Markets, Competition and Consumers Act 2024 addresses publishing review information in a misleading way and requires reasonable and proportionate steps concerning fake reviews. The CMA publishes guidance on unfair commercial practices and fake reviews. The Defamation Act 2013 provides defences including truth, honest opinion, and publication on a matter of public interest, but each has legal requirements; a generic disclaimer does not make unsupported accusations safe.
 
 Official references:
 

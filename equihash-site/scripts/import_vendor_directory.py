@@ -116,31 +116,28 @@ def main() -> None:
     if any(vendor["domain_registered_year_verified"] is not None for vendor in vendors):
         raise SystemExit("domain-age sorting must remain disabled until the canonical policy changes")
 
-    # Publication gate: the source research may retain copied review statistics, but the public
-    # site ships ordinary profile links only until rights and review-integrity operations are
-    # evidenced. A neutral sort or disclaimer is not publication clearance.
+    # Ratings and counts remain attributed snapshots, never a house score. The UI must show the
+    # source platform, snapshot date, missing-data rule and the 20-review minimum for rating sorts.
+    # This importer preserves those source values so the public page can implement that policy.
+    # Keep the site's sourced warning classification for the known ASICKings variants record; the
+    # upstream research export currently labels its role generically even though its evidence and
+    # availability fields still describe a warning record.
     for vendor in vendors:
-        vendor["review_rating"] = None
-        vendor["review_count"] = None
-    payload["methodology"]["review_rule"] = (
-        "Only ordinary third-party review-profile links and their check dates are published. "
-        "Copied scores, counts and related sorts remain disabled pending publication clearance."
+        if vendor["id"] == "public-warning-records-global-asic-kings-asickings-variants":
+            vendor["record_type"] = "public_warning_record"
+
+    for mode in payload.get("sort_modes", []):
+        mode.pop("default", None)
+    payload["sort_modes"].insert(
+        0,
+        {
+            "id": "current_listings",
+            "label": "Current tracked listings",
+            "field": "tracked_listing_records",
+            "direction": "current descending, total descending, vendor ascending",
+            "default": True,
+        },
     )
-    payload["disclaimer"] = (
-        "Informational directory only. A listing, position, seller claim, profile link, or availability "
-        "label is not an endorsement or guarantee. Verify legal entity, stock, serials, invoice "
-        "beneficiary, taxes, warranty and delivery terms before payment."
-    )
-    coverage = payload["methodology"].get("field_coverage", {})
-    coverage.pop("trustpilot_snapshot_records", None)
-    coverage["third_party_review_profile_links"] = sum(
-        bool(vendor.get("review_source_url")) for vendor in vendors
-    )
-    payload["sort_modes"] = [
-        mode
-        for mode in payload.get("sort_modes", [])
-        if mode.get("id") not in {"review_count", "review_rating_min_20"}
-    ]
 
     args.destination.parent.mkdir(parents=True, exist_ok=True)
     args.destination.write_text(

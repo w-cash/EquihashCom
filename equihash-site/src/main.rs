@@ -1171,33 +1171,56 @@ mod tests {
                 .await;
         let directory = String::from_utf8(directory.to_vec()).unwrap();
         assert!(directory.contains("<h1>ASIC vendors</h1>"));
+        assert!(directory.contains("Vendors with offers</dt><dd>9</dd>"));
+        assert!(directory.contains("Tracked offers</dt><dd>34</dd>"));
+        assert!(directory.contains("All vendor records</dt><dd>85</dd>"));
         assert!(directory.contains("85</dd>"));
-        assert!(directory.contains("32</dd>"));
-        assert!(directory.contains("Not published</dd>"));
-        assert_eq!(directory.matches("vendor-directory-public-row").count(), 85);
-        assert!(directory.contains("Sorted by: Alphabetical"));
-        assert!(directory.contains("No Equihash.com recommendation or quality judgment is implied"));
+        assert_eq!(directory.matches("vendor-directory-public-row").count(), 9);
+        assert!(directory.contains("Sorted by: Current tracked listings"));
+        assert!(directory.contains("This measures catalog coverage, not seller quality"));
         assert!(directory.contains("Domain-age sorting is disabled"));
-        assert!(directory.contains("seller-declared unless expressly stated otherwise"));
-        assert!(directory.contains(
-            "Paid listings and affiliate relationships cannot influence the default order"
-        ));
-        assert!(directory.find("21energy").unwrap() < directory.find("21Mining").unwrap());
+        assert!(directory.contains("seller claims; they are not an endorsement or quality score"));
+        assert!(directory.contains("6 models · 9 listings"));
+        assert!(directory.contains("4.7/5"));
+        assert!(directory.contains("720 reviews"));
+        assert!(!directory.contains("21energy"));
+        assert!(directory.find("BT-Miners").unwrap() < directory.find("OneMiners").unwrap());
         assert!(!directory.contains("Tier A"));
         assert!(!directory.contains("Strongest evidence"));
         assert!(!directory.contains("global rank"));
         assert!(!directory.contains("delivery probability"));
         assert!(!directory.contains("No weak substitute was invented"));
         assert!(!directory.contains("No vetted local Z15 source identified"));
-        assert!(!directory.contains("Trustpilot rating"));
-        assert!(!directory.contains("Trustpilot review count"));
-        assert!(!directory.contains("/5 ·"));
+        assert!(!directory.contains("Equihash.com rating"));
+        assert!(directory.contains("No house trust score is used"));
         assert_eq!(
             directory
                 .matches(r#"class="vendor-directory-name"><a href="/vendors/"#)
                 .count(),
+            9,
+            "every vendor shown in the buying view must open an internal profile"
+        );
+
+        let all_vendors = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/vendors?catalog=all&sort=alphabetical")
+                .to_request(),
+        )
+        .await;
+        let all_vendors = String::from_utf8(all_vendors.to_vec()).unwrap();
+        assert_eq!(
+            all_vendors.matches("vendor-directory-public-row").count(),
+            85
+        );
+        assert!(all_vendors.contains("Sorted by: Alphabetical"));
+        assert!(all_vendors.find("21energy").unwrap() < all_vendors.find("21Mining").unwrap());
+        assert_eq!(
+            all_vendors
+                .matches(r#"class="vendor-directory-name"><a href="/vendors/"#)
+                .count(),
             85,
-            "every vendor name must open an internal profile"
+            "every research-directory vendor must open an internal profile"
         );
 
         let (public_profiles, detailed_only, phoenix_slugs) = {
@@ -1317,24 +1340,40 @@ mod tests {
 
         assert_ne!(phoenix_slugs.0, phoenix_slugs.1);
 
-        let disabled_review_sort = test::call_and_read_body(
+        let review_count_sort = test::call_and_read_body(
             &app,
             test::TestRequest::get()
-                .uri("/vendors?sort=review_count")
+                .uri("/vendors?catalog=all&sort=review_count")
                 .to_request(),
         )
         .await;
-        let disabled_review_sort = String::from_utf8(disabled_review_sort.to_vec()).unwrap();
-        assert!(disabled_review_sort.contains("Sorted by: Alphabetical"));
+        let review_count_sort = String::from_utf8(review_count_sort.to_vec()).unwrap();
+        assert!(review_count_sort.contains("Sorted by: Third-party review count"));
         assert!(
-            disabled_review_sort.find("21energy").unwrap()
-                < disabled_review_sort.find("21Mining").unwrap()
+            review_count_sort.find("Mineshop.eu").unwrap()
+                < review_count_sort.find("21energy").unwrap()
+        );
+
+        let review_rating_sort = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/vendors?catalog=all&sort=review_rating_min_20")
+                .to_request(),
+        )
+        .await;
+        let review_rating_sort = String::from_utf8(review_rating_sort.to_vec()).unwrap();
+        assert!(review_rating_sort.contains("Sorted by: Third-party rating (20+ reviews)"));
+        assert!(
+            review_rating_sort
+                .find("Antminer Distribution Europe")
+                .unwrap()
+                < review_rating_sort.find("ZEUS Mining").unwrap()
         );
 
         let manufacturer = test::call_and_read_body(
             &app,
             test::TestRequest::get()
-                .uri("/vendors?sort=manufacturer_direct")
+                .uri("/vendors?catalog=all&sort=manufacturer_direct")
                 .to_request(),
         )
         .await;
