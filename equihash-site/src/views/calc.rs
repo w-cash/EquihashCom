@@ -402,8 +402,9 @@ pub fn coins_per_day(c: &Coin, hr_ksol: f64, fee: f64) -> Option<f64> {
 
 fn money(v: Option<f64>) -> String {
     match v {
+        Some(x) if x.abs() < 0.005 => "$0.00".into(),
         Some(x) if x <= -0.005 => format!("−${:.2}", -x),
-        Some(x) => format!("${:.2}", x.max(0.0)),
+        Some(x) => format!("${x:.2}"),
         None => fmt::NA.into(),
     }
 }
