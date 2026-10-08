@@ -39,6 +39,9 @@ fn site_key(url: Option<&str>) -> String {
 }
 
 fn research_for<'a>(d: &'a Data, vendor: &Vendor) -> Option<&'a VendorResearch> {
+    if let Some(id) = vendor.research_id.as_deref() {
+        return d.vendor_research.iter().find(|record| record.id == id);
+    }
     let key = site_key(vendor.url.as_deref());
     (!key.is_empty()).then_some(())?;
     d.vendor_research
@@ -82,6 +85,13 @@ fn availability_rank(state: &str) -> u8 {
 }
 
 fn profile_for_research<'a>(d: &'a Data, record: &VendorResearch) -> Option<&'a Vendor> {
+    if let Some(vendor) = d
+        .vendors
+        .iter()
+        .find(|vendor| vendor.research_id.as_deref() == Some(record.id.as_str()))
+    {
+        return Some(vendor);
+    }
     let key = site_key(record.website.as_deref());
     (!key.is_empty() && key != "n/a").then_some(())?;
     d.vendors
@@ -110,6 +120,17 @@ fn currency(amount: Option<f64>, code: Option<&str>) -> String {
         "EUR" => format!("€{whole}"),
         c if !c.is_empty() => format!("{c} {whole}"),
         _ => whole,
+    }
+}
+
+fn checked_date(value: Option<&str>) -> String {
+    match value {
+        Some(date)
+            if date.len() == 10 && date.as_bytes()[4] == b'-' && date.as_bytes()[7] == b'-' =>
+        {
+            date.to_string()
+        }
+        _ => fmt::utc(value),
     }
 }
 
@@ -236,6 +257,8 @@ fn channel_label(v: &Vendor) -> &str {
     match v.channel.as_deref() {
         Some("manufacturer") => "Manufacturer",
         Some("broker_hosting") => "Broker & hosting",
+        Some("marketplace") => "Marketplace",
+        Some("warning_record") => "Reference record",
         _ => "Independent retailer",
     }
 }
@@ -463,15 +486,12 @@ fn vendor_product_market(d: &Data, v: &Vendor, rows: &[&Listing]) -> Markup {
 }
 
 fn public_vendor_row(d: &Data, record: &VendorResearch) -> Markup {
-    let profile = profile_for_research(d, record);
+    let profile = profile_for_research(d, record)
+        .expect("every public vendor record is validated to have an internal profile");
     html! {
         tr id={"vendor-" (&record.id)} class="vendor-directory-public-row" data-vendor-record=(&record.id) {
             th scope="row" class="vendor-directory-name" {
-                @if let Some(vendor) = profile {
-                    a href={"/vendors/" (&vendor.slug)} { (&record.vendor) }
-                } @else if let Some(url) = &record.website {
-                    (ext(url, &record.vendor))
-                } @else { (&record.vendor) }
+                a href={"/vendors/" (&profile.slug)} { (&record.vendor) }
                 small { (record_type_label(&record.record_type)) }
             }
             td data-label="Location" { strong { (&record.country) } small { (&record.region) } }
@@ -488,7 +508,7 @@ fn public_vendor_row(d: &Data, record: &VendorResearch) -> Markup {
             }
             td data-label="Checked" class="mono" { (record.last_verified.as_deref().unwrap_or("—")) }
             td data-label="Record" class="vendor-directory-links" {
-                @if let Some(vendor) = profile { a href={"/vendors/" (&vendor.slug)} { "Profile" } }
+                a href={"/vendors/" (&profile.slug)} { "Profile" }
                 @if let Some(url) = &record.website { (ext(url, "Website ↗")) }
                 details class="vendor-directory-sources" {
                     summary { "Sources " (record.source_urls.len()) }
@@ -663,6 +683,7 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
 
 pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
     let research = research_for(d, v);
+    let correction_record = research.map(|record| record.id.as_str()).unwrap_or(&v.id);
     let warning = research
         .map(|record| record.record_type == "public_warning_record")
         .unwrap_or(false);
@@ -739,7 +760,7 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
             nav: "vendors",
         },
         html! {
-            div class="wrap page buy-page buy-vendor-page" data-brand-shape=(theme.shape) style=(theme_style) {
+            div class="wrap page buy-page buy-vendor-page" data-brand-shape=(theme.shape) data-vendor-record=(correction_record) style=(theme_style) {
                 p class="crumb" { a href="/vendors" { "Vendor directory" } }
                 section class="vendor-identity" aria-labelledby="vendor-name" {
                     (vendor_brand_field(v))
@@ -751,7 +772,7 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
                             div class="vendor-profile-actions" {
                                 @if !warning { @if let Some(url) = &v.url { (ext(url, "Visit vendor ↗")) } }
                                 (crate::views::pages::copy_link(&path, "Copy link to this vendor"))
-                                a href={"/add-vendor?record=" (&v.id) "#correction"} { "Request a correction" }
+                                a href={"/add-vendor?record=" (correction_record) "#correction"} { "Request a correction" }
                             }
                         }
                     }
@@ -759,7 +780,7 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
                         div { dt { "Models" } dd { (model_count) } }
                         div { dt { "Listings" } dd { (rows.len()) } }
                         div { dt { "Vendor base" } dd { (v.base_region.as_deref().unwrap_or("—")) } }
-                        div { dt { "Checked" } dd { (fmt::utc(latest_check)) } }
+                        div { dt { "Checked" } dd { (checked_date(latest_check)) } }
                     }
                 }
                 aside class="vendor-profile-directory-note" {
@@ -771,7 +792,7 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
                 }
                 @if !warning && !rows.is_empty() { (vendor_product_market(d, v, &rows)) }
                 @if !warning && rows.is_empty() {
-                    div class="empty-state vendor-profile-empty" { h2 { "No Equihash listing recorded" } p { "The seller record remains available below." } }
+                    div class="empty-state vendor-profile-empty" { h2 { "No Equihash listing currently recorded." } p { "Company information and source links remain available below." } }
                 }
                 details class={"vendor-profile-evidence" @if warning { " is-warning" }} id="vendor-source-checks" {
                     summary { "Vendor details and sources" }

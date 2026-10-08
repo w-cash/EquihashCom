@@ -334,7 +334,7 @@
       "country": "Global",
       "vendor": "ASIC Kings / ASICKings variants",
       "website": "",
-      "record_type": "reseller_or_broker",
+      "record_type": "public_warning_record",
       "manufacturer_direct": false,
       "legal_identity_and_location_summary": "Unclear",
       "company_incorporated_year_verified": null,

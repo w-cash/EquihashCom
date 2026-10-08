@@ -1192,6 +1192,130 @@ mod tests {
         assert!(!directory.contains("Trustpilot rating"));
         assert!(!directory.contains("Trustpilot review count"));
         assert!(!directory.contains("/5 ·"));
+        assert_eq!(
+            directory
+                .matches(r#"class="vendor-directory-name"><a href="/vendors/"#)
+                .count(),
+            85,
+            "every vendor name must open an internal profile"
+        );
+
+        let (public_profiles, detailed_only, phoenix_slugs) = {
+            let data = s.get();
+            let profiles = data
+                .vendor_research
+                .iter()
+                .filter(|record| record.record_type != "coverage_gap")
+                .map(|record| {
+                    let matches = data
+                        .vendors
+                        .iter()
+                        .filter(|vendor| vendor.research_id.as_deref() == Some(record.id.as_str()))
+                        .collect::<Vec<_>>();
+                    assert_eq!(
+                        matches.len(),
+                        1,
+                        "directory record {} must have exactly one profile",
+                        record.id
+                    );
+                    (
+                        record.id.clone(),
+                        matches[0].name.clone(),
+                        matches[0].slug.clone(),
+                        record.website.is_some(),
+                        record.record_type.clone(),
+                    )
+                })
+                .collect::<Vec<_>>();
+            let detailed_only = data
+                .vendors
+                .iter()
+                .filter(|vendor| vendor.research_id.is_none())
+                .map(|vendor| vendor.id.clone())
+                .collect::<std::collections::BTreeSet<_>>();
+            let phoenix_main = data
+                .vendors
+                .iter()
+                .find(|vendor| {
+                    vendor.research_id.as_deref()
+                        == Some("middle-east-united-arab-emirates-phoenix-store-phoenix-group")
+                })
+                .unwrap()
+                .slug
+                .clone();
+            let phoenix_regional = data
+                .vendors
+                .iter()
+                .find(|vendor| {
+                    vendor.research_id.as_deref()
+                        == Some("middle-east-saudi-arabia-gcc-phoenix-store-regional-channel")
+                })
+                .unwrap()
+                .slug
+                .clone();
+            (profiles, detailed_only, (phoenix_main, phoenix_regional))
+        };
+        assert_eq!(public_profiles.len(), 85);
+        for (record_id, name, slug, has_website, record_type) in public_profiles {
+            let response = test::call_service(
+                &app,
+                test::TestRequest::get()
+                    .uri(&format!("/vendors/{slug}"))
+                    .to_request(),
+            )
+            .await;
+            assert_eq!(
+                response.status(),
+                200,
+                "profile route failed for {record_id}"
+            );
+            let profile = test::read_body(response).await;
+            let profile = String::from_utf8(profile.to_vec()).unwrap();
+            assert!(
+                profile.contains(&format!(r#"data-vendor-record="{record_id}""#)),
+                "profile is not bound to its directory record: {record_id}"
+            );
+            assert!(
+                profile.contains(&name.replace('&', "&amp;")),
+                "profile does not contain vendor name for {record_id}"
+            );
+            if has_website && record_type != "public_warning_record" {
+                assert!(
+                    profile.contains("Visit vendor"),
+                    "website CTA missing for {record_id}"
+                );
+            }
+        }
+        assert_eq!(
+            detailed_only,
+            std::collections::BTreeSet::from(["805-mining".to_string(), "hashlabs".to_string()])
+        );
+
+        let research_only = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/vendors/21energy")
+                .to_request(),
+        )
+        .await;
+        let research_only = String::from_utf8(research_only.to_vec()).unwrap();
+        assert!(research_only.contains("No Equihash listing currently recorded."));
+        assert!(research_only.contains("Vendor details and sources"));
+        assert!(research_only.contains("Visit vendor"));
+
+        let warning = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/vendors/asic-kings-asickings-variants")
+                .to_request(),
+        )
+        .await;
+        let warning = String::from_utf8(warning.to_vec()).unwrap();
+        assert!(warning.contains("Warning record"));
+        assert!(!warning.contains("Visit vendor"));
+        assert!(!warning.contains("Current offers"));
+
+        assert_ne!(phoenix_slugs.0, phoenix_slugs.1);
 
         let disabled_review_sort = test::call_and_read_body(
             &app,

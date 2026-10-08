@@ -4,6 +4,7 @@
   "vendors": [
     {
       "id": "bitmain",
+      "research_id": "asia-pacific-china-singapore-bitmain-official-shop",
       "slug": "bitmain",
       "name": "BITMAIN",
       "url": "https://shop.bitmain.com/",
@@ -25,6 +26,7 @@
     },
     {
       "id": "the-mining-shop-uk",
+      "research_id": "europe-united-kingdom-the-mining-shop-uk",
       "slug": "the-mining-shop-uk",
       "name": "The Mining Shop UK",
       "url": "https://www.theminingshop.co.uk/",
@@ -47,6 +49,7 @@
     },
     {
       "id": "antminer-distribution-europe",
+      "research_id": "europe-netherlands-antminer-distribution-europe",
       "slug": "antminer-distribution-europe",
       "name": "Antminer Distribution Europe B.V.",
       "url": "https://www.antminerdistribution.com/",
@@ -71,6 +74,7 @@
     },
     {
       "id": "apexto-mining",
+      "research_id": "asia-pacific-hong-kong-china-apexto-mining",
       "slug": "apexto-mining",
       "name": "Apexto Mining",
       "url": "https://apextomining.com/",
@@ -118,6 +122,7 @@
     },
     {
       "id": "bt-miners",
+      "research_id": "north-america-united-states-hong-kong-bt-miners",
       "slug": "bt-miners",
       "name": "BT-MINERS",
       "url": "https://bt-miners.com/",
@@ -145,6 +150,7 @@
     },
     {
       "id": "oneminers",
+      "research_id": "europe-czech-republic-united-states-oneminers",
       "slug": "oneminers",
       "name": "OneMiners",
       "url": "https://oneminers.com/",
@@ -169,6 +175,7 @@
     },
     {
       "id": "the-bitcoin-miner-uk",
+      "research_id": "europe-united-kingdom-the-bitcoin-miner",
       "slug": "the-bitcoin-miner-uk",
       "name": "The Bitcoin Miner",
       "url": "https://thebitcoinminer.co.uk/",
@@ -214,6 +221,7 @@
     },
     {
       "id": "crypto-miner-bros",
+      "research_id": "asia-pacific-hong-kong-crypto-miner-bros",
       "slug": "crypto-miner-bros",
       "name": "Crypto Miner Bros",
       "url": "https://www.cryptominerbros.com/",
@@ -240,6 +248,7 @@
     },
     {
       "id": "mineshop-eu",
+      "research_id": "europe-ireland-mineshop-eu",
       "slug": "mineshop-eu",
       "name": "Mineshop.eu",
       "url": "https://mineshop.eu/",

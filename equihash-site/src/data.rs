@@ -528,6 +528,9 @@ pub struct Miner {
 #[serde(default)]
 pub struct Vendor {
     pub id: String,
+    /// Stable relationship to the public vendor-directory record. Website hostnames are not
+    /// identity keys: domains can change and separate regional records can share one host.
+    pub research_id: Option<String>,
     pub slug: String,
     pub name: String,
     pub url: Option<String>,
@@ -1658,6 +1661,137 @@ fn website_host(raw: Option<&str>) -> Option<String> {
     (!host.is_empty()).then(|| host.to_string())
 }
 
+fn research_vendor_channel(record: &VendorResearch) -> &'static str {
+    match record.record_type.as_str() {
+        "manufacturer_direct" => "manufacturer",
+        "marketplace" => "marketplace",
+        "hardware_and_hosting" => "broker_hosting",
+        "public_warning_record" => "warning_record",
+        _ => "independent_retailer",
+    }
+}
+
+/// Complete the internal vendor-profile set without copying research prose into vendors.json.
+/// Rich profiles override these lightweight records through an explicit `research_id`. A unique
+/// hostname match is retained only as a migration aid for older data files.
+fn complete_vendor_profiles(
+    vendors: &mut Vec<Vendor>,
+    research: &[VendorResearch],
+    logos: &crate::views::logo::Logos,
+) -> Result<(), String> {
+    let mut research_ids = std::collections::HashSet::new();
+    for record in research {
+        if record.id.is_empty() || !research_ids.insert(record.id.as_str()) {
+            return Err(format!(
+                "vendor-directory.json: duplicate or empty vendor record id {:?}",
+                record.id
+            ));
+        }
+    }
+    let mut claimed = std::collections::HashSet::new();
+
+    for vendor in vendors.iter_mut() {
+        if let Some(id) = vendor.research_id.as_deref() {
+            if !research_ids.contains(id) {
+                return Err(format!(
+                    "vendors.json: vendor {} references missing research_id {id}",
+                    vendor.id
+                ));
+            }
+            if !claimed.insert(id.to_string()) {
+                return Err(format!(
+                    "vendors.json: duplicate research_id {id}; one directory record must map to one profile"
+                ));
+            }
+        }
+    }
+
+    // Temporary compatibility for a rich profile created before research_id existed. Only a
+    // single unambiguous host match is accepted; shared hosts never establish identity.
+    for record in research.iter().filter(|r| r.record_type != "coverage_gap") {
+        if claimed.contains(&record.id) {
+            continue;
+        }
+        let Some(host) = website_host(record.website.as_deref()) else {
+            continue;
+        };
+        let matches = vendors
+            .iter()
+            .enumerate()
+            .filter(|(_, vendor)| {
+                vendor.research_id.is_none()
+                    && website_host(vendor.url.as_deref()).as_deref() == Some(host.as_str())
+            })
+            .map(|(index, _)| index)
+            .collect::<Vec<_>>();
+        if matches.len() == 1 {
+            vendors[matches[0]].research_id = Some(record.id.clone());
+            claimed.insert(record.id.clone());
+        }
+    }
+
+    for record in research.iter().filter(|r| r.record_type != "coverage_gap") {
+        if claimed.contains(&record.id) {
+            continue;
+        }
+        let id = format!("research-{}", record.id);
+        let slug = slugify(&record.vendor);
+        let name = record.vendor.clone();
+        vendors.push(Vendor {
+            id: id.clone(),
+            research_id: Some(record.id.clone()),
+            slug,
+            name: name.clone(),
+            url: record.website.clone(),
+            regions: Vec::new(),
+            base_region: Some(record.country.clone()),
+            region_focus: Some(record.region.clone()),
+            region_note: None,
+            legal_name: None,
+            registration: None,
+            registry_url: None,
+            channel: Some(research_vendor_channel(record).into()),
+            verification_label: None,
+            verification_url: None,
+            notes: Some("No Equihash listing currently recorded.".into()),
+            source_url: record
+                .website
+                .clone()
+                .or_else(|| record.source_urls.first().cloned()),
+            observed_at: record.last_verified.clone(),
+            logo: logos.vendor(&id, &name),
+        });
+        claimed.insert(record.id.clone());
+    }
+
+    let mut slugs = std::collections::HashSet::new();
+    let mut profile_research_ids = std::collections::HashSet::new();
+    for vendor in vendors.iter() {
+        if vendor.slug.is_empty() || !slugs.insert(vendor.slug.clone()) {
+            return Err(format!(
+                "vendors.json: duplicate or empty internal vendor slug {:?}",
+                vendor.slug
+            ));
+        }
+        if let Some(id) = vendor.research_id.as_deref() {
+            if !profile_research_ids.insert(id.to_string()) {
+                return Err(format!(
+                    "vendors.json: directory research_id {id} maps to more than one profile"
+                ));
+            }
+        }
+    }
+    for record in research.iter().filter(|r| r.record_type != "coverage_gap") {
+        if !profile_research_ids.contains(&record.id) {
+            return Err(format!(
+                "vendor-directory.json: public record {} has no internal profile",
+                record.id
+            ));
+        }
+    }
+    Ok(())
+}
+
 /// A candidate directory summary cannot claim current availability when the site's exact, dated
 /// Equihash offers for that seller all say batch/waitlist, sold out, quote or unknown.
 fn reconcile_vendor_availability(
@@ -2110,6 +2244,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
             .cmp(&b.vendor.to_lowercase())
             .then_with(|| a.id.cmp(&b.id))
     });
+    complete_vendor_profiles(&mut vf.vendors, &vdf.vendors, &logos)?;
     for l in lf.listings.iter_mut() {
         clean_url(
             &mut l.product_url,
@@ -3954,5 +4089,60 @@ mod tests {
         let mut up = Some("javascript:alert(1)".to_string());
         clean_text_or_url(&mut up, "x", &mut dropped);
         assert_eq!(up, None);
+    }
+
+    #[test]
+    fn vendor_profile_completion_enforces_stable_one_to_one_identity() {
+        let logos = crate::views::logo::Logos::default();
+        let research = vec![
+            VendorResearch {
+                id: "record-a".into(),
+                vendor: "Alpha Shop".into(),
+                website: Some("https://shared.example/a".into()),
+                record_type: "reseller_or_broker".into(),
+                ..Default::default()
+            },
+            VendorResearch {
+                id: "record-b".into(),
+                vendor: "Alpha Regional Channel".into(),
+                website: Some("https://shared.example/b".into()),
+                record_type: "reseller_or_broker".into(),
+                ..Default::default()
+            },
+        ];
+        let mut generated = Vec::new();
+        complete_vendor_profiles(&mut generated, &research, &logos).unwrap();
+        assert_eq!(generated.len(), 2, "a shared host must not merge records");
+        assert_ne!(generated[0].slug, generated[1].slug);
+        assert_eq!(generated[0].research_id.as_deref(), Some("record-a"));
+        assert_eq!(generated[1].research_id.as_deref(), Some("record-b"));
+
+        let mut missing = vec![Vendor {
+            id: "bad-reference".into(),
+            research_id: Some("not-present".into()),
+            slug: "bad-reference".into(),
+            ..Default::default()
+        }];
+        assert!(complete_vendor_profiles(&mut missing, &research, &logos)
+            .unwrap_err()
+            .contains("missing research_id"));
+
+        let mut duplicate = vec![
+            Vendor {
+                id: "first".into(),
+                research_id: Some("record-a".into()),
+                slug: "first".into(),
+                ..Default::default()
+            },
+            Vendor {
+                id: "second".into(),
+                research_id: Some("record-a".into()),
+                slug: "second".into(),
+                ..Default::default()
+            },
+        ];
+        assert!(complete_vendor_profiles(&mut duplicate, &research, &logos)
+            .unwrap_err()
+            .contains("duplicate research_id"));
     }
 }

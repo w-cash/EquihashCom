@@ -1369,19 +1369,23 @@ fn build_search_index(d: &Data) -> Vec<SearchDocument> {
         docs.push(doc);
     }
 
-    let mut represented_hosts = std::collections::HashSet::new();
     for record in d
         .vendor_research
         .iter()
         .filter(|record| record.record_type != "coverage_gap")
     {
         let host = host_text(record.website.as_deref());
-        if !host.is_empty() {
-            represented_hosts.insert(host.clone());
-        }
-        let profile = d.vendors.iter().find(|vendor| {
-            !host.is_empty() && host_text(vendor.url.as_deref()).eq_ignore_ascii_case(&host)
-        });
+        let profile = d
+            .vendors
+            .iter()
+            .find(|vendor| vendor.research_id.as_deref() == Some(record.id.as_str()))
+            .or_else(|| {
+                d.vendors.iter().find(|vendor| {
+                    vendor.research_id.is_none()
+                        && !host.is_empty()
+                        && host_text(vendor.url.as_deref()).eq_ignore_ascii_case(&host)
+                })
+            });
         let vendor_id = profile.map(|vendor| vendor.id.as_str()).unwrap_or("");
         let listings: Vec<&crate::data::Listing> = d
             .listings
@@ -1448,10 +1452,10 @@ fn build_search_index(d: &Data) -> Vec<SearchDocument> {
         docs.push(doc);
     }
     for vendor in &d.vendors {
-        let host = host_text(vendor.url.as_deref());
-        if !host.is_empty() && represented_hosts.contains(&host) {
+        if vendor.research_id.is_some() {
             continue;
         }
+        let host = host_text(vendor.url.as_deref());
         let listings: Vec<&crate::data::Listing> = d
             .listings
             .iter()
