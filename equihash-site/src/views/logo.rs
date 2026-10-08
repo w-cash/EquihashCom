@@ -392,7 +392,7 @@ pub fn resolve(e: Option<&LogoEntry>, name: &str) -> Logo {
 pub enum At {
     /// Pool table, networks table (20 px). Next to the name, so the image is decorative.
     Row,
-    /// Coin selector, Z15 list, Hardware page (18 px). Decorative.
+    /// Coin selector, Z15 list, ASIC index (18 px). Decorative.
     List,
     /// Sidebar (16 px, the column is narrow). Decorative.
     Nav,

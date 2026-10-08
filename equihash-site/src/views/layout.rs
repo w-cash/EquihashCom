@@ -3,7 +3,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "48";
+pub const ASSET_V: &str = "49";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -49,7 +49,7 @@ const NAV: &[(&str, &str, &str)] = &[
     ("merged-mining", "/merged-mining", "Merged mining"),
     ("hashpower", "/hashpower", "Hashpower"),
     ("industry", "/industry", "Industry"),
-    ("hardware", "/hardware", "Hardware"),
+    ("asics", "/asics", "ASICs"),
     ("vendors", "/vendors", "Vendors"),
     ("guides", "/guides", "Guides"),
     ("calculator", "/calculator", "Calculator"),
@@ -178,8 +178,8 @@ fn data_alternates(path: &str) -> Vec<(&'static str, &'static str)> {
             ("/data/pools.json", "Equihash pool data"),
             ("/data/network.json", "Equihash network data"),
         ]
-    } else if path == "/hardware" || path.starts_with("/hardware/") {
-        vec![("/data/miners.json", "Equihash hardware data")]
+    } else if path == "/asics" || path.starts_with("/asics/") {
+        vec![("/data/miners.json", "Equihash ASIC data")]
     } else if path == "/vendors" || path.starts_with("/vendors/") {
         vec![
             ("/data/vendors.json", "ASIC vendor data"),
@@ -218,9 +218,7 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
     let publisher_id = format!("{SITE}/#publisher");
     let webpage_id = format!("{canonical}#webpage");
     let page_type = match p.path {
-        "/coins" | "/hardware" | "/vendors" | "/guides" | "/archive" | "/industry" => {
-            "CollectionPage"
-        }
+        "/coins" | "/asics" | "/vendors" | "/guides" | "/archive" | "/industry" => "CollectionPage",
         "/about" => "AboutPage",
         "/calculator" => "WebApplication",
         "/zcash-mining" | "/merged-mining" => "TechArticle",
@@ -228,7 +226,7 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
         path if path.starts_with("/pools") => "CollectionPage",
         path if path.starts_with("/coin/")
             || path.starts_with("/pool/")
-            || path.starts_with("/hardware/")
+            || path.starts_with("/asics/")
             || path.starts_with("/vendors/") =>
         {
             "ItemPage"
@@ -364,6 +362,31 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
 fn structured_entity(d: &Data, p: &Page<'_>, canonical: &str) -> Option<serde_json::Value> {
     use serde_json::json;
     let id = format!("{canonical}#entity");
+    if p.path == "/asics" {
+        let mut miners: Vec<_> = d.miners.iter().collect();
+        miners.sort_by(|a, b| {
+            b.hashrate_ksol
+                .unwrap_or_default()
+                .total_cmp(&a.hashrate_ksol.unwrap_or_default())
+        });
+        let items = miners
+            .iter()
+            .enumerate()
+            .map(|(position, miner)| {
+                json!({
+                    "@type": "ListItem",
+                    "position": position + 1,
+                    "url": format!("{SITE}/asics/{}", miner.id),
+                    "name": format!("{} {}", miner.maker, miner.model)
+                })
+            })
+            .collect::<Vec<_>>();
+        return Some(json!({
+            "@type": "ItemList", "@id": id, "name": "Equihash ASIC miners",
+            "url": canonical, "numberOfItems": items.len(), "itemListOrder": "https://schema.org/ItemListOrderDescending",
+            "itemListElement": items
+        }));
+    }
     if p.path == "/industry" {
         return Some(json!({
             "@type": "ItemList", "@id": id, "name": "Equihash industry briefings",
@@ -379,7 +402,7 @@ fn structured_entity(d: &Data, p: &Page<'_>, canonical: &str) -> Option<serde_js
         let datasets = [
             ("Equihash pool records", "Sourced pool hashrate, fee, payout and region records.", "/data/pools.json"),
             ("Equihash network records", "Equihash parameters, network estimates, rewards and observation times.", "/data/network.json"),
-            ("Equihash hardware records", "Manufacturer ASIC specifications and parameter compatibility.", "/data/miners.json"),
+            ("Equihash ASIC records", "Manufacturer and clearly labelled market-reported ASIC specifications with parameter compatibility.", "/data/miners.json"),
             ("Equihash vendor records", "Public seller identity evidence and observed sales channels.", "/data/vendors.json"),
             ("Equihash hashpower market snapshot", "Aggregate EQUIHASH order-book observations.", "/data/hashpower.json"),
             ("Cypherpunk Zcash mining record", "Company-reported fleet figures and primary filing sources.", "/data/cypherpunk-zcash.json"),
@@ -413,7 +436,7 @@ fn structured_entity(d: &Data, p: &Page<'_>, canonical: &str) -> Option<serde_js
             "subjectOf": {"@id": format!("{canonical}#webpage")}
         }));
     }
-    if let Some(miner_id) = p.path.strip_prefix("/hardware/") {
+    if let Some(miner_id) = p.path.strip_prefix("/asics/") {
         let miner = d.miners.iter().find(|x| x.id == miner_id)?;
         return Some(json!({
             "@type": "Product", "@id": id, "name": format!("{} {}", miner.maker, miner.model),
@@ -448,8 +471,8 @@ fn breadcrumbs(p: &Page<'_>, canonical: &str) -> Option<serde_json::Value> {
         Some(("Coins", "/coins"))
     } else if p.path.starts_with("/pool/") {
         Some(("Pools", "/pools"))
-    } else if p.path.starts_with("/hardware/") {
-        Some(("Hardware", "/hardware"))
+    } else if p.path.starts_with("/asics/") {
+        Some(("ASICs", "/asics"))
     } else if p.path.starts_with("/vendors/") {
         Some(("Vendors", "/vendors"))
     } else if p.path.starts_with("/industry/") {

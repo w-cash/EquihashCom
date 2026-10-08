@@ -83,7 +83,7 @@ Routes:
   - `/coins` and `/coin/{id}` provide coin records grouped by exact Equihash parameters.
   - `/pools?coin=<id>` is the full pool comparison. Old `/?coin=<id>` links redirect there.
   - `/hashpower` separates NiceHash selling/buying from direct pool mining and includes an Equihash order-cost estimator.
-  - `/pool/{slug}`, `/hardware`, `/hardware/{id}`, `/guides` and `/merged-mining` provide the main research paths.
+  - `/pool/{slug}`, `/asics`, `/asics/{id}`, `/guides` and `/merged-mining` provide the main research paths.
   - `/calculator`, `/contribute`, `/archive`, `/about` and `/sources` provide tools, submissions and methodology. `/miners` and `/add-pool` remain available for older links.
 - Raw data: `/data/{pools,network,miners,vendors,listings,hashpower,archive,meta,research,current}.json`. The generated pool/network files come from the same snapshot the pages were rendered from.
 - Live figures: `/api/live` (JSON; see "API" below). The page polls it every 60 s.
@@ -253,7 +253,7 @@ The pools' total is never used as the network estimate. When no estimate exists,
 
 - Coins are grouped by exact Equihash (n,k): 200,9 first, then the others by (n,k), then "Parameters not published".
 - Within a group, coins are ranked by the sum of positive pool-reported hashrate, descending. Zero and n/a come last, with name as the tie-break.
-- The same order is used in the sidebar, the coin selector, "What can a Z15 mine?", All networks and the Hardware page.
+- The same order is used in the sidebar, the coin selector, "What can a Z15 mine?", All networks and the ASIC index.
 - Hashrates on different parameter sets are never compared, summed, ranked or charted together. The all-coins pool table has one group per parameter set, and its ranks restart in each group.
 
 ### Shares
@@ -361,7 +361,7 @@ Rendering rules (`verified_links` in `src/data.rs`, `src/views/links.rs`, the dr
 
 ## Logos
 
-Every coin and pool shows a small logo next to its name: 20px in the pool, networks and archive tables, 18px in the coin selector, the Z15 list and the Hardware page, 16px in the sidebar, 40px in the coin header, the pool page and the drawer (32px on phones). Each mark sits in a 1px-bordered paper chip (radius 2px), so brand colours that don't match the ledger still look tidy. The chip stays light in dark mode, so black-on-transparent marks stay visible. White-on-transparent marks get a dark chip, and opaque square icons fill the chip edge to edge.
+Every coin and pool shows a small logo next to its name: 20px in the pool, networks and archive tables, 18px in the coin selector, the Z15 list and the ASIC index, 16px in the sidebar, 40px in the coin header, the pool page and the drawer (32px on phones). Each mark sits in a 1px-bordered paper chip (radius 2px), so brand colours that don't match the ledger still look tidy. The chip stays light in dark mode, so black-on-transparent marks stay visible. White-on-transparent marks get a dark chip, and opaque square icons fill the chip edge to edge.
 
 - **Files:** `static/logos/coins/` and `static/logos/pools/`, local copies only (no hotlinking). The name carries a content hash (`zcash.<hash>.svg`), so `/static/logos/*` is served with `Cache-Control: public, max-age=31536000, immutable`, plus its own `Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; sandbox` in case an SVG is opened directly. Only `coins/` or `pools/` files ending in `.svg`, `.webp` or `.png` are served.
 - **Data:** `data/curated/logos.json`, written by the fetch script and hot-reloaded like the other curated files:
@@ -464,7 +464,7 @@ They cover:
 - **Ranking:**
   - the 200,9 order on the snapshot is Zcash, Pirate Chain, Wcash, Kerrigan, Komodo, Buck, BitMark, then zero or n/a by name;
   - groups are never interleaved, and a huge hashrate on another parameter set never jumps ahead;
-  - the same order holds in the sidebar, selector, Z15 list, networks table and Hardware page.
+  - the same order holds in the sidebar, selector, Z15 list, networks table and ASIC index.
 - **Timestamps:**
   - a ZecWec fee refresh never moves `hashrate_observed_at` or `fetched_at`;
   - loaded curated rows keep their verified time;
@@ -506,7 +506,7 @@ They cover:
 |---|---|
 | Coin list, pools, network stats | https://miningpoolstats.stream (JSON at https://data.miningpoolstats.stream/data/{coin}.js and `coins_data.js`) |
 | Equihash hashpower market | NiceHash public EQUIHASH order book and algorithm metadata at https://api2.nicehash.com |
-| Prices (coin header, network table, Hardware page, calculator) | https://data.miningpoolstats.stream/data/price/{coin}.js; when that fails, the `price` field of the coin file https://data.miningpoolstats.stream/data/{coin}.js (the price source URL says which) |
+| Prices (coin header, network table, ASIC index, calculator) | https://data.miningpoolstats.stream/data/price/{coin}.js; when that fails, the `price` field of the coin file https://data.miningpoolstats.stream/data/{coin}.js (the price source URL says which) |
 | ZEC / BTG cross-checks and block reward | https://zec.2miners.com/api/stats, `/api/blocks`; https://btg.2miners.com/api/stats, `/api/blocks` |
 | zpool | https://zpool.ca/api/currencies, https://zpool.ca/api/status |
 | ZergPool (optional) | https://zergpool.com/api/currencies |

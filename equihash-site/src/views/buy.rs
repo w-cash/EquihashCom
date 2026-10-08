@@ -322,7 +322,7 @@ fn vendor_model_slide(
                     div { dt { @if all_sold_out { "Last page price" } @else { "Lowest page price" } } dd { @if let Some((price, code)) = lowest { (currency(Some(price), code)) } @else { "n/a" } } }
                 }
                 nav aria-label={(&machine) " actions"} {
-                    a href={"/hardware/" (&listing.miner_id)} { "Specifications" }
+                    a href={"/asics/" (&listing.miner_id)} { "Specifications" }
                     a href=(calculator) { "Calculator" }
                     a href={"#vendor-listings-" (&listing.miner_id)} { "View listings" }
                 }
@@ -362,7 +362,7 @@ fn vendor_offer_table(d: &Data, rows: &[&Listing]) -> Markup {
                     @let machine = machine_name(d, &group[0].miner_id);
                     tbody id={"vendor-listings-" (&group[0].miner_id)} {
                         tr class="vendor-offer-model-row" {
-                            th colspan="6" scope="rowgroup" { a href={"/hardware/" (&group[0].miner_id)} { (&machine) } span { "Seller-listed " (seller_hashrate_range(&group)) }
+                            th colspan="6" scope="rowgroup" { a href={"/asics/" (&group[0].miner_id)} { (&machine) } span { "Seller-listed " (seller_hashrate_range(&group)) }
                             }
                         }
                         @for row in group {
@@ -425,7 +425,7 @@ fn market_offer_row(d: &Data, vendor: &Vendor, listing: &Listing, rank: usize) -
             td class="vendor-market-rank mono" { (rank) }
             th scope="row" class="vendor-market-machine" {
                 img src=(image) alt="" width=(width) height=(height) loading="lazy" decoding="async";
-                span { a href={"/hardware/" (&listing.miner_id)} { (&machine) } small { (fmt::opt_num(listing.shop_hashrate_ksol)) " kSol/s" } }
+                span { a href={"/asics/" (&listing.miner_id)} { (&machine) } small { (fmt::opt_num(listing.shop_hashrate_ksol)) " kSol/s" } }
             }
             td data-label="Seller" class="vendor-market-seller" { a href={"/vendors/" (&vendor.slug)} { (&vendor.name) } small { (vendor.base_region.as_deref().unwrap_or("Base not stated")) } }
             td data-label="Price" class="vendor-market-price mono" { strong { (currency(listing.price_amount, listing.price_currency.as_deref())) } @if listing.price_includes_vat == Some(false) { small { "ex VAT" } } }
@@ -778,7 +778,7 @@ pub fn add_vendor(d: &Data) -> Markup {
             h2 { "What to send" }
             ol { li { strong { "Publish the facts. " } "Company identity, seller location, availability, price and delivery wording must be visible on public pages." } li { strong { "Send the sources. " } "Copy the template and send it to " a href="https://x.com/MykytaSamardak" rel="noopener" { "@MykytaSamardak on X" } "." } }
             div class="tpl" { div class="tpl-head" { span { "Vendor template" } button class="btn small" type="button" data-copy="#tpl-vendor" { "Copy" } } pre id="tpl-vendor" { (template) } }
-            p class="small" { "Manufacturer specifications stay on " a href="/hardware" { "Hardware" } "; the vendor directory records seller-published listings and source checks." }
+            p class="small" { "Machine specifications stay in the " a href="/asics" { "ASIC index" } "; the vendor directory records seller-published listings and source checks." }
         }
     })
 }

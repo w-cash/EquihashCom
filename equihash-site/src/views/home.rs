@@ -906,7 +906,7 @@ fn z15_box(d: &Data) -> Markup {
             }
             p class="small" {
                 "The rest use other parameter sets (" (other_params.join(", ")) ") and need GPUs or different hardware. "
-                a href="/hardware" { "Machine specs" } " and " a href="/calculator" { "earnings estimate" } "."
+                a href="/asics" { "Machine specs" } " and " a href="/calculator" { "earnings estimate" } "."
             }
         }
     }
@@ -1463,8 +1463,12 @@ mod tests {
         // 200,9 rows come before any other parameter set's rows, which sit in their own group.
         let first_other = net.find("Equihash 144,5").unwrap();
         assert!(net.find(">BitMark<").unwrap() < first_other);
-        let hw = crate::views::pages::miners(&d).into_string();
-        assert!(ascending(&order(&hw, &needles)), "hardware page");
+        let hw = crate::views::asics::index(&d).into_string();
+        assert!(
+            hw.find("/asics/antminer-z15-pro\"").unwrap()
+                < hw.find("/asics/antminer-z15\"").unwrap(),
+            "ASIC index follows descending hashrate"
+        );
     }
 
     #[test]
@@ -1653,8 +1657,13 @@ mod tests {
         assert_eq!(j["coins"]["wcash"]["network_text"], "508 kSol/s");
         assert_eq!(j["coins"]["wcash"]["reported_dagger"], false);
         // Hardware: no per-machine WEC figure when one Z15 Pro outweighs the network.
-        let hw = crate::views::pages::miners(&d).into_string();
-        assert!(hw.contains("10% or more of the network estimate"));
+        let miner = d
+            .miners
+            .iter()
+            .find(|miner| miner.id == "antminer-z15-pro")
+            .unwrap();
+        let hw = crate::views::asics::detail(&d, miner).into_string();
+        assert!(hw.contains("one machine would be at least 10% of that network"));
     }
 
     #[test]

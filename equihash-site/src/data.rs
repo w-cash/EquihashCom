@@ -509,6 +509,11 @@ pub struct Miner {
     pub hashrate_ksol: Option<f64>,
     pub watts: Option<f64>,
     pub stated_efficiency_j_per_ksol: Option<f64>,
+    /// Month the specification or market record first appeared, shown as YYYY-MM.
+    pub released: Option<String>,
+    /// "manufacturer" for a maker-published specification; "market_reported" when the current
+    /// record is supported by public seller/aggregator pages but no maker specification was found.
+    pub spec_basis: Option<String>,
     pub notes: Option<String>,
     pub source_name: Option<String>,
     pub source_url: Option<String>,

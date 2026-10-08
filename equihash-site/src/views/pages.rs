@@ -1,6 +1,5 @@
 use crate::data::{Data, Pool};
 use crate::fmt;
-use crate::views::calc;
 use crate::views::home::schemes_text;
 use crate::views::layout::{ext, layout, Page};
 use crate::views::links;
@@ -197,132 +196,6 @@ pub fn archive(d: &Data) -> Markup {
     })
 }
 
-pub fn miners(d: &Data) -> Markup {
-    // d.coins is in rank order within each parameter set; this table is 200,9 only.
-    let z15_coins: Vec<_> = d
-        .coins
-        .iter()
-        .filter(|c| c.active() && c.nk() == Some((200, 9)) && c.pool_count > 0)
-        .collect();
-    // Other parameter sets that have active coins with listed pools, most common first.
-    let mut other_params: Vec<(String, usize)> = Vec::new();
-    for c in d
-        .coins
-        .iter()
-        .filter(|c| c.active() && c.pool_count > 0 && c.nk().is_some() && c.nk() != Some((200, 9)))
-    {
-        match other_params.iter_mut().find(|(p, _)| *p == c.params()) {
-            Some(e) => e.1 += 1,
-            None => other_params.push((c.params(), 1)),
-        }
-    }
-    other_params.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
-    let other_params: Vec<String> = other_params.into_iter().map(|(p, _)| p).collect();
-    let other_params = match other_params.len() {
-        0 => String::new(),
-        1 => other_params[0].clone(),
-        n => format!(
-            "{} and {}",
-            other_params[..n - 1].join(", "),
-            other_params[n - 1]
-        ),
-    };
-    let z15_empty: Vec<_> = d
-        .coins
-        .iter()
-        .filter(|c| c.active() && c.nk() == Some((200, 9)) && c.pool_count == 0)
-        .map(|c| c.name.clone())
-        .collect();
-    // Machines grouped by the parameter set they run, so hashrates are only compared within one.
-    let mut mgroups: Vec<(String, Vec<&crate::data::Miner>)> = Vec::new();
-    for m in &d.miners {
-        match mgroups.iter_mut().find(|(g, _)| *g == m.equihash) {
-            Some((_, v)) => v.push(m),
-            None => mgroups.push((m.equihash.clone(), vec![m])),
-        }
-    }
-    let zec = d.coin("zcash");
-    let pro = d.miners.iter().find(|m| m.model.ends_with("Z15 Pro"));
-    let best = d
-        .miners
-        .iter()
-        .filter_map(|m| m.efficiency())
-        .fold(f64::INFINITY, f64::min);
-    layout(d, Page { title: "Equihash ASIC miners: Z15 Pro, Z15, Z11 and Z9", description: "Compare manufacturer specifications, hashrate, power and efficiency for Equihash ASIC miners, including the Antminer Z15 Pro, Z15, Z11 and Z9.", path: "/hardware", nav: "hardware" }, html! {
-        div class="wrap page" {
-            header class="page-head" {
-                h1 { "Equihash hardware" }
-                p class="lede" { "Manufacturer specs for the Equihash ASICs you will still find running. Efficiency is worked out here as watts ÷ kSol/s, lower is better; the maker's own figure sits next to it where they publish one." }
-            }
-            div class="table-scroll" {
-                table class="data hw" {
-                    thead { tr {
-                        th scope="col" { "Machine" } th scope="col" class="nk" { "n,k" } th class="num" scope="col" { "kSol/s" } th class="num" scope="col" { "Watts" }
-                        th class="num" scope="col" { "J/kSol" } th class="num stated" scope="col" { "Stated" }
-                        @if zec.is_some() { th class="num" scope="col" title="ZEC per day for one unit, at today's network hashrate and block reward, 1% fee, before power" { "ZEC/day*" } }
-                        th scope="col" class="specsrc" { "Spec source" } th scope="col" { "Vendors" }
-                    } }
-                    @for (g, ms) in &mgroups { tbody {
-                        tr class="group-row" { th colspan="9" scope="rowgroup" { "Equihash " (g) } }
-                        @for m in ms {
-                        @let eff = m.efficiency();
-                        tr id={"machine-" (m.id)} {
-                            td { a class="entity-link" href={"/hardware/" (m.id)} { (m.maker) " " strong { (m.model) } } @if let Some(n) = &m.notes { br; span class="na hw-note" { (n) } }
-                                @if let Some(u) = &m.source_url { span class="m-only" { " " (ext(u, "spec")) } } }
-                            td class="mono nk" { (m.equihash) }
-                            td class="num" { (fmt::opt_num(m.hashrate_ksol)) }
-                            td class="num" { (fmt::int(m.watts)) }
-                            td class={"num" @if eff == Some(best) { " best" }} { (eff.map(|e| format!("{e:.2}")).unwrap_or("n/a".into())) }
-                            td class="num stated" { (fmt::opt_num(m.stated_efficiency_j_per_ksol)) }
-                            @if let Some(z) = zec { td class="num" { (m.hashrate_ksol.and_then(|h| calc::coins_per_day(z, h, 1.0)).map(|v| format!("{v:.4}")).unwrap_or("n/a".into())) } }
-                            td class="src specsrc" { @if let Some(u) = &m.source_url { (ext(u, fmt::host(Some(u)).split('/').next().unwrap_or(""))) } @else { "n/a" } }
-                            td { @if d.listings.iter().any(|l| l.miner_id == m.id) { a class="hw-buy" href={"/vendors?machine=" (m.id)} { "Vendor records" } } @else { span class="na" { "—" } } }
-                        }
-                    } } }
-                }
-            }
-            p class="small" {
-                @if zec.is_some() { "* Zcash per day for one unit at today's network hashrate and the sourced miner block reward, after a 1% pool fee and before electricity. Run your own numbers in the " a href="/calculator" { "calculator" } ". " }
-                @if !d.miners_not_listed.is_empty() {
-                    "Specs checked against manufacturer pages" @if let Some(v) = &d.miners_verified_at { " on " (fmt::utc(Some(v))) } ". Not listed: "
-                    @for (i, n) in d.miners_not_listed.iter().enumerate() { @if i > 0 { "; " } (n.model) " (" (n.reason) ")" } "."
-                }
-            }
-            section id="z15" class="z15-page" {
-                h2 { "What can a Z15 mine?" }
-                p class="section-sub" { "Every Antminer Z-series machine runs Equihash 200,9, so it can mine any coin on that parameter set. These have live pools here. Figures are for one Z15 Pro"
-                    @if let Some(m) = pro { " (" (fmt::opt_num(m.hashrate_ksol)) " kSol/s)" } " at a 1% fee, before electricity." }
-                div class="table-scroll" {
-                    table class="data" {
-                        thead { tr { th scope="col" { "Coin" } th class="num" scope="col" { "Network estimate" } th class="num" scope="col" title="Sum of what the listed pools report" { "Reported by pools" } th class="num" scope="col" { "Pools" } th class="num" scope="col" { "Price" } th class="num" scope="col" { "Coins/day" } th class="num" scope="col" { "USD/day" } th scope="col" {} } }
-                        tbody data-rank-list { @for c in &z15_coins {
-                            @let per = pro.and_then(|m| m.hashrate_ksol).and_then(|h| calc::coins_per_day(c, h, 1.0));
-                            tr data-rank-id=(c.id) {
-                                td { a href={"/coin/" (c.id)} { (logo::chip(&c.logo, &c.name, At::List, true)) (c.name) } " " span class="sym" { (c.symbol) } }
-                                td class="num" { @if c.network.hashrate.is_some() { span data-rank-f="network" { (fmt::hashrate(c.network.hashrate, c.network.unit.as_deref().unwrap_or("Sol/s"))) } } @else { span class="na" data-rank-f="network" { "unavailable" } } }
-                                td class="num" { @let (rep, dag) = fmt::reported(c); span data-rank-f="reported" { (rep) } @if dag { span class="dag" { "†" } } }
-                                td class="num" { (c.pool_count) }
-                                td class="num" { (fmt::price(c.price_usd)) }
-                                td class="num" data-rank-f="z15-day" { @match per { Some(v) => { (format!("{v:.4}")) " " span class="sym" { (c.symbol) } } None => { span class="na" title=(calc::per_day_na_reason(c, pro.and_then(|m| m.hashrate_ksol))) { "n/a" } } } }
-                                td class="num" data-rank-f="z15-usd" { (match (per, c.price_usd) { (Some(v), Some(p)) => format!("${:.2}", v * p), _ => "n/a".into() }) }
-                                td { a href={"/calculator?coin=" (c.id)} { "calculate" } }
-                            }
-                        } }
-                    }
-                }
-                @for c in z15_coins.iter().filter(|c| c.reported.operator_pools > 0) {
-                    @if let Some(n) = fmt::operator_note(c) { p class="footnote" { (c.name) ": " (n) "." } }
-                }
-                p class="small" {
-                    "n/a in Coins/day means the block reward or the network estimate for that coin isn't sourced (the calculator lets you enter both), or that one Z15 Pro would be 10% or more of the network, where a per-machine figure isn't meaningful. The listed pools' total is never used in its place. "
-                    @if !z15_empty.is_empty() { (z15_empty.join(", ")) " also run on 200,9 but have no pool listed here at the moment. " }
-                    @if !other_params.is_empty() { "Coins on " (other_params) " need GPUs or different hardware." }
-                }
-            }
-        }
-    })
-}
-
 pub fn about(d: &Data) -> Markup {
     layout(d, Page { title: "About", description: "About equihash.com, the open directory for Equihash coins, mining pools, hardware and guides.", path: "/about", nav: "about" }, html! {
         div class="wrap page narrow prose" {
@@ -362,7 +235,7 @@ pub fn sources(d: &Data) -> Markup {
                 ul {
                     li { a href="/data/pools.json" { "Pool records" } " — pool identity, coin, reported hashrate, fees, payout methods, regions and field-level sources." }
                     li { a href="/data/network.json" { "Network records" } " — Equihash parameters, network estimates, rewards, price inputs and observation times." }
-                    li { a href="/data/miners.json" { "Hardware records" } " — manufacturer hashrate, power, parameter compatibility and specification sources." }
+                    li { a href="/data/miners.json" { "ASIC records" } " — manufacturer hashrate, power, parameter compatibility and specification sources." }
                     li { a href="/data/vendor-directory.json" { "Global ASIC vendor research" } ", " a href="/data/vendors.json" { "Equihash vendor records" } " and " a href="/data/listings.json" { "offer records" } " — evidence tiers, seller identity records and time-stamped public product claims." }
                     li { a href="/data/hashpower.json" { "Hashpower market snapshot" } " — aggregate NiceHash EQUIHASH order-book observations." }
                     li { a href="/data/current.json" { "Current snapshot manifest" } " — the exact generated files, sizes and SHA-256 values loaded by the server." }
@@ -395,7 +268,7 @@ pub fn sources(d: &Data) -> Markup {
                     li { (ext("https://w.cash/whitepaper", "Wcash protocol specification")) " (merged-mining guide, WEC parameters)" }
                     li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-zcash-aux/README.md", "wcash-zcash-aux README at 3e6b8044")) }
                     li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-merge-miner/README.md", "wcash-merge-miner README at 3e6b8044")) }
-                    li { "ASIC specs: Bitmain support spec pages and the Innosilicon product page, linked per row on " a href="/hardware" { "Hardware" } "." }
+                    li { "ASIC specs: Bitmain support spec pages and the Innosilicon product page, linked per row in the " a href="/asics" { "ASIC index" } "." }
                     li { "ASIC vendor identities and listing snapshots: seller pages, terms and public company records where available, linked per record in the " a href="/vendors" { "Vendor directory" } ". Approved product variants are checked daily; a blocked page, ambiguous match or implausible price keeps its previous good record and timestamp. Inventory, fulfillment and warranty performance are not independently checked." }
                     li { "Archive: pool and operator announcements and community threads, linked per entry on the " a href="/archive" { "Archive" } "." }
                 }
@@ -513,7 +386,7 @@ pub fn price_notes(d: &Data) -> Markup {
                 (none_failed.iter().filter_map(|c| failed(c)).collect::<Vec<_>>().join(", ")) ") and the coin file has no fallback price. "
             }
             @if !none_quiet.is_empty() { "No price is published for " (names(&none_quiet)) ", so those show n/a. " }
-            "Prices appear in the coin header, the networks table, the Hardware page's USD/day column and the calculator, where they can be overridden."
+            "Prices appear in the coin header, the networks table, the ASIC index's USD/day column and the calculator, where they can be overridden."
         }
     }
 }

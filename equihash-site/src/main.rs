@@ -130,21 +130,31 @@ async fn archive(s: web::Data<AppState>) -> impl Responder {
     html(views::pages::archive(&s.get()))
 }
 async fn miners(s: web::Data<AppState>) -> impl Responder {
-    html(views::pages::miners(&s.get()))
+    html(views::asics::index(&s.get()))
 }
 async fn miners_legacy() -> HttpResponse {
     HttpResponse::MovedPermanently()
-        .insert_header((header::LOCATION, "/hardware"))
+        .insert_header((header::LOCATION, "/asics"))
         .finish()
 }
 async fn hardware_detail(s: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
     let d = s.get();
     match d.miners.iter().find(|m| m.id == *path) {
-        Some(m) => html(views::hub::hardware_detail(&d, m)),
+        Some(m) => html(views::asics::detail(&d, m)),
         None => HttpResponse::NotFound()
             .content_type("text/html; charset=utf-8")
             .body(views::pages::not_found(&d).into_string()),
     }
+}
+async fn hardware_legacy() -> HttpResponse {
+    HttpResponse::MovedPermanently()
+        .insert_header((header::LOCATION, "/asics"))
+        .finish()
+}
+async fn hardware_detail_legacy(path: web::Path<String>) -> HttpResponse {
+    HttpResponse::MovedPermanently()
+        .insert_header((header::LOCATION, format!("/asics/{path}")))
+        .finish()
 }
 async fn calculator(
     s: web::Data<AppState>,
@@ -386,7 +396,8 @@ Updated: {updated}
 - [Zcash mining guide]({site}/zcash-mining): Equihash 200,9 hardware, pool selection, setup, costs, privacy and merged mining.
 - [Zcash mining record]({site}/coin/zcash): current network, compatible miners, listed pools and sources.
 - [Zcash pool comparison]({site}/pools): reported hashrate, fees, payout methods, minimum payouts, regions and source ages.
-- [Antminer Z15 Pro]({site}/hardware/antminer-z15-pro): manufacturer specifications and compatible coins.
+- [Equihash ASIC index]({site}/asics): miners ranked by hashrate with power, efficiency, current economics and seller offers.
+- [Antminer Z15 Pro]({site}/asics/antminer-z15-pro): manufacturer specifications, compatible coins, profitability and current offers.
 - [Equihash coins]({site}/coins): networks grouped by exact n,k parameters.
 - [Merged mining guide]({site}/merged-mining): Zcash parent-chain and Wcash auxiliary-chain flow.
 - [Equihash industry]({site}/industry): source-backed briefings on companies, mining fleets, investment products and infrastructure around Equihash.
@@ -399,7 +410,7 @@ Updated: {updated}
 
 - [Pools JSON]({site}/data/pools.json)
 - [Networks JSON]({site}/data/network.json)
-- [Hardware JSON]({site}/data/miners.json)
+- [ASIC JSON]({site}/data/miners.json)
 - [Vendors JSON]({site}/data/vendors.json)
 - [Global vendor research JSON]({site}/data/vendor-directory.json)
 - [Listings JSON]({site}/data/listings.json)
@@ -457,7 +468,7 @@ async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
         ("/coins".into(), data_updated.clone()),
         ("/pools".into(), data_updated.clone()),
         ("/hashpower".into(), hashpower_updated),
-        ("/hardware".into(), hardware_updated.clone()),
+        ("/asics".into(), hardware_updated.clone()),
         ("/vendors".into(), vendor_updated.clone()),
         ("/guides".into(), Some("2026-10-07".into())),
         ("/zcash-mining".into(), Some("2026-10-07".into())),
@@ -510,7 +521,7 @@ async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
     urls.extend(
         d.miners
             .iter()
-            .map(|m| (format!("/hardware/{}", m.id), hardware_updated.clone())),
+            .map(|m| (format!("/asics/{}", m.id), hardware_updated.clone())),
     );
     urls.extend(d.vendors.iter().map(|v| {
         (
@@ -581,8 +592,10 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
         .service(web::resource("/pool/{slug}").route(get_head().to(pool)))
         .service(web::resource("/archive").route(get_head().to(archive)))
         .service(web::resource("/miners").route(get_head().to(miners_legacy)))
-        .service(web::resource("/hardware").route(get_head().to(miners)))
-        .service(web::resource("/hardware/{id}").route(get_head().to(hardware_detail)))
+        .service(web::resource("/asics").route(get_head().to(miners)))
+        .service(web::resource("/asics/{id}").route(get_head().to(hardware_detail)))
+        .service(web::resource("/hardware").route(get_head().to(hardware_legacy)))
+        .service(web::resource("/hardware/{id}").route(get_head().to(hardware_detail_legacy)))
         .service(web::resource("/vendors").route(get_head().to(vendors)))
         .service(web::resource("/vendors/{slug}").route(get_head().to(vendor)))
         .service(web::resource("/buy").route(get_head().to(buy_legacy)))
@@ -784,8 +797,8 @@ mod tests {
             format!("/coin/{coin}"),
             format!("/pool/{slug}"),
             "/archive".into(),
-            "/hardware".into(),
-            format!("/hardware/{miner}"),
+            "/asics".into(),
+            format!("/asics/{miner}"),
             "/vendors".into(),
             "/vendors?machine=antminer-z15-pro&region=UK&state=in_stock".into(),
             format!("/vendors/{}", s.get().vendors[0].slug),
@@ -850,7 +863,11 @@ mod tests {
                 "/pools?coin=wcash"
             );
         }
-        for (from, to) in [("/miners", "/hardware"), ("/add-pool", "/contribute#pool")] {
+        for (from, to) in [
+            ("/miners", "/asics"),
+            ("/hardware", "/asics"),
+            ("/add-pool", "/contribute#pool"),
+        ] {
             for m in [Method::GET, Method::HEAD] {
                 let r = test::call_service(
                     &app,
@@ -957,10 +974,33 @@ mod tests {
             "WebSite is declared once on the homepage"
         );
 
+        let asics =
+            test::call_and_read_body(&app, test::TestRequest::get().uri("/asics").to_request())
+                .await;
+        let asics = String::from_utf8(asics.to_vec()).unwrap();
+        let json = asics
+            .split(r#"<script type="application/ld+json">"#)
+            .nth(1)
+            .and_then(|s| s.split("</script>").next())
+            .expect("ASIC index JSON-LD block");
+        let graph: serde_json::Value =
+            serde_json::from_str(json).expect("valid ASIC index JSON-LD");
+        let list = graph["@graph"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|node| node["@type"] == "ItemList")
+            .expect("ASIC index exposes an ItemList");
+        assert_eq!(list["numberOfItems"], s.get().miners.len());
+        assert_eq!(
+            list["itemListElement"][0]["url"],
+            "https://equihash.com/asics/antminer-z15-pro"
+        );
+
         let product = test::call_and_read_body(
             &app,
             test::TestRequest::get()
-                .uri("/hardware/antminer-z15-pro")
+                .uri("/asics/antminer-z15-pro")
                 .to_request(),
         )
         .await;

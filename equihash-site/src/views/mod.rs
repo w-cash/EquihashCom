@@ -1,3 +1,4 @@
+pub mod asics;
 pub mod buy;
 pub mod calc;
 pub mod guide;
