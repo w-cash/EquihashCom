@@ -567,3 +567,20 @@ body[data-page="home"] .foot {
 @media print {
   .masthead, .foot { background: #fff; color: #000; }
 }
+
+/* The global 42px form-control minimum is wrong for inline guide controls. */
+.guide .checklist label { align-items: flex-start; gap: 9px; padding-block: 5px; }
+.guide .checklist input[type="checkbox"] {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  min-height: 0;
+  margin: 4px 0 0;
+  padding: 0;
+}
+.guide .ck-reset {
+  min-height: 0;
+  padding: 0;
+  line-height: inherit;
+  font-weight: 400;
+}
