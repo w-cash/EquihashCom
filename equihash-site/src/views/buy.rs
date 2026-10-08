@@ -8,25 +8,6 @@ use maud::{html, Markup};
 use serde::Deserialize;
 use std::collections::BTreeSet;
 
-const SELLER_REGIONS: &[&str] = &[
-    "Manufacturer",
-    "Asia-Pacific",
-    "China & Hong Kong",
-    "Europe",
-    "United Kingdom",
-    "United States",
-    "Other",
-];
-
-const RESEARCH_REGIONS: &[&str] = &[
-    "Asia-Pacific",
-    "Middle East",
-    "Europe",
-    "North America",
-    "Africa",
-    "Latin America",
-];
-
 #[derive(Debug, Deserialize, Default)]
 #[serde(default)]
 pub struct BuyQuery {
@@ -34,6 +15,10 @@ pub struct BuyQuery {
     pub base: Option<String>,
     pub region: Option<String>,
     pub state: Option<String>,
+    pub vendor_q: Option<String>,
+    pub vendor_region: Option<String>,
+    pub availability: Option<String>,
+    pub sort: Option<String>,
 }
 
 fn seller_region(v: &Vendor) -> &str {
@@ -60,18 +45,47 @@ fn research_for<'a>(d: &'a Data, vendor: &Vendor) -> Option<&'a VendorResearch> 
         .find(|record| site_key(record.website.as_deref()) == key)
 }
 
-fn trust_label(tier: &str) -> &'static str {
-    match tier {
-        "A" => "Strongest evidence",
-        "B" => "Credible, with caveats",
-        "C" => "High diligence",
-        "D" => "Warning only",
-        _ => "Coverage gap",
+fn record_type_label(kind: &str) -> &'static str {
+    match kind {
+        "manufacturer_direct" => "Manufacturer direct",
+        "reseller_or_broker" => "Reseller / broker",
+        "marketplace" => "Marketplace",
+        "hardware_and_hosting" => "Hardware / hosting",
+        "public_warning_record" => "Sourced public-warning record",
+        _ => "Public record",
     }
 }
 
-fn vendor_type_label(kind: &str) -> String {
-    kind.replace('_', " ")
+fn availability_label(state: &str) -> &'static str {
+    match state {
+        "seller_declared_spot_or_near_term" => "Seller declares spot or near-term dispatch",
+        "preorder_or_future_batch" => "Preorder or future batch",
+        "historical_or_used" => "Historical or used listing",
+        "unknown_or_quote_required" => "Unknown or quote required",
+        "sold_out_or_no_current_listing" => "Sold out or no current Equihash listing",
+        "not_applicable_warning_record" => "Availability not applicable",
+        _ => "Not stated",
+    }
+}
+
+fn availability_rank(state: &str) -> u8 {
+    match state {
+        "seller_declared_spot_or_near_term" => 0,
+        "preorder_or_future_batch" => 1,
+        "historical_or_used" => 2,
+        "unknown_or_quote_required" => 3,
+        "sold_out_or_no_current_listing" => 4,
+        "not_applicable_warning_record" => 5,
+        _ => 6,
+    }
+}
+
+fn profile_for_research<'a>(d: &'a Data, record: &VendorResearch) -> Option<&'a Vendor> {
+    let key = site_key(record.website.as_deref());
+    (!key.is_empty() && key != "n/a").then_some(())?;
+    d.vendors
+        .iter()
+        .find(|vendor| site_key(vendor.url.as_deref()) == key)
 }
 
 fn source_list(record: &VendorResearch) -> Markup {
@@ -79,76 +93,6 @@ fn source_list(record: &VendorResearch) -> Markup {
         ul class="vendor-evidence-sources" {
             @for url in &record.source_urls {
                 li { (ext(url, &fmt::host(Some(url)).split('/').next().unwrap_or("Source"))) }
-            }
-        }
-    }
-}
-
-fn research_record(record: &VendorResearch) -> Markup {
-    let rank = record
-        .global_trust_rank
-        .map(|rank| format!("#{rank}"))
-        .unwrap_or_else(|| "—".into());
-    let score = record
-        .editorial_trust_score_100
-        .map(|score| format!("{score}/100"))
-        .unwrap_or_else(|| "n/a".into());
-    html! {
-        article id={"vendor-" (&record.id)} class="vendor-research-card" data-vendor-research data-region=(&record.region) data-tier=(&record.trust_tier) data-search={(record.vendor) " " (record.country) " " (record.equihash_z15)} {
-            header class="vendor-research-head" {
-                span class="vendor-rank mono" { (rank) }
-                div {
-                    p class="seller-label" { (vendor_type_label(&record.vendor_type)) " · " (&record.country) }
-                    h3 {
-                        @if let Some(url) = &record.website { (ext(url, &record.vendor)) }
-                        @else { (&record.vendor) }
-                    }
-                }
-                div class={"vendor-tier tier-" (record.trust_tier.to_ascii_lowercase())} {
-                    span { "TIER " (&record.trust_tier) }
-                    strong { (trust_label(&record.trust_tier)) }
-                    small { "Evidence score " (score) }
-                }
-            }
-            p class="vendor-research-note" { (&record.notes) }
-            div class="vendor-z15-record" {
-                strong { "Equihash / Z15" }
-                p { (&record.equihash_z15) }
-            }
-            details class="vendor-evidence" {
-                summary { "Identity, payment, shipping and warranty evidence" }
-                dl {
-                    div { dt { "Legal identity and location" } dd { (&record.legal_identity_location) } }
-                    div { dt { "History and reputation" } dd { (&record.history_and_reputation) } }
-                    div { dt { "Payment protection" } dd { (&record.payment_protection) } }
-                    div { dt { "Shipping and customs" } dd { (&record.shipping_customs) } }
-                    div { dt { "Pickup" } dd { (&record.pickup) } }
-                    div { dt { "Warranty / RMA" } dd { (&record.warranty_rma) } }
-                    div { dt { "Delivery assessment" } dd { (&record.estimated_delivery_probability) } }
-                    div { dt { "Last verified" } dd { (record.last_verified.as_deref().unwrap_or("n/a")) } }
-                }
-                h4 { "Evidence links" }
-                (source_list(record))
-            }
-        }
-    }
-}
-
-fn warning_record(record: &VendorResearch) -> Markup {
-    html! {
-        article id={"vendor-" (&record.id)} class="vendor-warning-card" data-vendor-warning {
-            header {
-                div { p class="seller-label" { (&record.country) " · WARNING RECORD" } h3 { (&record.vendor) } }
-                span class="vendor-tier tier-d" { "TIER D" }
-            }
-            p { (&record.notes) }
-            details class="vendor-evidence" {
-                summary { "Why this record is excluded" }
-                p { strong { "Identity and history: " } (&record.legal_identity_location) " " (&record.history_and_reputation) }
-                p { strong { "Payment risk: " } (&record.payment_protection) }
-                p { strong { "Equihash / Z15: " } (&record.equihash_z15) }
-                h4 { "Evidence links" }
-                (source_list(record))
             }
         }
     }
@@ -447,7 +391,7 @@ fn seller_hashrate_range(rows: &[&Listing]) -> String {
             )
         }
         (Some(value), _) => format!("{} kSol/s", fmt::opt_num(Some(value))),
-        _ => "rating not stated".into(),
+        _ => "hashrate —".into(),
     }
 }
 
@@ -457,7 +401,7 @@ fn vendor_offer_table(d: &Data, rows: &[&Listing]) -> Markup {
         p class="vendor-offer-swipe" { "Swipe to compare all columns →" }
         div class="vendor-offer-table-wrap" {
             table class="vendor-offer-table" id="vendor-offer-table" {
-                thead { tr { th scope="col" { "Model / option" } th scope="col" { "Price" } th scope="col" { "Seller status" } th scope="col" { "Ships to" } th scope="col" { "Checked" } th scope="col" { "Source" } } }
+                thead { tr { th scope="col" { "Model / option" } th scope="col" { "Price" } th scope="col" { "Seller-declared status" } th scope="col" { "Ships to" } th scope="col" { "Checked" } th scope="col" { "Source" } } }
                 @for group in groups {
                     @let machine = machine_name(d, &group[0].miner_id);
                     tbody id={"vendor-listings-" (&group[0].miner_id)} {
@@ -468,12 +412,12 @@ fn vendor_offer_table(d: &Data, rows: &[&Listing]) -> Markup {
                         @for row in group {
                             tr {
                                 td data-label="Option" {
-                                    strong { (row.availability_label.as_deref().unwrap_or("Not stated")) }
+                                    strong { (row.availability_label.as_deref().unwrap_or("—")) }
                                     @if let Some(condition) = &row.condition { small { (condition.replace('_', " ")) } }
                                 }
                                 td data-label="Price" class="mono" { strong { (currency(row.price_amount, row.price_currency.as_deref())) } @if row.price_includes_vat == Some(false) { small { "ex VAT" } } }
-                                td data-label="Seller status" { span class={"vendor-market-state state-" (row.availability.as_deref().unwrap_or("unknown"))} { (row.availability.as_deref().unwrap_or("unknown").replace('_', " ")) } }
-                                td data-label="Ships to" { @if row.shipping_regions.is_empty() { "Not stated" } @else { (row.shipping_regions.join(", ")) } }
+                                td data-label="Seller-declared status" { span class={"vendor-market-state state-" (row.availability.as_deref().unwrap_or("unknown"))} { (row.availability.as_deref().unwrap_or("unknown").replace('_', " ")) } }
+                                td data-label="Ships to" { @if row.shipping_regions.is_empty() { "—" } @else { (row.shipping_regions.join(", ")) } }
                                 td data-label="Checked" { time class="ago" datetime=[row.observed_at.as_deref()] { (fmt::utc(row.observed_at.as_deref())) } }
                                 td data-label="Source" { @if let Some(url) = &row.source_url { (ext(url, "Open ↗")) } @else { "—" } }
                             }
@@ -512,70 +456,53 @@ fn vendor_product_market(d: &Data, v: &Vendor, rows: &[&Listing]) -> Markup {
                 }
             }
             (vendor_offer_table(d, rows))
-            p class="vendor-product-method" { "Seller pages can be stale. We record page claims; we do not verify inventory or fulfillment. Check the source and date before paying." }
+            p class="vendor-product-method" { "Prices, stock, batches and delivery wording are seller-declared page claims captured on the shown date. We do not verify inventory or fulfillment. Check the source before paying." }
         }
     }
 }
 
-fn vendor_directory_row(d: &Data, vendor: &Vendor, rows: &[&Listing], rank: usize) -> Markup {
-    let model_ids = rows
-        .iter()
-        .map(|row| row.miner_id.as_str())
-        .collect::<BTreeSet<_>>();
-    let model_names = model_ids
-        .iter()
-        .map(|id| machine_name(d, id))
-        .collect::<Vec<_>>();
-    let model_preview = match model_names.as_slice() {
-        [] => "No current models".into(),
-        [only] => only.clone(),
-        [first, second] => format!("{first}, {second}"),
-        [first, second, rest @ ..] => format!("{first}, {second} +{}", rest.len()),
+fn public_vendor_row(d: &Data, record: &VendorResearch, rating_sort: bool) -> Markup {
+    let profile = profile_for_research(d, record);
+    let rating_eligible = record.review_rating.is_some() && record.review_count.unwrap_or(0) >= 20;
+    let review = match (record.review_rating, record.review_count) {
+        (Some(rating), Some(count)) => {
+            format!("{rating:.1}/5 · {} reviews", fmt::group(count as i128))
+        }
+        (None, Some(count)) => format!("{} reviews", fmt::group(count as i128)),
+        (Some(rating), None) => format!("{rating:.1}/5"),
+        _ => "—".into(),
     };
-    let shipping = rows
-        .iter()
-        .flat_map(|row| row.shipping_regions.iter().map(String::as_str))
-        .collect::<BTreeSet<_>>();
-    let shipping_label = if shipping.contains("Global") {
-        "Global".into()
-    } else if shipping.is_empty() {
-        "Not stated".into()
-    } else {
-        shipping.iter().copied().collect::<Vec<_>>().join(", ")
-    };
-    let states = rows
-        .iter()
-        .filter_map(|row| row.availability.as_deref())
-        .collect::<Vec<_>>();
-    let latest_check = rows
-        .iter()
-        .filter_map(|row| row.observed_at.as_deref())
-        .max()
-        .or(vendor.observed_at.as_deref());
-    let research = research_for(d, vendor);
-    let tier = research.map(|record| format!("Tier {}", record.trust_tier));
-    let evidence = research
-        .map(|record| trust_label(&record.trust_tier))
-        .unwrap_or("Identity sources");
     html! {
-        tr class="vendor-market-row vendor-directory-row" data-machine=(model_ids.iter().copied().collect::<Vec<_>>().join(",")) data-base=(seller_region(vendor)) data-region=(shipping.iter().copied().collect::<Vec<_>>().join(",")) data-listing-state=(states.join(",")) data-vendor=(&vendor.id) {
-            td class="vendor-market-rank mono" { (rank) }
-            th scope="row" class="vendor-directory-entry" {
-                (vendor_mark(vendor, false))
-                span { a href={"/vendors/" (&vendor.slug)} { (&vendor.name) } small { (channel_label(vendor)) } }
+        tr id={"vendor-" (&record.id)} class="vendor-directory-public-row" data-vendor-record=(&record.id) {
+            th scope="row" class="vendor-directory-name" {
+                @if let Some(vendor) = profile {
+                    a href={"/vendors/" (&vendor.slug)} { (&record.vendor) }
+                } @else if let Some(url) = &record.website {
+                    (ext(url, &record.vendor))
+                } @else { (&record.vendor) }
+                small { (record_type_label(&record.record_type)) }
             }
-            td data-label="Vendor base" { strong { (vendor.base_region.as_deref().unwrap_or("Not established")) } }
-            td data-label="Equihash catalog" class="vendor-directory-catalog" { strong { (model_ids.len()) @if model_ids.len() == 1 { " model" } @else { " models" } " · " (rows.len()) @if rows.len() == 1 { " listing" } @else { " listings" } } small { (model_preview) } }
-            td data-label="Listing state" class="vendor-directory-states" {
-                @for state in ["in_stock", "dispatch_claim", "quote", "backorder", "preorder", "waitlist", "sold_out"] {
-                    @let count = states.iter().filter(|seen| **seen == state).count();
-                    @if count > 0 { span class={"vendor-market-state state-" (state)} { (count) " " (state.replace('_', " ")) } }
+            td data-label="Location" { strong { (&record.country) } small { (&record.region) } }
+            td data-label="Declared availability" class="vendor-directory-availability" { (availability_label(&record.declared_availability)) }
+            td data-label="Trustpilot snapshot" class="vendor-directory-review" {
+                @if let Some(url) = &record.review_source_url { (ext(url, &review)) } @else { (review) }
+                @if rating_sort && !rating_eligible { small { "Insufficient sample for rating sort" } }
+                @else if let Some(date) = &record.review_snapshot_date { small { (record.review_platform.as_deref().unwrap_or("Third-party review")) " · " (date) } }
+            }
+            td data-label="Verified company year" class="mono" {
+                @if let Some(year) = record.company_incorporated_year_verified { (year) }
+                @else { "—" }
+            }
+            td data-label="Checked" class="mono" { (record.last_verified.as_deref().unwrap_or("—")) }
+            td data-label="Record" class="vendor-directory-links" {
+                @if let Some(vendor) = profile { a href={"/vendors/" (&vendor.slug)} { "Profile" } }
+                @if let Some(url) = &record.website { (ext(url, "Website ↗")) }
+                details class="vendor-directory-sources" {
+                    summary { "Sources " (record.source_urls.len()) }
+                    (source_list(record))
                 }
+                a href={"/add-vendor?record=" (&record.id)} { "Correction" }
             }
-            td data-label="Ships to" { (shipping_label) }
-            td data-label="Evidence" class="vendor-directory-evidence" { strong { (tier.as_deref().unwrap_or("Profile")) } small { (evidence) } }
-            td data-label="Checked" { time class="ago" datetime=[latest_check] { (fmt::utc(latest_check)) } }
-            td data-label="Vendor" class="vendor-directory-action" { a href={"/vendors/" (&vendor.slug)} { "View →" } }
         }
     }
 }
@@ -594,85 +521,135 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
     let base = q.base.as_deref().unwrap_or("");
     let region = q.region.as_deref().unwrap_or("");
     let state = q.state.as_deref().unwrap_or("");
-    let mut visible: Vec<(&Vendor, Vec<&Listing>)> = d
-        .vendors
+    let needle = q.vendor_q.as_deref().unwrap_or("").trim().to_lowercase();
+    let vendor_region = q.vendor_region.as_deref().unwrap_or("");
+    let availability = q.availability.as_deref().unwrap_or("");
+    let sort = match q.sort.as_deref().unwrap_or("alphabetical") {
+        "declared_availability"
+        | "review_count"
+        | "review_rating_min_20"
+        | "company_age"
+        | "manufacturer_direct"
+        | "last_verified" => q.sort.as_deref().unwrap(),
+        _ => "alphabetical",
+    };
+    let legacy_filter =
+        !machine.is_empty() || !base.is_empty() || !region.is_empty() || !state.is_empty();
+    let mut visible: Vec<&VendorResearch> = d
+        .vendor_research
         .iter()
-        .filter_map(|v| {
-            if research_for(d, v)
-                .map(|record| record.trust_tier == "D")
-                .unwrap_or(false)
-            {
-                return None;
-            }
-            if !base.is_empty() && seller_region(v) != base {
-                return None;
-            }
-            let mut rows: Vec<&Listing> = d
-                .listings
+        .filter(|record| record.record_type != "coverage_gap")
+        .filter(|record| {
+            needle.is_empty()
+                || [
+                    record.vendor.as_str(),
+                    record.country.as_str(),
+                    record.region.as_str(),
+                    record.equihash_z15_claim.as_str(),
+                ]
                 .iter()
-                .filter(|l| l.vendor_id == v.id && matches(l, machine, region, state))
-                .collect();
-            rows.sort_by(|a, b| {
-                a.miner_id.cmp(&b.miner_id).then_with(|| {
-                    a.price_amount
-                        .partial_cmp(&b.price_amount)
-                        .unwrap_or(std::cmp::Ordering::Equal)
+                .any(|value| value.to_lowercase().contains(&needle))
+        })
+        .filter(|record| vendor_region.is_empty() || record.region == vendor_region)
+        .filter(|record| availability.is_empty() || record.declared_availability == availability)
+        .filter(|record| {
+            if !legacy_filter {
+                return true;
+            }
+            let Some(vendor) = profile_for_research(d, record) else {
+                return false;
+            };
+            (base.is_empty() || seller_region(vendor) == base)
+                && d.listings.iter().any(|listing| {
+                    listing.vendor_id == vendor.id && matches(listing, machine, region, state)
                 })
-            });
-            (!rows.is_empty()).then_some((v, rows))
         })
         .collect();
-    visible.sort_by(|(vendor_a, _), (vendor_b, _)| {
-        let key = |vendor: &Vendor| {
-            let maker = u8::from(vendor.channel.as_deref() != Some("manufacturer"));
-            let rank = research_for(d, vendor)
-                .and_then(|record| record.global_trust_rank)
-                .unwrap_or(u16::MAX);
-            (maker, rank)
+    let alpha = |a: &&VendorResearch, b: &&VendorResearch| {
+        a.vendor
+            .to_lowercase()
+            .cmp(&b.vendor.to_lowercase())
+            .then_with(|| a.id.cmp(&b.id))
+    };
+    visible.sort_by(|a, b| {
+        use std::cmp::Ordering;
+        let primary = match sort {
+            "declared_availability" => availability_rank(&a.declared_availability)
+                .cmp(&availability_rank(&b.declared_availability)),
+            "review_count" => match (a.review_count, b.review_count) {
+                (Some(a), Some(b)) => b.cmp(&a),
+                (Some(_), None) => Ordering::Less,
+                (None, Some(_)) => Ordering::Greater,
+                _ => Ordering::Equal,
+            },
+            "review_rating_min_20" => {
+                let a_ok = a.review_rating.is_some() && a.review_count.unwrap_or(0) >= 20;
+                let b_ok = b.review_rating.is_some() && b.review_count.unwrap_or(0) >= 20;
+                b_ok.cmp(&a_ok)
+                    .then_with(|| match (a.review_rating, b.review_rating) {
+                        (Some(a_rating), Some(b_rating)) if a_ok && b_ok => b_rating
+                            .total_cmp(&a_rating)
+                            .then_with(|| b.review_count.cmp(&a.review_count)),
+                        _ => Ordering::Equal,
+                    })
+            }
+            "company_age" => match (
+                a.company_incorporated_year_verified,
+                b.company_incorporated_year_verified,
+            ) {
+                (Some(a), Some(b)) => a.cmp(&b),
+                (Some(_), None) => Ordering::Less,
+                (None, Some(_)) => Ordering::Greater,
+                _ => Ordering::Equal,
+            },
+            "manufacturer_direct" => b.manufacturer_direct.cmp(&a.manufacturer_direct),
+            "last_verified" => match (&a.last_verified, &b.last_verified) {
+                (Some(a), Some(b)) => b.cmp(a),
+                (Some(_), None) => Ordering::Less,
+                (None, Some(_)) => Ordering::Greater,
+                _ => Ordering::Equal,
+            },
+            _ => Ordering::Equal,
         };
-        key(vendor_a)
-            .cmp(&key(vendor_b))
-            .then_with(|| vendor_a.name.cmp(&vendor_b.name))
+        primary.then_with(|| alpha(a, b))
     });
-    let mut machines: Vec<_> = d
-        .miners
-        .iter()
-        .filter(|m| d.listings.iter().any(|l| l.miner_id == m.id))
-        .collect();
-    machines.sort_by(|a, b| a.model.cmp(&b.model));
-    let mut destinations: Vec<String> = d
-        .listings
-        .iter()
-        .flat_map(|l| l.shipping_regions.iter().cloned())
-        .collect();
-    destinations.sort();
-    destinations.dedup();
-    let mut states: Vec<String> = d
-        .listings
-        .iter()
-        .filter_map(|l| l.availability.clone())
-        .collect();
-    states.sort();
-    states.dedup();
-    let offers = visible.iter().map(|(_, rows)| rows.len()).sum::<usize>();
-    let offer_models = visible
-        .iter()
-        .flat_map(|(_, rows)| rows.iter().map(|row| row.miner_id.as_str()))
-        .collect::<BTreeSet<_>>()
-        .len();
-    let published: Vec<_> = d
+    let regions = d
         .vendor_research
         .iter()
-        .filter(|record| matches!(record.trust_tier.as_str(), "A" | "B" | "C"))
-        .collect();
-    let warnings: Vec<_> = d
+        .filter(|record| record.record_type != "coverage_gap")
+        .map(|record| record.region.as_str())
+        .collect::<BTreeSet<_>>();
+    let public_records = d
         .vendor_research
         .iter()
-        .filter(|record| record.trust_tier == "D")
-        .collect();
+        .filter(|record| record.record_type != "coverage_gap")
+        .count();
+    let review_snapshots = d
+        .vendor_research
+        .iter()
+        .filter(|record| record.record_type != "coverage_gap" && record.review_platform.is_some())
+        .count();
+    let rating_eligible = d
+        .vendor_research
+        .iter()
+        .filter(|record| {
+            record.record_type != "coverage_gap"
+                && record.review_rating.is_some()
+                && record.review_count.unwrap_or(0) >= 20
+        })
+        .count();
+    let (sort_label, sort_rule) = match sort {
+        "declared_availability" => ("Seller-declared availability", "Documented state order; seller/public claims first, unknown and non-current records later. No stock is physically audited unless expressly stated."),
+        "review_count" => ("Trustpilot review count", "Largest dated Trustpilot sample first; missing review counts last."),
+        "review_rating_min_20" => ("Trustpilot rating (20+ reviews)", "Highest dated Trustpilot rating first for samples of at least 20; review count breaks ties; smaller or missing samples appear last."),
+        "company_age" => ("Verified company incorporation year", "Oldest verified incorporation year first; missing years last. Company age is not a quality guarantee."),
+        "manufacturer_direct" => ("Manufacturer direct", "Manufacturer-operated shops first, then alphabetical. This does not imply current stock or destination support."),
+        "last_verified" => ("Most recently verified", "Newest evidence date first; missing dates last."),
+        _ => ("Alphabetical", "Vendor name A–Z. No Equihash.com recommendation or quality judgment is implied."),
+    };
     layout(d, Page {
         title: "Equihash ASIC vendor directory",
-        description: "Browse Equihash ASIC vendors by location, delivery region, current models, listing status and source-check date.",
+        description: "Alphabetical ASIC vendor directory with seller-attributed availability, dated Trustpilot snapshots, verified company years and transparent sorting rules.",
         path: "/vendors",
         nav: "vendors",
     }, html! {
@@ -680,79 +657,44 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             header class="page-head buy-head" {
                 p class="eyebrow" { "EQUIHASH VENDOR DIRECTORY" }
                 h1 { "ASIC vendors" }
-                p class="lede" { "One record per vendor. Open a vendor to inspect its Equihash models, batches, prices and source checks." }
+                p class="lede" { "One record per vendor. Alphabetical by default, with optional sorting by a single disclosed factor." }
             }
             dl class="vendor-directory-stats" {
-                div { dt { "Vendors" } dd { (visible.len()) } }
-                div { dt { "Listings" } dd { (offers) } }
-                div { dt { "Models" } dd { (offer_models) } }
-                div { dt { "Listings checked" } dd { (fmt::utc(d.listings_verified_at.as_deref())) } }
+                div { dt { "Public records" } dd { (public_records) } }
+                div { dt { "Trustpilot snapshots" } dd { (review_snapshots) } }
+                div { dt { "Rating-sort eligible" } dd { (rating_eligible) } }
+                div { dt { "Evidence snapshot" } dd { (d.vendor_research_as_of.as_deref().unwrap_or("—")) } }
             }
-            form class="filters buy-filters" id="buy-filters" action="/vendors" method="get" {
-                div class="f" { label for="buy-machine" { "Machine" } select id="buy-machine" name="machine" data-buy-filter="machine" { option value="" selected[machine.is_empty()] { "All machines" } @for m in &machines { option value=(m.id) selected[m.id == machine] { (m.maker) " " (m.model) } } } }
-                div class="f" { label for="buy-base" { "Vendor base" } select id="buy-base" name="base" data-buy-filter="base" { option value="" selected[base.is_empty()] { "All vendor regions" } @for r in SELLER_REGIONS { @if d.vendors.iter().any(|v| seller_region(v) == *r) { option value=(r) selected[*r == base] { (r) } } } } }
-                div class="f" { label for="buy-region" { "Ships to" } select id="buy-region" name="region" data-buy-filter="region" { option value="" selected[region.is_empty()] { "All destinations" } @for r in &destinations { option value=(r) selected[r == region] { (r) } } } }
-                div class="f" { label for="buy-state" { "Listing state" } select id="buy-state" name="state" data-buy-filter="state" { option value="" selected[state.is_empty()] { "All states" } @for s in &states { option value=(s) selected[s == state] { (s.replace('_', " ")) } } } }
+            aside class="vendor-directory-notice" aria-labelledby="vendor-directory-notice-title" {
+                strong id="vendor-directory-notice-title" { "How this directory works" }
+                p { (d.vendor_research_disclaimer.as_deref().unwrap_or("Informational directory only. Inclusion, position, seller claims and third-party reviews are not endorsements or guarantees.")) }
+                p { "Availability is seller-declared unless expressly stated otherwise. Paid listings and affiliate relationships cannot influence the default order. " a href="/add-vendor#correction" { "Request a correction" } "." }
+            }
+            form class="filters vendor-directory-filters" action="/vendors" method="get" {
+                div class="f" { label for="vendor-q" { "Search" } input id="vendor-q" type="search" name="vendor_q" value=(q.vendor_q.as_deref().unwrap_or("")) placeholder="Vendor or country"; }
+                div class="f" { label for="vendor-region" { "Region" } select id="vendor-region" name="vendor_region" { option value="" selected[vendor_region.is_empty()] { "All regions" } @for item in &regions { option value=(item) selected[*item == vendor_region] { (item) } } } }
+                div class="f" { label for="vendor-availability" { "Declared availability" } select id="vendor-availability" name="availability" { option value="" selected[availability.is_empty()] { "All states" } @for item in ["seller_declared_spot_or_near_term", "preorder_or_future_batch", "historical_or_used", "unknown_or_quote_required", "sold_out_or_no_current_listing", "not_applicable_warning_record"] { option value=(item) selected[item == availability] { (availability_label(item)) } } } }
+                div class="f" { label for="vendor-sort" { "Sort by" } select id="vendor-sort" name="sort" { option value="alphabetical" selected[sort == "alphabetical"] { "Alphabetical" } option value="declared_availability" selected[sort == "declared_availability"] { "Seller-declared availability" } option value="review_count" selected[sort == "review_count"] { "Trustpilot review count" } option value="review_rating_min_20" selected[sort == "review_rating_min_20"] { "Trustpilot rating (20+ reviews)" } option value="company_age" selected[sort == "company_age"] { "Verified company age" } option value="domain_age" disabled { "Verified domain age — unavailable" } option value="manufacturer_direct" selected[sort == "manufacturer_direct"] { "Manufacturer direct" } option value="last_verified" selected[sort == "last_verified"] { "Most recently verified" } } }
                 button class="buy-apply" type="submit" { "Apply" }
-                p class="buy-count" id="buy-count" aria-live="polite" { (visible.len()) @if visible.len() == 1 { " vendor" } @else { " vendors" } }
+                p class="buy-count" aria-live="polite" { (visible.len()) @if visible.len() == 1 { " record" } @else { " records" } }
             }
-            @if visible.is_empty() { div class="empty-state" { h2 { "No vendor matches those filters" } p { "Clear a filter or send a public product page for review." } a href="/add-vendor" { "Add a vendor" } } }
+            div class="vendor-sort-status" { strong { "Sorted by: " (sort_label) } span { (sort_rule) } }
+            p class="vendor-domain-note" { "Domain-age sorting is disabled: none of the 87 source records has a verified domain-registration year." }
+            @if visible.is_empty() { div class="empty-state" { h2 { "No vendor matches those filters" } p { "Clear a filter or submit a sourced correction." } a href="/add-vendor" { "Add or correct a vendor" } } }
             @if !visible.is_empty() {
                 div class="vendor-market-table-wrap" {
                     table class="vendor-market-table" {
-                        thead { tr { th scope="col" { "#" } th scope="col" { "Vendor" } th scope="col" { "Vendor base" } th scope="col" { "Equihash catalog" } th scope="col" { "Listing state" } th scope="col" { "Ships to" } th scope="col" { "Evidence" } th scope="col" { "Checked" } th scope="col" { "" } } }
+                        thead { tr { th scope="col" { "Vendor" } th scope="col" { "Location" } th scope="col" { "Declared Equihash availability" } th scope="col" { "Trustpilot snapshot" } th scope="col" { "Verified company year" } th scope="col" { "Checked" } th scope="col" { "Record" } } }
                         tbody {
-                            @for (index, (vendor, rows)) in visible.iter().enumerate() {
-                                (vendor_directory_row(d, vendor, rows, index + 1))
+                            @for record in &visible {
+                                (public_vendor_row(d, record, sort == "review_rating_min_20"))
                             }
                         }
                     }
                 }
-                p class="vendor-market-disclosure" { "Each vendor appears once. Product offers and batch records are kept on the vendor profile and the relevant ASIC model page." }
+                p class="vendor-market-disclosure" { "One row per public record. Blank values were not established in the cited evidence and are not inferred." }
             }
-            details class="vendor-global-directory" {
-                summary { strong { "Vendor research" } span { (published.len()) " companies · checked " (d.vendor_research_as_of.as_deref().unwrap_or("n/a")) } }
-                div class="vendor-register-body" {
-                header class="vendor-directory-section-head" {
-                    p class="eyebrow" { "VENDOR RESEARCH" }
-                    h2 id="global-vendors-title" { "Manufacturers and sellers by region" }
-                }
-                form class="vendor-research-filters" id="vendor-research-filters" role="search" {
-                    div class="f" { label for="vendor-research-q" { "Search" } input id="vendor-research-q" type="search" name="vendor_q" placeholder="Vendor, country or Z15" autocomplete="off"; }
-                    div class="f" { label for="vendor-research-region" { "Region" } select id="vendor-research-region" name="vendor_region" { option value="" { "All regions" } @for region in RESEARCH_REGIONS { option value=(region) { (region) } } } }
-                    div class="f" { label for="vendor-research-tier" { "Evidence tier" } select id="vendor-research-tier" name="vendor_tier" { option value="" { "Tiers A–C" } option value="A" { "Tier A" } option value="B" { "Tier B" } option value="C" { "Tier C" } } }
-                    button class="buy-apply" type="submit" { "Apply" }
-                    p class="buy-count" id="vendor-research-count" aria-live="polite" { (published.len()) " researched vendors" }
-                }
-                nav class="vendor-region-index vendor-research-index" aria-label="Global research regions" {
-                    @for region in RESEARCH_REGIONS {
-                        @let count = published.iter().filter(|record| record.region == *region).count();
-                        @if count > 0 { a href={"#research-region-" (region.to_ascii_lowercase().replace(' ', "-"))} { (region) span { (count) } } }
-                    }
-                }
-                div id="vendor-research-empty" class="empty-state" hidden { h3 { "No research record matches those filters" } p { "Try a shorter name or clear a filter." } }
-                @for region in RESEARCH_REGIONS {
-                    @let records: Vec<_> = published.iter().filter(|record| record.region == *region).collect();
-                    @if !records.is_empty() {
-                        section id={"research-region-" (region.to_ascii_lowercase().replace(' ', "-"))} class="vendor-research-region" data-vendor-research-region {
-                            header class="seller-region-head" { h3 { (region) } p { (records.len()) " records" } }
-                            @for record in records { (research_record(record)) }
-                        }
-                    }
-                }
-                }
-            }
-            details class="vendor-warning-register" {
-                summary { strong { "Warning records" } span { (warnings.len()) " excluded sellers" } }
-                div class="vendor-register-body" {
-                header class="vendor-directory-section-head" {
-                    p class="eyebrow" { "WARNING REGISTER" }
-                    h2 id="vendor-warnings-title" { "Sellers excluded from listing results" }
-                }
-                div class="vendor-warning-list" { @for record in &warnings { (warning_record(record)) } }
-                }
-            }
-            footer class="vendor-directory-footer" { a href="/add-vendor" { "Add a vendor or correct a listing" } span { "Listings are free; ranking cannot be purchased." } }
+            footer class="vendor-directory-footer" { a href="/add-vendor#correction" { "Add a vendor or request a correction" } span { "No paid position, affiliate relationship or house score changes this order." } }
         }
     })
 }
@@ -760,7 +702,7 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
 pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
     let research = research_for(d, v);
     let warning = research
-        .map(|record| record.trust_tier == "D")
+        .map(|record| record.record_type == "public_warning_record")
         .unwrap_or(false);
     let mut rows: Vec<_> = if warning {
         Vec::new()
@@ -787,13 +729,6 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
         .filter_map(|row| row.observed_at.as_deref())
         .max()
         .or(v.observed_at.as_deref());
-    let evidence_label = research.map(|record| match record.trust_tier.as_str() {
-        "A" => "Extensive identity record",
-        "B" => "Identity record reviewed",
-        "C" => "Limited identity record",
-        "D" => "Warning record",
-        _ => "Coverage record",
-    });
     let title = format!("{} Equihash miners and listings", v.name);
     let desc = format!(
         "Equihash miner models, seller-listed prices and source dates for {}.",
@@ -849,21 +784,25 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
                     header class="page-head vendor-profile-head" {
                         (vendor_mark(v, true))
                         div {
-                            p class="vendor-profile-kicker" { (channel_label(v)) @if let Some(label) = evidence_label { " · " (label) } }
+                            p class="vendor-profile-kicker" { (channel_label(v)) }
                             h1 id="vendor-name" { (v.name) }
                             div class="vendor-profile-actions" {
                                 @if !warning { @if let Some(url) = &v.url { (ext(url, "Visit vendor ↗")) } }
                                 (crate::views::pages::copy_link(&path, "Copy link to this vendor"))
-                                a href="/contribute" { "Report a correction" }
+                                a href={"/add-vendor?record=" (&v.id) "#correction"} { "Request a correction" }
                             }
                         }
                     }
                     dl class="vendor-profile-metrics" {
                         div { dt { "Models" } dd { (model_count) } }
                         div { dt { "Listings" } dd { (rows.len()) } }
-                        div { dt { "Seller base" } dd { (v.base_region.as_deref().unwrap_or("Not established")) } }
+                        div { dt { "Vendor base" } dd { (v.base_region.as_deref().unwrap_or("—")) } }
                         div { dt { "Checked" } dd { (fmt::utc(latest_check)) } }
                     }
+                }
+                aside class="vendor-profile-directory-note" {
+                    strong { "Seller record" }
+                    p { "Prices, stock, batches and delivery wording below are seller-declared page claims captured on the shown date. Inclusion is not an endorsement or a fulfillment guarantee." }
                 }
                 @if warning {
                     aside class="vendor-profile-warning" { strong { "Warning record" } p { "Product links are withheld. This entry is kept so readers can identify the seller and inspect the evidence." } }
@@ -877,22 +816,23 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
                     div class="vendor-profile-evidence-body" {
                         dl class="vendor-dossier" {
                             div { dt { "Relationship" } dd { (channel_label(v)) } }
-                            div { dt { "Seller base" } dd { (v.base_region.as_deref().unwrap_or("Not established")) } }
-                            div { dt { "Legal entity" } dd { (v.legal_name.as_deref().unwrap_or("Not established")) } }
-                            div { dt { "Registration" } dd { (v.registration.as_deref().unwrap_or("Not established")) } }
-                            div { dt { "Ships to" } dd { @if v.regions.is_empty() { "Not stated" } @else { (v.regions.join(", ")) } } }
+                            div { dt { "Vendor base" } dd { (v.base_region.as_deref().unwrap_or("—")) } }
+                            div { dt { "Legal entity" } dd { (v.legal_name.as_deref().unwrap_or("—")) } }
+                            div { dt { "Registration" } dd { (v.registration.as_deref().unwrap_or("—")) } }
+                            div { dt { "Ships to" } dd { @if v.regions.is_empty() { "—" } @else { (v.regions.join(", ")) } } }
                             div { dt { "Record checked" } dd { (fmt::utc(v.observed_at.as_deref())) } }
                         }
-                        @if let Some(label) = &v.verification_label { p class="vendor-evidence-line" { strong { "Identity check: " } (label) } }
+                        @if let Some(label) = &v.verification_label { p class="vendor-evidence-line" { strong { "Identity source: " } (label) } }
                         @if let Some(record) = research {
-                            p class="vendor-evidence-line" { (&record.notes) }
+                            p class="vendor-evidence-line" { (&record.legal_identity_and_location_summary) }
                             dl class="vendor-research-facts" {
-                                div { dt { "Equihash" } dd { (&record.equihash_z15) } }
-                                div { dt { "History" } dd { (&record.history_and_reputation) } }
-                                div { dt { "Payments" } dd { (&record.payment_protection) } }
+                                div { dt { "Equihash" } dd { (&record.equihash_z15_claim) } }
+                                div { dt { "Declared availability" } dd { (availability_label(&record.declared_availability)) } }
+                                div { dt { "Payments" } dd { (&record.payment_methods_and_protection) } }
                                 div { dt { "Shipping" } dd { (&record.shipping_customs) } }
                                 div { dt { "Warranty / RMA" } dd { (&record.warranty_rma) } }
-                                div { dt { "Research checked" } dd { (record.last_verified.as_deref().unwrap_or("n/a")) } }
+                                div { dt { "Trustpilot snapshot" } dd { @if let (Some(rating), Some(count)) = (record.review_rating, record.review_count) { (format!("{rating:.1}/5 · {} reviews", fmt::group(count as i128))) @if let Some(date) = &record.review_snapshot_date { " · " (date) } } @else { "—" } } }
+                                div { dt { "Record checked" } dd { (record.last_verified.as_deref().unwrap_or("—")) } }
                             }
                         }
                         nav class="vendor-profile-source-links" aria-label="Vendor evidence links" {
@@ -915,8 +855,9 @@ pub fn add_vendor(d: &Data) -> Markup {
         path: "/add-vendor",
         nav: "vendors",
     }, html! {
-        div class="wrap page narrow prose" {
-            header class="page-head" { h1 { "Add a vendor" } p class="lede" { "Directory inclusion is free. Submit public company and listing pages that readers can inspect without an account." } }
+        div class="wrap page narrow prose" id="correction" {
+            header class="page-head" { h1 { "Add or correct a vendor" } p class="lede" { "Directory inclusion and factual corrections are free. Submit public company and listing pages that readers can inspect without an account." } }
+            p { "For a correction, include the record ID, the field that is wrong, the proposed wording and a primary source. Clear factual errors are corrected without changing a vendor's position for commercial reasons." }
             h2 { "What to send" }
             ol { li { strong { "Publish the facts. " } "Company identity, seller location, availability, price and delivery wording must be visible on public pages." } li { strong { "Send the sources. " } "Copy the template and send it to " a href="https://x.com/MykytaSamardak" rel="noopener" { "@MykytaSamardak on X" } "." } }
             div class="tpl" { div class="tpl-head" { span { "Vendor template" } button class="btn small" type="button" data-copy="#tpl-vendor" { "Copy" } } pre id="tpl-vendor" { (template) } }

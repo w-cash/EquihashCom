@@ -237,7 +237,6 @@ button, .btn, .ed-primary, .ed-dark-button, .ed-light-button, .buy-apply {
 .vendor-market-table th, .vendor-market-table td { padding-top: 11px; padding-bottom: 11px; }
 .vendor-market-machine img { background: #f3f4f0; }
 .vendor-market-state { border-radius: 0; }
-.vendor-global-directory > summary strong, .vendor-warning-register > summary strong { font: 600 17px/1.2 var(--sans); }
 .buy-vendor-page { --vendor-accent: #697068; --vendor-deep: #30352f; --vendor-tint: #e8ebe5; }
 .vendor-identity {
   position: relative;
@@ -314,10 +313,8 @@ button, .btn, .ed-primary, .ed-dark-button, .ed-light-button, .buy-apply {
 .vendor-offer-image { min-height: 270px; }
 .vendor-offer-image img { height: 250px; }
 .vendor-offer-info h2 { font: 600 clamp(25px, 2.6vw, 33px)/1.08 var(--sans); }
-.vendor-profile-research, .vendor-evidence > dl { background: #e8ebe4; }
 .vendor-directory-section-head { margin-top: 50px; }
 .vendor-directory-section-head h2, .vendor-z15-brief h2 { font: 600 clamp(27px, 3vw, 38px)/1.08 var(--sans); }
-.vendor-research-head h3, .vendor-warning-card h3 { font-family: var(--sans); }
 
 /* ASIC index and machine records. */
 .asic-index .page-head { align-items: end; }

@@ -553,9 +553,8 @@ pub struct Vendor {
     pub logo: crate::views::logo::Logo,
 }
 
-/// Editorial research about an ASIC seller or warning record. This stays separate from `Vendor`:
-/// a researched company may have no current Equihash offer, while a dated listing is not proof of
-/// inventory or fulfillment.
+/// Public, attributed facts about an ASIC vendor or reference record. This deliberately excludes
+/// house trust tiers, composite scores, rankings, recommendations and delivery predictions.
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(default)]
 pub struct VendorResearch {
@@ -564,22 +563,26 @@ pub struct VendorResearch {
     pub country: String,
     pub vendor: String,
     pub website: Option<String>,
-    pub vendor_type: String,
-    pub trust_tier: String,
-    pub editorial_trust_score_100: Option<u8>,
-    pub status: String,
-    pub legal_identity_location: String,
-    pub history_and_reputation: String,
-    pub payment_protection: String,
+    pub record_type: String,
+    pub manufacturer_direct: bool,
+    pub legal_identity_and_location_summary: String,
+    pub company_incorporated_year_verified: Option<u16>,
+    pub public_operating_since_year: Option<u16>,
+    pub domain_registered_year_verified: Option<u16>,
+    pub review_platform: Option<String>,
+    pub review_rating: Option<f64>,
+    pub review_count: Option<u64>,
+    pub review_snapshot_date: Option<String>,
+    pub review_source_url: Option<String>,
+    pub declared_availability: String,
+    pub availability_basis: String,
+    pub equihash_z15_claim: String,
+    pub payment_methods_and_protection: String,
     pub shipping_customs: String,
     pub pickup: String,
     pub warranty_rma: String,
-    pub equihash_z15: String,
-    pub estimated_delivery_probability: String,
-    pub notes: String,
     pub source_urls: Vec<String>,
     pub last_verified: Option<String>,
-    pub global_trust_rank: Option<u16>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
@@ -786,6 +789,8 @@ struct VendorsFile {
 #[serde(default)]
 struct VendorDirectoryFile {
     as_of: Option<String>,
+    default_order: Option<String>,
+    disclaimer: Option<String>,
     vendors: Vec<VendorResearch>,
 }
 #[derive(Deserialize, Default)]
@@ -818,6 +823,7 @@ pub struct Data {
     pub vendors_verified_at: Option<String>,
     pub vendor_research: Vec<VendorResearch>,
     pub vendor_research_as_of: Option<String>,
+    pub vendor_research_disclaimer: Option<String>,
     pub listings: Vec<Listing>,
     pub listings_verified_at: Option<String>,
     pub hashpower: HashpowerMarket,
@@ -1050,6 +1056,10 @@ pub fn safe_url(u: &str) -> Option<String> {
 /// Drop a URL field that isn't `safe_url`, noting what was dropped.
 fn clean_url(v: &mut Option<String>, what: &str, dropped: &mut Vec<String>) {
     if let Some(u) = v.as_deref() {
+        if u.trim().is_empty() {
+            *v = None;
+            return;
+        }
         match safe_url(u) {
             Some(ok) => *v = Some(ok),
             None => {
@@ -1898,6 +1908,11 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
             &format!("vendor research {} website", v.id),
             &mut dropped,
         );
+        clean_url(
+            &mut v.review_source_url,
+            &format!("vendor research {} review_source_url", v.id),
+            &mut dropped,
+        );
         v.source_urls.retain(|url| {
             let ok = safe_url(url).is_some();
             if !ok {
@@ -1906,7 +1921,22 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
             ok
         });
     }
-    vdf.vendors.sort_by_key(|v| v.global_trust_rank);
+    if let Some(default_order) = &vdf.default_order {
+        if !default_order
+            .to_ascii_lowercase()
+            .starts_with("alphabetical")
+        {
+            return Err(format!(
+                "vendor-directory.json: unsupported default_order {default_order:?}; public vendor records must default to alphabetical order"
+            ));
+        }
+    }
+    vdf.vendors.sort_by(|a, b| {
+        a.vendor
+            .to_lowercase()
+            .cmp(&b.vendor.to_lowercase())
+            .then_with(|| a.id.cmp(&b.id))
+    });
     for l in lf.listings.iter_mut() {
         clean_url(
             &mut l.product_url,
@@ -1994,6 +2024,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         vendors_verified_at: vf.verified_at,
         vendor_research: vdf.vendors,
         vendor_research_as_of: vdf.as_of,
+        vendor_research_disclaimer: vdf.disclaimer,
         listings: lf.listings,
         listings_verified_at: lf.verified_at,
         hashpower: hf.nicehash,

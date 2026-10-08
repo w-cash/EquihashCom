@@ -412,7 +412,7 @@ Updated: {updated}
 - [Networks JSON]({site}/data/network.json)
 - [ASIC JSON]({site}/data/miners.json)
 - [Vendors JSON]({site}/data/vendors.json)
-- [Global vendor research JSON]({site}/data/vendor-directory.json)
+- [Global vendor directory JSON]({site}/data/vendor-directory.json)
 - [Listings JSON]({site}/data/listings.json)
 - [Hashpower JSON]({site}/data/hashpower.json)
 - [Cypherpunk Zcash research data]({site}/data/cypherpunk-zcash.json)
@@ -421,7 +421,8 @@ Updated: {updated}
 ## Editorial notes
 
 - Pool and market figures are time-stamped snapshots from public project, pool and API sources.
-- Missing values remain n/a; listings are free and cannot buy ranking.
+- Vendor records are alphabetical by default. Optional sorts disclose their single factor; paid listings and affiliate relationships cannot change the default order.
+- Availability is seller-declared unless expressly stated, third-party reviews are dated snapshots, and missing vendor facts remain blank rather than inferred.
 - equihash.com and Wcash share a maintainer. Wcash receives work only from participating merged-mining pools.
 - Mining estimates are not forecasts or financial advice.
 "#
@@ -1102,22 +1103,14 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn global_vendor_research_keeps_offers_and_warnings_separate() {
+    async fn vendor_directory_uses_neutral_records_and_disclosed_sorts() {
         let s = state();
         assert_eq!(s.get().vendor_research.len(), 87);
         assert_eq!(
             s.get()
                 .vendor_research
                 .iter()
-                .filter(|record| record.trust_tier == "D")
-                .count(),
-            16
-        );
-        assert_eq!(
-            s.get()
-                .vendor_research
-                .iter()
-                .filter(|record| record.trust_tier == "N/A")
+                .filter(|record| record.record_type == "coverage_gap")
                 .count(),
             2
         );
@@ -1127,16 +1120,60 @@ mod tests {
                 .await;
         let directory = String::from_utf8(directory.to_vec()).unwrap();
         assert!(directory.contains("<h1>ASIC vendors</h1>"));
-        assert!(directory.contains("33</dd>"));
-        assert_eq!(directory.matches("vendor-directory-row").count(), 10);
-        assert_eq!(directory.matches(r#"data-vendor="bt-miners""#).count(), 1);
-        assert_eq!(directory.matches(r#"data-vendor="805-mining""#).count(), 1);
-        assert!(directory.contains("6 models · 9 listings"));
-        assert!(directory.contains("Each vendor appears once"));
-        assert!(!directory.contains("March 2027 batch — not immediate stock"));
-        assert!(directory.contains("16 excluded sellers"));
+        assert!(directory.contains("85</dd>"));
+        assert!(directory.contains("49</dd>"));
+        assert!(directory.contains("26</dd>"));
+        assert_eq!(directory.matches("vendor-directory-public-row").count(), 85);
+        assert!(directory.contains("Sorted by: Alphabetical"));
+        assert!(directory.contains("No Equihash.com recommendation or quality judgment is implied"));
+        assert!(directory.contains("Domain-age sorting is disabled"));
+        assert!(directory.contains("seller-declared unless expressly stated otherwise"));
+        assert!(directory.contains(
+            "Paid listings and affiliate relationships cannot influence the default order"
+        ));
+        assert!(directory.find("21energy").unwrap() < directory.find("21Mining").unwrap());
+        assert!(!directory.contains("Tier A"));
+        assert!(!directory.contains("Strongest evidence"));
+        assert!(!directory.contains("global rank"));
+        assert!(!directory.contains("delivery probability"));
         assert!(!directory.contains("No weak substitute was invented"));
         assert!(!directory.contains("No vetted local Z15 source identified"));
+
+        let review_count = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/vendors?sort=review_count")
+                .to_request(),
+        )
+        .await;
+        let review_count = String::from_utf8(review_count.to_vec()).unwrap();
+        assert!(review_count.contains("Sorted by: Trustpilot review count"));
+        assert!(review_count.find("Mineshop.eu").unwrap() < review_count.find("21energy").unwrap());
+
+        let rating = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/vendors?sort=review_rating_min_20")
+                .to_request(),
+        )
+        .await;
+        let rating = String::from_utf8(rating.to_vec()).unwrap();
+        assert!(rating.contains("Sorted by: Trustpilot rating (20+ reviews)"));
+        assert!(rating.contains("Insufficient sample for rating sort"));
+
+        let manufacturer = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/vendors?sort=manufacturer_direct")
+                .to_request(),
+        )
+        .await;
+        let manufacturer = String::from_utf8(manufacturer.to_vec()).unwrap();
+        assert!(manufacturer.contains("Sorted by: Manufacturer direct"));
+        assert!(
+            manufacturer.find("BITMAIN official shop").unwrap()
+                < manufacturer.find("21energy").unwrap()
+        );
 
         let vendor = test::call_and_read_body(
             &app,
@@ -1153,7 +1190,8 @@ mod tests {
         assert_eq!(vendor.matches("data-machine-slide").count(), 1);
         assert!(vendor.contains("dispatch in seven days"));
         assert!(vendor.contains("Ships out in December"));
-        assert_eq!(vendor.matches("Seller pages can be stale").count(), 1);
+        assert_eq!(vendor.matches("seller-declared page claims").count(), 2);
+        assert!(vendor.contains("Inclusion is not an endorsement or a fulfillment guarantee"));
 
         let broad_catalog = test::call_and_read_body(
             &app,
@@ -1170,20 +1208,19 @@ mod tests {
         assert_eq!(broad_catalog.matches("data-machine-slide").count(), 6);
         assert!(broad_catalog.contains("Antminer Z9 Mini"));
 
-        let warning = test::call_and_read_body(
+        let uk_vendor = test::call_and_read_body(
             &app,
             test::TestRequest::get()
                 .uri("/vendors/the-bitcoin-miner-uk")
                 .to_request(),
         )
         .await;
-        let warning = String::from_utf8(warning.to_vec()).unwrap();
-        assert!(warning.contains(r#"data-brand-shape="arc""#));
-        assert!(warning.contains("--vendor-accent:#dd7b16"));
-        assert!(warning.contains("Warning record"));
-        assert!(warning.contains("Product links are withheld"));
-        assert!(!warning.contains("vendor-offer-table"));
-        assert!(!warning.contains("data-machine-carousel"));
+        let uk_vendor = String::from_utf8(uk_vendor.to_vec()).unwrap();
+        assert!(uk_vendor.contains(r#"data-brand-shape="arc""#));
+        assert!(uk_vendor.contains("--vendor-accent:#dd7b16"));
+        assert!(!uk_vendor.contains("Warning record"));
+        assert!(!uk_vendor.contains("Product links are withheld"));
+        assert!(uk_vendor.contains("vendor-offer-table"));
 
         let search = test::call_and_read_body(
             &app,
@@ -1193,7 +1230,7 @@ mod tests {
         )
         .await;
         let search = String::from_utf8(search.to_vec()).unwrap();
-        assert!(search.contains("Vendor research"));
+        assert!(search.contains("Vendor directory"));
         assert!(search.contains("March 2027"));
     }
 
