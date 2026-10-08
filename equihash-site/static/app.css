@@ -1520,6 +1520,8 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
 .vendor-directory-review { min-width: 200px; }
 .vendor-directory-review > strong { font: 600 14px/1.2 var(--mono); }
 .vendor-directory-review > span { color: var(--ink-2); font-size: 11.5px; }
+.vendor-directory-domain { min-width: 185px; }
+.vendor-directory-domain > strong { font: 600 12px/1.25 var(--mono); }
 .vendor-directory-links { display: flex; min-width: 180px; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
 .vendor-directory-links > a, .vendor-directory-sources summary { font-size: 11px; }
 .vendor-directory-sources { position: relative; }
@@ -1614,7 +1616,6 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
 
 @media (max-width: 680px) {
   .vendor-directory-stats dd { font: 500 16px/1.2 var(--mono); }
-  .vendor-directory-stats div:last-child dd { font-size: 12px; }
   .vendor-market-table { min-width: 820px; }
   .vendor-directory-footer { display: grid; }
   .vendor-profile-actions { flex-wrap: wrap; }

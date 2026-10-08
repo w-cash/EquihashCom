@@ -572,10 +572,16 @@ pub struct VendorResearch {
     pub company_incorporated_year_verified: Option<u16>,
     pub public_operating_since_year: Option<u16>,
     pub domain_registered_year_verified: Option<u16>,
+    pub domain_name: Option<String>,
+    pub domain_registered_at: Option<String>,
+    pub domain_registration_checked_at: Option<String>,
+    pub domain_registration_source: Option<String>,
+    pub domain_registration_source_url: Option<String>,
     pub review_platform: Option<String>,
     pub review_rating: Option<f64>,
     pub review_count: Option<u64>,
     pub review_snapshot_date: Option<String>,
+    pub review_checked_at: Option<String>,
     pub review_source_url: Option<String>,
     pub declared_availability: String,
     pub availability_basis: String,
@@ -799,7 +805,6 @@ struct VendorsFile {
 #[derive(Deserialize, Default)]
 #[serde(default)]
 struct VendorDirectoryFile {
-    as_of: Option<String>,
     default_order: Option<String>,
     disclaimer: Option<String>,
     vendors: Vec<VendorResearch>,
@@ -833,7 +838,6 @@ pub struct Data {
     pub vendors: Vec<Vendor>,
     pub vendors_verified_at: Option<String>,
     pub vendor_research: Vec<VendorResearch>,
-    pub vendor_research_as_of: Option<String>,
     pub vendor_research_disclaimer: Option<String>,
     pub listings: Vec<Listing>,
     pub listings_verified_at: Option<String>,
@@ -2220,6 +2224,11 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
             &format!("vendor research {} review_source_url", v.id),
             &mut dropped,
         );
+        clean_url(
+            &mut v.domain_registration_source_url,
+            &format!("vendor research {} domain_registration_source_url", v.id),
+            &mut dropped,
+        );
         v.source_urls.retain(|url| {
             let ok = safe_url(url).is_some();
             if !ok {
@@ -2231,10 +2240,10 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
     if let Some(default_order) = &vdf.default_order {
         if !default_order
             .to_ascii_lowercase()
-            .starts_with("alphabetical")
+            .starts_with("trustpilot review count")
         {
             return Err(format!(
-                "vendor-directory.json: unsupported default_order {default_order:?}; public vendor records must default to alphabetical order"
+                "vendor-directory.json: unsupported default_order {default_order:?}; public vendor records must default to Trustpilot review count"
             ));
         }
     }
@@ -2341,7 +2350,6 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         vendors: vf.vendors,
         vendors_verified_at: vf.verified_at,
         vendor_research: vdf.vendors,
-        vendor_research_as_of: vdf.as_of,
         vendor_research_disclaimer: vdf.disclaimer,
         listings: lf.listings,
         listings_verified_at: lf.verified_at,

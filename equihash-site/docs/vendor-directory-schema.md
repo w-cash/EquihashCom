@@ -11,8 +11,9 @@
 | `legal_identity_and_location_summary` | Registry/location evidence summary; absence is not proof of wrongdoing. |
 | `company_incorporated_year_verified` | Incorporation year only when explicitly stated in the cited evidence; otherwise `null`. |
 | `public_operating_since_year` | Earliest explicitly stated founded/established/operating year; not necessarily the current legal entity's age. |
-| `domain_registered_year_verified` | Registry year only when checked; otherwise `null`. |
-| `review_platform`, `review_rating`, `review_count`, `review_snapshot_date`, `review_source_url` | Attributed third-party review snapshot. These fields are displayed together and are never converted into a house score. |
+| `domain_name`, `domain_registered_at`, `domain_registered_year_verified` | Registrable domain and registry creation date/year from RDAP or WHOIS; unavailable dates remain `null`. |
+| `domain_registration_checked_at`, `domain_registration_source`, `domain_registration_source_url` | Independent evidence clock and registry lookup provenance. |
+| `review_platform`, `review_rating`, `review_count`, `review_snapshot_date`, `review_checked_at`, `review_source_url` | Attributed Trustpilot snapshot. Vendors without a sourced Trustpilot profile use `review_count: 0`. These fields are never converted into a house score. |
 | `declared_availability` | Normalized state derived from the seller page, quote, or cited public record. It is not an inventory audit. |
 | `availability_basis` | Required attribution and verification limitation. |
 | `equihash_z15_claim` | Product, hashrate, price, stock, or batch language reported in the source research. |
@@ -27,17 +28,10 @@ The public schema intentionally excludes house trust tiers, house scores, global
 
 The page heading must say `Sorted by: <label>` and show the direction and missing-data rule.
 
-1. **Current tracked listings** — default buying view; seller-declared `in_stock` and `dispatch_claim` listing count descending, then total tracked Equihash listings descending, then vendor name. This measures catalog coverage, not seller quality.
-2. **Third-party review count** — descending only when a review source URL is present; missing or unsourced counts last; show the platform and snapshot date.
-3. **Third-party rating** — descending only when a review source URL is present and `review_count >= 20`; tie-break by review count, then alphabetical. Profiles below the minimum or without a source link appear after eligible profiles.
-4. **Alphabetical** — Unicode-normalized vendor name ascending.
-5. **Seller-declared availability** — `seller_declared_spot_or_near_term`, `preorder_or_future_batch`, `historical_or_used`, `unknown_or_quote_required`, `sold_out_or_no_current_listing`, coverage/warning records. The label must retain “seller-declared.”
-6. **Verified company incorporation year** — oldest first; null last. Explain that company age is not a quality guarantee.
-7. **Verified domain registration year** — oldest first; null last. This sort remains disabled while coverage is zero. When enabled, explain that domain age is not a quality guarantee and can outlive a change of ownership.
-8. **Manufacturer direct** — `true` first, then alphabetical. Explain that current stock and destination support still require checking.
-9. **Last verified** — newest date first, then alphabetical.
+1. **Trustpilot review count** — the default; current sourced snapshot count descending. A vendor without a sourced Trustpilot profile has a count of `0`.
+2. **Domain age** — oldest verified registry creation date first; unavailable dates last.
 
-Do not create a hidden composite of these fields. If Equihash.com later adds another sort, publish its exact formula and source.
+Neither order is a quality judgment. Do not create a hidden composite, rating tier, or recommendation from these fields.
 
 ## Availability definitions
 

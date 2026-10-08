@@ -421,8 +421,8 @@ Updated: {updated}
 ## Editorial notes
 
 - Pool and market figures are time-stamped snapshots from public project, pool and API sources.
-- Vendor records are alphabetical by default. Optional sorts disclose their single factor; paid listings and affiliate relationships cannot change the default order.
-- Availability is seller-declared unless expressly stated. Third-party review profiles are linked, while copied scores and counts are not republished. Missing vendor facts remain blank rather than inferred.
+- Vendor records default to current Trustpilot review count, highest first. Vendors without a sourced Trustpilot profile count as zero. The only alternative order is oldest verified domain-registration date first.
+- Availability is seller-declared unless expressly stated. Review counts are attributed and dated snapshots. Domain dates come from registry RDAP or WHOIS evidence; unavailable creation dates remain unknown.
 - equihash.com and Wcash share a maintainer. Wcash receives work only from participating merged-mining pools.
 - Mining estimates are not forecasts or financial advice.
 "#
@@ -1172,23 +1172,26 @@ mod tests {
         let directory = String::from_utf8(directory.to_vec()).unwrap();
         assert!(directory.contains("<h1>ASIC vendors</h1>"));
         assert!(directory.contains("Vendors with offers</dt><dd>9</dd>"));
-        assert!(directory.contains("Tracked offers</dt><dd>34</dd>"));
         assert!(directory.contains("All vendor records</dt><dd>85</dd>"));
+        assert!(directory.contains("Trustpilot profiles</dt><dd>35</dd>"));
+        assert!(directory.contains("Verified domain dates</dt><dd>65</dd>"));
         assert!(directory.contains("85</dd>"));
         assert_eq!(directory.matches("vendor-directory-public-row").count(), 85);
-        assert!(directory.contains("Sorted by: Current tracked listings"));
-        assert!(directory.contains("This measures catalog coverage, not seller quality"));
-        assert!(directory.contains("Additional researched vendors"));
-        assert!(directory
-            .contains("No specific Equihash offer is currently tracked for the records below"));
-        assert!(directory.contains("Domain-age sorting is disabled"));
-        assert!(directory.contains("seller claims; they are not an endorsement or quality score"));
+        assert!(directory.contains("Sorted by: Trustpilot review count"));
+        assert!(directory.contains("Vendors without a sourced Trustpilot profile count as 0"));
+        assert!(directory.contains("value=\"review_count\""));
+        assert!(directory.contains("value=\"domain_age\""));
+        assert!(!directory.contains("value=\"alphabetical\""));
+        assert!(!directory.contains("value=\"review_rating_min_20\""));
+        assert!(!directory.contains("Additional researched vendors"));
+        assert!(!directory.contains("Domain-age sorting is disabled"));
         assert!(directory.contains("6 models · 9 listings"));
-        assert!(directory.contains("4.7/5"));
-        assert!(directory.contains("720 reviews"));
+        assert!(directory.contains("1,570 reviews"));
+        assert!(directory.contains("0 reviews"));
+        assert!(directory.contains("No sourced Trustpilot profile"));
         assert!(directory.contains("21energy"));
-        assert!(directory.find("BT-Miners").unwrap() < directory.find("OneMiners").unwrap());
-        assert!(directory.find("The Bitcoin Miner").unwrap() < directory.find("21energy").unwrap());
+        assert!(directory.find("Mineshop.eu").unwrap() < directory.find("21energy").unwrap());
+        assert!(directory.find("21energy").unwrap() < directory.find("Compass Mining").unwrap());
         assert!(!directory.contains("Tier A"));
         assert!(!directory.contains("Strongest evidence"));
         assert!(!directory.contains("global rank"));
@@ -1196,7 +1199,7 @@ mod tests {
         assert!(!directory.contains("No weak substitute was invented"));
         assert!(!directory.contains("No vetted local Z15 source identified"));
         assert!(!directory.contains("Equihash.com rating"));
-        assert!(directory.contains("No house trust score is used"));
+        assert!(directory.contains("No house score is used"));
         assert_eq!(
             directory
                 .matches(r#"class="vendor-directory-name"><a href="/vendors/"#)
@@ -1205,22 +1208,26 @@ mod tests {
             "every vendor shown in the buying view must open an internal profile"
         );
 
-        let all_vendors = test::call_and_read_body(
+        let domain_age = test::call_and_read_body(
             &app,
             test::TestRequest::get()
-                .uri("/vendors?catalog=all&sort=alphabetical")
+                .uri("/vendors?catalog=all&sort=domain_age")
                 .to_request(),
         )
         .await;
-        let all_vendors = String::from_utf8(all_vendors.to_vec()).unwrap();
+        let domain_age = String::from_utf8(domain_age.to_vec()).unwrap();
         assert_eq!(
-            all_vendors.matches("vendor-directory-public-row").count(),
+            domain_age.matches("vendor-directory-public-row").count(),
             85
         );
-        assert!(all_vendors.contains("Sorted by: Alphabetical"));
-        assert!(all_vendors.find("21energy").unwrap() < all_vendors.find("21Mining").unwrap());
+        assert!(domain_age.contains("Sorted by: Domain age"));
+        assert!(domain_age.contains("Oldest verified registry creation date first"));
+        assert!(
+            domain_age.find("OSL Japan mining service").unwrap()
+                < domain_age.find("Antminer Distribution Europe").unwrap()
+        );
         assert_eq!(
-            all_vendors
+            domain_age
                 .matches(r#"class="vendor-directory-name"><a href="/vendors/"#)
                 .count(),
             85,
@@ -1352,40 +1359,10 @@ mod tests {
         )
         .await;
         let review_count_sort = String::from_utf8(review_count_sort.to_vec()).unwrap();
-        assert!(review_count_sort.contains("Sorted by: Third-party review count"));
+        assert!(review_count_sort.contains("Sorted by: Trustpilot review count"));
         assert!(
             review_count_sort.find("Mineshop.eu").unwrap()
                 < review_count_sort.find("21energy").unwrap()
-        );
-
-        let review_rating_sort = test::call_and_read_body(
-            &app,
-            test::TestRequest::get()
-                .uri("/vendors?catalog=all&sort=review_rating_min_20")
-                .to_request(),
-        )
-        .await;
-        let review_rating_sort = String::from_utf8(review_rating_sort.to_vec()).unwrap();
-        assert!(review_rating_sort.contains("Sorted by: Third-party rating (20+ reviews)"));
-        assert!(
-            review_rating_sort
-                .find("Antminer Distribution Europe")
-                .unwrap()
-                < review_rating_sort.find("ZEUS Mining").unwrap()
-        );
-
-        let manufacturer = test::call_and_read_body(
-            &app,
-            test::TestRequest::get()
-                .uri("/vendors?catalog=all&sort=manufacturer_direct")
-                .to_request(),
-        )
-        .await;
-        let manufacturer = String::from_utf8(manufacturer.to_vec()).unwrap();
-        assert!(manufacturer.contains("Sorted by: Manufacturer direct"));
-        assert!(
-            manufacturer.find("BITMAIN official shop").unwrap()
-                < manufacturer.find("21energy").unwrap()
         );
 
         let vendor = test::call_and_read_body(

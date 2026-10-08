@@ -60,6 +60,20 @@ AVAILABILITY = {
     "coverage_gap",
     "not_applicable_warning_record",
 }
+LOCAL_EVIDENCE_FIELDS = {
+    "domain_name",
+    "domain_registered_at",
+    "domain_registered_year_verified",
+    "domain_registration_checked_at",
+    "domain_registration_source",
+    "domain_registration_source_url",
+    "review_platform",
+    "review_rating",
+    "review_count",
+    "review_snapshot_date",
+    "review_checked_at",
+    "review_source_url",
+}
 
 
 def is_http_url(value: str) -> bool:
@@ -113,12 +127,19 @@ def main() -> None:
     expected = sorted(vendors, key=lambda vendor: (vendor["vendor"].casefold(), vendor["id"]))
     if vendors != expected:
         raise SystemExit("canonical vendors must be alphabetical by public vendor name")
-    if any(vendor["domain_registered_year_verified"] is not None for vendor in vendors):
-        raise SystemExit("domain-age sorting must remain disabled until the canonical policy changes")
+    # Keep locally refreshed Trustpilot and domain-registry facts when the canonical research
+    # directory is imported again. Both evidence sets have independent refresh scripts/clocks.
+    previous = {}
+    if args.destination.exists():
+        previous_payload = json.loads(args.destination.read_text(encoding="utf-8"))
+        previous = {record["id"]: record for record in previous_payload.get("vendors", [])}
+    for vendor in vendors:
+        old = previous.get(vendor["id"], {})
+        for field in LOCAL_EVIDENCE_FIELDS:
+            if field in old:
+                vendor[field] = old[field]
+        vendor["review_count"] = vendor.get("review_count") or 0
 
-    # Ratings and counts remain attributed snapshots, never a house score. The UI must show the
-    # source platform, snapshot date, missing-data rule and the 20-review minimum for rating sorts.
-    # This importer preserves those source values so the public page can implement that policy.
     # Keep the site's sourced warning classification for the known ASICKings variants record; the
     # upstream research export currently labels its role generically even though its evidence and
     # availability fields still describe a warning record.
@@ -126,18 +147,26 @@ def main() -> None:
         if vendor["id"] == "public-warning-records-global-asic-kings-asickings-variants":
             vendor["record_type"] = "public_warning_record"
 
-    for mode in payload.get("sort_modes", []):
-        mode.pop("default", None)
-    payload["sort_modes"].insert(
-        0,
-        {
-            "id": "current_listings",
-            "label": "Current tracked listings",
-            "field": "tracked_listing_records",
-            "direction": "current descending, total descending, vendor ascending",
-            "default": True,
-        },
+    payload["default_order"] = (
+        "Trustpilot review count descending; vendors without a sourced Trustpilot profile count as 0."
     )
+    payload["sort_modes"] = [
+        {
+            "id": "review_count",
+            "label": "Trustpilot reviews · highest first",
+            "field": "review_count",
+            "direction": "descending",
+            "default": True,
+            "missing_value": 0,
+        },
+        {
+            "id": "domain_age",
+            "label": "Domain age · oldest first",
+            "field": "domain_registered_at",
+            "direction": "ascending",
+            "missing_values": "last",
+        },
+    ]
 
     args.destination.parent.mkdir(parents=True, exist_ok=True)
     args.destination.write_text(

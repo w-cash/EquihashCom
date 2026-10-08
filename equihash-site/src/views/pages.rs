@@ -236,7 +236,7 @@ pub fn sources(d: &Data) -> Markup {
                     li { a href="/data/pools.json" { "Pool records" } " — pool identity, coin, reported hashrate, fees, payout methods, regions and field-level sources." }
                     li { a href="/data/network.json" { "Network records" } " — Equihash parameters, network estimates, rewards, price inputs and observation times." }
                     li { a href="/data/miners.json" { "ASIC records" } " — manufacturer hashrate, power, parameter compatibility and specification sources." }
-                    li { a href="/data/vendor-directory.json" { "Global ASIC vendor directory" } ", " a href="/data/vendors.json" { "Equihash vendor profiles" } " and " a href="/data/listings.json" { "offer records" } " — seller identity facts, third-party review-profile links and time-stamped seller claims. The public directory is alphabetical by default; optional sorts disclose their single factor." }
+                    li { a href="/data/vendor-directory.json" { "Global ASIC vendor directory" } ", " a href="/data/vendors.json" { "Equihash vendor profiles" } " and " a href="/data/listings.json" { "offer records" } " — seller identity facts, dated Trustpilot review counts, verified domain-registration dates and time-stamped seller claims. The public directory offers only those two disclosed sort factors." }
                     li { a href="/data/hashpower.json" { "Hashpower market snapshot" } " — aggregate NiceHash EQUIHASH order-book observations." }
                     li { a href="/data/current.json" { "Current snapshot manifest" } " — the exact generated files, sizes and SHA-256 values loaded by the server." }
                 }

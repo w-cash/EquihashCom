@@ -2,78 +2,34 @@
   "as_of": "2026-10-08",
   "title": "Global ASIC Miner Vendor Directory",
   "intended_use": "Neutral research/import source for Equihash.com",
-  "default_order": "Alphabetical by public vendor name; no editorial recommendation is implied.",
+  "default_order": "Trustpilot review count descending; vendors without a sourced Trustpilot profile count as 0.",
   "disclaimer": "Informational directory only. A listing, position, seller claim, review snapshot, or availability label is not an endorsement or guarantee. Verify legal entity, stock, serials, invoice beneficiary, taxes, warranty and delivery terms before payment.",
   "methodology": {
     "no_house_rating": "No Equihash.com trust score, trust tier, global rank, or delivery probability is published.",
     "seller_claim_rule": "Availability and product claims are attributed to the seller/public listing and are not physical audits.",
-    "missing_data_rule": "Unknown values remain null and sort after verified values; they are never inferred.",
+    "missing_data_rule": "Vendors without a sourced Trustpilot profile use a review count of 0. Missing registry creation dates remain null and sort after verified dates.",
     "commercial_influence_rule": "Advertising, affiliate relationships, fees, or sponsorship must not affect default ordering.",
-    "review_rule": "Rating sort is available only for Trustpilot snapshots with at least 20 reviews; platform and snapshot date must remain visible.",
+    "review_rule": "Trustpilot review count is stored as a dated snapshot and sorted from highest to lowest. The count is not an endorsement.",
     "field_coverage": {
-      "trustpilot_snapshot_records": 49,
-      "company_incorporation_year_records": 6,
-      "domain_registration_year_records": 0
+      "trustpilot_profiles_with_review_counts": 35,
+      "domain_registration_dates": 65
     }
   },
   "sort_modes": [
     {
-      "id": "current_listings",
-      "label": "Current tracked listings",
-      "field": "tracked_listing_records",
-      "direction": "current descending, total descending, vendor ascending",
-      "default": true
-    },
-    {
-      "id": "alphabetical",
-      "label": "Alphabetical",
-      "field": "vendor",
-      "direction": "ascending"
-    },
-    {
-      "id": "declared_availability",
-      "label": "Seller-declared availability",
-      "field": "declared_availability",
-      "direction": "state order documented in SCHEMA.md"
-    },
-    {
       "id": "review_count",
-      "label": "Trustpilot review count",
+      "label": "Trustpilot reviews · highest first",
       "field": "review_count",
-      "direction": "descending"
-    },
-    {
-      "id": "review_rating_min_20",
-      "label": "Trustpilot rating (20+ reviews)",
-      "field": "review_rating",
       "direction": "descending",
-      "minimum_review_count": 20
-    },
-    {
-      "id": "company_age",
-      "label": "Verified company incorporation year",
-      "field": "company_incorporated_year_verified",
-      "direction": "ascending"
+      "default": true,
+      "missing_value": 0
     },
     {
       "id": "domain_age",
-      "label": "Verified domain registration year",
-      "field": "domain_registered_year_verified",
+      "label": "Domain age · oldest first",
+      "field": "domain_registered_at",
       "direction": "ascending",
-      "enabled": false,
-      "reason": "No canonical records currently contain a verified domain-registration year."
-    },
-    {
-      "id": "manufacturer_direct",
-      "label": "Manufacturer direct",
-      "field": "manufacturer_direct",
-      "direction": "true first"
-    },
-    {
-      "id": "last_verified",
-      "label": "Most recently verified",
-      "field": "last_verified",
-      "direction": "descending"
+      "missing_values": "last"
     }
   ],
   "vendor_count": 87,
@@ -89,10 +45,10 @@
       "legal_identity_and_location_summary": "21ENERGY GMBH; FN 592242w | Wilhelm-Greil-Strasse 21, Innsbruck",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": "Trustpilot",
       "review_rating": 4.8,
-      "review_count": 1125,
+      "review_count": 1156,
       "review_snapshot_date": "2026-10-08",
       "review_source_url": "https://de.trustpilot.com/review/21energy.com",
       "declared_availability": "sold_out_or_no_current_listing",
@@ -107,7 +63,13 @@
         "https://21energy.com/",
         "https://de.trustpilot.com/review/21energy.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "21energy.com",
+      "domain_registered_at": "2021-06-15",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/21energy.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-21mining",
@@ -120,10 +82,10 @@
       "legal_identity_and_location_summary": "US-based sales and managed-hosting operator; site manager Wyatt Walker; phone +1 321-298-3777",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -136,7 +98,13 @@
       "source_urls": [
         "https://21mining.com/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "21mining.com",
+      "domain_registered_at": "2021-11-06",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/21mining.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-singapore-al-aamir-mining-supply",
@@ -149,10 +117,10 @@
       "legal_identity_and_location_summary": "AL-AAMIR PTE. LTD., Singapore registration 202245711R (registration claim displayed on site)",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2022,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2026,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -165,7 +133,13 @@
       "source_urls": [
         "https://www.al-aamir.shop/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "al-aamir.shop",
+      "domain_registered_at": "2026-08-17",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.gmoregistry.net/rdap/domain/al-aamir.shop",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "latin-america-chile-andes-solar-hash",
@@ -178,10 +152,10 @@
       "legal_identity_and_location_summary": "Chile mining-hosting provider",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2025,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -194,7 +168,13 @@
       "source_urls": [
         "https://andessolarhash.com/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "andessolarhash.com",
+      "domain_registered_at": "2025-11-13",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/andessolarhash.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "latin-america-chile-andespool",
@@ -207,10 +187,10 @@
       "legal_identity_and_location_summary": "Chile-based mining/hosting operation serving Latin America",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2026,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -223,7 +203,13 @@
       "source_urls": [
         "https://andespool.com/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "andespool.com",
+      "domain_registered_at": "2026-08-23",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/andespool.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-netherlands-antminer-distribution-europe",
@@ -236,7 +222,7 @@
       "legal_identity_and_location_summary": "ANTMINER DISTRIBUTION EUROPE B.V.; KvK 70307180 | Lijndonk 4, Breda Business Park, 4825 BG Breda",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2014,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2014,
       "review_platform": "Trustpilot",
       "review_rating": 4.9,
       "review_count": 163,
@@ -254,7 +240,13 @@
         "https://www.antminerdistribution.com/contact/",
         "https://www.trustpilot.com/review/www.antminerdistribution.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "antminerdistribution.com",
+      "domain_registered_at": "2014-01-09",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/antminerdistribution.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-hong-kong-china-apexto-mining",
@@ -267,7 +259,7 @@
       "legal_identity_and_location_summary": "APEXTO COMPANY LIMITED, Kwai Chung, Hong Kong; Shenzhen operations; company says active since 2017",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2017,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": "Trustpilot",
       "review_rating": 4.5,
       "review_count": 166,
@@ -286,7 +278,13 @@
         "https://apextomining.com/product/antminer-z15-pro/",
         "https://www.trustpilot.com/review/apextomining.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "apextomining.com",
+      "domain_registered_at": "2021-09-27",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/apextomining.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-spain-asic-equipment",
@@ -299,7 +297,7 @@
       "legal_identity_and_location_summary": "Legacy seller identity not resolved in this scan | Not relied upon",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2023,
       "review_platform": "Trustpilot",
       "review_rating": 2.4,
       "review_count": 11,
@@ -315,7 +313,13 @@
       "source_urls": [
         "https://www.trustpilot.com/review/www.asicequipment.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "asicequipment.com",
+      "domain_registered_at": "2023-08-05",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/asicequipment.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-canada-united-states-asic-jungle",
@@ -328,10 +332,10 @@
       "legal_identity_and_location_summary": "North American ASIC marketplace with Canada/US operations",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2020,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2020,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -345,7 +349,13 @@
         "https://asicjungle.com/faq",
         "https://bitcointalk.org/index.php?topic=5508830.0"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "asicjungle.com",
+      "domain_registered_at": "2020-01-27",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/asicjungle.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "public-warning-records-global-asic-kings-asickings-variants",
@@ -361,7 +371,7 @@
       "domain_registered_year_verified": null,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -374,7 +384,13 @@
       "source_urls": [
         "https://www.reddit.com/r/kaspa/comments/1bu3w1p/scammed_for_miner_want_to_get_one_legit/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": null,
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "No vendor domain recorded",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-hong-kong-asic-marketplace",
@@ -387,7 +403,7 @@
       "legal_identity_and_location_summary": "Hong Kong warehouse/address: Kwai Chung; legal entity name should be verified on invoice before wire",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": "Trustpilot",
       "review_rating": 4.5,
       "review_count": 452,
@@ -405,7 +421,13 @@
         "https://asicmarketplace.com/shipping-and-return-policy/",
         "https://www.trustpilot.com/review/asicmarketplace.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "asicmarketplace.com",
+      "domain_registered_at": "2021-02-18",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/asicmarketplace.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-spain-asic-miner-group",
@@ -418,7 +440,7 @@
       "legal_identity_and_location_summary": "HSC SOLUCIONES PERSONALIZADAS DE HARDWARE PARA EMPRESAS, S.L.; NIF B19959923 | C/Baza parcela 19 local 7, Peligros, Granada",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2023,
       "review_platform": "Trustpilot",
       "review_rating": 3.3,
       "review_count": 15,
@@ -435,7 +457,13 @@
         "https://asicminergroup.com/producto/antminer-z15-pro-840-ksol-minero-zcash/",
         "https://es.trustpilot.com/review/asicminergroup.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "asicminergroup.com",
+      "domain_registered_at": "2023-04-24",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/asicminergroup.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-canada-asic-miners-canada",
@@ -448,7 +476,7 @@
       "legal_identity_and_location_summary": "Claims 2800 Swansea Crescent, Ottawa; no walk-in storefront",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2025,
       "review_platform": "Trustpilot",
       "review_rating": 3.7,
       "review_count": 7,
@@ -464,7 +492,13 @@
       "source_urls": [
         "https://www.trustpilot.com/review/asicminers.ca"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "asicminers.ca",
+      "domain_registered_at": "2025-02-09",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.ca.fury.ca/rdap/domain/asicminers.ca",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-asic-miners-us",
@@ -477,10 +511,10 @@
       "legal_identity_and_location_summary": "Claims Crestview, Florida / US operation",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2026,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -494,7 +528,13 @@
         "https://www.bbb.org/us/fl/crestview/profile/cryptocurrency-exchange/asic-miners-us-0683-90094079/customer-reviews",
         "https://www.reddit.com/r/kaspa/comments/1bwrozc/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "asicminersus.com",
+      "domain_registered_at": "2026-04-28",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/asicminersus.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-spain-asic-es",
@@ -510,8 +550,8 @@
       "domain_registered_year_verified": null,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -523,7 +563,13 @@
       "source_urls": [
         "https://asic.es/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "asic.es",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; WHOIS lookup failed: TimeoutExpired",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "public-warning-records-global-asicminers-shop-similarly-named-clone-stores",
@@ -539,7 +585,7 @@
       "domain_registered_year_verified": null,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "not_applicable_warning_record",
@@ -552,7 +598,13 @@
       "source_urls": [
         "https://www.reddit.com/r/Scams/comments/i2yk5o/asicsminersshop_scam_website_review/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "asicminers.shop",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP lookup failed: HTTPError; Registry WHOIS fallback",
+      "domain_registration_source_url": "https://rdap.gmoregistry.net/rdap/domain/asicminers.shop",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-canada-asicxchange",
@@ -565,10 +617,10 @@
       "legal_identity_and_location_summary": "Montreal, Canada ASIC broker/distributor",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2018,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2019,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -582,7 +634,13 @@
         "https://asicxchange.com/about/",
         "https://www.canadablockchain.ca/wp-content/uploads/2025/07/2025-July-Trade-Mission-Booklet.pdf"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "asicxchange.com",
+      "domain_registered_at": "2019-12-06",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/asicxchange.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-switzerland-avalans",
@@ -598,8 +656,8 @@
       "domain_registered_year_verified": null,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -612,7 +670,13 @@
         "https://avalans.ch/agb",
         "https://avalans.ch/shop"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "avalans.ch",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "latin-america-argentina-bidcom",
@@ -625,10 +689,10 @@
       "legal_identity_and_location_summary": "Established Argentine e-commerce retailer; Argentina-wide invoicing/service",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2012,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -641,7 +705,13 @@
       "source_urls": [
         "https://www.bidcom.com.ar/mineria-bitcoins-criptomonedas"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "bidcom.com.ar",
+      "domain_registered_at": "2012-08-01",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP lookup failed: HTTPError; Registry WHOIS fallback",
+      "domain_registration_source_url": "https://rdap.nic.ar/domain/bidcom.com.ar",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "middle-east-united-arab-emirates-bitcore-miners-ae",
@@ -654,10 +724,10 @@
       "legal_identity_and_location_summary": "Dubai store, Al Garhoud; contact details published under bitcoinminers.ae branding",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2025,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -670,7 +740,13 @@
       "source_urls": [
         "https://bitcoreminers.com/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "bitcoreminers.com",
+      "domain_registered_at": "2025-06-24",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/bitcoreminers.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "latin-america-brazil-bitmain-brasil-bitmain-com-br",
@@ -683,10 +759,10 @@
       "legal_identity_and_location_summary": "Website reportedly belongs to CASH MONEY LTDA, CNPJ 49.754.243/0001-04; not proven in this review to be Bitmain Technologies' official Brazilian entity",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2025,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -700,7 +776,13 @@
         "https://bitmain.com.br/termos-de-pos-venda/",
         "https://www.siteconfiavel.com.br/site/bitmain-com-br"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "bitmain.com.br",
+      "domain_registered_at": "2025-03-17",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.registro.br/domain/bitmain.com.br",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-china-singapore-bitmain-official-shop",
@@ -713,10 +795,10 @@
       "legal_identity_and_location_summary": "BITMAIN group; founded 2013; R&D in Beijing, Shanghai, Shenzhen and Singapore; official shop domain is shop.bitmain.com",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2013,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2007,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "seller_declared_spot_or_near_term",
@@ -732,7 +814,13 @@
         "https://support.bitmain.com/hc/en-us/articles/223400048-Product-Warranty",
         "https://www.bitmain.com/news-detail/433"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "bitmain.com",
+      "domain_registered_at": "2007-07-17",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/bitmain.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "africa-south-africa-bitmart-co-za",
@@ -762,7 +850,13 @@
         "https://www.bitmart.co.za/",
         "https://www.trustpilot.com/review/www.bitmart.co.za"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "bitmart.co.za",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-germany-bitshopper-de",
@@ -777,8 +871,8 @@
       "public_operating_since_year": 2014,
       "domain_registered_year_verified": null,
       "review_platform": "Trustpilot",
-      "review_rating": 4.1,
-      "review_count": 5,
+      "review_rating": 4.3,
+      "review_count": 8,
       "review_snapshot_date": "2026-10-08",
       "review_source_url": "https://www.trustpilot.com/review/bitshopper.de",
       "declared_availability": "unknown_or_quote_required",
@@ -793,7 +887,13 @@
         "https://www.bitshopper.de/en/legal-topics/shipping-and-delivery/",
         "https://www.trustpilot.com/review/bitshopper.de"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "bitshopper.de",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-blockware-solutions-marketplace",
@@ -806,10 +906,10 @@
       "legal_identity_and_location_summary": "Blockware Solutions LLC; US mining/hosting operator",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2017,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -823,7 +923,13 @@
         "https://blockwaresolutions.com/products/hashrate-marketplace/",
         "https://blockwaresolutions.com/research-articles/how-to-find-good-deals-on-marketplace/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "blockwaresolutions.com",
+      "domain_registered_at": "2017-09-19",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/blockwaresolutions.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-hong-kong-bt-miners",
@@ -836,10 +942,10 @@
       "legal_identity_and_location_summary": "Division of BT ECOMMERCE CO., LIMITED; US office near Ballston Lake/New York and Shenzhen/Hong Kong fulfilment",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2020,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": "Trustpilot",
-      "review_rating": 3.7,
-      "review_count": 536,
+      "review_rating": 3.8,
+      "review_count": 535,
       "review_snapshot_date": "2026-10-08",
       "review_source_url": "https://www.trustpilot.com/review/bt-miners.com",
       "declared_availability": "unknown_or_quote_required",
@@ -854,7 +960,13 @@
         "https://www.trustpilot.com/review/bt-miners.com",
         "https://bt-miners.com/products/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "bt-miners.com",
+      "domain_registered_at": "2021-02-27",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/bt-miners.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-singapore-china-canaan-official-shop",
@@ -867,10 +979,10 @@
       "legal_identity_and_location_summary": "Canaan Inc.; Singapore-based public ASIC manufacturer with operations/supply in China and the US",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2016,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -886,7 +998,13 @@
         "https://shop.canaan.io/products/avalon-miner-a1346-110t-3310w-1",
         "https://support.canaan.io/en-US/knowledgebase/article/KA-01270"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "canaan.io",
+      "domain_registered_at": "2016-02-10",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-canada-captainmining",
@@ -899,11 +1017,11 @@
       "legal_identity_and_location_summary": "CAPITAINE MINAGE INC.; Canadian Scotiabank business account; founder Kevin Tasse",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2016,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2022,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -915,7 +1033,13 @@
       "source_urls": [
         "https://captainmining.com/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "captainmining.com",
+      "domain_registered_at": "2022-08-09",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/captainmining.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-coastal-crypto",
@@ -928,7 +1052,7 @@
       "legal_identity_and_location_summary": "US ASIC sales/hosting/repair operator; verify invoice entity and current facility before payment",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2022,
       "review_platform": "Trustpilot",
       "review_rating": 3.3,
       "review_count": 157,
@@ -944,7 +1068,13 @@
       "source_urls": [
         "https://www.trustpilot.com/review/coastalcryptomining.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "coastalcryptomining.com",
+      "domain_registered_at": "2022-01-14",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/coastalcryptomining.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-czech-republic-coin-factory",
@@ -957,11 +1087,11 @@
       "legal_identity_and_location_summary": "Legal entity not fully resolved in this scan | Otín 286, Jindřichův Hradec",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2022,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": 7,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -974,7 +1104,13 @@
         "https://www.coin-factory.cz/",
         "https://obchody.heureka.cz/coin-factory-cz/recenze/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "coin-factory.cz",
+      "domain_registered_at": "2022-11-20",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.nic.cz/domain/coin-factory.cz",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-united-kingdom-coin-mining-central",
@@ -987,7 +1123,7 @@
       "legal_identity_and_location_summary": "COIN MINING CENTRAL LTD; Companies House 11800885 | Registered office: 4 Imperial Place, Maxwell Road, Borehamwood WD6 1JN",
       "company_incorporated_year_verified": 2019,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2018,
       "review_platform": "Trustpilot",
       "review_rating": 4.3,
       "review_count": 616,
@@ -1005,7 +1141,13 @@
         "https://uk.trustpilot.com/review/coinminingcentral.com",
         "https://coinminingcentral.com/collections/bitmain/products/bitmain-antminer-z15-pro-zcash-miner-840-ksol-s"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "coinminingcentral.com",
+      "domain_registered_at": "2018-06-25",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/coinminingcentral.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-compass-mining",
@@ -1018,7 +1160,7 @@
       "legal_identity_and_location_summary": "Compass Mining Inc.; US company, BBB profile Newark, Delaware",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2020,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2020,
       "review_platform": "Trustpilot",
       "review_rating": 3.4,
       "review_count": 789,
@@ -1036,7 +1178,13 @@
         "https://www.bbb.org/us/de/newark/profile/crypto-mining/compass-mining-inc-0251-92032609/complaints",
         "https://support.compassmining.io/hc/en-us/articles/5932120225949-Payments-and-Invoice-FAQs"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "compassmining.io",
+      "domain_registered_at": "2020-08-19",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-austria-corehash",
@@ -1052,8 +1200,8 @@
       "domain_registered_year_verified": null,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -1066,7 +1214,13 @@
         "https://www.evi.gv.at/f/669997s",
         "https://corehash.de/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "corehash.de",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-hong-kong-crypto-miner-bros",
@@ -1079,10 +1233,10 @@
       "legal_identity_and_location_summary": "Miner Bros Limited, Hong Kong company no. 2654208; Hung Hom, Kowloon",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2018,
       "review_platform": "Trustpilot",
-      "review_rating": 4.7,
-      "review_count": 720,
+      "review_rating": 4.5,
+      "review_count": 728,
       "review_snapshot_date": "2026-10-08",
       "review_source_url": "https://www.trustpilot.com/review/cryptominerbros.com",
       "declared_availability": "unknown_or_quote_required",
@@ -1099,7 +1253,13 @@
         "https://www.trustpilot.com/review/cryptominerbros.com",
         "https://www.reddit.com/r/EtherMining/comments/1g2uz15/is_cryptominerbroscom_legit/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "cryptominerbros.com",
+      "domain_registered_at": "2018-01-10",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/cryptominerbros.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-germany-cryptohall24",
@@ -1112,9 +1272,9 @@
       "legal_identity_and_location_summary": "DÜRR DISTRIBUTION GMBH (hardware) / DÜRR SOLUTIONS GMBH (hosting) | Von-Thünen-Str. 10, Hamm, Germany",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2022,
       "review_platform": "Trustpilot",
-      "review_rating": 4.0,
+      "review_rating": 3.7,
       "review_count": 46,
       "review_snapshot_date": "2026-10-08",
       "review_source_url": "https://www.trustpilot.com/review/cryptohall24.com",
@@ -1129,7 +1289,13 @@
         "https://www.cryptohall24.com/asic-miner-kaufen/bitmain-antminer-z15-pro-840kh",
         "https://www.trustpilot.com/review/cryptohall24.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "cryptohall24.com",
+      "domain_registered_at": "2022-01-14",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/cryptohall24.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "middle-east-united-arab-emirates-cryptominers-ae",
@@ -1145,9 +1311,9 @@
       "domain_registered_year_verified": null,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
-      "review_source_url": "https://www.trustpilot.com/review/cryptominers.ai",
+      "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
       "equihash_z15_claim": "Could source Bitmain range; no confirmed current Z15 allocation found.",
@@ -1161,7 +1327,13 @@
         "https://www.hashsight.io/company/cryptominers-ae",
         "https://www.trustpilot.com/review/cryptominers.ai"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "cryptominers.ae",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-canada-d-central-technologies",
@@ -1174,11 +1346,11 @@
       "legal_identity_and_location_summary": "D-Central Technologies; 1325 Rue Bergar, Laval, Quebec; Montreal-area repair bench",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2016,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2016,
       "review_platform": "Trustpilot",
-      "review_rating": 4.8,
-      "review_count": 427,
-      "review_snapshot_date": "2026-10-08",
+      "review_rating": null,
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -1193,7 +1365,13 @@
         "https://d-central.tech/how-to-spot-a-scam-when-buying-asic-miners-online/",
         "https://www.hashsight.io/reviews?company=d-central-technologies"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "d-central.tech",
+      "domain_registered_at": "2016-09-19",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.radix.host/rdap/domain/d-central.tech",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-east-coast-asic",
@@ -1206,7 +1384,7 @@
       "legal_identity_and_location_summary": "East Coast ASIC; public contact in Oakmont, Pennsylvania; repair/Trustpilot profile also identifies Wichita, Kansas",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2021,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2022,
       "review_platform": "Trustpilot",
       "review_rating": 4.6,
       "review_count": 53,
@@ -1224,7 +1402,13 @@
         "https://eastcoastasic.com/repair-center/",
         "https://www.trustpilot.com/review/eastcoastasic.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "eastcoastasic.com",
+      "domain_registered_at": "2022-04-13",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/eastcoastasic.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "public-warning-records-global-lookalike-domains-fake-clone-official-antminer-domains",
@@ -1240,7 +1424,7 @@
       "domain_registered_year_verified": null,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "not_applicable_warning_record",
@@ -1256,7 +1440,13 @@
         "https://www.bitmain.com/news-detail/433",
         "https://www.reddit.com/r/Scams/comments/i2yk5o/asicsminersshop_scam_website_review/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": null,
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "No vendor domain recorded",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-china-goldshell-official-shop",
@@ -1269,10 +1459,10 @@
       "legal_identity_and_location_summary": "Goldshell manufacturer official website; China-based ASIC maker",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 1998,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -1288,7 +1478,13 @@
         "https://www.goldshell.com/after-sales-terms/",
         "https://www.goldshell.com/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "goldshell.com",
+      "domain_registered_at": "1998-11-13",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/goldshell.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-france-happy-mining",
@@ -1301,7 +1497,7 @@
       "legal_identity_and_location_summary": "ORDINA; SIREN/RCS Paris 903220069; SIRET 90322006900012 | 23 rue d’Anjou, 75008 Paris; collection advertised in Paris region by appointment",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": "Trustpilot",
       "review_rating": 4.7,
       "review_count": 452,
@@ -1320,7 +1516,13 @@
         "https://happymining.fr/collections/zcash",
         "https://www.trustpilot.com/review/happymining.fr"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "happymining.fr",
+      "domain_registered_at": "2021-08-28",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.nic.fr/domain/happymining.fr",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "africa-south-africa-hashrate-co-za",
@@ -1338,7 +1540,7 @@
       "review_rating": 4.7,
       "review_count": 194,
       "review_snapshot_date": "2026-10-08",
-      "review_source_url": null,
+      "review_source_url": "https://www.trustpilot.com/review/hashrate.co.za",
       "declared_availability": "unknown_or_quote_required",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
       "equihash_z15_claim": "General Bitmain catalogue; current Z15 stock not confirmed.",
@@ -1350,7 +1552,13 @@
         "https://www.hashrate.co.za/pages/about-us",
         "https://www.canyoumineit.com/vendors/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "hashrate.co.za",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-hong-kong-global-iceriver-official",
@@ -1363,10 +1571,10 @@
       "legal_identity_and_location_summary": "ICERIVER official manufacturer sales channel; Hong Kong/Asia logistics",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2023,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -1382,7 +1590,13 @@
         "https://www.iceriver.io/faq/",
         "https://www.iceriver.io/iceriver-after-sales-service-terms/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "iceriver.io",
+      "domain_registered_at": "2023-02-24",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-ing-mining",
@@ -1395,12 +1609,12 @@
       "legal_identity_and_location_summary": "ING Mining LLC; Hanson, Massachusetts; US trademark 7,989,340",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2009,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2024,
       "review_platform": "Trustpilot",
-      "review_rating": 4.8,
+      "review_rating": 3.8,
       "review_count": 4,
       "review_snapshot_date": "2026-10-08",
-      "review_source_url": null,
+      "review_source_url": "https://www.trustpilot.com/review/ingmining.com",
       "declared_availability": "sold_out_or_no_current_listing",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
       "equihash_z15_claim": "No current Z15/Z15 Pro listing found in this review; strong source for tested used ASICs/parts generally.",
@@ -1413,7 +1627,13 @@
         "https://ingmining.com/support",
         "https://ingmining.com/shipping-and-delivery"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "ingmining.com",
+      "domain_registered_at": "2024-09-13",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/ingmining.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-germany-intermine-solutions",
@@ -1429,8 +1649,8 @@
       "domain_registered_year_verified": null,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -1443,7 +1663,13 @@
         "https://home.intermine-solutions.de/policies/legal-notice",
         "https://www.intermine-solutions.de/pages/zcash-miner-kaufen"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "intermine-solutions.de",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-italy-italy-mining",
@@ -1459,8 +1685,8 @@
       "domain_registered_year_verified": null,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -1472,7 +1698,13 @@
       "source_urls": [
         "https://italymining.eu/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "italymining.eu",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-kaboomracks",
@@ -1485,10 +1717,10 @@
       "legal_identity_and_location_summary": "Kaboomracks Inc.; Phoenix, Arizona; subsidiary of A.R.T. Digital Holding Corp",
       "company_incorporated_year_verified": 2021,
       "public_operating_since_year": 2020,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2018,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -1502,7 +1734,13 @@
         "https://www.linkedin.com/company/kaboomracks",
         "https://www.bbb.org/us/az/phoenix/profile/mining-equipment/kaboomracks-inc-1126-1000129775"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "kaboomracks.com",
+      "domain_registered_at": "2018-08-23",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/kaboomracks.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "middle-east-united-arab-emirates-keep-hashing",
@@ -1515,10 +1753,10 @@
       "legal_identity_and_location_summary": "Deira, Dubai workshop; 180 Al Khabaisi, Unit 20612-G-006",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2023,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -1532,7 +1770,13 @@
         "https://keephashing.com/",
         "https://keephashing.com/wholesale-asic-miners/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "keephashing.com",
+      "domain_registered_at": "2023-07-11",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/keephashing.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "latin-america-argentina-mexico-brazil-other-mercado-libre-countries-mercado-libre-marketplace",
@@ -1545,10 +1789,10 @@
       "legal_identity_and_location_summary": "Regional marketplace; individual sellers vary",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 1999,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -1562,7 +1806,13 @@
         "https://listado.mercadolibre.com.mx/antminer-asic",
         "https://listado.mercadolibre.com.ar/asic-antminer"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "mercadolibre.com",
+      "domain_registered_at": "1999-05-08",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/mercadolibre.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "latin-america-mexico-mercado-minero",
@@ -1575,10 +1825,10 @@
       "legal_identity_and_location_summary": "Mexico City specialist; legal company/RFC not clearly displayed in reviewed pages",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2025,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -1593,7 +1843,13 @@
         "https://mercadominero.com.mx/pages/terminos-y-condiciones",
         "https://www.scamadviser.com/check-website/mercadominero.com.mx"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "mercadominero.com.mx",
+      "domain_registered_at": "2025-05-06",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-china-microbt-whatsminer-official-shop",
@@ -1606,10 +1862,10 @@
       "legal_identity_and_location_summary": "Shenzhen MicroBT Electronics Technology Co., Ltd., Shenzhen, China",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2016,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -1625,7 +1881,13 @@
         "https://microbt.com/contact",
         "https://support.whatsminer.com/en-US/article/656"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "whatsminer.com",
+      "domain_registered_at": "2016-10-24",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/whatsminer.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-germany-china-millionminer",
@@ -1638,7 +1900,7 @@
       "legal_identity_and_location_summary": "Terms name YEESHINE TECHNOLOGY CO., LTD., Dongguan, China; Berlin presented as contact/HQ | Berlin contact presence; legal seller address in Dongguan per imprint/terms",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2020,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": "Trustpilot",
       "review_rating": 3.9,
       "review_count": 125,
@@ -1658,7 +1920,13 @@
         "https://millionminer.com/product/asic-miner/bitmain-antminer-z15-pro-860ksol",
         "https://www.trustpilot.com/review/millionminer.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "millionminer.com",
+      "domain_registered_at": "2021-07-06",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/millionminer.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-france-minent",
@@ -1674,8 +1942,8 @@
       "domain_registered_year_verified": null,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -1687,7 +1955,13 @@
       "source_urls": [
         "https://minent.eu/products/bitmain-antminer-z15-pro"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "minent.eu",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-slovakia-miner-house",
@@ -1700,7 +1974,7 @@
       "legal_identity_and_location_summary": "Brand claims MM-PRO Group; exact seller entity should be verified | Malcov 139, Slovakia (seller-published)",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2015,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2020,
       "review_platform": "Trustpilot",
       "review_rating": 1.4,
       "review_count": 34,
@@ -1717,7 +1991,13 @@
         "https://www.trustpilot.com/review/miner-house.com",
         "https://miner-house.com/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "miner-house.com",
+      "domain_registered_at": "2020-11-14",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/miner-house.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "latin-america-brazil-minerabit",
@@ -1730,10 +2010,10 @@
       "legal_identity_and_location_summary": "Physical address R. Dr. Carlos Augusto de Campos 221B, Santo Amaro, Sao Paulo",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2025,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -1746,7 +2026,13 @@
       "source_urls": [
         "https://www.minerabit.com.br/sobre-nos"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "minerabit.com.br",
+      "domain_registered_at": "2025-08-19",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.registro.br/domain/minerabit.com.br",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-canada-miners-market",
@@ -1759,10 +2045,10 @@
       "legal_identity_and_location_summary": "Trade name Miners Market; LS Crypto Mining Solutions; Ottawa, Ontario address",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2024,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
+      "review_count": 34,
       "review_snapshot_date": "2026-10-08",
       "review_source_url": "https://www.trustpilot.com/review/minersmarket.ca",
       "declared_availability": "unknown_or_quote_required",
@@ -1777,7 +2063,13 @@
         "https://www.bbb.org/scamtracker/lookupscam/1191093",
         "https://minersmarket.ca/pages/contact"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "minersmarket.ca",
+      "domain_registered_at": "2024-10-21",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.ca.fury.ca/rdap/domain/minersmarket.ca",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-germany-miners-de",
@@ -1807,7 +2099,13 @@
         "https://miners.de/",
         "https://www.trustpilot.com/review/miners.de"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "miners.de",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-poland-miners-pl",
@@ -1820,11 +2118,11 @@
       "legal_identity_and_location_summary": "MINERS SOLUTIONS SP. Z O.O.; KRS 0001168605; NIP 5851507546 | ul. 3 Maja 33, Sopot, Poland",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -1838,7 +2136,13 @@
         "https://miners.pl/",
         "https://compabase.com/pl/companies/krs/0001168605"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "miners.pl",
+      "domain_registered_at": "2021-08-06",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.dns.pl/domain/miners.pl",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-hong-kong-china-minersource-shop",
@@ -1851,10 +2155,10 @@
       "legal_identity_and_location_summary": "Claims Hong Kong and Shenzhen warehouses and sales since 2019; legal entity not clearly established in independent sources reviewed",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2019,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2023,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -1867,7 +2171,13 @@
       "source_urls": [
         "https://minersource.shop/2026/05/27/new-stock-antminer-z15-pro-s21-s21-pro-and-s21-xp-imm-now-in-hk-warehouse-at-minersource/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "minersource.shop",
+      "domain_registered_at": "2023-08-10",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.gmoregistry.net/rdap/domain/minersource.shop",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-ireland-mineshop-eu",
@@ -1900,7 +2210,13 @@
         "https://mineshop.eu/contact-us",
         "https://de.trustpilot.com/review/mineshop.eu"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "mineshop.eu",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-australia-mining-store-australia",
@@ -1916,7 +2232,7 @@
       "domain_registered_year_verified": null,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -1931,7 +2247,13 @@
         "https://www.miningstore.com.au/terms-and-conditions/",
         "https://www.productreview.com.au/listings/mining-store"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "miningstore.com.au",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP; Registry WHOIS fallback",
+      "domain_registration_source_url": "https://rdap.cctld.au/rdap/domain/miningstore.com.au",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-mining-syndicate",
@@ -1944,10 +2266,10 @@
       "legal_identity_and_location_summary": "Mining Syndicate LLC; Rockwall, Texas",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -1961,7 +2283,13 @@
         "https://www.bbb.org/us/tx/rockwall/profile/crypto-mining/mining-syndicate-llc-0875-91346075",
         "https://www.reddit.com/r/BitcoinMining/comments/1qoe7om/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "miningsyndicate.com",
+      "domain_registered_at": "2021-08-31",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/miningsyndicate.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-germany-mining-technologies",
@@ -1977,8 +2305,8 @@
       "domain_registered_year_verified": null,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -1991,7 +2319,13 @@
         "https://www.mining-technologies.de/en/imprint",
         "https://www.mining-technologies.de/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "mining-technologies.de",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-netherlands-mining-wholesale",
@@ -2022,7 +2356,13 @@
         "https://miningwholesale.eu/terms-conditions/",
         "https://uk.trustpilot.com/review/miningwholesale.eu"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "miningwholesale.eu",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-india-miningshop-in",
@@ -2052,7 +2392,13 @@
         "https://miningshop.in/",
         "https://www.trustpilot.com/review/miningshop.in"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "miningshop.in",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP lookup failed: HTTPError; Registry WHOIS fallback",
+      "domain_registration_source_url": "https://rdap.nixiregistry.in/rdap/domain/miningshop.in",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-musk-miners",
@@ -2065,7 +2411,7 @@
       "legal_identity_and_location_summary": "US company based in North Dakota; founders named Blake Greiner and Chris Wavra",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2017,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": "Trustpilot",
       "review_rating": 4.2,
       "review_count": 20,
@@ -2083,7 +2429,13 @@
         "https://www.muskminers.com/resources/faq/",
         "https://www.trustpilot.com/review/muskminers.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "muskminers.com",
+      "domain_registered_at": "2021-04-15",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/muskminers.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "africa-nigeria-no-vetted-independent-retail-vendor-identified",
@@ -2154,10 +2506,10 @@
       "legal_identity_and_location_summary": "Nairobi, Kenya hosting/data-centre operator; claims government authorisation and large operating capacity",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2018,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -2170,7 +2522,13 @@
       "source_urls": [
         "https://omining.com/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "omining.com",
+      "domain_registered_at": "2018-08-22",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/omining.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-czech-republic-united-states-oneminers",
@@ -2183,7 +2541,7 @@
       "legal_identity_and_location_summary": "Site/history links brand to CIRCLEHASH LLC (US); OneMiners is a brand and invoice counterparty must be confirmed | Czech/European operations plus US and other hosting locations; exact seller-of-record location varies",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2024,
       "review_platform": "Trustpilot",
       "review_rating": 4.5,
       "review_count": 133,
@@ -2201,7 +2559,13 @@
         "https://www.trustpilot.com/review/oneminers.com",
         "https://www.hashsight.io/company/oneminers"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "oneminers.com",
+      "domain_registered_at": "2024-02-02",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/oneminers.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-japan-osl-japan-mining-service",
@@ -2214,10 +2578,10 @@
       "legal_identity_and_location_summary": "OSL Japan; Japanese digital-asset group service page",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 1994,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -2231,7 +2595,13 @@
         "https://www.osl.com/jp/mining_lp",
         "https://www.dcjpy.com/en/pressrelease/pr-20210225-mining-release.html"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "osl.com",
+      "domain_registered_at": "1994-08-31",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/osl.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-czech-republic-pc-praha",
@@ -2244,12 +2614,12 @@
       "legal_identity_and_location_summary": "Trader identified by Czech IČO 07991126 | Rostovská 260/2b, Prague-Vršovice",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2015,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2019,
       "review_platform": "Trustpilot",
-      "review_rating": 3.9,
-      "review_count": 8,
+      "review_rating": 3.5,
+      "review_count": 6,
       "review_snapshot_date": "2026-10-08",
-      "review_source_url": null,
+      "review_source_url": "https://www.trustpilot.com/review/pcpraha.cz",
       "declared_availability": "unknown_or_quote_required",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
       "equihash_z15_claim": "Z15 Pro 840 listed around CZK195,619 ex VAT; Z15 420 around CZK80,714 ex VAT",
@@ -2262,7 +2632,13 @@
         "https://www.firmy.cz/detail/13250354-pcpraha-praha-vrsovice.html",
         "https://obchody.heureka.cz/pcpraha-cz/recenze/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "pcpraha.cz",
+      "domain_registered_at": "2019-05-11",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.nic.cz/domain/pcpraha.cz",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "middle-east-united-arab-emirates-phoenix-store-phoenix-group",
@@ -2275,10 +2651,10 @@
       "legal_identity_and_location_summary": "Phoenix Computer Equipment Trading, wholly owned by Phoenix Group PLC; UAE; parent listed on Abu Dhabi Securities Exchange (ADX: PHX)",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2017,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2019,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -2294,7 +2670,13 @@
         "https://apigateway.adx.ae/adx/cdn/1.0/content/download/3261484",
         "https://www.prnewswire.co.uk/news-releases/phoenix-technology-signs-new-distributor-agreement-with-microbt-selling-their-whatsminer-brand-301682953.html"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "phoenix.store",
+      "domain_registered_at": "2019-10-23",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.radix.host/rdap/domain/phoenix.store",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "middle-east-saudi-arabia-gcc-phoenix-store-regional-channel",
@@ -2307,10 +2689,10 @@
       "legal_identity_and_location_summary": "UAE Phoenix Group subsidiary with documented exclusive MicroBT rights across GCC including Saudi Arabia, Bahrain, Oman, Qatar and Kuwait",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2019,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -2324,7 +2706,13 @@
         "https://www.prnewswire.co.uk/news-releases/phoenix-technology-signs-new-distributor-agreement-with-microbt-selling-their-whatsminer-brand-301682953.html",
         "https://phoenixgroupuae.com/investor-relations"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "phoenix.store",
+      "domain_registered_at": "2019-10-23",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.radix.host/rdap/domain/phoenix.store",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-print-crypto",
@@ -2337,7 +2725,7 @@
       "legal_identity_and_location_summary": "Print Crypto Inc.; Austin, Texas; stock can ship from Kansas or Hong Kong",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2021,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": "Trustpilot",
       "review_rating": 4.8,
       "review_count": 69,
@@ -2354,7 +2742,13 @@
         "https://printcrypto.io/faq",
         "https://www.trustpilot.com/review/printcrypto.io"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "printcrypto.io",
+      "domain_registered_at": "2021-01-30",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-new-zealand-rc-hobbies-nz",
@@ -2367,10 +2761,10 @@
       "legal_identity_and_location_summary": "New Zealand online hobby retailer; ASIC range listed; exact contracting entity should be confirmed on invoice",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2007,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -2384,7 +2778,13 @@
         "https://www.rchobbies.co.nz/asic-miners/",
         "https://www.rchobbies.co.nz/shipping-returns/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "rchobbies.co.nz",
+      "domain_registered_at": "2007-02-07",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "africa-south-africa-sa-crypto-miners",
@@ -2397,11 +2797,11 @@
       "legal_identity_and_location_summary": "South African company registration 2023/692365/07; Cape Town",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2023,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2023,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "seller_declared_spot_or_near_term",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -2413,7 +2813,13 @@
       "source_urls": [
         "https://sacryptominers.com/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "sacryptominers.com",
+      "domain_registered_at": "2023-04-07",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/sacryptominers.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-united-kingdom-the-bitcoin-miner",
@@ -2426,11 +2832,11 @@
       "legal_identity_and_location_summary": "THE BITCOIN MINER LTD; Companies House 17112083 | Registered office 41 Capel Crescent, Newport NP20 2FT",
       "company_incorporated_year_verified": 2026,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2025,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -2444,7 +2850,13 @@
         "https://thebitcoinminer.co.uk/pages/contact",
         "https://thebitcoinminer.co.uk/pages/faqs"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "thebitcoinminer.co.uk",
+      "domain_registered_at": "2025-08-26",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.nominet.uk/uk/domain/thebitcoinminer.co.uk",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-united-kingdom-the-mining-shop-uk",
@@ -2457,7 +2869,7 @@
       "legal_identity_and_location_summary": "THE MINING SHOP UK LTD; Companies House 14666497; VAT GB482035600 | 38 Church Street, Hartlepool TS24 7DG (shop/repair centre); registered office Middlesbrough",
       "company_incorporated_year_verified": 2023,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": "Trustpilot",
       "review_rating": 4.7,
       "review_count": 27,
@@ -2476,7 +2888,13 @@
         "https://www.theminingshop.co.uk/warranty-policy/",
         "https://uk.trustpilot.com/review/theminingshop.co.uk"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "theminingshop.co.uk",
+      "domain_registered_at": "2021-09-16",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.nominet.uk/uk/domain/theminingshop.co.uk",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "europe-united-kingdom-titan-crypto",
@@ -2489,11 +2907,11 @@
       "legal_identity_and_location_summary": "TITAN CRYPTO LIMITED; Companies House 13739322 | The Avalon, Bramble Lane, Burntwood WS7 9AU",
       "company_incorporated_year_verified": 2021,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2026,
       "review_platform": "Trustpilot",
       "review_rating": null,
-      "review_count": null,
-      "review_snapshot_date": "2026-10-08",
+      "review_count": 0,
+      "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
@@ -2507,7 +2925,13 @@
         "https://www.titancryptoltd.com/contact/",
         "https://www.titancryptoltd.com/verify/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "titancryptoltd.com",
+      "domain_registered_at": "2026-06-30",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/titancryptoltd.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-hong-kong-uminers",
@@ -2520,10 +2944,10 @@
       "legal_identity_and_location_summary": "Hong Kong HQ at Tsim Sha Tsui Centre; company claims operating since 2010 and Ethiopian data centre",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": 2010,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2017,
       "review_platform": "Trustpilot",
-      "review_rating": 4.0,
-      "review_count": 4,
+      "review_rating": 3.3,
+      "review_count": 5,
       "review_snapshot_date": "2026-10-08",
       "review_source_url": "https://www.trustpilot.com/review/uminers.com",
       "declared_availability": "unknown_or_quote_required",
@@ -2537,7 +2961,13 @@
         "https://uminers.com/",
         "https://www.trustpilot.com/review/uminers.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "uminers.com",
+      "domain_registered_at": "2017-09-24",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/uminers.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-usa-miners",
@@ -2550,10 +2980,10 @@
       "legal_identity_and_location_summary": "Claims US stock/warehouse; legal entity not clearly identified in reviewed public page",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2026,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "unknown_or_quote_required",
@@ -2566,7 +2996,13 @@
       "source_urls": [
         "https://www.usa-miners.com/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "usa-miners.com",
+      "domain_registered_at": "2026-07-25",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/usa-miners.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-canada-viperatech",
@@ -2579,12 +3015,12 @@
       "legal_identity_and_location_summary": "Canadian technology/ASIC seller",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2021,
       "review_platform": "Trustpilot",
-      "review_rating": null,
-      "review_count": 275,
+      "review_rating": 3.5,
+      "review_count": 276,
       "review_snapshot_date": "2026-10-08",
-      "review_source_url": null,
+      "review_source_url": "https://www.trustpilot.com/review/viperatech.com",
       "declared_availability": "unknown_or_quote_required",
       "availability_basis": "Seller/public listing or quotation summarized by the cited research; not a physical inventory audit.",
       "equihash_z15_claim": "Inventory not material to recommendation.",
@@ -2595,7 +3031,13 @@
       "source_urls": [
         "https://www.canyoumineit.com/vendors/viperatech/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "viperatech.com",
+      "domain_registered_at": "2021-03-12",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/viperatech.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-hong-kong-china-woyou-miner",
@@ -2608,7 +3050,7 @@
       "legal_identity_and_location_summary": "China/Hong Kong-facing ASIC reseller; exact contracting entity must be confirmed",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2022,
       "review_platform": "Trustpilot",
       "review_rating": 2.6,
       "review_count": 24,
@@ -2625,7 +3067,13 @@
         "https://woyouminer.com/",
         "https://www.trustpilot.com/review/woyouminer.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "woyouminer.com",
+      "domain_registered_at": "2022-09-26",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/woyouminer.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "latin-america-paraguay-xiaomi-zone-paraguay",
@@ -2641,7 +3089,7 @@
       "domain_registered_year_verified": null,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "sold_out_or_no_current_listing",
@@ -2654,7 +3102,13 @@
       "source_urls": [
         "https://www.xiaomizone.com.py/"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "xiaomizone.com.py",
+      "domain_registered_at": null,
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "RDAP service not published by IANA; Registry WHOIS fallback",
+      "domain_registration_source_url": null,
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "north-america-united-states-unknown-z15pro860-com",
@@ -2667,10 +3121,10 @@
       "legal_identity_and_location_summary": "No verifiable company/address identified on reviewed contact page",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2026,
       "review_platform": null,
       "review_rating": null,
-      "review_count": null,
+      "review_count": 0,
       "review_snapshot_date": null,
       "review_source_url": null,
       "declared_availability": "seller_declared_spot_or_near_term",
@@ -2684,7 +3138,13 @@
         "https://www.z15pro860.com/",
         "https://www.z15pro860.com/contact.html"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "z15pro860.com",
+      "domain_registered_at": "2026-09-30",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/z15pro860.com",
+      "review_checked_at": "2026-10-08"
     },
     {
       "id": "asia-pacific-hong-kong-zeus-mining-zeusbtc-com",
@@ -2697,10 +3157,10 @@
       "legal_identity_and_location_summary": "Hong Kong address at Tontex Industrial Building, San Po Kong; mainly repair parts/tools specialist",
       "company_incorporated_year_verified": null,
       "public_operating_since_year": null,
-      "domain_registered_year_verified": null,
+      "domain_registered_year_verified": 2017,
       "review_platform": "Trustpilot",
       "review_rating": 4.9,
-      "review_count": 116,
+      "review_count": 126,
       "review_snapshot_date": "2026-10-08",
       "review_source_url": "https://www.trustpilot.com/review/www.zeusbtc.com",
       "declared_availability": "seller_declared_spot_or_near_term",
@@ -2715,7 +3175,13 @@
         "https://www.trustpilot.com/review/www.zeusbtc.com",
         "https://www.trustpilot.com/review/zeus-mining.com"
       ],
-      "last_verified": "2026-10-08"
+      "last_verified": "2026-10-08",
+      "domain_name": "zeusbtc.com",
+      "domain_registered_at": "2017-10-13",
+      "domain_registration_checked_at": "2026-10-08",
+      "domain_registration_source": "IANA-bootstrapped RDAP",
+      "domain_registration_source_url": "https://rdap.verisign.com/com/v1/domain/zeusbtc.com",
+      "review_checked_at": "2026-10-08"
     }
   ]
 }
