@@ -58,8 +58,15 @@ fn best_economics<'a>(d: &'a Data, miner: &Miner) -> Option<Economics<'a>> {
     miner_economics(d, miner).into_iter().next()
 }
 
-fn machine_image(id: &str) -> Option<(&'static str, u32, u32)> {
-    match id {
+fn machine_image(miner: &Miner) -> Option<(&str, u32, u32)> {
+    if let Some(src) = miner
+        .image
+        .as_deref()
+        .filter(|src| src.starts_with("/static/shop/machines/"))
+    {
+        return Some((src, 1500, 1500));
+    }
+    match miner.id.as_str() {
         "antminer-z15-pro" => Some((
             "/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp",
             1200,
@@ -160,7 +167,7 @@ fn spec_basis(miner: &Miner) -> Markup {
 }
 
 fn machine_visual(miner: &Miner, class: &str) -> Markup {
-    match machine_image(&miner.id) {
+    match machine_image(miner) {
         Some((src, width, height)) => html! {
             div class=(class) { img src=(src) alt={(miner.maker) " " (miner.model)} width=(width) height=(height) loading="lazy" decoding="async"; }
         },
@@ -415,6 +422,7 @@ pub fn detail(d: &Data, miner: &Miner) -> Markup {
                     dl {
                         div { dt { "Basis" } dd { @if miner.spec_basis.as_deref() == Some("market_reported") { "Public market record" } @else { "Manufacturer publication" } } }
                         div { dt { "Source" } dd { @if let Some(url) = &miner.source_url { (ext(url, miner.source_name.as_deref().unwrap_or("Open source"))) } @else { "n/a" } } }
+                        @if let Some(url) = &miner.image_source_url { div { dt { "Image" } dd { (ext(url, "Market catalogue render ↗")) } } }
                         div { dt { "Checked" } dd { (fmt::utc(miner.fetched_at.as_deref())) } }
                     }
                 }

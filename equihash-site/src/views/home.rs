@@ -1472,6 +1472,15 @@ mod tests {
     }
 
     #[test]
+    fn z15k_market_records_use_the_sourced_catalogue_image() {
+        let d = real();
+        let hw = crate::views::asics::index(&d).into_string();
+        assert!(hw.contains("/static/shop/machines/antminer-z15k-market.9c0237c6c8.png"));
+        assert!(!hw.contains("Antminer Z15K 565 image pending"));
+        assert!(!hw.contains("Antminer Z15K 525 image pending"));
+    }
+
+    #[test]
     fn zero_and_na_render_differently() {
         let mut p = Pool {
             name: "P".into(),

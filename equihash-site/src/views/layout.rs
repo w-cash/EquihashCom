@@ -438,7 +438,7 @@ fn structured_entity(d: &Data, p: &Page<'_>, canonical: &str) -> Option<serde_js
     }
     if let Some(miner_id) = p.path.strip_prefix("/asics/") {
         let miner = d.miners.iter().find(|x| x.id == miner_id)?;
-        return Some(json!({
+        let mut product = json!({
             "@type": "Product", "@id": id, "name": format!("{} {}", miner.maker, miner.model),
             "model": miner.model, "brand": {"@type": "Brand", "name": miner.maker},
             "category": "Equihash ASIC miner", "url": canonical,
@@ -448,7 +448,15 @@ fn structured_entity(d: &Data, p: &Page<'_>, canonical: &str) -> Option<serde_js
                 {"@type": "PropertyValue", "name": "Hashrate", "value": miner.hashrate_ksol, "unitText": "kSol/s"},
                 {"@type": "PropertyValue", "name": "Power", "value": miner.watts, "unitText": "W"}
             ]
-        }));
+        });
+        if let Some(image) = miner
+            .image
+            .as_deref()
+            .filter(|image| image.starts_with("/static/shop/machines/"))
+        {
+            product["image"] = json!(format!("{SITE}{image}"));
+        }
+        return Some(product);
     }
     if let Some(slug) = p.path.strip_prefix("/vendors/") {
         let vendor = d.vendors.iter().find(|x| x.slug == slug)?;

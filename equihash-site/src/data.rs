@@ -514,6 +514,10 @@ pub struct Miner {
     /// "manufacturer" for a maker-published specification; "market_reported" when the current
     /// record is supported by public seller/aggregator pages but no maker specification was found.
     pub spec_basis: Option<String>,
+    /// Local, reviewed product image. Market-reported models keep the source page separately so
+    /// the image cannot be mistaken for a manufacturer publication.
+    pub image: Option<String>,
+    pub image_source_url: Option<String>,
     pub notes: Option<String>,
     pub source_name: Option<String>,
     pub source_url: Option<String>,

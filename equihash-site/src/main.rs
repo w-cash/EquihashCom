@@ -1016,6 +1016,33 @@ mod tests {
         assert!(nodes.iter().any(|n| n["@type"] == "BreadcrumbList"));
         assert!(!nodes.iter().any(|n| n["@type"] == "WebSite"));
 
+        let z15k = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/asics/antminer-z15k-565")
+                .to_request(),
+        )
+        .await;
+        let z15k = String::from_utf8(z15k.to_vec()).unwrap();
+        assert!(z15k.contains("/static/shop/machines/antminer-z15k-market.9c0237c6c8.png"));
+        assert!(z15k.contains("Market catalogue render ↗"));
+        let json = z15k
+            .split(r#"<script type="application/ld+json">"#)
+            .nth(1)
+            .and_then(|s| s.split("</script>").next())
+            .expect("Z15K JSON-LD block");
+        let graph: serde_json::Value = serde_json::from_str(json).expect("valid Z15K JSON-LD");
+        let product = graph["@graph"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|node| node["@type"] == "Product")
+            .expect("Z15K Product schema");
+        assert_eq!(
+            product["image"],
+            "https://equihash.com/static/shop/machines/antminer-z15k-market.9c0237c6c8.png"
+        );
+
         for path in ["/search?q=zcash", "/contribute", "/add-vendor"] {
             let body =
                 test::call_and_read_body(&app, test::TestRequest::get().uri(path).to_request())
