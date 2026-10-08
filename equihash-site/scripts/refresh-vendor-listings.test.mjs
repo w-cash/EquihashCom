@@ -38,12 +38,29 @@ test("Hashlabs parser binds price to the configured facility vicinity", () => {
   assert.equal(result.price_amount, 10498);
 });
 
-test("MineShop batch parser keeps curated availability despite misleading schema stock", () => {
-  const html = '<h1>Bitmain Antminer Z15 Pro</h1><script type="application/ld+json">{"offers":{"price":"7199.87","priceCurrency":"EUR","availability":"https://schema.org/InStock"}}</script><p>March 2027 batch shipping</p>';
-  const result = parseOffer(html, { ...base, parser: "mineshop_batch", batch_match: "March 2027", currency: "EUR", availability_label: "March 2027 batch — not immediate stock" });
+test("MineShop Z15 Pro parser binds the current in-stock page and price", () => {
+  const html = '<h1>Bitmain Antminer Z15 Pro</h1><script type="application/ld+json">{"@type":"Product","name":"Bitmain Antminer Z15 Pro","offers":{"price":"7199.87","priceCurrency":"EUR","availability":"https://schema.org/InStock"}}</script><script type="application/ld+json">{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the Bitmain Antminer Z15 Pro available in Europe?","acceptedAnswer":{"text":"Yes, in stock — ships from our EU warehouse within 1–3 business days."}}]}</script>';
+  const result = parseOffer(html, { ...base, parser: "generic_product", name_match: "Antminer Z15 Pro", faq_question_match: "Z15 Pro available", currency: "EUR", availability: "in_stock", availability_label: "In stock · seller states dispatch within seven working days" });
   assert.equal(result.price_amount, 7199.87);
-  assert.equal(result.availability, "preorder");
-  assert.match(result.availability_label, /not immediate stock/);
+  assert.equal(result.availability, "in_stock");
+  assert.match(result.availability_label, /seven working days/);
+});
+
+test("MineShop Z15K parser preserves the seller FAQ's unavailable state", () => {
+  const html = '<h1>Bitmain Antminer Z15K 525 KSol/s</h1><script type="application/ld+json">{"@type":"Product","name":"Bitmain Antminer Z15K","offers":{"price":"4937.87","priceCurrency":"EUR","availability":"https://schema.org/PreOrder"}}</script><script type="application/ld+json">{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the Antminer Z15K available in Europe?","acceptedAnswer":{"text":"Currently out of stock. Add to wishlist to be notified when available."}}]}</script>';
+  const result = parseOffer(html, {
+    ...base,
+    parser: "generic_product",
+    required_tokens: ["Z15K", "525"],
+    name_match: "Antminer Z15K",
+    faq_question_match: "Z15K available",
+    currency: "EUR",
+    availability: "sold_out",
+    availability_label: "Currently unavailable · price remains on seller page",
+  });
+  assert.equal(result.price_amount, 4937.87);
+  assert.equal(result.availability, "sold_out");
+  assert.match(result.availability_label, /unavailable/);
 });
 
 test("source URL guard blocks local and non-HTTPS targets", () => {

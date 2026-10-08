@@ -313,6 +313,11 @@ fn listing_image(l: &Listing) -> (&str, u32, u32) {
             1200,
             1200,
         ),
+        "antminer-z15k-565" | "antminer-z15k-525" => (
+            "/static/shop/machines/antminer-z15k-market.9c0237c6c8.png",
+            1500,
+            1500,
+        ),
         "antminer-z15" | "antminer-z15j" | "antminer-z15e" => (
             "/static/shop/machines/antminer-z15.8dc9fd7a98.webp",
             924,

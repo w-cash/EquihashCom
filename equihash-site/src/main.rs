@@ -1398,6 +1398,25 @@ mod tests {
         assert_eq!(broad_catalog.matches("data-machine-slide").count(), 6);
         assert!(broad_catalog.contains("Antminer Z9 Mini"));
 
+        let mineshop = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/vendors/mineshop-eu")
+                .to_request(),
+        )
+        .await;
+        let mineshop = String::from_utf8(mineshop.to_vec()).unwrap();
+        assert!(mineshop.contains("2 miners · 2 listings"));
+        assert!(mineshop.contains("data-machine-carousel"));
+        assert_eq!(mineshop.matches("data-machine-slide").count(), 2);
+        assert!(mineshop.contains("Antminer Z15 Pro"));
+        assert!(mineshop.contains("Antminer Z15K 525"));
+        assert!(mineshop.contains("€7,200"));
+        assert!(mineshop.contains("€4,938"));
+        assert!(mineshop.contains("dispatch within seven working days"));
+        assert!(mineshop.contains("Currently unavailable"));
+        assert!(mineshop.contains("antminer-z15k-market.9c0237c6c8.png"));
+
         let uk_vendor = test::call_and_read_body(
             &app,
             test::TestRequest::get()

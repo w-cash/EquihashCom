@@ -409,19 +409,36 @@
       "variant_match": "January - February Batch 2027"
     },
     {
-      "listing_id": "mineshop-eu-antminer-z15-pro-840-march-2027",
+      "listing_id": "mineshop-eu-antminer-z15-pro-840",
       "url": "https://mineshop.eu/bitmain-antminer-z15-pro-860ksols",
-      "parser": "mineshop_batch",
+      "parser": "generic_product",
       "required_tokens": [
         "Z15",
         "Pro"
       ],
+      "name_match": "Antminer Z15 Pro",
+      "faq_question_match": "Z15 Pro 860ksol/s available",
       "currency": "EUR",
-      "availability": "preorder",
-      "availability_label": "March 2027 batch — not immediate stock",
+      "availability": "in_stock",
+      "availability_label": "In stock · seller states dispatch within seven working days",
       "min_price": 1000,
-      "max_price": 30000,
-      "batch_match": "March 2027"
+      "max_price": 30000
+    },
+    {
+      "listing_id": "mineshop-eu-antminer-z15k-525",
+      "url": "https://mineshop.eu/bitmain-antminer-z15k",
+      "parser": "generic_product",
+      "required_tokens": [
+        "Z15K",
+        "525"
+      ],
+      "name_match": "Antminer Z15K",
+      "faq_question_match": "Z15K available",
+      "currency": "EUR",
+      "availability": "sold_out",
+      "availability_label": "Currently unavailable · price remains on seller page",
+      "min_price": 1000,
+      "max_price": 30000
     },
     {
       "listing_id": "cmb-antminer-z15-420",

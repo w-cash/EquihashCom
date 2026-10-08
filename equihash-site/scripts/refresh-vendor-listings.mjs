@@ -214,7 +214,17 @@ function genericOffer(html, source) {
   if (products.length === 1) {
     const offers = Array.isArray(products[0].offers) ? products[0].offers : [products[0].offers].filter(Boolean);
     if (offers.length !== 1) throw new Error(`expected one offer for “${source.name_match}”, found ${offers.length}`);
-    return { price: money(offers[0].price ?? offers[0].lowPrice), evidenceText: JSON.stringify({ name: products[0].name, offer: offers[0] }) };
+    let faq;
+    if (source.faq_question_match) {
+      const needle = source.faq_question_match.toLowerCase();
+      const questions = jsonLd(html).flatMap((value) => flattenJsonLd(value))
+        .filter((value) => String(value["@type"] || "").toLowerCase() === "faqpage")
+        .flatMap((value) => Array.isArray(value.mainEntity) ? value.mainEntity : [value.mainEntity].filter(Boolean))
+        .filter((value) => String(value?.name || "").toLowerCase().includes(needle));
+      if (questions.length !== 1) throw new Error(`expected one FAQ answer for “${source.faq_question_match}”, found ${questions.length}`);
+      faq = questions[0];
+    }
+    return { price: money(offers[0].price ?? offers[0].lowPrice), evidenceText: JSON.stringify({ name: products[0].name, offer: offers[0], faq }) };
   }
   const headings = [...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)]
     .filter((match) => plainText(match[1]).toLowerCase().includes(source.name_match.toLowerCase()));

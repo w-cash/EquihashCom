@@ -259,16 +259,16 @@
       ],
       "base_region": "Europe",
       "region_focus": "Ireland and the European Union",
-      "region_note": "Irish ASIC retailer with physical collection in Dundalk and EU warehouse operations. The researched Z15 Pro page is a March 2027 batch, not immediate stock.",
+      "region_note": "Irish ASIC retailer with physical collection in Dundalk and EU warehouse operations. Its Z15 Pro and Z15K product pages are tracked separately.",
       "legal_name": "MINING HARDWARE LIMITED",
       "registration": "Irish CRO entity · VAT IE3454456JH",
       "registry_url": null,
       "channel": "independent_retailer",
       "verification_label": "Legal identity, location, terms, shipping policy and independent review history checked",
       "verification_url": "https://mineshop.eu/contact-us",
-      "notes": "Tier A public-evidence record. The page's structured data says InStock, but the product body states March 2027 batch shipping and 840 KSol/s; this directory treats it as a future batch.",
-      "source_url": "https://mineshop.eu/bitmain-antminer-z15-pro-860ksols",
-      "observed_at": "2026-10-08T00:00:00.000Z"
+      "notes": "The Z15 Pro page states 840 KSol/s, in stock and dispatch within seven working days. The Z15K 525 page remains published with a price, while its FAQ says it is currently out of stock.",
+      "source_url": "https://mineshop.eu/",
+      "observed_at": "2026-10-08T20:53:14.000Z"
     }
   ]
 }
