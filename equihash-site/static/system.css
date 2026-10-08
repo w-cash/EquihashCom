@@ -84,6 +84,14 @@ body[data-page="home"] .wordmark {
 }
 .wordmark span,
 body[data-page="home"] .wordmark span { color: #979c91; font-weight: 400; }
+.wordmark:hover,
+.wordmark:focus-visible,
+body[data-page="home"] .wordmark:hover,
+body[data-page="home"] .wordmark:focus-visible { color: #fff; }
+.wordmark:hover span,
+.wordmark:focus-visible span,
+body[data-page="home"] .wordmark:hover span,
+body[data-page="home"] .wordmark:focus-visible span { color: #979c91; }
 .nav { flex: 1; gap: clamp(17px, 2.1vw, 29px); align-items: stretch; flex-wrap: nowrap; }
 .nav a,
 body[data-page="home"] .nav a {
