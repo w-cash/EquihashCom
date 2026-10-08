@@ -134,6 +134,7 @@ const PRETTY = {
   "binance.com": "Binance Pool", "poolin.com": "Poolin", "mining-dutch.nl": "Mining-Dutch", "nicehash.com": "NiceHash",
   "kupool.com": "KuPool", "trustpool.cc": "TrustPool", "tpool.io": "TPool", "zpool.ca": "zpool", "zergpool.com": "ZergPool",
   "suprnova.cc": "Suprnova", "herominers.com": "HeroMiners", "cruxpool.com": "CruxPool", "solopool.org": "SoloPool.org",
+  "grandpool.io": "Grand Pool",
 };
 
 function hostOf(url) {
@@ -144,7 +145,7 @@ function baseDomain(host) {
   const parts = host.split(".");
   return parts.slice(-2).join(".");
 }
-function prettyName(p) {
+export function prettyName(p) {
   const host = hostOf(p.url);
   const id = p.pool_id || host;
   let name = PRETTY[id] || PRETTY[host] || PRETTY[baseDomain(host)] || id || host || "Unknown";

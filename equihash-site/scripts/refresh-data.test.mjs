@@ -1,7 +1,14 @@
 // Tests for the pure parts of the refresh script. Run: node --test scripts/
 import test from "node:test";
 import assert from "node:assert/strict";
-import { applyLiveFee, stamp, rankCoins, reportedHashrate, hashrateBasis, parseLiveReading, applyLiveReading, keepPreviousLive, normaliseShares, livePoolIds, applyLiveResult, wcashRewardNote, upsertPoolById } from "./refresh-data.mjs";
+import { applyLiveFee, stamp, rankCoins, reportedHashrate, hashrateBasis, parseLiveReading, applyLiveReading, keepPreviousLive, normaliseShares, livePoolIds, applyLiveResult, wcashRewardNote, upsertPoolById, prettyName } from "./refresh-data.mjs";
+
+test("Grand Pool keeps its requested display name across data refreshes", () => {
+  assert.equal(
+    prettyName({ pool_id: "grandpool.io", url: "https://grandpool.io/pools/zcash" }),
+    "Grand Pool",
+  );
+});
 
 test("a curated pool replaces an upstream row with the same stable id", () => {
   const pools = [

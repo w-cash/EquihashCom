@@ -1148,6 +1148,15 @@ pub fn clean_pool_urls(p: &mut Pool, dropped: &mut Vec<String>) {
     }
 }
 
+/// Operator-confirmed public display names. The upstream directory still supplies the stable
+/// identity and URL; this only corrects the human-readable label shown by the site.
+fn canonical_pool_display_name(p: &Pool) -> Option<&'static str> {
+    match p.id.split(':').nth(1) {
+        Some("grandpool.io") => Some("Grand Pool"),
+        _ => None,
+    }
+}
+
 pub fn clean_coin_urls(c: &mut Coin, dropped: &mut Vec<String>) {
     let id = c.id.clone();
     let n = &mut c.network;
@@ -1889,6 +1898,12 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         },
         Err(_) => {}
     }
+    for p in pools.iter_mut() {
+        if let Some(name) = canonical_pool_display_name(p) {
+            p.name = name.to_string();
+        }
+    }
+
     // Permanent pool URLs (data/curated/permalinks.json); a broken file is an error, so the last
     // good data keeps serving. Missing file = every pool uses its computed slug.
     let permalinks: PermalinksFile =
@@ -2348,6 +2363,16 @@ impl Data {
 mod tests {
     use super::*;
     use std::path::PathBuf;
+
+    #[test]
+    fn grand_pool_uses_operator_confirmed_display_name() {
+        let pool = Pool {
+            id: "zcash:grandpool.io:87".into(),
+            name: "grandpool.io".into(),
+            ..Default::default()
+        };
+        assert_eq!(canonical_pool_display_name(&pool), Some("Grand Pool"));
+    }
 
     fn real_dir() -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("data")
