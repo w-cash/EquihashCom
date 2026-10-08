@@ -92,7 +92,7 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                 title { (full_title) }
                 meta name="description" content=(p.description);
                 meta name="robots" content=(robots);
-                meta name="author" content="Mykyta Samardak";
+                meta name="author" content="equihash.com";
                 link rel="canonical" href=(canonical);
                 link rel="alternate" type="text/plain" href="/llms.txt" title="AI-readable site guide";
                 @for (href, title) in data_alternates(p.path) {
@@ -241,11 +241,11 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
     };
 
     let mut graph = vec![json!({
-        "@type": "Person",
+        "@type": "Organization",
         "@id": publisher_id,
-        "name": "Mykyta Samardak",
+        "name": "equihash.com",
         "url": "https://equihash.com/about",
-        "sameAs": ["https://x.com/MykytaSamardak"]
+        "sameAs": ["https://x.com/EquihashCom"]
     })];
     if p.path == "/" {
         graph.insert(0, json!({

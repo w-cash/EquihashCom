@@ -821,7 +821,7 @@ pub fn add_vendor(d: &Data) -> Markup {
             header class="page-head" { h1 { "Add or correct a vendor" } p class="lede" { "Directory inclusion and factual corrections are free. Submit public company and listing pages that readers can inspect without an account." } }
             p { "For a correction, include the record ID, the field that is wrong, the proposed wording and a primary source. Clear factual errors are corrected without changing a vendor's position for commercial reasons." }
             h2 { "What to send" }
-            ol { li { strong { "Publish the facts. " } "Company identity, seller location, availability, price and delivery wording must be visible on public pages." } li { strong { "Send the sources. " } "Copy the template and send it to " a href="https://x.com/MykytaSamardak" rel="noopener" { "@MykytaSamardak on X" } "." } }
+            ol { li { strong { "Publish the facts. " } "Company identity, seller location, availability, price and delivery wording must be visible on public pages." } li { strong { "Send the sources. " } "Copy the template and send it to " a href="https://x.com/EquihashCom" rel="noopener" { "@EquihashCom on X" } "." } }
             div class="tpl" { div class="tpl-head" { span { "Vendor template" } button class="btn small" type="button" data-copy="#tpl-vendor" { "Copy" } } pre id="tpl-vendor" { (template) } }
             p class="small" { "Machine specifications stay in the " a href="/asics" { "ASIC index" } "; the vendor directory records seller-published listings and source checks." }
         }

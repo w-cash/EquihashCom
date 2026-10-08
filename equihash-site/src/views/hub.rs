@@ -592,7 +592,7 @@ pub fn zcash_mining(d: &Data) -> Markup {
                 p class="eyebrow" { "ZCASH · EQUIHASH 200,9" }
                 h1 { "How to mine Zcash" }
                 p class="lede" { "Zcash uses Equihash 200,9 proof of work. A compatible ASIC such as the Antminer Z15 Pro sends shares to a Zcash pool, and the pool pays according to its published fee and payout rules." }
-                p class="small" { "Maintained by " a href="https://x.com/MykytaSamardak" rel="me noopener" { "Mykyta Samardak" } " · network and pool data refreshed " time datetime=[d.last_updated.as_deref()] { (fmt::utc(d.last_updated.as_deref())) } " · " a href="/sources" { "method and sources" } }
+                p class="small" { "Network and pool data refreshed " time datetime=[d.last_updated.as_deref()] { (fmt::utc(d.last_updated.as_deref())) } " · " a href="/sources" { "method and sources" } }
             }
 
             section aria-labelledby="zcash-answer" {
@@ -1981,7 +1981,7 @@ pub fn contribute(d: &Data) -> Markup {
     let question = "Type: question or guide correction\nPage or entity:\nQuestion/correction:\nPublic source, if applicable:\nHow may we credit you? (optional):\n";
     layout(d, Page { title: "Add a listing, correction or question", description: "Submit an Equihash pool, coin, hardware listing, correction or community question to equihash.com.", path: "/contribute", nav: "" }, html! {
         div class="wrap page narrow prose contribute-page" {
-            header class="page-head" { p class="eyebrow" { "CONTRIBUTE" } h1 { "Add what miners need" } p class="lede" { "Listings are free. Public evidence is required for factual claims, and accepted fields keep their source. Send a completed template to " a href="https://x.com/MykytaSamardak" rel="noopener" { "@MykytaSamardak on X" } "." } }
+            header class="page-head" { p class="eyebrow" { "CONTRIBUTE" } h1 { "Add what miners need" } p class="lede" { "Listings are free. Public evidence is required for factual claims, and accepted fields keep their source. Send a completed template to " a href="https://x.com/EquihashCom" rel="noopener" { "@EquihashCom on X" } "." } }
             nav class="contribute-nav" aria-label="Contribution types" { a href="#pool" { "Pool" } a href="#project" { "Coin or hardware" } a href="/add-vendor" { "Vendor" } a href="#question" { "Question or correction" } }
             section id="pool" { h2 { "Pool listing or correction" } p { "A useful pool listing needs a public website plus enough evidence to verify fee, payout, endpoints and current activity. Public machine-readable stats give miners the best record." } div class="tpl" { div class="tpl-head" { span { "Pool template" } button class="btn small" type="button" data-copy="#pool-template" { "Copy" } } pre id="pool-template" { (pool) } } }
             section id="project" { h2 { "Coin or hardware listing" } p { "Compatibility is based on exact n,k parameters. Link an official protocol or manufacturer specification wherever possible." } div class="tpl" { div class="tpl-head" { span { "Project template" } button class="btn small" type="button" data-copy="#project-template" { "Copy" } } pre id="project-template" { (project) } } }

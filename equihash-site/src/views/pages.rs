@@ -200,8 +200,8 @@ pub fn about(d: &Data) -> Markup {
     layout(d, Page { title: "About", description: "About equihash.com, the open directory for Equihash coins, mining pools, hardware and guides.", path: "/about", nav: "about" }, html! {
         div class="wrap page narrow prose" {
             header class="page-head" { h1 { "About equihash.com" } p class="lede" { "equihash.com lists Equihash coins, mining pools, ASICs, sellers and hashpower markets, and shows where each number came from." } }
-            p class="about-line" { "Maintained by " a href="https://x.com/MykytaSamardak" rel="me noopener" target="_blank" { "Mykyta Samardak (@MykytaSamardak)" } "." }
-            p { "The same person maintains this site and Wcash. Only Zcash pools that support Wcash send work to it, so this site never counts all Zcash hashrate as Wcash hashrate." }
+            p class="about-line" { "equihash.com is maintained as an independent public reference for Equihash mining." }
+            p { "The site also documents Wcash's merged-mining relationship with Zcash. Only Zcash pools that explicitly support Wcash send work to it, so this site never counts all Zcash hashrate as Wcash hashrate." }
             h2 { "How it's run" }
             p { "Pool order comes from the figures in the table. Nobody can pay for a row, a higher position or a badge." }
             p { "The site has no referral links and does not collect payment for hardware, pool or coin listings. Corrections can be submitted from the " a href="/contribute" { "contribution page" } " and are checked against a public source." }

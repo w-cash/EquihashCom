@@ -4,8 +4,8 @@ Status: operational contract drafted; staffing fields marked `UNASSIGNED` are re
 
 | Responsibility | Primary | Absence cover | Authority |
 |---|---|---|---|
-| Product and editorial decisions | Mykyta Samardak | `UNASSIGNED` | Publish or withhold ordinary records |
-| Urgent malicious-link suppression | Mykyta Samardak | `UNASSIGNED` | Immediately disable a confirmed malicious destination |
+| Product and editorial decisions | `EQUIHASH.COM EDITORIAL` | `UNASSIGNED` | Publish or withhold ordinary records |
+| Urgent malicious-link suppression | `EQUIHASH.COM OPERATIONS` | `UNASSIGNED` | Immediately disable a confirmed malicious destination |
 | Technical rollback and cache purge | `UNASSIGNED` | `UNASSIGNED` | Roll back snapshots and purge deployed copies |
 | Affiliated-claim review | `UNASSIGNED INDEPENDENT HUMAN` | `UNASSIGNED` | Review Wcash promotional or comparative treatment |
 | Appeals | `UNASSIGNED` | `UNASSIGNED` | Reconsider a decision without being its original editor |
