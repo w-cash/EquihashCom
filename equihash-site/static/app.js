@@ -397,6 +397,18 @@
   if (calc) {
     const cdata = json("#calc-data") || [];
     const input = (n) => $("#c-" + n);
+    const explicitInputs = new Set(new URLSearchParams(location.search).keys());
+    const automaticStatus = (c, field) => c?.[`${field}_status`] || "missing_time";
+    const sourceStatusText = (c, field, limit) => {
+      if (explicitInputs.has(field)) return "User-entered scenario; source age is not asserted.";
+      const at = c?.[`${field}_observed_at`];
+      switch (automaticStatus(c, field)) {
+        case "fresh": return `Observed ${fmtUtc(at)} · current window ${limit}.`;
+        case "stale": return `Observed ${fmtUtc(at)} · outside the ${limit} current-data window; current economics withheld.`;
+        case "future_time": return "Observation time is in the future; current economics withheld.";
+        default: return "Observation time unavailable; current economics withheld.";
+      }
+    };
     function check(n) {
       const el = input(n); if (!el) return { ok: true, v: null };
       const raw = el.value.trim();
@@ -422,7 +434,7 @@
     const coinsFmt = (v) => (v == null ? NA : v >= 100 ? v.toFixed(2) : v >= 1 ? v.toFixed(4) : v.toFixed(6));
     const set = (id, txt) => { const el = $("#" + id); if (el) el.textContent = txt; };
     function compute() {
-      const names = ["hashrate", "watts", "power", "fee", "price", "reward", "nethash", "blocktime"];
+      const names = ["hashrate", "watts", "power", "fee", "hardware", "price", "reward", "nethash", "blocktime"];
       const r = Object.fromEntries(names.map((n) => [n, check(n)]));
       const bad = names.some((n) => !r[n].ok);
       $("#o-bad").hidden = !bad;
@@ -431,23 +443,62 @@
       set("o-name", c.label || "");
       $("#o-note").hidden = !!c.z15;
       if (!c.z15) $("#o-note").textContent = `${c.label} uses Equihash ${c.params}. The Antminer presets are 200,9 machines and won't mine it.`;
-      const hr = r.hashrate.v, w = r.watts.v || 0, pw = r.power.v || 0, fee = r.fee.v || 0, price = r.price.v, rw = r.reward.v, net = r.nethash.v, bt = r.blocktime.v;
+      const hr = r.hashrate.v, w = r.watts.v, pw = r.power.v, fee = r.fee.v, hardware = r.hardware.v, price = r.price.v, rw = r.reward.v, net = r.nethash.v, bt = r.blocktime.v;
+      const usablePrice = explicitInputs.has("price") || automaticStatus(c, "price") === "fresh" ? price : null;
+      const usableNet = explicitInputs.has("nethash") || automaticStatus(c, "nethash") === "fresh" ? net : null;
       // Same rule as the server: at 10% or more of the network estimate, no share-based figure.
-      const e = !bad && S ? S.estimate({ hr, w, pw, fee, price, rw, net, bt }) : { coinsDay: null, powDay: null, rev: null, profit: null, sharePct: null, guard: null };
+      const e = !bad && S ? S.estimate({ hr, w, pw, fee, price: usablePrice, rw, net: usableNet, bt }) : { coinsDay: null, powDay: null, rev: null, profit: null, sharePct: null, guard: null };
       const coinsDay = e.coinsDay, powDay = e.powDay, rev = e.rev, profit = e.profit;
       const g = $("#o-guard"); if (g) { g.textContent = e.guard || ""; g.hidden = !e.guard; }
       const x30 = (v) => (v == null ? null : v * 30);
+      const x365 = (v) => (v == null ? null : v * 365);
       set("o-coins", coinsFmt(coinsDay)); set("o-coins30", coinsFmt(x30(coinsDay)));
+      set("o-coins365", coinsFmt(x365(coinsDay)));
       set("o-rev", money(rev)); set("o-rev30", money(x30(rev)));
+      set("o-rev365", money(x365(rev)));
       set("o-pow", money(powDay == null ? null : -powDay)); set("o-pow30", money(powDay == null ? null : -powDay * 30));
+      set("o-pow365", money(powDay == null ? null : -powDay * 365));
       set("o-profit", money(profit)); set("o-profit30", money(x30(profit)));
-      $("#o-profit").classList.toggle("neg", profit != null && profit < 0); $("#o-profit30").classList.toggle("neg", profit != null && profit < 0);
+      set("o-profit365", money(x365(profit)));
+      $("#o-profit").classList.toggle("neg", profit != null && profit < 0); $("#o-profit30").classList.toggle("neg", profit != null && profit < 0); $("#o-profit365").classList.toggle("neg", profit != null && profit < 0);
       set("o-share", e.sharePct != null ? fmtPct(e.sharePct) : NA);
       set("o-be", rev != null && w > 0 ? "$" + (rev / ((w / 1000) * 24)).toFixed(3) + "/kWh" : NA);
+      set("o-payback", hardware != null && profit > 0 ? `${(hardware / profit).toFixed(0)} days (${(hardware / profit / 30.4).toFixed(1)} months)` : NA);
+      [0, 1, 2, 3].forEach((sensitivityFee) => {
+        const scenario = !bad && S ? S.estimate({ hr, w, pw, fee: sensitivityFee, price: usablePrice, rw, net: usableNet, bt }) : { profit: null };
+        set("o-fee-" + sensitivityFee, money(scenario.profit));
+        set("o-fee30-" + sensitivityFee, money(x30(scenario.profit)));
+      });
+      const missing = [
+        [hr == null, "hashrate"],
+        [fee == null, "pool fee"],
+        [rw == null, "miner reward"],
+        [usableNet == null, "current network hashrate"],
+        [usablePrice == null, "current coin price"],
+        [bt == null, "block time"],
+      ].filter(([isMissing]) => isMissing).map(([, label]) => label);
+      const missingEl = $("#o-missing");
+      if (missingEl) {
+        missingEl.textContent = missing.length ? `Estimate incomplete: ${missing.join(", ")}. Unknown inputs are not treated as zero.` : "";
+        missingEl.hidden = missing.length === 0;
+      }
+      set("s-price", sourceStatusText(c, "price", "30-minute"));
+      set("s-nethash", sourceStatusText(c, "nethash", "15-minute"));
+      set("s-fee", fee == null ? "Unknown until entered or a dated pool product is selected." : "User-entered scenario; source age is not asserted.");
+      const qs = new URLSearchParams();
+      qs.set("coin", $("#c-coin").value);
+      names.forEach((name) => {
+        const value = input(name)?.value.trim();
+        const automaticSource = name === "price" || name === "nethash";
+        if (value && (!automaticSource || explicitInputs.has(name))) qs.set(name, value);
+      });
+      history.replaceState(null, "", "/calculator?" + qs.toString());
     }
     function setHint(n, html) { const h = $("#h-" + n); if (h) h.innerHTML = html; }
     function prefill() {
       const c = cdata.find((x) => x.id === $("#c-coin").value); if (!c) return;
+      explicitInputs.delete("price");
+      explicitInputs.delete("nethash");
       const put = (n, v) => { input(n).value = v == null ? "" : +(+v).toPrecision(10); };
       put("price", c.price); put("reward", c.reward); put("nethash", c.nethash); put("blocktime", c.blocktime);
       const ru = input("reward")?.parentElement.querySelector(".unit"); if (ru) ru.textContent = c.symbol;
@@ -459,15 +510,51 @@
       compute();
     }
     $("#c-coin").addEventListener("change", prefill);
-    calc.addEventListener("input", (e) => { if (e.target.id !== "c-coin") { $$(".preset").forEach((b) => b.setAttribute("aria-pressed", "false")); compute(); } });
+    calc.addEventListener("input", (e) => {
+      if (e.target.id !== "c-coin") {
+        if (e.target.name) explicitInputs.add(e.target.name);
+        $$(".preset").forEach((b) => b.setAttribute("aria-pressed", "false"));
+        compute();
+      }
+    });
     calc.addEventListener("submit", (e) => { e.preventDefault(); compute(); });
     $$(".preset[data-hr]").forEach((b) => b.addEventListener("click", () => {
       input("hashrate").value = b.dataset.hr; input("watts").value = b.dataset.w;
       $$(".preset").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
       compute();
     }));
+    $("#calc-share")?.addEventListener("click", async () => {
+      // Sharing is an explicit choice to freeze the visible source snapshot as a scenario. Routine
+      // page loads keep stale automatic values out of the URL and out of the calculation.
+      ["price", "nethash"].forEach((name) => { if (input(name)?.value.trim()) explicitInputs.add(name); });
+      compute();
+      const ok = S && await S.copyText(location.href);
+      set("calc-share-status", ok ? "Link copied." : "Copy failed; use the address bar.");
+    });
     compute();
   }
+
+  // ---------- first-party history range ----------
+  $$(".market-history").forEach((section) => {
+    const buttons = $$('[data-history-days]', section);
+    const rows = $$('[data-history-at]', section);
+    if (!buttons.length || !rows.length) return;
+    const newest = rows.reduce((max, row) => Math.max(max, Date.parse(row.dataset.historyAt || "") || 0), 0);
+    const apply = (days) => {
+      const cutoff = newest - days * 86400000;
+      let shown = 0;
+      rows.forEach((row) => {
+        const at = Date.parse(row.dataset.historyAt || "");
+        row.hidden = !!at && at < cutoff;
+        if (!row.hidden) shown++;
+      });
+      buttons.forEach((button) => button.setAttribute("aria-pressed", String(+button.dataset.historyDays === days)));
+      const status = $(".history-status", section);
+      if (status) status.textContent = `${shown} retained observation${shown === 1 ? "" : "s"} in the selected ${days}-day window. Missing intervals are not interpolated.`;
+    };
+    buttons.forEach((button) => button.addEventListener("click", () => apply(+button.dataset.historyDays)));
+    apply(7);
+  });
 
   // ---------- guide: checklist persistence + active contents entry ----------
   const checks = $$(".checklist input[type=checkbox]");

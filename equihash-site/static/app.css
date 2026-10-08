@@ -1962,3 +1962,21 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
   .ed-machine-toggle { min-width: 44px !important; }
   .ed-machine-peek span { width: 44px; height: 44px; }
 }
+/* ---------- retained market history ---------- */
+.market-history{margin:clamp(2rem,5vw,4rem) 0;padding:clamp(1.1rem,2.5vw,1.8rem);border:1px solid var(--rule);background:var(--paper)}
+.market-history .section-head{align-items:flex-start}
+.history-range{display:flex;border:1px solid var(--rule);width:max-content}
+.history-range button{border:0;border-right:1px solid var(--rule);background:transparent;padding:.55rem .72rem;font:600 .72rem var(--mono);letter-spacing:.06em;color:var(--ink)}
+.history-range button:last-child{border-right:0}
+.history-range button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.history-bars{display:grid;gap:.55rem;margin-top:1.25rem}
+.history-bar-row{display:grid;grid-template-columns:7rem minmax(8rem,1fr) 8rem 11rem;gap:.8rem;align-items:center;font-size:.82rem}
+.history-track{height:.55rem;background:var(--rule-2)}
+.history-track i{display:block;height:100%;background:var(--bar)}
+.offer-history{margin-top:1.25rem;border-top:1px solid var(--rule);padding-top:1rem}
+.offer-history summary{cursor:pointer;font-weight:600}
+.asic-compatibility{margin:2rem 0;padding:1.2rem 1.35rem;border-left:3px solid var(--ink);background:var(--paper)}
+.calc-answer{margin-top:1.25rem;padding:1rem 1.15rem;border-left:3px solid var(--ink);background:var(--paper);line-height:1.55}
+.fee-sensitivity{margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--rule)}
+.calc-share-row{display:flex;align-items:center;gap:.8rem;margin-top:1rem}
+@media(max-width:760px){.history-bar-row{grid-template-columns:6.5rem 1fr 7.5rem}.history-bar-row>span:last-child{grid-column:2/4}.market-history .section-head{display:grid;gap:1rem}}

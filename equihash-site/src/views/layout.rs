@@ -3,7 +3,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static CSS or JavaScript changes so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "60";
+pub const ASSET_V: &str = "63";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -41,6 +41,51 @@ pub struct Page<'a> {
     pub nav: &'a str,
 }
 
+fn pool_has_indexable_evidence(pool: &crate::data::Pool) -> bool {
+    let evidence = [
+        pool.hashrate.filter(|value| *value > 0.0).is_some(),
+        pool.fee_range().is_some(),
+        !pool.payout_schemes.is_empty(),
+        pool.region
+            .as_deref()
+            .map(str::trim)
+            .is_some_and(|value| !value.is_empty()),
+        pool.min_payout.is_some(),
+        pool.blocks_last_1000.is_some(),
+        pool.url.is_some(),
+    ]
+    .into_iter()
+    .filter(|present| *present)
+    .count();
+    pool.active && pool.source_url.is_some() && evidence >= 2
+}
+
+pub fn indexable_pool(d: &Data, pool: &crate::data::Pool) -> bool {
+    if !pool_has_indexable_evidence(pool) {
+        return false;
+    }
+    // When an upstream row and a curated row describe the same operator product, keep the richer
+    // stable record indexable and leave the duplicate accessible for evidence/debugging.
+    d.pools
+        .iter()
+        .filter(|other| {
+            pool_has_indexable_evidence(other)
+                && other.coin_id == pool.coin_id
+                && other.name == pool.name
+                && other.url == pool.url
+                && other.payout_schemes == pool.payout_schemes
+        })
+        .max_by(|a, b| a.id.cmp(&b.id))
+        .map(|canonical| canonical.id == pool.id)
+        .unwrap_or(true)
+}
+
+pub fn indexable_vendor(vendor: &crate::data::Vendor) -> bool {
+    vendor.channel.as_deref() != Some("warning_record")
+        && vendor.url.is_some()
+        && (vendor.research_id.is_some() || vendor.source_url.is_some())
+}
+
 /// Main navigation follows the four things people come here to find. Calculator stays visible as
 /// the primary working tools; About, Contribute, Sources and the archive live in the footer.
 const NAV: &[(&str, &str, &str)] = &[
@@ -67,16 +112,31 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
     } else {
         format!("{} · equihash.com", p.title)
     };
-    let robots = if matches!(
-        p.path,
-        "/search" | "/404" | "/contribute" | "/add-vendor" | "/add-pool"
-    ) {
+    let thin_record = p
+        .path
+        .strip_prefix("/pool/")
+        .and_then(|slug| d.pools.iter().find(|pool| pool.slug == slug))
+        .map(|pool| !indexable_pool(d, pool))
+        .or_else(|| {
+            p.path
+                .strip_prefix("/vendors/")
+                .and_then(|slug| d.vendors.iter().find(|vendor| vendor.slug == slug))
+                .map(|vendor| !indexable_vendor(vendor))
+        })
+        .unwrap_or(false);
+    let robots = if thin_record
+        || matches!(
+            p.path,
+            "/search" | "/404" | "/contribute" | "/add-vendor" | "/add-pool"
+        ) {
         "noindex, follow"
     } else {
         "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     };
-    let og_type = if matches!(p.path, "/zcash-mining" | "/merged-mining")
-        || p.path.starts_with("/industry/")
+    let og_type = if matches!(
+        p.path,
+        "/zcash-mining" | "/merged-mining" | "/guides/zcash-mining-privacy"
+    ) || p.path.starts_with("/industry/")
     {
         "article"
     } else {
@@ -177,7 +237,12 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
 }
 
 fn data_alternates(path: &str) -> Vec<(&'static str, &'static str)> {
-    if path == "/" || path == "/coins" || path.starts_with("/coin/") {
+    if path == "/coin/zcash" {
+        vec![
+            ("/data/network.json", "Equihash network data"),
+            ("/data/market-history.json", "Zcash network and Z15 history"),
+        ]
+    } else if path == "/" || path == "/coins" || path.starts_with("/coin/") {
         vec![("/data/network.json", "Equihash network data")]
     } else if path.starts_with("/pools") || path.starts_with("/pool/") || path == "/zcash-mining" {
         vec![
@@ -185,7 +250,10 @@ fn data_alternates(path: &str) -> Vec<(&'static str, &'static str)> {
             ("/data/network.json", "Equihash network data"),
         ]
     } else if path == "/asics" || path.starts_with("/asics/") {
-        vec![("/data/miners.json", "Equihash ASIC data")]
+        vec![
+            ("/data/miners.json", "Equihash ASIC data"),
+            ("/data/market-history.json", "Zcash and Z15 market history"),
+        ]
     } else if path == "/vendors" || path.starts_with("/vendors/") {
         vec![
             ("/data/vendors.json", "ASIC vendor data"),
@@ -227,7 +295,7 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
         "/coins" | "/asics" | "/vendors" | "/guides" | "/archive" | "/industry" => "CollectionPage",
         "/about" => "AboutPage",
         "/calculator" => "WebApplication",
-        "/zcash-mining" | "/merged-mining" => "TechArticle",
+        "/zcash-mining" | "/merged-mining" | "/guides/zcash-mining-privacy" => "TechArticle",
         path if path.starts_with("/industry/") => "Article",
         path if path.starts_with("/pools") => "CollectionPage",
         path if path.starts_with("/coin/")
@@ -280,11 +348,19 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
     if let Some(ts) = d.last_updated.as_deref() {
         webpage.insert("dateModified".into(), json!(ts));
     }
-    if matches!(p.path, "/zcash-mining" | "/merged-mining") {
+    if matches!(
+        p.path,
+        "/zcash-mining" | "/merged-mining" | "/guides/zcash-mining-privacy"
+    ) {
         webpage.insert("headline".into(), json!(p.title));
         webpage.insert("author".into(), json!({"@id": publisher_id}));
-        webpage.insert("datePublished".into(), json!("2026-10-07"));
-        webpage.insert("dateModified".into(), json!("2026-10-07"));
+        let editorial_date = if p.path == "/guides/zcash-mining-privacy" {
+            "2026-10-08"
+        } else {
+            "2026-10-07"
+        };
+        webpage.insert("datePublished".into(), json!(editorial_date));
+        webpage.insert("dateModified".into(), json!(editorial_date));
         webpage.insert(
             "about".into(),
             json!([
@@ -293,6 +369,13 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
                 {"@type": "Thing", "name": "Antminer Z15 Pro"}
             ]),
         );
+        if p.path == "/guides/zcash-mining-privacy" {
+            webpage.insert("citation".into(), json!([
+                "https://zcash.readthedocs.io/en/latest/rtd_pages/addresses.html",
+                "https://zcash.readthedocs.io/en/latest/rtd_pages/zcash_mining_guide.html",
+                "https://zcash.readthedocs.io/en/latest/rtd_pages/privacy_recommendations_best_practices.html"
+            ]));
+        }
     } else if p.path.starts_with("/industry/") {
         webpage.insert("headline".into(), json!(p.title));
         webpage.insert("author".into(), json!({"@id": publisher_id}));
@@ -393,6 +476,50 @@ fn structured_entity(d: &Data, p: &Page<'_>, canonical: &str) -> Option<serde_js
             "itemListElement": items
         }));
     }
+    if p.path == "/pools" {
+        let mut pools: Vec<_> = d
+            .live_pools()
+            .filter(|pool| !pool.is_hashpower_marketplace() && indexable_pool(d, pool))
+            .collect();
+        pools.sort_by(|a, b| {
+            b.hashrate
+                .unwrap_or_default()
+                .total_cmp(&a.hashrate.unwrap_or_default())
+        });
+        let items = pools
+            .iter()
+            .enumerate()
+            .map(|(position, pool)| {
+                json!({
+                    "@type": "ListItem", "position": position + 1,
+                    "url": format!("{SITE}/pool/{}", pool.slug),
+                    "name": format!("{} {} mining pool", pool.name, pool.coin_label)
+                })
+            })
+            .collect::<Vec<_>>();
+        return Some(json!({
+            "@type": "ItemList", "@id": id, "name": "Equihash mining pools",
+            "url": canonical, "numberOfItems": items.len(), "itemListElement": items
+        }));
+    }
+    if p.path == "/vendors" {
+        let items = d
+            .vendors
+            .iter()
+            .filter(|vendor| indexable_vendor(vendor))
+            .enumerate()
+            .map(|(position, vendor)| {
+                json!({
+                    "@type": "ListItem", "position": position + 1,
+                    "url": format!("{SITE}/vendors/{}", vendor.slug), "name": vendor.name
+                })
+            })
+            .collect::<Vec<_>>();
+        return Some(json!({
+            "@type": "ItemList", "@id": id, "name": "ASIC vendor directory",
+            "url": canonical, "numberOfItems": items.len(), "itemListElement": items
+        }));
+    }
     if p.path == "/industry" {
         return Some(json!({
             "@type": "ItemList", "@id": id, "name": "Equihash industry briefings",
@@ -411,12 +538,17 @@ fn structured_entity(d: &Data, p: &Page<'_>, canonical: &str) -> Option<serde_js
             ("Equihash ASIC records", "Manufacturer and clearly labelled market-reported ASIC specifications with parameter compatibility.", "/data/miners.json"),
             ("Equihash vendor records", "Public seller identity evidence and observed sales channels.", "/data/vendors.json"),
             ("Equihash hashpower market snapshot", "Aggregate EQUIHASH order-book observations.", "/data/hashpower.json"),
+            ("Zcash and Z15 market history", "Retained network, difficulty, price, machine-economics and seller observations without interpolated gaps.", "/data/market-history.json"),
             ("Cypherpunk Zcash mining record", "Company-reported fleet figures and primary filing sources.", "/data/cypherpunk-zcash.json"),
             ("Grayscale Zcash product record", "Filed product status, structure, dates and primary sources.", "/data/grayscale-zcash.json"),
         ]
         .into_iter()
         .map(|(name, description, path)| json!({
             "@type": "Dataset", "name": name, "description": description,
+            "dateModified": d.last_updated,
+            "measurementTechnique": "Public API, operator page or reviewed primary-source observation; field-level sources and timestamps are retained in the distribution.",
+            "variableMeasured": ["hashrate", "difficulty", "fee", "payout terms", "price", "availability"],
+            "license": format!("{SITE}/sources"),
             "distribution": {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": format!("{SITE}{path}")}
         }))
         .collect::<Vec<_>>();
@@ -461,6 +593,28 @@ fn structured_entity(d: &Data, p: &Page<'_>, canonical: &str) -> Option<serde_js
             .filter(|image| image.starts_with("/static/shop/machines/"))
         {
             product["image"] = json!(format!("{SITE}{image}"));
+        }
+        let offers = d.listings.iter().filter(|offer| {
+            offer.miner_id == miner.id
+                && offer.price_amount.is_some()
+                && offer.price_currency.is_some()
+                && matches!(offer.availability.as_deref(), Some("in_stock" | "dispatch_claim" | "preorder"))
+        }).map(|offer| {
+            let availability = match offer.availability.as_deref() {
+                Some("in_stock" | "dispatch_claim") => "https://schema.org/InStock",
+                Some("preorder") => "https://schema.org/PreOrder",
+                _ => "https://schema.org/OutOfStock",
+            };
+            json!({
+                "@type": "Offer", "url": offer.product_url.as_deref().or(offer.source_url.as_deref()),
+                "price": offer.price_amount, "priceCurrency": offer.price_currency,
+                "availability": availability,
+                "description": offer.availability_label,
+                "validFrom": offer.price_observed_at.as_deref().or(offer.observed_at.as_deref())
+            })
+        }).collect::<Vec<_>>();
+        if !offers.is_empty() {
+            product["offers"] = json!(offers);
         }
         return Some(product);
     }

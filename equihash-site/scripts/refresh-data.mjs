@@ -865,6 +865,10 @@ async function mainFull() {
   };
   await updatePermalinks(pools);
   const id = await publishSnapshot({ generated_at: finished, pools }, { generated_at: finished, coins }, meta, previous);
+  if (id) {
+    const { captureMarketHistory } = await import("./capture-market-history.mjs");
+    await captureMarketHistory(DATA);
+  }
   console.log(`${id ? "Done" : "Refresh finished but not published"}: ${pools.length} pools across ${coins.length} coins (${meta.non_mps_pool_count} not from MPS). ${errors.length} warnings.`);
   if (errors.length) console.log(errors.map((e) => "  - " + e).join("\n"));
 }

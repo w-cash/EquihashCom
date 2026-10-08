@@ -483,7 +483,7 @@ fn compatible_miners<'a>(d: &'a Data, c: &Coin) -> Vec<&'a Miner> {
 pub fn coin(d: &Data, c: &Coin) -> Markup {
     let title = format!(
         "{} ({}) mining: pools, hardware and network",
-        c.name, c.symbol
+        c.label, c.symbol
     );
     let desc = format!("{} Equihash {} mining overview: compatible hardware, pool fees and payouts, network data, calculator and sources.", c.name, c.params());
     let path = format!("/coin/{}", c.id);
@@ -503,7 +503,7 @@ pub fn coin(d: &Data, c: &Coin) -> Markup {
             div class="wrap page entity-page" {
                 p class="crumb" { a href="/coins" { "All coins" } " / " (c.group_label()) }
                 header class="entity-hero" {
-                    div class="entity-title" { (logo::chip(&c.logo, &c.name, At::Head, false)) div { h1 { (c.name) " " span class="sym" { (c.symbol) } } p { "Equihash " span class="mono" { (c.params()) } " · " (status(c)) } } }
+                    div class="entity-title" { (logo::chip(&c.logo, &c.name, At::Head, false)) div { h1 { (c.label) " " span class="sym" { (c.symbol) } } p { "Equihash " span class="mono" { (c.params()) } " · " (status(c)) } } }
                     (links::render(&c.links, &format!("{} official and community links", c.name), "coin-links"))
                     @if is_zcash { p { "New to Zcash proof of work? " a href="/zcash-mining" { "Read the mining setup, pool and privacy guide" } "." } }
                     @if is_wcash { p class="disclosure" { strong { "Disclosure: " } "equihash.com and Wcash share a maintainer. Wcash receives merged-mined work only through pools that explicitly support it; the pool directory uses the same source and ordering rules for every coin." } }
@@ -516,6 +516,8 @@ pub fn coin(d: &Data, c: &Coin) -> Markup {
                     div { dt { "Price" } dd { (fmt::price(c.price_usd)) } }
                     div { dt { "Block target" } dd { (fmt::seconds(c.network.block_time_target_s)) } }
                 }
+
+                @if is_zcash { (crate::views::history::zcash_network(d)) }
 
                 div class="entity-layout" {
                     section class="entity-main" aria-labelledby="pool-title" {
@@ -581,6 +583,7 @@ pub fn guides(d: &Data) -> Markup {
                 article { p class="step" { "PARAMETERS · 4 MIN" } h2 { a href="/coins" { "Why Equihash n,k decides compatibility" } } p { "Understand why 200,9 hardware cannot mine every coin carrying the Equihash name." } }
                 article { p class="step" { "ECONOMICS · 5 MIN" } h2 { a href="/calculator" { "Estimate revenue and electricity cost" } } p { "Start with the listed network figures, then enter your hashrate, watts, fee and electricity price." } }
                 article { p class="step" { "VERIFY · 6 MIN" } h2 { a href="/sources" { "Where the pool and network figures come from" } } p { "See which pages and APIs are read, when each field was checked and how missing values are shown." } }
+                article { p class="step" { "PRIVACY · 7 MIN" } h2 { a href="/guides/zcash-mining-privacy" { "Zcash mining payouts and privacy" } } p { "Separate public pool-account data, transparent payouts and shielded wallet activity before choosing an address." } }
             }
             aside class="listing-callout" { div { p class="eyebrow" { "MISSING A QUESTION?" } h2 { "Couldn’t find your question?" } p { "Send the miner, pool or coin name and a link that helps answer it. We will add the answer to the relevant page." } } a class="btn" href="/contribute#question" { "Ask a question" } }
         }
@@ -678,6 +681,52 @@ pub fn zcash_mining(d: &Data) -> Markup {
             }
 
             aside class="listing-callout" { div { h2 { "Check the live record" } p { "Pool conditions, network hashrate and coin price change. Use the current directory and then verify the chosen pool's own page before pointing a miner." } } a class="btn" href="/coin/zcash" { "Open the Zcash mining record" } }
+        }
+    })
+}
+
+pub fn zcash_mining_privacy(d: &Data) -> Markup {
+    layout(d, Page {
+        title: "Zcash mining payout privacy: transparent and shielded addresses",
+        description: "Operational guide to Zcash mining payout privacy: what pools can see, transparent versus shielded addresses, wallet support and a verification checklist.",
+        path: "/guides/zcash-mining-privacy",
+        nav: "guides",
+    }, html! {
+        div class="wrap page narrow prose zcash-guide" {
+            p class="crumb" { a href="/guides" { "All guides" } " / Zcash mining privacy" }
+            header class="page-head" {
+                p class="eyebrow" { "ZCASH MINING · PRIVACY OPERATIONS" }
+                h1 { "Are Zcash mining payouts private?" }
+                p class="lede" { "A mining payout is private only to the extent supported by the pool, the destination address and the later wallet transactions. A transparent payout address exposes its address and value on-chain; mining Zcash does not automatically shield the payout." }
+                p class="small" { "Published and reviewed 8 October 2026 · primary documentation linked beside each claim." }
+            }
+            section {
+                h2 { "The practical answer" }
+                p { "First check whether the pool accepts a shielded or Unified Address receiver. If it accepts only a transparent address, the payout is publicly visible and later shielding cannot erase the original public payment. If the pool supports a shielded receiver, confirm that your wallet can receive and later spend that exact receiver type before saving it." }
+            }
+            section {
+                h2 { "What each party can observe" }
+                div class="table-scroll" { table class="data" {
+                    thead { tr { th { "Layer" } th { "What may be visible" } th { "What to verify" } } }
+                    tbody {
+                        tr { th { "Pool account" } td { "Worker name, submitted shares, hashrate, payout settings, account identifiers and connection metadata held by the operator." } td { "Read the pool's privacy policy and account requirements; use a worker label that does not disclose personal information." } }
+                        tr { th { "Transparent payout" } td { "The destination address and transferred value are public on the Zcash chain." } td { a href="https://zcash.readthedocs.io/en/latest/rtd_pages/addresses.html" rel="noopener" { "Zcash address and value-pool documentation ↗" } } }
+                        tr { th { "Shielded payout" } td { "Shielded transaction details receive protocol privacy, while the pool still knows the account and payout it initiated." } td { a href="https://zcash.readthedocs.io/en/latest/rtd_pages/zcash_mining_guide.html" rel="noopener" { "Official mining guide ↗" } } }
+                        tr { th { "Later wallet use" } td { "Deshielding or disclosing transaction metadata can create links even after funds enter a shielded pool." } td { a href="https://zcash.readthedocs.io/en/latest/rtd_pages/privacy_recommendations_best_practices.html" rel="noopener" { "Zcash privacy recommendations ↗" } } }
+                    }
+                } }
+            }
+            section {
+                h2 { "Before entering a payout address" }
+                ol {
+                    li { "Open the pool's current payout documentation and identify the accepted Zcash receiver types. Do not assume that a generic address field supports shielded receivers." }
+                    li { "Generate the address in a wallet you control and confirm the wallet supports receiving, backup and spending for that receiver type." }
+                    li { "Send a small test payout where the pool permits it, then confirm it in the wallet before changing the payout threshold." }
+                    li { "Keep pool credentials and wallet spending keys separate. A pool needs a payout address, never a seed phrase or private key." }
+                    li { "Record the pool setting, threshold and change time. Recheck after a pool migration, wallet upgrade or address change." }
+                }
+            }
+            aside class="listing-callout" { div { h2 { "Compare the operating terms" } p { "Privacy support is one pool feature. Also compare fees, payout method, threshold, region, reported hashrate and source age." } } a class="btn" href="/pools#pools" { "Compare Zcash pools" } }
         }
     })
 }

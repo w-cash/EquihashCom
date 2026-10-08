@@ -1203,7 +1203,11 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
             header class="intro" {
                     h1 { (page_h1) }
                     p class="lede" {
-                        (headline_text(d)) " "
+                        @if let Some(c) = cur {
+                            "Compare " (c.label) " pools by reported hashrate, payout method, fee, minimum payout, region and source age. There is no universal best pool: fixed-share schemes trade steadier accounting for different fees, while PPLNS and solo results vary with pool or miner luck. "
+                        } @else {
+                            (headline_text(d)) " "
+                        }
                         @match fmt::age(age_secs(site_ts, now)) {
                             Some(a) => { "Last refreshed " time datetime=[site_ts] title=(fmt::utc(site_ts)) { (a) " ago" } "." }
                             None => { "Refresh time unknown." }
@@ -1289,7 +1293,7 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
             }
             div class="lower" {
                 (how_to_pick(d, help_coin))
-                (z15_box(d))
+                @if cur.is_none() || cur.map(|c| c.id.as_str()) == Some("zcash") { (z15_box(d)) }
             }
             (networks(d, now))
         }

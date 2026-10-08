@@ -337,6 +337,15 @@ pub fn detail(d: &Data, miner: &Miner) -> Markup {
                     div { dt { "Ann. / spec date" } dd { (miner.released.as_deref().unwrap_or("n/a")) } }
                     div { dt { "Current offers" } dd { (offers.len()) " · " (available) " active/quote" } }
                 }
+                @if miner.id == "antminer-z15-pro" {
+                    section class="asic-compatibility" aria-labelledby="compatibility-title" {
+                        p class="eyebrow" { "PARAMETER COMPATIBILITY" }
+                        h2 id="compatibility-title" { "What can an Antminer Z15 Pro mine?" }
+                        p { "The Z15 Pro is an Equihash 200,9 ASIC. It can mine active 200,9 networks listed here, including Zcash, Pirate Chain and Wcash. It cannot mine Equihash 192,7 or 144,5 networks because the n,k parameters define a different proof-of-work problem." }
+                        p { a href="/coins" { "Compare coins by exact Equihash parameters →" } }
+                    }
+                    (crate::views::history::z15_economics(d))
+                }
                 @if miner.spec_basis.as_deref() == Some("market_reported") {
                     aside class="asic-verification-note" { strong { "Specification status" } p { (miner.notes.as_deref().unwrap_or("This record is supported by public market pages; a manufacturer specification has not been located.")) } }
                 }
