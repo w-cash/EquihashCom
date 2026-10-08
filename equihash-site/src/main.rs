@@ -51,7 +51,10 @@ impl AppState {
 fn html(m: maud::Markup) -> HttpResponse {
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
-        .insert_header((header::CACHE_CONTROL, "public, max-age=60"))
+        .insert_header((
+            header::CACHE_CONTROL,
+            "public, max-age=60, s-maxage=300, stale-while-revalidate=60",
+        ))
         .body(m.into_string())
 }
 
@@ -167,6 +170,9 @@ async fn guide(s: web::Data<AppState>) -> impl Responder {
 }
 async fn zcash_mining(s: web::Data<AppState>) -> impl Responder {
     html(views::hub::zcash_mining(&s.get()))
+}
+async fn zcash_mining_privacy(s: web::Data<AppState>) -> impl Responder {
+    html(views::hub::zcash_mining_privacy(&s.get()))
 }
 async fn hashpower(
     s: web::Data<AppState>,
@@ -325,7 +331,7 @@ async fn healthz(s: web::Data<AppState>) -> HttpResponse {
 async fn data_file(
     s: web::Data<AppState>,
     path: web::Path<String>,
-    req: HttpRequest,
+    _req: HttpRequest,
 ) -> HttpResponse {
     const ALLOWED: &[&str] = &[
         "pools.json",
@@ -340,6 +346,7 @@ async fn data_file(
         "research.json",
         "cypherpunk-zcash.json",
         "grayscale-zcash.json",
+        "market-history.json",
         "current.json",
     ];
     if !ALLOWED.contains(&path.as_str()) {
@@ -351,15 +358,45 @@ async fn data_file(
     } else {
         s.data_dir.join(path.as_str())
     };
-    match NamedFile::open(file) {
-        Ok(f) => {
-            let mut response = f.into_response(&req);
-            response.headers_mut().insert(
-                actix_web::http::header::HeaderName::from_static("x-robots-tag"),
-                actix_web::http::header::HeaderValue::from_static("noindex"),
-            );
-            response
-        }
+    match std::fs::read_to_string(file) {
+        Ok(raw) => match serde_json::from_str::<serde_json::Value>(&raw) {
+            Ok(mut value) => {
+                if let Some(object) = value.as_object_mut() {
+                    object
+                        .entry("schema_version")
+                        .or_insert_with(|| serde_json::Value::String("1.0".into()));
+                    let observed_at = ["generated_at", "verified_at", "as_of", "updated_at"]
+                        .into_iter()
+                        .find_map(|key| object.get(key).and_then(|value| value.as_str()))
+                        .map(str::to_string)
+                        .or_else(|| d.last_updated.clone());
+                    let status = observed_at
+                        .as_deref()
+                        .and_then(|value| chrono::DateTime::parse_from_rfc3339(value).ok())
+                        .map(|value| {
+                            if chrono::Utc::now()
+                                .signed_duration_since(value.with_timezone(&chrono::Utc))
+                                .num_seconds()
+                                <= data::STALE_AFTER_SECS
+                            {
+                                "fresh"
+                            } else {
+                                "delayed"
+                            }
+                        })
+                        .unwrap_or("unavailable");
+                    object.entry("publication").or_insert_with(
+                        || serde_json::json!({"status": status, "observed_at": observed_at}),
+                    );
+                }
+                HttpResponse::Ok()
+                    .insert_header((header::CACHE_CONTROL, "public, max-age=300"))
+                    .insert_header(("X-Robots-Tag", "noindex"))
+                    .content_type("application/json; charset=utf-8")
+                    .json(value)
+            }
+            Err(_) => HttpResponse::InternalServerError().finish(),
+        },
         Err(_) => HttpResponse::NotFound().finish(),
     }
 }
@@ -394,6 +431,7 @@ Updated: {updated}
 ## Start here
 
 - [Zcash mining guide]({site}/zcash-mining): Equihash 200,9 hardware, pool selection, setup, costs, privacy and merged mining.
+- [Zcash mining payout privacy]({site}/guides/zcash-mining-privacy): transparent and shielded receivers, pool visibility and an operational checklist.
 - [Zcash mining record]({site}/coin/zcash): current network, compatible miners, listed pools and sources.
 - [Zcash pool comparison]({site}/pools): reported hashrate, fees, payout methods, minimum payouts, regions and source ages.
 - [Equihash ASIC index]({site}/asics): miners ranked by hashrate with power, efficiency, current economics and seller offers.
@@ -415,6 +453,7 @@ Updated: {updated}
 - [Global vendor directory JSON]({site}/data/vendor-directory.json)
 - [Listings JSON]({site}/data/listings.json)
 - [Hashpower JSON]({site}/data/hashpower.json)
+- [Market history JSON]({site}/data/market-history.json)
 - [Cypherpunk Zcash research data]({site}/data/cypherpunk-zcash.json)
 - [Grayscale Zcash product data]({site}/data/grayscale-zcash.json)
 
@@ -473,6 +512,10 @@ async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
         ("/vendors".into(), vendor_updated.clone()),
         ("/guides".into(), Some("2026-10-07".into())),
         ("/zcash-mining".into(), Some("2026-10-07".into())),
+        (
+            "/guides/zcash-mining-privacy".into(),
+            Some("2026-10-08".into()),
+        ),
         ("/calculator".into(), data_updated.clone()),
         ("/merged-mining".into(), Some("2026-10-07".into())),
         ("/industry".into(), Some("2026-10-07".into())),
@@ -506,7 +549,7 @@ async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
     }
     urls.extend(
         d.live_pools()
-            .filter(|p| !p.is_hashpower_marketplace())
+            .filter(|p| !p.is_hashpower_marketplace() && views::layout::indexable_pool(&d, p))
             .map(|p| {
                 (
                     format!("/pool/{}", p.slug),
@@ -524,12 +567,17 @@ async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
             .iter()
             .map(|m| (format!("/asics/{}", m.id), hardware_updated.clone())),
     );
-    urls.extend(d.vendors.iter().map(|v| {
-        (
-            format!("/vendors/{}", v.slug),
-            sitemap_lastmod(v.observed_at.as_deref()).or_else(|| vendor_updated.clone()),
-        )
-    }));
+    urls.extend(
+        d.vendors
+            .iter()
+            .filter(|v| views::layout::indexable_vendor(v))
+            .map(|v| {
+                (
+                    format!("/vendors/{}", v.slug),
+                    sitemap_lastmod(v.observed_at.as_deref()).or_else(|| vendor_updated.clone()),
+                )
+            }),
+    );
     let body: String = urls
         .iter()
         .map(|(path, lastmod)| {
@@ -550,6 +598,17 @@ async fn not_found(s: web::Data<AppState>) -> HttpResponse {
     HttpResponse::NotFound()
         .content_type("text/html; charset=utf-8")
         .body(views::pages::not_found(&s.get()).into_string())
+}
+
+async fn canonical_host(req: HttpRequest) -> HttpResponse {
+    let path = req
+        .uri()
+        .path_and_query()
+        .map(|value| value.as_str())
+        .unwrap_or("/");
+    HttpResponse::PermanentRedirect()
+        .insert_header((header::LOCATION, format!("{}{path}", views::layout::SITE)))
+        .finish()
 }
 
 fn static_dir() -> PathBuf {
@@ -585,58 +644,71 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
     // method = "HEAD")]: that macro keeps its methods in a HashSet, so the guard order (and the
     // binary) changed from build to build.
     let get_head = || web::route().guard(guard::Any(guard::Get()).or(guard::Head()));
-    cfg.service(web::resource("/").route(get_head().to(home)))
-        .service(web::resource("/pools").route(get_head().to(pools)))
-        .service(web::resource("/hashpower").route(get_head().to(hashpower)))
-        .service(web::resource("/coins").route(get_head().to(coins)))
-        .service(web::resource("/coin/{id}").route(get_head().to(coin)))
-        .service(web::resource("/pool/{slug}").route(get_head().to(pool)))
-        .service(web::resource("/archive").route(get_head().to(archive)))
-        .service(web::resource("/miners").route(get_head().to(miners_legacy)))
-        .service(web::resource("/asics").route(get_head().to(miners)))
-        .service(web::resource("/asics/{id}").route(get_head().to(hardware_detail)))
-        .service(web::resource("/hardware").route(get_head().to(hardware_legacy)))
-        .service(web::resource("/hardware/{id}").route(get_head().to(hardware_detail_legacy)))
-        .service(web::resource("/vendors").route(get_head().to(vendors)))
-        .service(web::resource("/vendors/{slug}").route(get_head().to(vendor)))
-        .service(web::resource("/buy").route(get_head().to(buy_legacy)))
-        .service(web::resource("/buy/vendor/{slug}").route(get_head().to(buy_vendor_legacy)))
-        .service(web::resource("/add-vendor").route(get_head().to(add_vendor)))
-        .service(web::resource("/calculator").route(get_head().to(calculator)))
-        .service(web::resource("/merged-mining").route(get_head().to(guide)))
-        .service(web::resource("/zcash-mining").route(get_head().to(zcash_mining)))
-        .service(web::resource("/guides").route(get_head().to(guides)))
-        .service(web::resource("/industry").route(get_head().to(industry)))
-        .service(
-            web::resource("/industry/cypherpunk-zcash-mining")
-                .route(get_head().to(cypherpunk_research)),
-        )
-        .service(
-            web::resource("/industry/winklevoss-zcash-etf").route(get_head().to(wink_research)),
-        )
-        .service(
-            web::resource("/industry/grayscale-zcash-etf").route(get_head().to(grayscale_research)),
-        )
-        .service(
-            web::resource("/research/cypherpunk-zcash-mining")
-                .route(get_head().to(research_legacy)),
-        )
-        .service(web::resource("/search").route(get_head().to(search)))
-        .service(web::resource("/contribute").route(get_head().to(contribute)))
-        .service(web::resource("/add-pool").route(get_head().to(add_pool_legacy)))
-        .service(web::resource("/about").route(get_head().to(about)))
-        .service(web::resource("/sources").route(get_head().to(sources)))
-        .service(web::resource("/api/live").route(get_head().to(api_live)))
-        .service(web::resource("/healthz").route(get_head().to(healthz)))
-        .service(web::resource("/data/{file}").route(get_head().to(data_file)))
-        .service(web::resource("/favicon.ico").route(get_head().to(favicon)))
-        .service(web::resource("/robots.txt").route(get_head().to(robots)))
-        .service(web::resource("/llms.txt").route(get_head().to(llms)))
-        .service(web::resource("/sitemap.xml").route(get_head().to(sitemap)))
-        // Logos first: long immutable cache and a CSP of their own (src/views/logo.rs).
-        .service(views::logo::service(&sdir))
-        .service(Files::new("/static", sdir).use_etag(true))
-        .default_service(web::to(not_found));
+    cfg.service(
+        web::scope("")
+            .guard(guard::fn_guard(|ctx| {
+                ctx.head()
+                    .headers()
+                    .get(header::HOST)
+                    .and_then(|value| value.to_str().ok())
+                    .and_then(|value| value.split(':').next())
+                    .map(|host| host.eq_ignore_ascii_case("www.equihash.com"))
+                    .unwrap_or(false)
+            }))
+            .default_service(web::to(canonical_host)),
+    )
+    .service(web::resource("/").route(get_head().to(home)))
+    .service(web::resource("/pools").route(get_head().to(pools)))
+    .service(web::resource("/hashpower").route(get_head().to(hashpower)))
+    .service(web::resource("/coins").route(get_head().to(coins)))
+    .service(web::resource("/coin/{id}").route(get_head().to(coin)))
+    .service(web::resource("/pool/{slug}").route(get_head().to(pool)))
+    .service(web::resource("/archive").route(get_head().to(archive)))
+    .service(web::resource("/miners").route(get_head().to(miners_legacy)))
+    .service(web::resource("/asics").route(get_head().to(miners)))
+    .service(web::resource("/asics/{id}").route(get_head().to(hardware_detail)))
+    .service(web::resource("/hardware").route(get_head().to(hardware_legacy)))
+    .service(web::resource("/hardware/{id}").route(get_head().to(hardware_detail_legacy)))
+    .service(web::resource("/vendors").route(get_head().to(vendors)))
+    .service(web::resource("/vendors/{slug}").route(get_head().to(vendor)))
+    .service(web::resource("/buy").route(get_head().to(buy_legacy)))
+    .service(web::resource("/buy/vendor/{slug}").route(get_head().to(buy_vendor_legacy)))
+    .service(web::resource("/add-vendor").route(get_head().to(add_vendor)))
+    .service(web::resource("/calculator").route(get_head().to(calculator)))
+    .service(web::resource("/merged-mining").route(get_head().to(guide)))
+    .service(web::resource("/zcash-mining").route(get_head().to(zcash_mining)))
+    .service(
+        web::resource("/guides/zcash-mining-privacy").route(get_head().to(zcash_mining_privacy)),
+    )
+    .service(web::resource("/guides").route(get_head().to(guides)))
+    .service(web::resource("/industry").route(get_head().to(industry)))
+    .service(
+        web::resource("/industry/cypherpunk-zcash-mining")
+            .route(get_head().to(cypherpunk_research)),
+    )
+    .service(web::resource("/industry/winklevoss-zcash-etf").route(get_head().to(wink_research)))
+    .service(
+        web::resource("/industry/grayscale-zcash-etf").route(get_head().to(grayscale_research)),
+    )
+    .service(
+        web::resource("/research/cypherpunk-zcash-mining").route(get_head().to(research_legacy)),
+    )
+    .service(web::resource("/search").route(get_head().to(search)))
+    .service(web::resource("/contribute").route(get_head().to(contribute)))
+    .service(web::resource("/add-pool").route(get_head().to(add_pool_legacy)))
+    .service(web::resource("/about").route(get_head().to(about)))
+    .service(web::resource("/sources").route(get_head().to(sources)))
+    .service(web::resource("/api/live").route(get_head().to(api_live)))
+    .service(web::resource("/healthz").route(get_head().to(healthz)))
+    .service(web::resource("/data/{file}").route(get_head().to(data_file)))
+    .service(web::resource("/favicon.ico").route(get_head().to(favicon)))
+    .service(web::resource("/robots.txt").route(get_head().to(robots)))
+    .service(web::resource("/llms.txt").route(get_head().to(llms)))
+    .service(web::resource("/sitemap.xml").route(get_head().to(sitemap)))
+    // Logos first: long immutable cache and a CSP of their own (src/views/logo.rs).
+    .service(views::logo::service(&sdir))
+    .service(Files::new("/static", sdir).use_etag(true))
+    .default_service(web::to(not_found));
 }
 
 #[actix_web::main]
@@ -751,7 +823,27 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(state.clone())
             .wrap(middleware::Compress::default())
-            .wrap(middleware::Logger::new("%r %s %Dms"))
+            // Keep the fields needed to classify bad paths without duplicating the proxy's client
+            // address or recording calculator/search query values. Referrers retain the useful
+            // origin/path and drop their query string.
+            .wrap(
+                middleware::Logger::new(
+                    "\"%{METHOD}xi %U\" %s %b %Dms host=\"%{Host}i\" ref=\"%{REF}xi\" ua=\"%{User-Agent}i\"",
+                )
+                .custom_request_replace("METHOD", |req| req.method().as_str().to_owned())
+                .custom_request_replace("REF", |req| {
+                    req.headers()
+                        .get(header::REFERER)
+                        .and_then(|value| value.to_str().ok())
+                        .unwrap_or("-")
+                        .split('?')
+                        .next()
+                        .unwrap_or("-")
+                        .chars()
+                        .take(512)
+                        .collect()
+                }),
+            )
             .wrap(security_headers())
             .configure(move |c| routes(c, sdir))
     })
@@ -806,6 +898,7 @@ mod tests {
             "/add-vendor".into(),
             "/guides".into(),
             "/zcash-mining".into(),
+            "/guides/zcash-mining-privacy".into(),
             "/industry".into(),
             "/industry/cypherpunk-zcash-mining".into(),
             "/industry/grayscale-zcash-etf".into(),
@@ -825,6 +918,7 @@ mod tests {
             "/data/hashpower.json".into(),
             "/data/cypherpunk-zcash.json".into(),
             "/data/grayscale-zcash.json".into(),
+            "/data/market-history.json".into(),
             "/favicon.ico".into(),
             "/robots.txt".into(),
             "/llms.txt".into(),
@@ -1154,6 +1248,91 @@ mod tests {
     }
 
     #[actix_web::test]
+    async fn www_redirect_preserves_the_exact_path_and_query() {
+        let s = state();
+        let app = app!(s);
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri("/pools?coin=zcash&sort=fee")
+                .insert_header((header::HOST, "www.equihash.com"))
+                .to_request(),
+        )
+        .await;
+        assert_eq!(response.status(), 308);
+        assert_eq!(
+            response.headers().get(header::LOCATION).unwrap(),
+            "https://equihash.com/pools?coin=zcash&sort=fee"
+        );
+    }
+
+    #[actix_web::test]
+    async fn every_public_json_dataset_declares_its_schema_version() {
+        let s = state();
+        let app = app!(s);
+        for file in [
+            "pools.json",
+            "network.json",
+            "miners.json",
+            "vendors.json",
+            "vendor-directory.json",
+            "listings.json",
+            "hashpower.json",
+            "market-history.json",
+        ] {
+            let body = test::call_and_read_body(
+                &app,
+                test::TestRequest::get()
+                    .uri(&format!("/data/{file}"))
+                    .to_request(),
+            )
+            .await;
+            let value: serde_json::Value = serde_json::from_slice(&body).unwrap();
+            assert_eq!(value["schema_version"], "1.0", "{file}");
+        }
+    }
+
+    #[actix_web::test]
+    async fn indexable_coin_and_pool_titles_are_unique_and_parameter_specific() {
+        let d = state().get();
+        let mut titles = std::collections::HashMap::<String, String>::new();
+        let title = |page: String| {
+            page.split("<title>")
+                .nth(1)
+                .and_then(|rest| rest.split("</title>").next())
+                .unwrap()
+                .to_string()
+        };
+        for coin in d.coins.iter().filter(|coin| coin.active()) {
+            let value = title(views::hub::coin(&d, coin).into_string());
+            if coin.name == "Kerrigan" {
+                assert!(value.contains(&coin.params()), "{value}");
+            }
+            assert!(
+                titles
+                    .insert(value.clone(), format!("coin: {}", coin.id))
+                    .is_none(),
+                "duplicate title {value}"
+            );
+        }
+        for pool in d
+            .pools
+            .iter()
+            .filter(|pool| views::layout::indexable_pool(&d, pool))
+        {
+            let value = title(views::pages::pool_page(&d, pool).into_string());
+            let params = d.coin(&pool.coin_id).unwrap().params();
+            assert!(value.contains(&params), "{value}");
+            assert!(
+                titles
+                    .insert(value.clone(), format!("pool: {}", pool.id))
+                    .is_none(),
+                "duplicate title {value}"
+            );
+        }
+    }
+
+    #[actix_web::test]
     async fn vendor_directory_uses_neutral_records_and_disclosed_sorts() {
         let s = state();
         assert_eq!(s.get().vendor_research.len(), 87);
@@ -1190,8 +1369,17 @@ mod tests {
         assert!(directory.contains("0 reviews"));
         assert!(directory.contains("No sourced Trustpilot profile"));
         assert!(directory.contains("21energy"));
-        assert!(directory.find("Mineshop.eu").unwrap() < directory.find("21energy").unwrap());
-        assert!(directory.find("21energy").unwrap() < directory.find("Compass Mining").unwrap());
+        let directory_rows = directory
+            .split(r#"<table class="vendor-market-table">"#)
+            .nth(1)
+            .unwrap();
+        assert!(
+            directory_rows.find("Mineshop.eu").unwrap() < directory_rows.find("21energy").unwrap()
+        );
+        assert!(
+            directory_rows.find("21energy").unwrap()
+                < directory_rows.find("Compass Mining").unwrap()
+        );
         assert!(!directory.contains("Tier A"));
         assert!(!directory.contains("Strongest evidence"));
         assert!(!directory.contains("global rank"));
@@ -1222,9 +1410,15 @@ mod tests {
         );
         assert!(domain_age.contains("Sorted by: Domain age"));
         assert!(domain_age.contains("Oldest verified registry creation date first"));
+        let domain_age_rows = domain_age
+            .split(r#"<table class="vendor-market-table">"#)
+            .nth(1)
+            .unwrap();
         assert!(
-            domain_age.find("OSL Japan mining service").unwrap()
-                < domain_age.find("Antminer Distribution Europe").unwrap()
+            domain_age_rows.find("OSL Japan mining service").unwrap()
+                < domain_age_rows
+                    .find("Antminer Distribution Europe")
+                    .unwrap()
         );
         assert_eq!(
             domain_age

@@ -13,8 +13,9 @@ pub struct CalcQuery {
     pub coin: Option<String>,
     pub hashrate: Option<String>, // kSol/s
     pub watts: Option<String>,
-    pub power: Option<String>, // $/kWh
-    pub fee: Option<String>,   // %
+    pub power: Option<String>,    // $/kWh
+    pub fee: Option<String>,      // %
+    pub hardware: Option<String>, // USD purchase price
     pub price: Option<String>,
     pub reward: Option<String>,
     pub nethash: Option<String>, // Sol/s
@@ -65,6 +66,14 @@ pub const FIELDS: &[Field] = &[
         min: 0.0,
         min_exclusive: false,
         max: 100.0,
+    },
+    Field {
+        name: "hardware",
+        label: "Hardware price",
+        unit: "USD",
+        min: 0.0,
+        min_exclusive: false,
+        max: 1e9,
     },
     Field {
         name: "price",
@@ -155,11 +164,12 @@ impl Checked {
 }
 
 pub fn validate(q: &CalcQuery) -> Checked {
-    let raw: [(&'static str, &Option<String>); 8] = [
+    let raw: [(&'static str, &Option<String>); 9] = [
         ("hashrate", &q.hashrate),
         ("watts", &q.watts),
         ("power", &q.power),
         ("fee", &q.fee),
+        ("hardware", &q.hardware),
         ("price", &q.price),
         ("reward", &q.reward),
         ("nethash", &q.nethash),
@@ -462,6 +472,7 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
     // remains zero and is never replaced by a fallback.
     let power = pick("power", None);
     let fee = pick("fee", None);
+    let hardware = pick("hardware", None);
     let price = pick("price", coin.price_usd);
     let reward = pick("reward", coin.block_reward_miner.as_ref().map(|r| r.value));
     let net = pick("nethash", coin.network.hashrate);
@@ -520,20 +531,35 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
             "watts" => q.watts.clone(),
             "power" => q.power.clone(),
             "fee" => q.fee.clone(),
+            "hardware" => q.hardware.clone(),
             "price" => q.price.clone(),
             "reward" => q.reward.clone(),
             "nethash" => q.nethash.clone(),
             _ => q.blocktime.clone(),
         }
     };
+    let automatic_state = |observed_at: Option<&str>, max_age_secs: i64| match source_state(
+        observed_at,
+        false,
+        now,
+        max_age_secs,
+    ) {
+        SourceState::Fresh => "fresh",
+        SourceState::Stale => "stale",
+        SourceState::MissingTime => "missing_time",
+        SourceState::FutureTime => "future_time",
+        SourceState::UserEntered => unreachable!("automatic source state cannot be user-entered"),
+    };
     let calc_json = serde_json::to_string(&coins_list.iter().map(|c| serde_json::json!({
         "id": c.id, "symbol": c.symbol, "label": c.label, "price": c.price_usd, "price_source": c.price_source,
         "price_observed_at": c.fetched_at,
+        "price_status": automatic_state(c.fetched_at.as_deref(), PRICE_CURRENT_MAX_AGE_SECS),
         "reward": c.block_reward_miner.as_ref().map(|r| r.value), "reward_source": c.block_reward_miner.as_ref().and_then(|r| r.source_url.clone()),
         "reward_observed_at": c.block_reward_miner.as_ref().and_then(|r| r.fetched_at.clone()),
         "reward_note": c.block_reward_miner.as_ref().and_then(|r| r.note.clone()),
         "nethash": c.network.hashrate, "nethash_source": c.network.hashrate_source,
         "nethash_observed_at": c.network.hashrate_observed_at,
+        "nethash_status": automatic_state(c.network.hashrate_observed_at.as_deref(), NETWORK_CURRENT_MAX_AGE_SECS),
         "nethash_blocks": c.network.hashrate_sample_blocks, "blocktime": c.network.block_time_target_s, "z15": c.z15_compatible, "source": c.source_url, "params": c.params(),
         "rule_status": "dataset_snapshot_not_version_pinned",
         "proposed_rules_included": false,
@@ -581,6 +607,20 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
         }
     };
     let e30 = |v: Option<f64>| v.map(|x| x * 30.0);
+    let e365 = |v: Option<f64>| v.map(|x| x * 365.0);
+    let example = match (pro.and_then(|m| m.hashrate_ksol), pro.and_then(|m| m.watts)) {
+        (Some(example_hr), Some(example_watts)) if z15 => estimate(
+            example_hr,
+            example_watts,
+            0.08,
+            1.0,
+            price,
+            reward.unwrap_or(0.0),
+            net.unwrap_or(0.0),
+            bt.unwrap_or(0.0),
+        ),
+        _ => None,
+    };
     let source_text = |state: SourceState, at: Option<&str>, limit: &str| match state {
         SourceState::UserEntered => "User-entered scenario; source age is not asserted.".into(),
         SourceState::Fresh => format!("Observed {} · current window {limit}.", fmt::date(at)),
@@ -600,6 +640,7 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
         (fee.is_none(), "pool fee"),
         (reward.is_none(), "miner reward"),
         (net_for_economics.is_none(), "current network hashrate"),
+        (price_for_economics.is_none(), "current coin price"),
         (bt.is_none(), "block time"),
     ]
     .into_iter()
@@ -610,6 +651,16 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
             header class="page-head" {
                 h1 { "Zcash and Equihash mining calculator" }
                 p class="lede" { "Estimate revenue, electricity cost and operating margin for one machine or a farm. It assumes the selected network hashrate, price and average luck hold, and excludes hardware cost, tax, downtime, stale shares, payout variance, hosting and import charges." }
+                @if let Some(example) = &example {
+                    aside class="calc-answer" aria-label="Current Z15 Pro example" {
+                        strong { "Z15 Pro example: " }
+                        "At 840 kSol/s, 2,780 W, $0.08/kWh and a 1% pool fee, the retained " (coin.symbol) " snapshot estimates "
+                        (money(example.revenue_day)) " gross and " (money(example.profit_day)) " operating margin per day ("
+                        (money(e30(example.profit_day))) " per 30 days; " (money(e365(example.profit_day))) " per year). "
+                        a href="/calculator?coin=zcash&hashrate=840&watts=2780&power=0.08&fee=1" { "Load these assumptions" }
+                        ". Data observed " time datetime=[coin.network.hashrate_observed_at.as_deref()] { (fmt::utc(coin.network.hashrate_observed_at.as_deref())) } "."
+                    }
+                }
             }
             div class="calc" {
                 form class="calc-form" method="get" action="/calculator" id="calc" novalidate {
@@ -656,6 +707,7 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
                         (num_in("watts", watts, "W", html! {}))
                         (num_in("power", power, "$/kWh", html! {}))
                         (num_in("fee", fee, "%", html! { "0 to 100. Check your pool's page; the " a href="/" { "pool table" } " lists them." }))
+                        (num_in("hardware", hardware, "USD", html! { "Optional purchase price for a simple payback period. Tax, freight, financing and resale value remain outside the estimate." }))
                     }
                     fieldset {
                         legend { "Network side " span { "(filled from sources, edit freely)" } }
@@ -684,17 +736,33 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
                         "Estimate incomplete: " (missing_inputs.join(", ")) ". Unknown inputs are not treated as zero."
                     }
                     table class="ledger" {
-                        thead { tr { th {} th class="num" { "per day" } th class="num" { "per 30 days" } } }
+                        thead { tr { th {} th class="num" { "per day" } th class="num" { "per 30 days" } th class="num" { "per year" } } }
                         tbody {
-                            tr { th { "Expected pool-credit basis" } td class="num" { span id="o-coins" { (coins(est.coins_day)) } " " span class="sym" { (coin.symbol) } } td class="num" { span id="o-coins30" { (coins(e30(est.coins_day))) } " " span class="sym" { (coin.symbol) } } }
-                            tr { th { "Estimated revenue" } td class="num" id="o-rev" { (money(est.revenue_day)) } td class="num" id="o-rev30" { (money(e30(est.revenue_day))) } }
-                            tr { th { "Electricity" } td class="num" id="o-pow" { (money(est.power_day.map(|p| -p))) } td class="num" id="o-pow30" { (money(e30(est.power_day.map(|p| -p)))) } }
-                            tr class="total" { th { "Estimated operating margin" } td class="num" id="o-profit" { (money(est.profit_day)) } td class="num" id="o-profit30" { (money(e30(est.profit_day))) } }
+                            tr { th { "Expected pool-credit basis" } td class="num" { span id="o-coins" { (coins(est.coins_day)) } " " span class="sym" { (coin.symbol) } } td class="num" { span id="o-coins30" { (coins(e30(est.coins_day))) } " " span class="sym" { (coin.symbol) } } td class="num" { span id="o-coins365" { (coins(e365(est.coins_day))) } " " span class="sym" { (coin.symbol) } } }
+                            tr { th { "Estimated revenue" } td class="num" id="o-rev" { (money(est.revenue_day)) } td class="num" id="o-rev30" { (money(e30(est.revenue_day))) } td class="num" id="o-rev365" { (money(e365(est.revenue_day))) } }
+                            tr { th { "Electricity" } td class="num" id="o-pow" { (money(est.power_day.map(|p| -p))) } td class="num" id="o-pow30" { (money(e30(est.power_day.map(|p| -p)))) } td class="num" id="o-pow365" { (money(e365(est.power_day.map(|p| -p)))) } }
+                            tr class="total" { th { "Estimated operating margin" } td class="num" id="o-profit" { (money(est.profit_day)) } td class="num" id="o-profit30" { (money(e30(est.profit_day))) } td class="num" id="o-profit365" { (money(e365(est.profit_day))) } }
                         }
                     }
                     dl class="facts" {
                         div { dt { "Your share of the network" } dd id="o-share" { (match (hr, net_for_economics) { (Some(h), Some(n)) if est.coins_day.is_some() => fmt::pct(Some(h * 1000.0 / n * 100.0)), _ => fmt::NA.into() }) } }
                         div { dt { "Break-even electricity price" } dd id="o-be" { (match (est.revenue_day, watts) { (Some(r), Some(w)) if w > 0.0 => format!("${:.3}/kWh", r / (w / 1000.0 * 24.0)), _ => fmt::NA.into() }) } }
+                        div { dt { "Simple hardware payback" } dd id="o-payback" { (match (hardware, est.profit_day) { (Some(cost), Some(margin)) if cost >= 0.0 && margin > 0.0 => format!("{:.0} days ({:.1} months)", cost / margin, cost / margin / 30.4), _ => fmt::NA.into() }) } }
+                    }
+                    section class="fee-sensitivity" aria-labelledby="fee-sensitivity-title" {
+                        h3 id="fee-sensitivity-title" { "Pool-fee sensitivity" }
+                        p class="small" { "Same machine, network, coin price and electricity assumptions; only the pool fee changes." }
+                        div class="table-scroll" { table class="data mini" {
+                            thead { tr { th { "Pool fee" } th class="num" { "Margin / day" } th class="num" { "Margin / 30 days" } } }
+                            tbody { @for sensitivity_fee in [0.0, 1.0, 2.0, 3.0] {
+                                @let sensitivity = if guard.is_none() { estimate_scenario(hr, watts, power, Some(sensitivity_fee), price_for_economics, reward, net_for_economics, bt) } else { ScenarioEstimate { coins_day: None, revenue_day: None, power_day: est.power_day, profit_day: None } };
+                                tr { th { (format!("{sensitivity_fee:.0}%")) } td class="num" id={"o-fee-" (sensitivity_fee as u8)} { (money(sensitivity.profit_day)) } td class="num" id={"o-fee30-" (sensitivity_fee as u8)} { (money(e30(sensitivity.profit_day))) } }
+                            } }
+                        } }
+                    }
+                    div class="calc-share-row js-only" {
+                        button class="btn" type="button" id="calc-share" { "Copy shareable assumptions" }
+                        span id="calc-share-status" role="status" aria-live="polite" {}
                     }
                     p class="small" { "Expected pool-credit basis = (your hashrate ÷ compatible network hashrate) × (86,400 ÷ target block time) × miner reward × (1 − selected pool fee). This steady-state model does not prove what a pool credited. Merged-mined auxiliary coins are excluded and electricity is counted once." }
                     p class="small" id="o-note" hidden[z15] { (coin.label) " uses Equihash " (coin.params()) ". The Antminer presets are 200,9 machines and won't mine it." }
@@ -1041,6 +1109,9 @@ mod tests {
         assert!(page.contains("Expected</strong>") && page.contains("Credited</strong>"));
         assert!(page.contains("Attribution unavailable"));
         assert!(page.contains("calc-workflow.js"));
+        assert!(page.contains("per year") && page.contains("Pool-fee sensitivity"));
+        assert!(page.contains("Copy shareable assumptions"));
+        assert!(page.contains("Break-even electricity price"));
         assert!(
             page.contains("id=\"o-pow\">$0.00<"),
             "entered zero power rate is a known zero"

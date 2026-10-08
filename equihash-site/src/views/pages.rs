@@ -91,7 +91,23 @@ pub fn pool_fields(d: &Data, p: &Pool) -> Markup {
 }
 
 pub fn pool_page(d: &Data, p: &Pool) -> Markup {
-    let title = format!("{} {} pool", p.name, p.coin);
+    let coin = d.coin(&p.coin_id);
+    let params = coin.map(|c| c.params()).unwrap_or_else(|| "n/a".into());
+    let duplicate_operator = d
+        .pools
+        .iter()
+        .filter(|other| other.coin_id == p.coin_id && other.name == p.name)
+        .count()
+        > 1;
+    let product = if duplicate_operator && !p.payout_schemes.is_empty() {
+        format!(" · {}", p.payout_schemes.join("/"))
+    } else {
+        String::new()
+    };
+    let title = format!(
+        "{} {} ({}) mining pool{} · Equihash {}",
+        p.name, p.coin_label, p.coin, product, params
+    );
     let desc = format!(
         "{} mining pool for {}: hashrate, network share, fee, payout scheme and sources.",
         p.name, p.coin_label
@@ -110,7 +126,7 @@ pub fn pool_page(d: &Data, p: &Pool) -> Markup {
                 p class="crumb" { a href={"/pools?coin=" (p.coin_id) "#pools"} { "All " (p.coin_label) " pools" } }
                 header class="page-head" {
                     div class="title-row" {
-                        h1 { (logo::chip(&p.logo, &p.name, At::Head, false)) (p.name) " " span class="sym" { (p.coin) } }
+                        h1 { (logo::chip(&p.logo, &p.name, At::Head, false)) (p.name) " " span class="sym" { (p.coin) } @if duplicate_operator { " · " (p.payout_schemes.join("/")) } " · Equihash " (params) }
                         (copy_link(&path, "Copy link to this pool"))
                     }
                     (links::render(&p.links, &format!("{} links", p.name), "pool-links"))
@@ -237,6 +253,7 @@ pub fn sources(d: &Data) -> Markup {
                     li { a href="/data/network.json" { "Network records" } " — Equihash parameters, network estimates, rewards, price inputs and observation times." }
                     li { a href="/data/miners.json" { "ASIC records" } " — manufacturer hashrate, power, parameter compatibility and specification sources." }
                     li { a href="/data/vendor-directory.json" { "Global ASIC vendor directory" } ", " a href="/data/vendors.json" { "Equihash vendor profiles" } " and " a href="/data/listings.json" { "offer records" } " — seller identity facts, dated Trustpilot review counts, verified domain-registration dates and time-stamped seller claims. The public directory offers only those two disclosed sort factors." }
+                    li { a href="/data/market-history.json" { "Market history" } " — retained Zcash network, Z15 economics and seller observations. Missing intervals are not interpolated." }
                     li { a href="/data/hashpower.json" { "Hashpower market snapshot" } " — aggregate NiceHash EQUIHASH order-book observations." }
                     li { a href="/data/current.json" { "Current snapshot manifest" } " — the exact generated files, sizes and SHA-256 values loaded by the server." }
                 }

@@ -7,6 +7,8 @@
     "refresh": "node scripts/refresh-data.mjs",
     "refresh:hashpower": "node scripts/refresh-hashpower.mjs",
     "refresh:listings": "node scripts/refresh-vendor-listings.mjs",
+    "refresh:history": "node scripts/capture-market-history.mjs",
+    "audit:http-status": "node scripts/classify-http-status.mjs",
     "verify:gates": "node scripts/validate-release-gates.mjs",
     "verify:release": "node scripts/validate-release-gates.mjs --release"
   }

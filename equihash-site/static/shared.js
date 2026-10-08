@@ -46,16 +46,16 @@
   }
 
   /** Daily estimate from already-validated inputs. Never caps the share: past the guard it's n/a. */
-  function estimate({ hr, w = 0, pw = 0, fee = 0, price = null, rw, net, bt }) {
+  function estimate({ hr, w = null, pw = null, fee = null, price = null, rw, net, bt }) {
     const out = { coinsDay: null, powDay: null, rev: null, profit: null, sharePct: null, guard: null };
-    if (!(hr > 0 && net > 0 && bt > 0 && rw > 0)) return out;
-    out.powDay = (w / 1000) * 24 * pw;
+    if (w != null && pw != null && w >= 0 && pw >= 0) out.powDay = (w / 1000) * 24 * pw;
+    if (!(hr > 0 && net > 0 && bt > 0 && rw > 0) || fee == null) return out;
     out.guard = shareGuard(hr, net);
     if (out.guard) return out;
     out.sharePct = ((hr * 1000) / net) * 100;
     out.coinsDay = ((hr * 1000) / net) * (86400 / bt) * rw * (1 - fee / 100);
     out.rev = price != null ? out.coinsDay * price : null;
-    out.profit = out.rev != null ? out.rev - out.powDay : null;
+    out.profit = out.rev != null && out.powDay != null ? out.rev - out.powDay : null;
     return out;
   }
 

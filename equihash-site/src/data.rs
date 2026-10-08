@@ -628,6 +628,47 @@ pub struct Listing {
     pub observed_at: Option<String>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct MarketHistoryPoint {
+    pub snapshot: String,
+    pub observed_at: Option<String>,
+    pub coin_id: String,
+    pub network_hashrate_sol_s: Option<f64>,
+    pub difficulty: Option<f64>,
+    pub price_usd: Option<f64>,
+    pub miner_id: String,
+    pub miner_hashrate_ksol_s: Option<f64>,
+    pub miner_watts: Option<f64>,
+    pub pool_fee_pct: Option<f64>,
+    pub electricity_usd_kwh: Option<f64>,
+    pub revenue_day_usd: Option<f64>,
+    pub operating_margin_day_usd: Option<f64>,
+    pub network_source_url: Option<String>,
+    pub price_source_url: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct OfferHistoryPoint {
+    pub observed_at: Option<String>,
+    pub listing_id: String,
+    pub vendor_id: String,
+    pub miner_id: String,
+    pub price_amount: Option<f64>,
+    pub price_currency: Option<String>,
+    pub vat_included: Option<bool>,
+    pub availability: Option<String>,
+    pub source_url: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+struct MarketHistoryFile {
+    network_and_economics: Vec<MarketHistoryPoint>,
+    offer_observations: Vec<OfferHistoryPoint>,
+}
+
 /// Public snapshot of the NiceHash Equihash order book. This is kept separate from pools:
 /// NiceHash matches sellers of hashrate with buyers, and the buyer chooses the destination pool.
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
@@ -841,6 +882,8 @@ pub struct Data {
     pub vendor_research_disclaimer: Option<String>,
     pub listings: Vec<Listing>,
     pub listings_verified_at: Option<String>,
+    pub market_history: Vec<MarketHistoryPoint>,
+    pub offer_history: Vec<OfferHistoryPoint>,
     pub hashpower: HashpowerMarket,
     pub research: Vec<ResearchItem>,
     pub research_coins: Vec<ResearchCoin>,
@@ -1890,6 +1933,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
     let mut vf: VendorsFile = read_optional(dir, "vendors.json")?;
     let mut vdf: VendorDirectoryFile = read_optional(dir, "vendor-directory.json")?;
     let mut lf: ListingsFile = read_optional(dir, "listings.json")?;
+    let history: MarketHistoryFile = read_optional(dir, "market-history.json")?;
     let mut hf: HashpowerFile = read_optional(dir, "hashpower.json")?;
     let mut rf: ResearchFile = read_optional(dir, "research.json")?;
     let mut cypherpunk: CypherpunkReport = read_optional(dir, "cypherpunk-zcash.json")?;
@@ -2353,6 +2397,8 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         vendor_research_disclaimer: vdf.disclaimer,
         listings: lf.listings,
         listings_verified_at: lf.verified_at,
+        market_history: history.network_and_economics,
+        offer_history: history.offer_observations,
         hashpower: hf.nicehash,
         research: rf.items,
         research_coins: rf.coins,

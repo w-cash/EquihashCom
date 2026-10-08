@@ -3,6 +3,7 @@ pub mod buy;
 pub mod calc;
 pub mod guide;
 pub mod hashpower;
+pub mod history;
 pub mod home;
 pub mod hub;
 pub mod layout;
