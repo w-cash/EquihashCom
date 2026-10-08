@@ -1,7 +1,27 @@
 // Tests for the pure parts of the refresh script. Run: node --test scripts/
 import test from "node:test";
 import assert from "node:assert/strict";
-import { applyLiveFee, stamp, rankCoins, reportedHashrate, hashrateBasis, parseLiveReading, applyLiveReading, keepPreviousLive, normaliseShares, livePoolIds, applyLiveResult, wcashRewardNote } from "./refresh-data.mjs";
+import { applyLiveFee, stamp, rankCoins, reportedHashrate, hashrateBasis, parseLiveReading, applyLiveReading, keepPreviousLive, normaliseShares, livePoolIds, applyLiveResult, wcashRewardNote, upsertPoolById } from "./refresh-data.mjs";
+
+test("a curated pool replaces an upstream row with the same stable id", () => {
+  const pools = [
+    { id: "zcash:zprominers.com:144", name: "ZProMiners", from_miningpoolstats: true },
+    { id: "zcash:another.example", name: "Another pool", from_miningpoolstats: true },
+  ];
+  const curated = {
+    id: "zcash:zprominers.com:144",
+    name: "ZProMiners",
+    from_miningpoolstats: false,
+    source_url: "https://zprominers.com/zcash-pool-stats",
+  };
+
+  upsertPoolById(pools, curated);
+
+  assert.equal(pools.length, 2);
+  assert.equal(pools.filter((pool) => pool.id === curated.id).length, 1);
+  assert.equal(pools[0], curated);
+  assert.equal(pools[1].id, "zcash:another.example");
+});
 
 test("a live fee refresh never moves the hashrate timestamp", () => {
   const row = { hashrate: 440000, hashrate_is_reported: true, hashrate_observed_at: "2026-10-02T23:29:00.000Z", fetched_at: "2026-10-02T23:29:00.000Z", fee_pct: 0, schemes: [{ scheme: "PPLNS", fee_pct: 0 }] };

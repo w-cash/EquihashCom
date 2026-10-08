@@ -422,10 +422,21 @@ async function refreshManual(coins, pools) {
       row.data_url = "https://pool.zecwec.com/api/v1/overview";
     }
     row.network_share_pct = row.hashrate !== null && coin?.network?.hashrate ? (row.hashrate / coin.network.hashrate) * 100 : null;
-    pools.push(row);
+    upsertPoolById(pools, row);
   }
   console.log(`  manual: ${manual.pools.length} rows`);
   return zecwec;
+}
+
+/**
+ * Curated pool records take precedence when an upstream directory begins
+ * publishing the same stable id. This keeps one record per pool and retains
+ * the field-level sources maintained in manual-pools.json.
+ */
+export function upsertPoolById(pools, row) {
+  const existing = pools.findIndex((pool) => pool.id === row.id);
+  if (existing === -1) pools.push(row);
+  else pools.splice(existing, 1, row);
 }
 
 /** Cross-checks + block rewards from 2Miners public APIs (used only as cited secondary data). */
