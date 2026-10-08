@@ -938,7 +938,7 @@ body[data-page="home"] .foot a { color: #f0ede4; }
 .ed-method a { color: inherit; }
 
 .ed-hero-grid > *, .ed-hero-machine-info { min-width: 0; }
-.ed-hero-machine { --machine-peek: 90px; position: relative; width: 100%; min-width: 0; max-width: 620px; align-self: center; justify-self: center; overflow: visible; background-image: linear-gradient(rgba(89,82,69,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(89,82,69,.055) 1px, transparent 1px); background-size: 18px 18px; }
+.ed-hero-machine { --machine-peek: 90px; position: relative; width: 100%; min-width: 0; max-width: 620px; align-self: center; justify-self: center; overflow: visible; background: transparent; }
 .ed-machine-slides { display: grid; min-width: 0; min-height: 100%; padding: 28px var(--machine-peek) 30px; }
 .ed-machine-slide { display: none; grid-area: 1 / 1; grid-template-rows: auto minmax(0, 1fr) auto; min-width: 0; overflow: hidden; border: 1px solid #c8c1b4; border-radius: 10px; background: #faf9f4; }
 .ed-machine-slide:first-child { display: grid; }

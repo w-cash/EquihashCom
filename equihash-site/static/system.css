@@ -203,7 +203,7 @@ button, .btn, .ed-primary, .ed-dark-button, .ed-light-button, .buy-apply {
 .ed-hero-links { gap: 8px 24px; margin-top: 18px; }
 .ed-hero-links a { font-size: 13px; }
 .ed-method { margin-top: 17px; color: var(--ink-3); font-size: 11px; }
-.ed-hero-machine { background-color: #eceee8; background-image: linear-gradient(rgba(65,70,62,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(65,70,62,.055) 1px, transparent 1px); }
+.ed-hero-machine { background: transparent; }
 .ed-machine-slide { border-radius: 3px; box-shadow: 0 18px 45px rgba(25,29,23,.12); }
 .ed-machine-slide.is-active { border-color: #aeb3a9; }
 .ed-machine-card-top { background: #fbfcf9; }
@@ -368,8 +368,8 @@ button, .btn, .ed-primary, .ed-dark-button, .ed-light-button, .buy-apply {
 .asic-hero-copy .lede { max-width: 680px; font-size: 17px; }
 .asic-hero-actions { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; margin-top: 24px; }
 .asic-hero-actions .btn { display: inline-flex; align-items: center; padding: 0 17px; text-decoration: none; }
-.asic-hero-image { display: grid; min-height: 390px; place-items: center; border-left: 1px solid var(--rule); background-color: #eaede7; background-image: linear-gradient(rgba(65,70,62,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(65,70,62,.05) 1px, transparent 1px); background-size: 20px 20px; }
-.asic-hero-image img { width: min(88%, 420px); height: 330px; object-fit: contain; mix-blend-mode: multiply; }
+.asic-hero-image { display: grid; min-height: 390px; place-items: center; overflow: hidden; border-left: 1px solid var(--rule); background: linear-gradient(145deg, #f7f8f5 0%, #ecefea 58%, #dfe4dd 100%); }
+.asic-hero-image img { width: min(88%, 420px); height: 330px; object-fit: contain; filter: drop-shadow(0 22px 24px rgba(29,34,28,.16)); mix-blend-mode: multiply; }
 .asic-hero-image.asic-model-tile { align-content: center; text-align: center; }
 .asic-hero-image.asic-model-tile span { font-size: 10px; }
 .asic-hero-image.asic-model-tile strong { margin-top: 10px; font-size: clamp(42px, 6vw, 72px); letter-spacing: -.05em; }
