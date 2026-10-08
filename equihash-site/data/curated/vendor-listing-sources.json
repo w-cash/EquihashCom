@@ -1,0 +1,427 @@
+{
+  "_doc": "Approved public product pages and exact variants used by scripts/refresh-vendor-listings.mjs. Parsers must match the configured variant and currency before a listing changes. Stock-schema alone never upgrades a future batch to in-stock.",
+  "sources": [
+    {
+      "listing_id": "bitmain-antminer-z15-pro-840",
+      "url": "https://shop.bitmain.com/",
+      "parser": "generic_product",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "sold_out",
+      "availability_label": "Sold out",
+      "min_price": 1000,
+      "max_price": 30000,
+      "name_match": "Z15 Pro"
+    },
+    {
+      "listing_id": "tms-antminer-z15-pro-860",
+      "url": "https://www.theminingshop.co.uk/bitmain-antminer-z15-pro-860ksol-equihash-zcash-miner/",
+      "parser": "generic_product",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "GBP",
+      "availability": "in_stock",
+      "availability_label": "In stock — ready to ship",
+      "min_price": 1000,
+      "max_price": 30000,
+      "name_match": "Z15 Pro"
+    },
+    {
+      "listing_id": "ade-antminer-z15-pro-860-fast",
+      "url": "https://www.antminerdistribution.com/antminer-z15-pro/",
+      "parser": "ade_product",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "EUR",
+      "availability": "dispatch_claim",
+      "availability_label": "Seller advertises dispatch in seven days",
+      "min_price": 1000,
+      "max_price": 30000,
+      "block_id": "product1"
+    },
+    {
+      "listing_id": "ade-antminer-z15-pro-840-december",
+      "url": "https://www.antminerdistribution.com/antminer-z15-pro/",
+      "parser": "ade_product",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "EUR",
+      "availability": "preorder",
+      "availability_label": "Ships out in December",
+      "min_price": 1000,
+      "max_price": 30000,
+      "block_id": "product2"
+    },
+    {
+      "listing_id": "ade-antminer-z15-pro-840",
+      "url": "https://www.antminerdistribution.com/antminer-z15-pro/",
+      "parser": "ade_product",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "EUR",
+      "availability": "preorder",
+      "availability_label": "January/February batch",
+      "min_price": 1000,
+      "max_price": 30000,
+      "block_id": "product3"
+    },
+    {
+      "listing_id": "apexto-antminer-z15-pro-840",
+      "url": "https://apextomining.com/product/antminer-z15-pro/",
+      "parser": "generic_product",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "waitlist",
+      "availability_label": "February 2027 batch — waitlist shown",
+      "min_price": 1000,
+      "max_price": 30000,
+      "name_match": "Z15 Pro"
+    },
+    {
+      "listing_id": "hashlabs-antminer-z15-pro-860",
+      "url": "https://www.hashlabs.io/miners/antminer-z15-pro",
+      "parser": "hashlabs_deal",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "quote",
+      "availability_label": "Available deals — request an offer",
+      "min_price": 1000,
+      "max_price": 30000,
+      "mode": "delivery"
+    },
+    {
+      "listing_id": "hashlabs-antminer-z15-pro-860-usa-hosting",
+      "url": "https://www.hashlabs.io/miners/antminer-z15-pro",
+      "parser": "hashlabs_deal",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "quote",
+      "availability_label": "USA hosting option · $0.069/kWh",
+      "min_price": 1000,
+      "max_price": 30000,
+      "mode": "hosting",
+      "facility_match": "USA"
+    },
+    {
+      "listing_id": "hashlabs-antminer-z15-pro-860-brazil-hosting",
+      "url": "https://www.hashlabs.io/miners/antminer-z15-pro",
+      "parser": "hashlabs_deal",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "quote",
+      "availability_label": "Brazil hosting option · $0.059/kWh",
+      "min_price": 1000,
+      "max_price": 30000,
+      "mode": "hosting",
+      "facility_match": "Brazil"
+    },
+    {
+      "listing_id": "bt-miners-antminer-z15-pro-860",
+      "url": "https://bt-miners.com/products/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "in_stock",
+      "availability_label": "860K new variant shown in stock",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "In Stock- 860K -New"
+    },
+    {
+      "listing_id": "bt-miners-antminer-z15-pro-840",
+      "url": "https://bt-miners.com/products/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "in_stock",
+      "availability_label": "840K new variant shown in stock",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "In Stock -840K-New"
+    },
+    {
+      "listing_id": "bt-miners-antminer-z15-pro-840-march",
+      "url": "https://bt-miners.com/products/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "preorder",
+      "availability_label": "March batch · 840K mixed units",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "Mar Batch-840K Mix"
+    },
+    {
+      "listing_id": "bt-miners-antminer-z15-pro-840-december",
+      "url": "https://bt-miners.com/products/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "preorder",
+      "availability_label": "December batch · 840K mixed units",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "Dec Batch-840K Mix"
+    },
+    {
+      "listing_id": "bt-miners-antminer-z15-pro-840-jan-feb",
+      "url": "https://bt-miners.com/products/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "preorder",
+      "availability_label": "January–February batch · 840K mixed units",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "Jan-Feb Batch-840K Mix"
+    },
+    {
+      "listing_id": "oneminers-antminer-z15-pro-860",
+      "url": "https://oneminers.com/products/antminer-z15-pro-860-kh-s",
+      "parser": "shopify_variant",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "in_stock",
+      "availability_label": "In Stock variant available",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "In Stock"
+    },
+    {
+      "listing_id": "oneminers-antminer-z15-pro-860-september",
+      "url": "https://oneminers.com/products/antminer-z15-pro-860-kh-s",
+      "parser": "shopify_variant",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "preorder",
+      "availability_label": "September 2026 batch",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "September 2026"
+    },
+    {
+      "listing_id": "oneminers-antminer-z15-pro-860-april",
+      "url": "https://oneminers.com/products/antminer-z15-pro-860-kh-s",
+      "parser": "shopify_variant",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "preorder",
+      "availability_label": "April 2027 batch",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "April 2027"
+    },
+    {
+      "listing_id": "805-antminer-z15-pro-840",
+      "url": "https://805mining.com/product/antminer-z15-pro/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "in_stock",
+      "availability_label": "840K variant shown in stock",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "840k"
+    },
+    {
+      "listing_id": "805-antminer-z15-pro-860",
+      "url": "https://805mining.com/product/antminer-z15-pro/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "in_stock",
+      "availability_label": "860K variant shown in stock",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "860k"
+    },
+    {
+      "listing_id": "805-antminer-z15-pro-820",
+      "url": "https://805mining.com/product/antminer-z15-pro/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "sold_out",
+      "availability_label": "820K variant shown out of stock",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "820k"
+    },
+    {
+      "listing_id": "805-antminer-z15-pro-840-december",
+      "url": "https://805mining.com/product/antminer-z15-pro/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "backorder",
+      "availability_label": "December batch · seller accepts backorders",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "Dec"
+    },
+    {
+      "listing_id": "805-antminer-z15-pro-840-jan-feb",
+      "url": "https://805mining.com/product/antminer-z15-pro/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "backorder",
+      "availability_label": "January–February batch · seller accepts backorders",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "Jan-Feb"
+    },
+    {
+      "listing_id": "805-antminer-z15-pro-840-mar-apr",
+      "url": "https://805mining.com/product/antminer-z15-pro/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "backorder",
+      "availability_label": "March–April batch · seller accepts backorders",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "Mar-Apr"
+    },
+    {
+      "listing_id": "cmb-antminer-z15-pro-840",
+      "url": "https://www.cryptominerbros.com/product/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "preorder",
+      "availability_label": "March–April 2027 batch shown at the listed price",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "March - April Batch 2027"
+    },
+    {
+      "listing_id": "cmb-antminer-z15-pro-840-december",
+      "url": "https://www.cryptominerbros.com/product/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "preorder",
+      "availability_label": "December batch",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "December Batch"
+    },
+    {
+      "listing_id": "cmb-antminer-z15-pro-840-october",
+      "url": "https://www.cryptominerbros.com/product/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "preorder",
+      "availability_label": "October batch",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "October Batch"
+    },
+    {
+      "listing_id": "cmb-antminer-z15-pro-840-jan-feb",
+      "url": "https://www.cryptominerbros.com/product/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "USD",
+      "availability": "preorder",
+      "availability_label": "January–February 2027 batch",
+      "min_price": 1000,
+      "max_price": 30000,
+      "variant_match": "January - February Batch 2027"
+    },
+    {
+      "listing_id": "mineshop-eu-antminer-z15-pro-840-march-2027",
+      "url": "https://mineshop.eu/bitmain-antminer-z15-pro-860ksols",
+      "parser": "mineshop_batch",
+      "required_tokens": [
+        "Z15",
+        "Pro"
+      ],
+      "currency": "EUR",
+      "availability": "preorder",
+      "availability_label": "March 2027 batch — not immediate stock",
+      "min_price": 1000,
+      "max_price": 30000,
+      "batch_match": "March 2027"
+    }
+  ]
+}

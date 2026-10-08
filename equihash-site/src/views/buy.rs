@@ -234,6 +234,134 @@ fn listing_snapshot(d: &Data, l: &Listing) -> Markup {
     }
 }
 
+fn listing_priority(l: &Listing) -> u8 {
+    match l.availability.as_deref() {
+        Some("in_stock") => 0,
+        Some("dispatch_claim") => 1,
+        Some("quote") => 2,
+        Some("backorder") => 3,
+        Some("preorder") | Some("waitlist") => 4,
+        Some("sold_out") => 6,
+        _ => 5,
+    }
+}
+
+fn listing_image(l: &Listing) -> (&str, u32, u32) {
+    if let Some(src) = l.image.as_deref().filter(|src| src.starts_with("/static/")) {
+        return (src, 1200, 1200);
+    }
+    match l.miner_id.as_str() {
+        "antminer-z15-pro" => (
+            "/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp",
+            1200,
+            1200,
+        ),
+        "antminer-z15" | "antminer-z15j" | "antminer-z15e" => (
+            "/static/shop/machines/antminer-z15.8dc9fd7a98.webp",
+            924,
+            1000,
+        ),
+        "innosilicon-a9pp-zmaster" => (
+            "/static/shop/machines/innosilicon-a9pp-zmaster.e4b128723d.webp",
+            1000,
+            680,
+        ),
+        "antminer-z11" => (
+            "/static/shop/machines/antminer-z11.1c5e36ca87.webp",
+            1200,
+            630,
+        ),
+        "antminer-z9" => (
+            "/static/shop/machines/antminer-z9.4e480dbe7c.webp",
+            1140,
+            586,
+        ),
+        "antminer-z9-mini" => (
+            "/static/shop/machines/antminer-z9-mini.712b4180db.webp",
+            1140,
+            525,
+        ),
+        _ => (
+            "/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp",
+            1200,
+            1200,
+        ),
+    }
+}
+
+fn vendor_offer_slide(d: &Data, v: &Vendor, l: &Listing, index: usize, count: usize) -> Markup {
+    let (image, width, height) = listing_image(l);
+    let machine = machine_name(d, &l.miner_id);
+    let calculator = format!(
+        "/calculator?hashrate={}",
+        fmt::opt_num(l.shop_hashrate_ksol)
+    );
+    html! {
+        article class={"ed-machine-slide vendor-offer-slide" @if index == 0 { " is-active" }} data-machine-slide aria-hidden=(if index == 0 { "false" } else { "true" }) role="group" aria-roledescription="slide" aria-label={(index + 1) " of " (count) ": " (&l.title)} {
+            header class="ed-machine-card-top" {
+                span { (&v.name) }
+                span class="ed-machine-record" { (l.availability_label.as_deref().unwrap_or("Listing observed")) }
+            }
+            div class="ed-hero-machine-image vendor-offer-image" {
+                img src=(image) alt={(machine) " shown for " (&v.name)} width=(width) height=(height) loading=[(index > 0).then_some("lazy")] decoding="async";
+            }
+            div class="ed-hero-machine-info vendor-offer-info" {
+                p { "VENDOR LISTING · EQUIHASH 200,9" }
+                h2 { (&l.title) }
+                dl class="vendor-offer-facts" {
+                    div { dt { "Price shown" } dd { (currency(l.price_amount, l.price_currency.as_deref())) @if l.price_includes_vat == Some(false) { small { " ex VAT" } } } }
+                    div { dt { "Hashrate" } dd { (fmt::opt_num(l.shop_hashrate_ksol)) " kSol/s" } }
+                    div { dt { "Batch / availability" } dd { (l.availability_label.as_deref().unwrap_or("Not stated")) } }
+                    div { dt { "Delivery scope" } dd { @if l.shipping_regions.is_empty() { "Not stated" } @else { (l.shipping_regions.join(", ")) } } }
+                }
+                p class="vendor-offer-observed" { "Page checked " time class="ago" datetime=[l.observed_at.as_deref()] { (fmt::utc(l.observed_at.as_deref())) } }
+                nav aria-label={(&l.title) " actions"} {
+                    a href={"/hardware/" (&l.miner_id)} { "Machine specifications" }
+                    a href=(calculator) { "Calculate power cost" }
+                    a href="#vendor-source-checks" { "Vendor checks" }
+                }
+                details class="vendor-offer-source" {
+                    summary { "Delivery notes and source" }
+                    @if let Some(note) = &l.shipping_note { p { (note) } }
+                    @if let Some(note) = &l.hashrate_note { p { (note) } }
+                    @if let Some(url) = &l.source_url { p { (ext(url, "Open the original product page ↗")) } }
+                }
+            }
+        }
+    }
+}
+
+fn vendor_offer_carousel(d: &Data, v: &Vendor, rows: &[&Listing]) -> Markup {
+    let count = rows.len();
+    html! {
+        section class="vendor-product-stage" aria-labelledby="vendor-products-title" {
+            header class="vendor-product-intro" {
+                p class="eyebrow" { "PRODUCTS OBSERVED ON THE VENDOR SITE" }
+                h2 id="vendor-products-title" { "Compare without opening every shop page" }
+                p { "Price, delivery and batch wording are copied from the public product page. They are refreshed daily when the page can be parsed safely." }
+            }
+            aside class="ed-hero-machine vendor-offer-carousel" data-machine-carousel data-carousel-noun="offer" data-carousel-first-delay="2200" data-carousel-delay="5800" role="region" aria-roledescription="carousel" aria-label={(&v.name) " observed products"} {
+                @if count > 1 {
+                    nav class="ed-machine-switcher" data-machine-controls aria-label="Product carousel controls" hidden {
+                        button type="button" data-machine-prev aria-label="Previous offer" { "←" }
+                        span class="ed-machine-position" aria-hidden="true" { strong data-machine-current { "1" } " / " (count) }
+                        button class="ed-machine-toggle" type="button" data-machine-toggle aria-label="Pause carousel" aria-pressed="false" { "Ⅱ" }
+                        button type="button" data-machine-next aria-label="Next offer" { "→" }
+                    }
+                    button class="ed-machine-peek ed-machine-peek-prev" type="button" data-machine-peek-prev aria-label="Show previous offer" hidden { span aria-hidden="true" { "‹" } }
+                    button class="ed-machine-peek ed-machine-peek-next" type="button" data-machine-peek-next aria-label="Show next offer" hidden { span aria-hidden="true" { "›" } }
+                }
+                div class="ed-machine-slides" {
+                    @for (index, listing) in rows.iter().enumerate() {
+                        (vendor_offer_slide(d, v, listing, index, count))
+                    }
+                }
+            }
+            p class="vendor-product-method" { "A seller's stock label is a public claim, not proof of a reserved unit. Confirm serials, invoice beneficiary, dispatch deadline and non-dispatch remedy before payment." }
+        }
+    }
+}
+
 fn vendor_record(d: &Data, v: &Vendor, rows: &[&Listing]) -> Markup {
     let machines = rows
         .iter()
@@ -285,7 +413,12 @@ fn vendor_record(d: &Data, v: &Vendor, rows: &[&Listing]) -> Markup {
                     @if let Some(u) = &v.url { (ext(u, "Vendor website ↗")) }
                 }
             }
-            div class="vendor-snapshots" { @for l in rows { (listing_snapshot(d, l)) } }
+            div class="vendor-snapshots" {
+                @for l in rows.iter().take(2) { (listing_snapshot(d, l)) }
+                @if rows.len() > 2 {
+                    p class="vendor-more-offers" { a href={"/vendors/" (v.slug) "#vendor-products-title"} { "Compare all " (rows.len()) " observed options on this vendor profile →" } }
+                }
+            }
         }
     }
 }
@@ -363,11 +496,6 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
         .iter()
         .filter(|record| record.trust_tier == "D")
         .collect();
-    let gaps: Vec<_> = d
-        .vendor_research
-        .iter()
-        .filter(|record| record.trust_tier == "N/A")
-        .collect();
     let country_groups = d
         .vendor_research
         .iter()
@@ -384,7 +512,7 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
         .find(|record| record.vendor == "Mineshop.eu");
     layout(d, Page {
         title: "Global ASIC vendor directory and Equihash listings",
-        description: "An evidence-graded global ASIC vendor directory with 87 researched records, country and region coverage, warning records, and dated Equihash Z15 listing snapshots.",
+        description: "An evidence-graded global ASIC vendor directory with country and region coverage, warning records, and dated Equihash Z15 listing snapshots.",
         path: "/vendors",
         nav: "vendors",
     }, html! {
@@ -395,7 +523,7 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
                 p class="lede" { "A public-evidence register of ASIC manufacturers, retailers, marketplaces and warning records. Equihash relevance, vendor trust and a specific stock claim are assessed separately." }
             }
             dl class="vendor-directory-stats" {
-                div { dt { "Research records" } dd { (d.vendor_research.len()) } }
+                div { dt { "Research records" } dd { (published.len() + warnings.len()) } }
                 div { dt { "Country / region groups" } dd { (country_groups) } }
                 div { dt { "Tier A–C records" } dd { (published.len()) } }
                 div { dt { "Warning records" } dd { (warnings.len()) } }
@@ -495,16 +623,6 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
                 }
                 div class="vendor-warning-list" { @for record in &warnings { (warning_record(record)) } }
             }
-            @if !gaps.is_empty() {
-                section class="vendor-coverage-gaps" aria-labelledby="vendor-gaps-title" {
-                    header { p class="eyebrow" { "COVERAGE GAPS" } h2 id="vendor-gaps-title" { "No weak substitute was invented" } }
-                    div {
-                        @for record in &gaps {
-                            article { h3 { (&record.country) } p { (&record.notes) } small { (&record.equihash_z15) } }
-                        }
-                    }
-                }
-            }
             section class="buy-standard" id="method" aria-labelledby="buy-standard-title" {
                 header { p class="eyebrow" { "DIRECTORY METHOD" } h2 id="buy-standard-title" { "Evidence tier, vendor record and stock claim are separate" } }
                 div class="buy-standard-grid" {
@@ -524,11 +642,21 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
     let warning = research
         .map(|record| record.trust_tier == "D")
         .unwrap_or(false);
-    let rows: Vec<_> = if warning {
+    let mut rows: Vec<_> = if warning {
         Vec::new()
     } else {
         d.listings.iter().filter(|l| l.vendor_id == v.id).collect()
     };
+    rows.sort_by(|a, b| {
+        listing_priority(a)
+            .cmp(&listing_priority(b))
+            .then_with(|| {
+                b.shop_hashrate_ksol
+                    .partial_cmp(&a.shop_hashrate_ksol)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            })
+            .then_with(|| a.title.cmp(&b.title))
+    });
     let title = format!("{} — Equihash ASIC vendor record", v.name);
     let desc = format!(
         "Source checks and dated Equihash ASIC listing snapshots for {}.",
@@ -554,6 +682,7 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
                         p class="lede" { (v.region_note.as_deref().unwrap_or("Vendor record.")) }
                     }
                 }
+                @if !warning && !rows.is_empty() { (vendor_offer_carousel(d, v, &rows)) }
                 dl class="vendor-dossier" {
                     div { dt { "Relationship" } dd { (channel_label(v)) } }
                     div { dt { "Seller base" } dd { (v.base_region.as_deref().unwrap_or("Not established")) } }
@@ -577,7 +706,7 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
                         (source_list(record))
                     }
                 }
-                section class="vendor-profile-checks" {
+                section class="vendor-profile-checks" id="vendor-source-checks" {
                     h2 { "Source checks" }
                     @if let Some(label) = &v.verification_label { p { strong { (label) } } }
                     p { @if let Some(u) = &v.registry_url { (ext(u, "Company record")) " · " } @if let Some(u) = &v.verification_url { (ext(u, "Operator source")) } @if !warning { @if let Some(u) = &v.url { " · " (ext(u, "Vendor website")) } } }
@@ -585,8 +714,6 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
                 }
                 @if warning {
                     aside class="vendor-reading-note vendor-warning-note" { strong { "Listing links withheld" } p { "This seller is retained as a warning record. Its product snapshot is not presented as a purchase lead." } }
-                } @else {
-                    section class="vendor-profile-listings" { h2 { "Observed listings" } div class="vendor-snapshots" { @for l in rows { (listing_snapshot(d, l)) } } }
                 }
                 aside class="vendor-reading-note" { strong { "Not checked by equihash.com" } p { "Inventory, fulfillment, warranty handling, refund performance and final delivered cost." } }
                 p class="buy-honesty" { "This record documents public evidence. It is not an endorsement, and equihash.com does not sell hardware." }

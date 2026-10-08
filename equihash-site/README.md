@@ -49,6 +49,7 @@ data/curated/      manual-pools.json, coins.json, coin-status.json (hand-maintai
                    permalinks.json (pool URLs; new ids added by the refresh, never changed),
                    logos.json (logo files and sources, written by fetch-logos.mjs)
 scripts/           refresh-data.mjs (pool/network refresh), refresh-hashpower.mjs (NiceHash),
+                   refresh-vendor-listings.mjs (approved seller pages, daily),
                    snapshot.mjs (atomic publish, rollback),
                    fetch-logos.mjs (logos, run by hand), screenshots.mjs (dev only)
 deploy/            systemd units, Caddy and nginx examples, check-health.sh
@@ -116,6 +117,7 @@ The exception is fields a live endpoint refreshes. A row marked `"live"` takes `
 ```bash
 npm run refresh          # same as: node scripts/refresh-data.mjs
 npm run refresh:hashpower # aggregate NiceHash EQUIHASH order book → data/hashpower.json
+npm run refresh:listings  # validate approved product variants → data/listings.json
 ```
 
 The script needs Node 18 or newer and has no dependencies. It takes about 3 minutes because it waits between requests to be polite to the sources. The running server picks up the result on its own.
@@ -168,6 +170,12 @@ With systemd, use `deploy/equihash-refresh.service` and `deploy/equihash-refresh
 ```
 
 Live sources don't need cron; the server polls them itself.
+
+Vendor prices and batch wording have a separate daily job. `data/curated/vendor-listing-sources.json`
+is the whitelist: every row names an exact product variant, currency, parser and plausible price
+range. `scripts/refresh-vendor-listings.mjs` updates only price, availability wording and observation
+time after those checks pass. A blocked page, changed markup, ambiguous variant or out-of-range price
+keeps the previous good record. Structured `InStock` markup never overrides a configured future batch.
 
 Or use a GitHub Action that commits the refreshed JSON. Your deploy then pulls or rsyncs `data/`:
 
@@ -507,7 +515,7 @@ They cover:
 | Wcash network | https://wcashexplorer.com/api/v1/status, `/api/v1/blocks?limit=1` |
 | Merged-mining guide | https://w.cash/whitepaper; READMEs of `wcash-zcash-aux` and `wcash-merge-miner` pinned at commit 3e6b8044; ZIP-244 |
 | ASIC specs | Bitmain support spec pages (support.bitmain.com), innosilicon.shop |
-| ASIC seller offers | Each seller's public product page and legal/company record, linked per listing in `data/vendors.json` and `data/listings.json` |
+| ASIC seller offers | Each approved seller product page and legal/company record, linked per listing in `data/vendors.json`, `data/listings.json` and `data/curated/vendor-listing-sources.json` |
 | Archive and ended coins | citations in `data/archive.json` and `data/curated/coin-status.json` |
 
 ### Known gaps
@@ -541,9 +549,9 @@ No containers: one binary, the `static/` and `scripts/` folders, and a data dire
 ```bash
 useradd --system --home /srv/equihash --shell /usr/sbin/nologin equihash
 install -d -o equihash -g equihash /srv/equihash/releases /srv/equihash/data
-cp deploy/equihash-site.service deploy/equihash-refresh.service deploy/equihash-refresh.timer /etc/systemd/system/
+cp deploy/equihash-site.service deploy/equihash-refresh.service deploy/equihash-refresh.timer deploy/equihash-listings-refresh.service deploy/equihash-listings-refresh.timer /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable --now equihash-site.service equihash-refresh.timer
+systemctl enable --now equihash-site.service equihash-refresh.timer equihash-listings-refresh.timer
 ```
 
 **Each release** (build on a machine with Rust, then copy):
@@ -559,6 +567,7 @@ ssh server "ln -sfn releases/$V /srv/equihash/current.new && mv -T /srv/equihash
 
 - **Service:** `deploy/equihash-site.service` runs as the unprivileged `equihash` user on `127.0.0.1:8080` with a read-only filesystem (`ProtectSystem=strict`, `NoNewPrivileges`, no capabilities) and `Restart=always`. Data edits and new snapshots are picked up without a restart.
 - **Hourly refresh:** `deploy/equihash-refresh.timer` runs `deploy/equihash-refresh.service` (a oneshot `node scripts/refresh-data.mjs`, Node 18+) at 7 minutes past each hour; only `/srv/equihash/data` is writable. A refused snapshot (exit 2) marks the unit as failed and leaves the previous data live. Logs: `journalctl -u equihash-refresh`.
+- **Daily vendor refresh:** `deploy/equihash-listings-refresh.timer` runs the approved-source listing parser once a day with a randomized offset. A source that cannot be matched safely keeps its previous price and timestamp. Logs: `journalctl -u equihash-listings-refresh`.
 - **Reverse proxy:** `deploy/Caddyfile` (automatic TLS) or `deploy/nginx.conf` (certbot certificates), proxying to `127.0.0.1:8080` and redirecting `www` and plain HTTP. They add HSTS. CSP (with `frame-ancestors 'none'`), `X-Content-Type-Options`, `Referrer-Policy` and `X-Frame-Options` come from the app, so the CSP keeps matching the page's inline script; Caddy only fills them in if missing. If you change `INLINE_SCRIPT` in `src/views/layout.rs`, the app's CSP hash follows on its own.
 - **Monitoring:** `GET /healthz` returns JSON: `status` (`ok`, `degraded` when a live source is down or stale or the last reload failed, `error` when the data is older than `HEALTH_MAX_DATA_AGE_SECS`), the snapshot id, `published_at`, `generated_at`, data age, counts and each live source's status. It answers 200, or 503 when the data is too old (so a failing refresh shows up within 3 hours). Point an uptime checker at `https://equihash.com/healthz`, or run `deploy/check-health.sh` from cron/a timer. Also watch `systemctl --failed`.
 - **Rollback:**

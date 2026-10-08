@@ -24,9 +24,8 @@
   function relTimes(scope) { $$("time.ago[datetime]", scope).forEach((el) => { const a = ago(el.getAttribute("datetime")); if (a) { el.title = el.textContent; el.textContent = a; } }); }
   relTimes(document);
 
-  // ---------- homepage hardware carousel ----------
-  const machineCarousel = $("[data-machine-carousel]");
-  if (machineCarousel) {
+  // ---------- hardware and vendor-offer carousels ----------
+  $$('[data-machine-carousel]').forEach((machineCarousel) => {
     const slides = $$('[data-machine-slide]', machineCarousel);
     const controls = $('[data-machine-controls]', machineCarousel);
     if (slides.length > 1 && controls) {
@@ -35,6 +34,9 @@
       const peekPrev = $('[data-machine-peek-prev]', machineCarousel);
       const peekNext = $('[data-machine-peek-next]', machineCarousel);
       const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+      const noun = machineCarousel.dataset.carouselNoun || 'machine';
+      const firstDelay = Math.max(1500, Number(machineCarousel.dataset.carouselFirstDelay) || 1500);
+      const repeatDelay = Math.max(4000, Number(machineCarousel.dataset.carouselDelay) || 6500);
       let index = 0, timer = null, paused = reduceMotion.matches, hovering = false, quickStart = true, visible = false;
       controls.hidden = false;
       if (peekPrev) peekPrev.hidden = false;
@@ -57,14 +59,14 @@
           $$('a, button, input, select, textarea', slide).forEach((el) => { if (active) el.removeAttribute('tabindex'); else el.setAttribute('tabindex', '-1'); });
         });
         current.textContent = String(index + 1);
-        if (peekPrev) peekPrev.setAttribute('aria-label', `Show previous machine: ${slides[prevIndex].getAttribute('aria-label') || `slide ${prevIndex + 1}`}`);
-        if (peekNext) peekNext.setAttribute('aria-label', `Show next machine: ${slides[nextIndex].getAttribute('aria-label') || `slide ${nextIndex + 1}`}`);
+        if (peekPrev) peekPrev.setAttribute('aria-label', `Show previous ${noun}: ${slides[prevIndex].getAttribute('aria-label') || `slide ${prevIndex + 1}`}`);
+        if (peekNext) peekNext.setAttribute('aria-label', `Show next ${noun}: ${slides[nextIndex].getAttribute('aria-label') || `slide ${nextIndex + 1}`}`);
       };
       const stop = () => { clearTimeout(timer); timer = null; };
       const schedule = () => {
         stop();
         if (!paused && !hovering && visible && !document.hidden) {
-          const delay = quickStart ? 1500 : 6500;
+          const delay = quickStart ? firstDelay : repeatDelay;
           timer = setTimeout(() => { quickStart = false; index = (index + 1) % slides.length; paint(); schedule(); }, delay);
         }
       };
@@ -87,6 +89,14 @@
         stop();
       });
       machineCarousel.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); go(e.key === 'ArrowLeft' ? -1 : 1); } });
+      let touchX = null;
+      machineCarousel.addEventListener('touchstart', (e) => { touchX = e.touches[0]?.clientX ?? null; }, { passive: true });
+      machineCarousel.addEventListener('touchend', (e) => {
+        if (touchX == null) return;
+        const dx = (e.changedTouches[0]?.clientX ?? touchX) - touchX;
+        touchX = null;
+        if (Math.abs(dx) >= 45) go(dx > 0 ? -1 : 1);
+      }, { passive: true });
       document.addEventListener('visibilitychange', schedule);
       reduceMotion.addEventListener('change', (e) => {
         if (e.matches) {
@@ -106,7 +116,7 @@
       }
       paint(); paintToggle(); schedule();
     }
-  }
+  });
 
   // ---------- coin directory: keep lower-priority networks available without crowding the scan ----------
   $$('[data-coin-more]').forEach((button) => {

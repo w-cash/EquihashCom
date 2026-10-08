@@ -1035,7 +1035,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn global_vendor_research_keeps_offers_warnings_and_gaps_separate() {
+    async fn global_vendor_research_keeps_offers_and_warnings_separate() {
         let s = state();
         assert_eq!(s.get().vendor_research.len(), 87);
         assert_eq!(
@@ -1059,11 +1059,25 @@ mod tests {
             test::call_and_read_body(&app, test::TestRequest::get().uri("/vendors").to_request())
                 .await;
         let directory = String::from_utf8(directory.to_vec()).unwrap();
-        assert!(directory.contains("87</dd>"));
+        assert!(directory.contains("85</dd>"));
         assert!(directory.contains("March 2027 batch — not immediate stock"));
-        assert!(directory.contains("dispatch in seven days"));
         assert!(directory.contains("16 records kept out of the trusted directory"));
-        assert!(directory.contains("No weak substitute was invented"));
+        assert!(!directory.contains("No weak substitute was invented"));
+        assert!(!directory.contains("No vetted local Z15 source identified"));
+
+        let vendor = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/vendors/antminer-distribution-europe")
+                .to_request(),
+        )
+        .await;
+        let vendor = String::from_utf8(vendor.to_vec()).unwrap();
+        assert!(vendor.contains("Compare without opening every shop page"));
+        assert!(vendor.contains("data-machine-carousel"));
+        assert_eq!(vendor.matches("data-machine-slide").count(), 3);
+        assert!(vendor.contains("dispatch in seven days"));
+        assert!(vendor.contains("Ships out in December"));
 
         let warning = test::call_and_read_body(
             &app,
@@ -1076,6 +1090,7 @@ mod tests {
         assert!(warning.contains("Warning record"));
         assert!(warning.contains("Listing links withheld"));
         assert!(!warning.contains("Observed listings"));
+        assert!(!warning.contains("data-machine-carousel"));
 
         let search = test::call_and_read_body(
             &app,

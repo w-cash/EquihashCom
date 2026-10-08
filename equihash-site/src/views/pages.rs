@@ -396,7 +396,7 @@ pub fn sources(d: &Data) -> Markup {
                     li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-zcash-aux/README.md", "wcash-zcash-aux README at 3e6b8044")) }
                     li { (ext("https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-merge-miner/README.md", "wcash-merge-miner README at 3e6b8044")) }
                     li { "ASIC specs: Bitmain support spec pages and the Innosilicon product page, linked per row on " a href="/hardware" { "Hardware" } "." }
-                    li { "ASIC vendor identities and listing snapshots: seller pages, terms and public company records where available, linked per record in the " a href="/vendors" { "Vendor directory" } ". Inventory, fulfillment and warranty performance are not independently checked." }
+                    li { "ASIC vendor identities and listing snapshots: seller pages, terms and public company records where available, linked per record in the " a href="/vendors" { "Vendor directory" } ". Approved product variants are checked daily; a blocked page, ambiguous match or implausible price keeps its previous good record and timestamp. Inventory, fulfillment and warranty performance are not independently checked." }
                     li { "Archive: pool and operator announcements and community threads, linked per entry on the " a href="/archive" { "Archive" } "." }
                 }
                 h2 { "Method" }
@@ -408,6 +408,7 @@ pub fn sources(d: &Data) -> Markup {
                     li { "Regions are normalised from what each pool writes (\"US, EU, ASIA\", \"Canada\", \"RU\") into the buckets used by the region filter." }
                     (price_notes(d))
                     li { "Every hashrate, fee, miner count, block count and minimum payout carries its own source and observation time, shown on each pool's page. A field's time only moves when that field was fetched: refreshing a fee or a block height never makes a hashrate look newer." }
+                    li { "Vendor refreshes use an allowlist of exact product variants, expected currency and price range. Future-batch wording is kept as editorial data; storefront structured data cannot silently turn it into an in-stock claim." }
                     li { "The network estimate and what the listed pools report are separate figures and are never substituted for each other. When no network estimate is published, the pools' total is shown with ≥ (a floor). † marks a figure the operator gave us rather than one we could read." }
                     li { "Coins are ranked within their exact Equihash parameter set by the sum of positive pool-reported hashrate; zero and n/a come last, by name. Hashrates on different parameter sets are never compared, summed or charted together." }
                     li { "n/a means not published; 0 means published as zero. The two are kept apart in the data and on the page." }
