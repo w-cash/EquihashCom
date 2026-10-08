@@ -1116,6 +1116,8 @@ mod tests {
         )
         .await;
         let vendor = String::from_utf8(vendor.to_vec()).unwrap();
+        assert!(vendor.contains(r#"data-brand-shape="rail""#));
+        assert!(vendor.contains("--vendor-accent:#356ea5"));
         assert!(vendor.contains("1 miner · 3 listings"));
         assert!(!vendor.contains("data-machine-carousel"));
         assert_eq!(vendor.matches("data-machine-slide").count(), 1);
@@ -1131,6 +1133,8 @@ mod tests {
         )
         .await;
         let broad_catalog = String::from_utf8(broad_catalog.to_vec()).unwrap();
+        assert!(broad_catalog.contains(r#"data-brand-shape="wedge""#));
+        assert!(broad_catalog.contains("--vendor-accent:#30343a"));
         assert!(broad_catalog.contains("6 miners · 9 listings"));
         assert!(broad_catalog.contains("data-machine-carousel"));
         assert_eq!(broad_catalog.matches("data-machine-slide").count(), 6);
@@ -1144,6 +1148,8 @@ mod tests {
         )
         .await;
         let warning = String::from_utf8(warning.to_vec()).unwrap();
+        assert!(warning.contains(r#"data-brand-shape="arc""#));
+        assert!(warning.contains("--vendor-accent:#dd7b16"));
         assert!(warning.contains("Warning record"));
         assert!(warning.contains("Product links are withheld"));
         assert!(!warning.contains("vendor-offer-table"));

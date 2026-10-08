@@ -187,6 +187,106 @@ fn vendor_mark(v: &Vendor, head: bool) -> Markup {
     }
 }
 
+#[derive(Clone, Copy)]
+struct VendorTheme {
+    accent: &'static str,
+    deep: &'static str,
+    tint: &'static str,
+    shape: &'static str,
+}
+
+/// A small, restrained identity system for vendor profiles. These colours are taken from the
+/// vendors' public marks or sites; they identify the profile without turning the directory into a
+/// copy of each shop. Every value is a compile-time CSS token, never vendor-supplied text.
+fn vendor_theme(id: &str) -> VendorTheme {
+    match id {
+        "bitmain" => VendorTheme {
+            accent: "#d95d26",
+            deep: "#66260e",
+            tint: "#f4e6dc",
+            shape: "wedge",
+        },
+        "the-mining-shop-uk" => VendorTheme {
+            accent: "#d77818",
+            deep: "#713603",
+            tint: "#f6eadb",
+            shape: "arc",
+        },
+        "antminer-distribution-europe" => VendorTheme {
+            accent: "#356ea5",
+            deep: "#173b5d",
+            tint: "#e7eff7",
+            shape: "rail",
+        },
+        "apexto-mining" => VendorTheme {
+            accent: "#4f873d",
+            deep: "#254a1e",
+            tint: "#e8f0e3",
+            shape: "orbit",
+        },
+        "hashlabs" => VendorTheme {
+            accent: "#7c4097",
+            deep: "#3c1e4b",
+            tint: "#eee5f2",
+            shape: "orbit",
+        },
+        "bt-miners" => VendorTheme {
+            accent: "#b65b49",
+            deep: "#5c271d",
+            tint: "#f2e4e0",
+            shape: "wedge",
+        },
+        "oneminers" => VendorTheme {
+            accent: "#d79a0d",
+            deep: "#664600",
+            tint: "#f6edd4",
+            shape: "arc",
+        },
+        "the-bitcoin-miner-uk" => VendorTheme {
+            accent: "#dd7b16",
+            deep: "#693606",
+            tint: "#f5e8d9",
+            shape: "arc",
+        },
+        "805-mining" => VendorTheme {
+            accent: "#811d23",
+            deep: "#400c10",
+            tint: "#f1e1e2",
+            shape: "rail",
+        },
+        "crypto-miner-bros" => VendorTheme {
+            accent: "#30343a",
+            deep: "#15171a",
+            tint: "#e6e8ea",
+            shape: "wedge",
+        },
+        "mineshop-eu" => VendorTheme {
+            accent: "#27765b",
+            deep: "#123e2e",
+            tint: "#e2eee9",
+            shape: "rail",
+        },
+        _ => VendorTheme {
+            accent: "#697068",
+            deep: "#30352f",
+            tint: "#e8ebe5",
+            shape: "wedge",
+        },
+    }
+}
+
+fn vendor_brand_field(v: &Vendor) -> Markup {
+    html! {
+        div class="vendor-brand-field" aria-hidden="true" {
+            @if let Some(src) = &v.logo.src {
+                img src=(src) alt="" width="360" height="180" decoding="async";
+            } @else {
+                span { (v.logo.mono.as_str()) }
+            }
+        }
+    }
+}
+
 fn channel_label(v: &Vendor) -> &str {
     match v.channel.as_deref() {
         Some("manufacturer") => "Manufacturer",
@@ -666,6 +766,11 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
         v.name
     );
     let path = format!("/vendors/{}", v.slug);
+    let theme = vendor_theme(&v.id);
+    let theme_style = format!(
+        "--vendor-accent:{};--vendor-deep:{};--vendor-tint:{}",
+        theme.accent, theme.deep, theme.tint
+    );
     let mut profile_sources: Vec<(String, String)> = Vec::new();
     if let Some(url) = &v.registry_url {
         profile_sources.push(("Company record".into(), url.clone()));
@@ -703,25 +808,28 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
             nav: "vendors",
         },
         html! {
-            div class="wrap page buy-page buy-vendor-page" {
+            div class="wrap page buy-page buy-vendor-page" data-brand-shape=(theme.shape) style=(theme_style) {
                 p class="crumb" { a href="/vendors" { "Vendor directory" } }
-                header class="page-head vendor-profile-head" {
-                    (vendor_mark(v, true))
-                    div {
-                        p class="vendor-profile-kicker" { (channel_label(v)) @if let Some(label) = evidence_label { " · " (label) } }
-                        h1 { (v.name) }
-                        div class="vendor-profile-actions" {
-                            @if !warning { @if let Some(url) = &v.url { (ext(url, "Visit vendor ↗")) } }
-                            (crate::views::pages::copy_link(&path, "Copy link to this vendor"))
-                            a href="/contribute" { "Report a correction" }
+                section class="vendor-identity" aria-labelledby="vendor-name" {
+                    (vendor_brand_field(v))
+                    header class="page-head vendor-profile-head" {
+                        (vendor_mark(v, true))
+                        div {
+                            p class="vendor-profile-kicker" { (channel_label(v)) @if let Some(label) = evidence_label { " · " (label) } }
+                            h1 id="vendor-name" { (v.name) }
+                            div class="vendor-profile-actions" {
+                                @if !warning { @if let Some(url) = &v.url { (ext(url, "Visit vendor ↗")) } }
+                                (crate::views::pages::copy_link(&path, "Copy link to this vendor"))
+                                a href="/contribute" { "Report a correction" }
+                            }
                         }
                     }
-                }
-                dl class="vendor-profile-metrics" {
-                    div { dt { "Models" } dd { (model_count) } }
-                    div { dt { "Listings" } dd { (rows.len()) } }
-                    div { dt { "Seller base" } dd { (v.base_region.as_deref().unwrap_or("Not established")) } }
-                    div { dt { "Checked" } dd { (fmt::utc(latest_check)) } }
+                    dl class="vendor-profile-metrics" {
+                        div { dt { "Models" } dd { (model_count) } }
+                        div { dt { "Listings" } dd { (rows.len()) } }
+                        div { dt { "Seller base" } dd { (v.base_region.as_deref().unwrap_or("Not established")) } }
+                        div { dt { "Checked" } dd { (fmt::utc(latest_check)) } }
+                    }
                 }
                 @if warning {
                     aside class="vendor-profile-warning" { strong { "Warning record" } p { "Product links are withheld. This entry is kept so readers can identify the seller and inspect the evidence." } }
