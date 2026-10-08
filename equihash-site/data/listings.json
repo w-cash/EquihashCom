@@ -1,6 +1,6 @@
 {
   "_doc": "Retail listings for Equihash ASICs. Prices, stock and shipping are copied from the vendor product page and never invented. Manufacturer-direct and independent channels are labelled separately. equihash.com has no checkout; every CTA is an outbound product URL.",
-  "verified_at": "2026-10-07T20:48:20.000Z",
+  "verified_at": "2026-10-08T00:00:00.000Z",
   "listings": [
     {
       "id": "bitmain-antminer-z15-pro-840",
@@ -80,6 +80,34 @@
       "sku": null,
       "source_url": "https://www.antminerdistribution.com/antminer-z15-pro/",
       "observed_at": "2026-10-07T12:00:03.000Z"
+    },
+    {
+      "id": "ade-antminer-z15-pro-860-fast",
+      "vendor_id": "antminer-distribution-europe",
+      "miner_id": "antminer-z15-pro",
+      "title": "Antminer Z15 Pro 860KSol — fast dispatch option",
+      "product_url": "https://www.antminerdistribution.com/antminer-z15-pro/",
+      "shop_hashrate_ksol": 860,
+      "hashrate_note": "Seller advertises an 860 kSol/s option. BITMAIN publishes 840 kSol/s ±3% as the typical specification; require the exact unit test report and firmware/model details.",
+      "price_amount": 12999,
+      "price_currency": "EUR",
+      "price_includes_vat": false,
+      "availability": "dispatch_claim",
+      "availability_label": "Seller advertises dispatch in seven days",
+      "shipping_regions": [
+        "EU",
+        "UK",
+        "USA",
+        "Global"
+      ],
+      "shipping_note": "Ships from Breda. Dispatch wording is not physical allocation or serial proof. Confirm the selected units, invoice beneficiary, insured freight and destination taxes in writing.",
+      "condition": "new",
+      "image": null,
+      "image_source_url": null,
+      "image_license_note": null,
+      "sku": null,
+      "source_url": "https://www.antminerdistribution.com/antminer-z15-pro/",
+      "observed_at": "2026-10-08T00:00:00.000Z"
     },
     {
       "id": "apexto-antminer-z15-pro-840",
@@ -277,6 +305,33 @@
       "sku": "Z15PRO",
       "source_url": "https://www.cryptominerbros.com/product/bitmain-antminer-z15-pro-840ksol-s-equihash-miner/",
       "observed_at": "2026-10-07T20:48:20.000Z"
+    },
+    {
+      "id": "mineshop-eu-antminer-z15-pro-840-march-2027",
+      "vendor_id": "mineshop-eu",
+      "miner_id": "antminer-z15-pro",
+      "title": "Antminer Z15 Pro 840KSol — March 2027 batch",
+      "product_url": "https://mineshop.eu/bitmain-antminer-z15-pro-860ksols",
+      "shop_hashrate_ksol": 840,
+      "hashrate_note": "The URL and structured data can suggest 860 kSol/s and InStock, but the product body and SKU describe 840 kSol/s. The directory records the page-body specification.",
+      "price_amount": 7199.87,
+      "price_currency": "EUR",
+      "price_includes_vat": false,
+      "availability": "preorder",
+      "availability_label": "March 2027 batch — not immediate stock",
+      "shipping_regions": [
+        "EU",
+        "UK",
+        "Global"
+      ],
+      "shipping_note": "EU dispatch is generally customs-free inside the EU. UK import VAT and duty normally apply unless the invoice expressly states DDP. Confirm the batch, exact model and non-dispatch remedy in writing.",
+      "condition": "new",
+      "image": null,
+      "image_source_url": null,
+      "image_license_note": null,
+      "sku": null,
+      "source_url": "https://mineshop.eu/bitmain-antminer-z15-pro-860ksols",
+      "observed_at": "2026-10-08T00:00:00.000Z"
     }
   ]
 }

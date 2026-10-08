@@ -323,6 +323,7 @@ async fn data_file(
         "archive.json",
         "miners.json",
         "vendors.json",
+        "vendor-directory.json",
         "listings.json",
         "hashpower.json",
         "meta.json",
@@ -400,6 +401,7 @@ Updated: {updated}
 - [Networks JSON]({site}/data/network.json)
 - [Hardware JSON]({site}/data/miners.json)
 - [Vendors JSON]({site}/data/vendors.json)
+- [Global vendor research JSON]({site}/data/vendor-directory.json)
 - [Listings JSON]({site}/data/listings.json)
 - [Hashpower JSON]({site}/data/hashpower.json)
 - [Cypherpunk Zcash research data]({site}/data/cypherpunk-zcash.json)
@@ -804,6 +806,7 @@ mod tests {
             "/data/pools.json".into(),
             "/data/miners.json".into(),
             "/data/vendors.json".into(),
+            "/data/vendor-directory.json".into(),
             "/data/listings.json".into(),
             "/data/hashpower.json".into(),
             "/data/cypherpunk-zcash.json".into(),
@@ -1032,6 +1035,61 @@ mod tests {
     }
 
     #[actix_web::test]
+    async fn global_vendor_research_keeps_offers_warnings_and_gaps_separate() {
+        let s = state();
+        assert_eq!(s.get().vendor_research.len(), 87);
+        assert_eq!(
+            s.get()
+                .vendor_research
+                .iter()
+                .filter(|record| record.trust_tier == "D")
+                .count(),
+            16
+        );
+        assert_eq!(
+            s.get()
+                .vendor_research
+                .iter()
+                .filter(|record| record.trust_tier == "N/A")
+                .count(),
+            2
+        );
+        let app = app!(s);
+        let directory =
+            test::call_and_read_body(&app, test::TestRequest::get().uri("/vendors").to_request())
+                .await;
+        let directory = String::from_utf8(directory.to_vec()).unwrap();
+        assert!(directory.contains("87</dd>"));
+        assert!(directory.contains("March 2027 batch — not immediate stock"));
+        assert!(directory.contains("dispatch in seven days"));
+        assert!(directory.contains("16 records kept out of the trusted directory"));
+        assert!(directory.contains("No weak substitute was invented"));
+
+        let warning = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/vendors/the-bitcoin-miner-uk")
+                .to_request(),
+        )
+        .await;
+        let warning = String::from_utf8(warning.to_vec()).unwrap();
+        assert!(warning.contains("Warning record"));
+        assert!(warning.contains("Listing links withheld"));
+        assert!(!warning.contains("Observed listings"));
+
+        let search = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/search?q=Mineshop.eu")
+                .to_request(),
+        )
+        .await;
+        let search = String::from_utf8(search.to_vec()).unwrap();
+        assert!(search.contains("Vendor research"));
+        assert!(search.contains("March 2027"));
+    }
+
+    #[actix_web::test]
     async fn crawler_files_are_clear_and_data_is_noindex() {
         let s = state();
         let app = app!(s);
@@ -1053,6 +1111,7 @@ mod tests {
         assert!(llms.contains("https://equihash.com/industry/grayscale-zcash-etf"));
         assert!(llms.contains("https://equihash.com/industry/winklevoss-zcash-etf"));
         assert!(llms.contains("https://equihash.com/data/pools.json"));
+        assert!(llms.contains("https://equihash.com/data/vendor-directory.json"));
         assert!(llms.contains("Wcash receives work only from participating merged-mining pools"));
 
         let research = test::call_and_read_body(

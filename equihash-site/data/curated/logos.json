@@ -1,6 +1,6 @@
 {
   "_doc": "Written by scripts/fetch-logos.mjs (see README, 'Logos'). kind: official | repo | third_party | fallback. file is relative to static/logos/; fallback entries have file null and render as a monogram.",
-  "generated_at": "2026-10-07T21:29:39.841Z",
+  "generated_at": "2026-10-08T10:54:06.000Z",
   "coins": {
     "zcash": {
       "file": "coins/zcash.47590b6def.svg",
@@ -1945,6 +1945,18 @@
       "format": "png",
       "bytes": 17046,
       "source_px": "601x601"
+    },
+    "mineshop-eu": {
+      "file": "vendors/mineshop-eu.4930834d44.png",
+      "source_url": "https://mineshop.eu/themes/shop/default/build/assets/logo-footer-d9b12b79.svg",
+      "source_page": "https://mineshop.eu/",
+      "fetched_at": "2026-10-08T10:54:06.000Z",
+      "kind": "official",
+      "license_note": "MineShop.eu's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "png",
+      "bytes": 19656,
+      "source_px": "450x150",
+      "ink": "light"
     },
     "apexto-mining": {
       "file": "vendors/apexto-mining.c8be32448b.webp",

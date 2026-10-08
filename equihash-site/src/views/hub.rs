@@ -781,7 +781,28 @@ pub fn search(d: &Data, q: &SearchQuery) -> Markup {
             .take(30)
             .collect()
     };
-    let vendors: Vec<_> = if needle.is_empty() {
+    let vendor_research: Vec<_> = if needle.is_empty() {
+        Vec::new()
+    } else {
+        d.vendor_research
+            .iter()
+            .filter(|v| {
+                v.trust_tier != "N/A"
+                    && matches(
+                        &needle,
+                        &[
+                            &v.vendor,
+                            &v.country,
+                            &v.region,
+                            &v.vendor_type,
+                            &v.equihash_z15,
+                        ],
+                    )
+            })
+            .take(30)
+            .collect()
+    };
+    let vendors: Vec<_> = if needle.is_empty() || !vendor_research.is_empty() {
         Vec::new()
     } else {
         d.vendors
@@ -842,6 +863,7 @@ pub fn search(d: &Data, q: &SearchQuery) -> Markup {
     let count = coins.len()
         + miners.len()
         + pools.len()
+        + vendor_research.len()
         + vendors.len()
         + industry.len()
         + usize::from(merged)
@@ -857,6 +879,7 @@ pub fn search(d: &Data, q: &SearchQuery) -> Markup {
                     @if !coins.is_empty() { section { h2 { "Coins" } div class="result-list" { @for c in coins { a href={"/coin/" (c.id)} { span { (logo::chip(&c.logo, &c.name, At::List, true)) strong { (c.name) } " " span class="sym" { (c.symbol) } } small { "Equihash " (c.params()) " · " (c.pool_count) " pools" } } } } } }
                     @if !miners.is_empty() { section { h2 { "Hardware" } div class="result-list" { @for m in miners { a href={"/hardware/" (m.id)} { span { strong { (m.maker) " " (m.model) } } small { "Equihash " (m.equihash) " · " (fmt::opt_num(m.hashrate_ksol)) " kSol/s" } } } } } }
                     @if !pools.is_empty() { section { h2 { "Pools" } div class="result-list" { @for p in pools { a href={"/pool/" (p.slug)} { span { (logo::chip(&p.logo, &p.name, At::List, true)) strong { (p.name) } } small { (p.coin_label) " · " (p.region.as_deref().unwrap_or("region n/a")) } } } } } }
+                    @if !vendor_research.is_empty() { section { h2 { "Vendor research" } div class="result-list" { @for v in vendor_research { a href={"/vendors#vendor-" (&v.id)} { span { strong { (&v.vendor) } @if v.trust_tier == "D" { " · Warning record" } @else { " · Tier " (&v.trust_tier) } } small { (&v.country) " · " (&v.region) " · " (&v.equihash_z15) } } } } } }
                     @if !vendors.is_empty() { section { h2 { "Vendors" } div class="result-list" { @for v in vendors { a href={"/vendors/" (v.slug)} { span { strong { (v.name) } } small { (v.region_focus.as_deref().unwrap_or("Region not stated")) " · " (v.regions.join(", ")) } } } } } }
                     @if !industry.is_empty() { section { h2 { "Industry" } div class="result-list" { @for (href, title, _) in industry { a href=(href) { span { strong { (title) } } small { "Source-backed Equihash industry briefing" } } } } } }
                     @if merged || buying { section { h2 { "Guides and tools" } div class="result-list" {

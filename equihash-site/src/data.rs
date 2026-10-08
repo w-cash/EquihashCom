@@ -544,6 +544,35 @@ pub struct Vendor {
     pub logo: crate::views::logo::Logo,
 }
 
+/// Editorial research about an ASIC seller or warning record. This stays separate from `Vendor`:
+/// a researched company may have no current Equihash offer, while a dated listing is not proof of
+/// inventory or fulfillment.
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct VendorResearch {
+    pub id: String,
+    pub region: String,
+    pub country: String,
+    pub vendor: String,
+    pub website: Option<String>,
+    pub vendor_type: String,
+    pub trust_tier: String,
+    pub editorial_trust_score_100: Option<u8>,
+    pub status: String,
+    pub legal_identity_location: String,
+    pub history_and_reputation: String,
+    pub payment_protection: String,
+    pub shipping_customs: String,
+    pub pickup: String,
+    pub warranty_rma: String,
+    pub equihash_z15: String,
+    pub estimated_delivery_probability: String,
+    pub notes: String,
+    pub source_urls: Vec<String>,
+    pub last_verified: Option<String>,
+    pub global_trust_rank: Option<u16>,
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(default)]
 pub struct Listing {
@@ -746,6 +775,12 @@ struct VendorsFile {
 }
 #[derive(Deserialize, Default)]
 #[serde(default)]
+struct VendorDirectoryFile {
+    as_of: Option<String>,
+    vendors: Vec<VendorResearch>,
+}
+#[derive(Deserialize, Default)]
+#[serde(default)]
 struct ListingsFile {
     verified_at: Option<String>,
     listings: Vec<Listing>,
@@ -772,6 +807,8 @@ pub struct Data {
     pub miners_not_listed: Vec<NotListed>,
     pub vendors: Vec<Vendor>,
     pub vendors_verified_at: Option<String>,
+    pub vendor_research: Vec<VendorResearch>,
+    pub vendor_research_as_of: Option<String>,
     pub listings: Vec<Listing>,
     pub listings_verified_at: Option<String>,
     pub hashpower: HashpowerMarket,
@@ -1544,6 +1581,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
     let mut af: ArchiveFile = read(dir, "archive.json")?;
     let mut mf: MinersFile = read(dir, "miners.json")?;
     let mut vf: VendorsFile = read(dir, "vendors.json").unwrap_or_default();
+    let mut vdf: VendorDirectoryFile = read(dir, "vendor-directory.json").unwrap_or_default();
     let mut lf: ListingsFile = read(dir, "listings.json").unwrap_or_default();
     let mut hf: HashpowerFile = read(dir, "hashpower.json").unwrap_or_default();
     let mut rf: ResearchFile = read(dir, "research.json").unwrap_or_default();
@@ -1845,6 +1883,21 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         }
         v.logo = logos.vendor(&v.id, &v.name);
     }
+    for v in vdf.vendors.iter_mut() {
+        clean_url(
+            &mut v.website,
+            &format!("vendor research {} website", v.id),
+            &mut dropped,
+        );
+        v.source_urls.retain(|url| {
+            let ok = safe_url(url).is_some();
+            if !ok {
+                dropped.push(format!("vendor research {}: unsafe source URL", v.id));
+            }
+            ok
+        });
+    }
+    vdf.vendors.sort_by_key(|v| v.global_trust_rank);
     for l in lf.listings.iter_mut() {
         clean_url(
             &mut l.product_url,
@@ -1930,6 +1983,8 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         miners_not_listed: mf.not_listed,
         vendors: vf.vendors,
         vendors_verified_at: vf.verified_at,
+        vendor_research: vdf.vendors,
+        vendor_research_as_of: vdf.as_of,
         listings: lf.listings,
         listings_verified_at: lf.verified_at,
         hashpower: hf.nicehash,

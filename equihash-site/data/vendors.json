@@ -1,6 +1,6 @@
 {
   "_doc": "Equihash ASIC seller directory. Manufacturer-direct and independent channels are labelled separately. equihash.com does not sell hardware, does not accept payment for placement, and does not treat a public listing as an endorsement. null = n/a.",
-  "verified_at": "2026-10-07T20:48:20.000Z",
+  "verified_at": "2026-10-08T00:00:00.000Z",
   "vendors": [
     {
       "id": "bitmain",
@@ -237,6 +237,29 @@
       "registration": "Hong Kong company 2654208 · incorporated 8 February 2018",
       "registry_url": "https://www.cr.gov.hk/docs/wrpt/RNC063_2018.02.05-2018.02.11.pdf",
       "base_region": "China & Hong Kong"
+    },
+    {
+      "id": "mineshop-eu",
+      "slug": "mineshop-eu",
+      "name": "Mineshop.eu",
+      "url": "https://mineshop.eu/",
+      "regions": [
+        "EU",
+        "UK",
+        "Global"
+      ],
+      "base_region": "Europe",
+      "region_focus": "Ireland and the European Union",
+      "region_note": "Irish ASIC retailer with physical collection in Dundalk and EU warehouse operations. The researched Z15 Pro page is a March 2027 batch, not immediate stock.",
+      "legal_name": "MINING HARDWARE LIMITED",
+      "registration": "Irish CRO entity · VAT IE3454456JH",
+      "registry_url": null,
+      "channel": "independent_retailer",
+      "verification_label": "Legal identity, location, terms, shipping policy and independent review history checked",
+      "verification_url": "https://mineshop.eu/contact-us",
+      "notes": "Tier A public-evidence record. The page's structured data says InStock, but the product body states March 2027 batch shipping and 840 KSol/s; this directory treats it as a future batch.",
+      "source_url": "https://mineshop.eu/bitmain-antminer-z15-pro-860ksols",
+      "observed_at": "2026-10-08T00:00:00.000Z"
     }
   ]
 }

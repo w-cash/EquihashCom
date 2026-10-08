@@ -363,7 +363,7 @@ pub fn sources(d: &Data) -> Markup {
                     li { a href="/data/pools.json" { "Pool records" } " — pool identity, coin, reported hashrate, fees, payout methods, regions and field-level sources." }
                     li { a href="/data/network.json" { "Network records" } " — Equihash parameters, network estimates, rewards, price inputs and observation times." }
                     li { a href="/data/miners.json" { "Hardware records" } " — manufacturer hashrate, power, parameter compatibility and specification sources." }
-                    li { a href="/data/vendors.json" { "Vendor records" } " and " a href="/data/listings.json" { "offer records" } " — seller identity evidence and time-stamped public product claims." }
+                    li { a href="/data/vendor-directory.json" { "Global ASIC vendor research" } ", " a href="/data/vendors.json" { "Equihash vendor records" } " and " a href="/data/listings.json" { "offer records" } " — evidence tiers, seller identity records and time-stamped public product claims." }
                     li { a href="/data/hashpower.json" { "Hashpower market snapshot" } " — aggregate NiceHash EQUIHASH order-book observations." }
                     li { a href="/data/current.json" { "Current snapshot manifest" } " — the exact generated files, sizes and SHA-256 values loaded by the server." }
                 }

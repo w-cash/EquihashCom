@@ -575,4 +575,36 @@
     }
     f.addEventListener("change", apply); apply();
   })();
+
+  // ---------- Global vendor research: evidence-tier, region and text filters ----------
+  (function vendorResearchDir() {
+    const f = $("#vendor-research-filters");
+    if (!f) return;
+    const cards = $$('[data-vendor-research]');
+    const fold = (value) => (value || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+    function apply() {
+      const query = fold(f.elements.vendor_q?.value.trim());
+      const region = fold(f.elements.vendor_region?.value);
+      const tier = fold(f.elements.vendor_tier?.value);
+      let count = 0;
+      for (const card of cards) {
+        const matchesQuery = !query || fold(card.dataset.search).includes(query);
+        const matchesRegion = !region || fold(card.dataset.region) === region;
+        const matchesTier = !tier || fold(card.dataset.tier) === tier;
+        card.hidden = !(matchesQuery && matchesRegion && matchesTier);
+        if (!card.hidden) count++;
+      }
+      for (const group of $$('[data-vendor-research-region]')) {
+        group.hidden = !$$('[data-vendor-research]', group).some((card) => !card.hidden);
+      }
+      const out = $("#vendor-research-count");
+      if (out) out.textContent = `${count} researched vendor${count === 1 ? "" : "s"}`;
+      const empty = $("#vendor-research-empty");
+      if (empty) empty.hidden = count !== 0;
+    }
+    f.addEventListener("submit", (event) => { event.preventDefault(); apply(); });
+    f.addEventListener("change", apply);
+    f.addEventListener("input", (event) => { if (event.target.type === "search") apply(); });
+    apply();
+  })();
 })();

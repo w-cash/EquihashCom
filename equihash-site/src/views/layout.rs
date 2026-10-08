@@ -3,7 +3,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "42";
+pub const ASSET_V: &str = "43";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -182,6 +182,7 @@ fn data_alternates(path: &str) -> Vec<(&'static str, &'static str)> {
     } else if path == "/vendors" || path.starts_with("/vendors/") {
         vec![
             ("/data/vendors.json", "ASIC vendor data"),
+            ("/data/vendor-directory.json", "Global ASIC vendor research"),
             ("/data/listings.json", "ASIC offer data"),
         ]
     } else if path == "/hashpower" {
