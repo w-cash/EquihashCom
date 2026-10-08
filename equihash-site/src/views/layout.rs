@@ -159,7 +159,7 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                             " · 2026 · "
                             a href="mailto:mykyta@equihash.com" { "mykyta@equihash.com" }
                             " · "
-                            a href="https://x.com/MykytaSamardak" rel="me noopener" { "X" }
+                            a href="https://x.com/EquihashCom" rel="me noopener" { "X" }
                         }
                         nav class="foot-links" aria-label="Footer" {
                             a href="/contribute" { "Corrections" }
