@@ -839,10 +839,19 @@ table.data td > .logo:first-child, table.mini td .logo { margin-right: 6px; }
 .pool-next { margin-top: 35px; padding-top: 18px; border-top: 1px solid var(--ink); }
 .pool-next h2 { margin-bottom: 10px; font-size: 19px; }
 .pool-next .card-actions { flex-wrap: wrap; gap: 8px 22px; }
-.featured-guides { grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--rule); }
-.featured-guides article { padding: 23px; border-bottom: 1px solid var(--rule); }
-.featured-guides article:nth-child(3n+1) { padding-left: 0; }
-.featured-guides article:nth-child(3n) { border-right: 0; }
+.featured-guides {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  border-bottom: 0;
+  border-left: 1px solid var(--rule);
+}
+.featured-guides article,
+.featured-guides article:first-child {
+  grid-column: span 4;
+  padding: 23px 24px 24px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.featured-guides article:nth-child(n+4) { grid-column: span 3; }
 .search-page .page-head .hub-search { margin-top: 20px; }
 .result-count { color: var(--ink-3); }
 .search-results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
@@ -865,9 +874,15 @@ table.data td > .logo:first-child, table.mini td .logo { margin-right: 6px; }
 
 @media (max-width: 900px) {
   .hub-hero { padding-top: 44px; }
-  .guide-grid, .featured-guides { grid-template-columns: repeat(2, 1fr); }
+  .guide-grid { grid-template-columns: repeat(2, 1fr); }
+  .featured-guides { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .featured-guides article,
+  .featured-guides article:first-child,
+  .featured-guides article:nth-child(n+4) { grid-column: auto; }
+  .featured-guides article:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .guide-grid article:nth-child(2n) { border-right: 0; }
   .guide-grid article:nth-child(2n+1) { padding-left: 0; }
+  .featured-guides article:nth-child(2n+1) { padding-left: 24px; }
   .split-head { grid-template-columns: 1fr; gap: 24px; }
   .entity-layout { grid-template-columns: 1fr; }
   .entity-side { grid-template-columns: repeat(2, 1fr); }
@@ -893,7 +908,13 @@ table.data td > .logo:first-child, table.mini td .logo { margin-right: 6px; }
   .section-head { align-items: flex-start; }
   .section-head > a { padding-top: 4px; }
   .guide-grid, .featured-guides, .entity-grid { grid-template-columns: 1fr; }
-  .guide-grid article, .guide-grid article:first-child, .guide-grid article:nth-child(2n+1), .featured-guides article, .featured-guides article:nth-child(3n+1) { padding: 17px 0; border-right: 0; border-bottom: 1px solid var(--rule); }
+  .guide-grid article, .guide-grid article:first-child, .guide-grid article:nth-child(2n+1) { padding: 17px 0; border-right: 0; border-bottom: 1px solid var(--rule); }
+  .featured-guides.guide-grid article {
+    grid-column: auto;
+    padding: 19px 20px 20px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
   .listing-callout { align-items: flex-start; flex-direction: column; }
   .fact-strip { grid-template-columns: repeat(2, 1fr); }
   .entity-title h1 { font-size: 32px; }

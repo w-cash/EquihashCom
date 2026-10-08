@@ -3,7 +3,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static CSS or JavaScript changes so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "56";
+pub const ASSET_V: &str = "57";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.

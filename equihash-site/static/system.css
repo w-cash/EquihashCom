@@ -238,6 +238,7 @@ button, .btn, .ed-primary, .ed-dark-button, .ed-light-button, .buy-apply {
 .fact-strip, .vendor-directory-stats, .vendor-profile-metrics { background: transparent; }
 .fact-strip dt, .vendor-directory-stats dt, .vendor-profile-metrics dt { font-family: var(--sans); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .fact-strip dd, .vendor-directory-stats dd, .vendor-profile-metrics dd { font-family: var(--mono); }
+.entity-layout > * { min-width: 0; }
 .guide-grid article, .card, .listing-callout, .empty-state { border-radius: 0; background: #fff; }
 .guide-grid h2 { font: 600 22px/1.16 var(--sans); }
 .qa summary { font-weight: 600; }
@@ -561,6 +562,7 @@ body[data-page="home"] .foot {
   .vendor-offer-image img { height: 210px; }
   .vendor-profile-actions { gap: 10px 16px; flex-wrap: wrap; }
   .vendor-profile-actions a:first-child { min-height: 34px; }
+  .vendor-profile-directory-note { grid-template-columns: 1fr; gap: 6px; }
   .asic-facts { grid-template-columns: 1fr 1fr; }
   .asic-verification-note { grid-template-columns: 1fr; gap: 6px; }
   .asic-chart { padding: 17px 14px; }
