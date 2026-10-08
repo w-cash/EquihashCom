@@ -7,7 +7,7 @@ This file separates repository work from account-level work. Do not claim a sear
 - The application redirects every request whose host is `www.equihash.com` to the exact non-www path and query with HTTP 308. The reverse proxy configurations keep their matching redirects.
 - Coin and pool titles include exact Equihash parameters where names can collide.
 - Warning-only vendor records and pool records without enough sourced fields remain accessible with `noindex, follow` and are excluded from the sitemap.
-- Origin request logs include status, host, referrer and user agent. Run `npm run audit:http-status -- /path/to/access.log` before adding a redirect for a 404 or removing a legacy redirect.
+- Origin request logs include method/path, status, host, query-stripped referrer and user agent. The application logger deliberately omits client addresses and request query strings. Run `npm run audit:http-status -- /path/to/access.log` before adding a redirect for a 404 or removing a legacy redirect, restrict log access, and keep the shortest operational retention period that supports the review.
 - Anonymous HTML advertises a five-minute shared-cache TTL, while `/api/live`, `/healthz` and data routes retain their route-specific policies.
 - Public JSON responses carry `schema_version: "1.0"`.
 - The daily data refresh appends Zcash network, Z15 economics and seller observations to `market-history.json` without interpolation.

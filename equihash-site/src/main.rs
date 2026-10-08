@@ -823,9 +823,27 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(state.clone())
             .wrap(middleware::Compress::default())
-            .wrap(middleware::Logger::new(
-                "%a \"%r\" %s %b %Dms host=\"%{Host}i\" ref=\"%{Referer}i\" ua=\"%{User-Agent}i\"",
-            ))
+            // Keep the fields needed to classify bad paths without duplicating the proxy's client
+            // address or recording calculator/search query values. Referrers retain the useful
+            // origin/path and drop their query string.
+            .wrap(
+                middleware::Logger::new(
+                    "\"%{METHOD}xi %U\" %s %b %Dms host=\"%{Host}i\" ref=\"%{REF}xi\" ua=\"%{User-Agent}i\"",
+                )
+                .custom_request_replace("METHOD", |req| req.method().as_str().to_owned())
+                .custom_request_replace("REF", |req| {
+                    req.headers()
+                        .get(header::REFERER)
+                        .and_then(|value| value.to_str().ok())
+                        .unwrap_or("-")
+                        .split('?')
+                        .next()
+                        .unwrap_or("-")
+                        .chars()
+                        .take(512)
+                        .collect()
+                }),
+            )
             .wrap(security_headers())
             .configure(move |c| routes(c, sdir))
     })
