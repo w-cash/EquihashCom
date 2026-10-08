@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "frozen_at": "2026-10-08",
+  "scope": "Repository audit sample; confirms identity, source, timestamps and visible qualification in the candidate snapshot. It is not a fresh external stock or payout verification.",
+  "records": [
+    {"type": "network", "id": "zcash", "risk": "compatibility and network figures", "qualification": "Exact Equihash parameters and per-field sources/times required."},
+    {"type": "network", "id": "wcash", "risk": "affiliation and single-pool dependence", "qualification": "Affiliated source and non-independent coverage must remain visible."},
+    {"type": "network", "id": "piratechain", "risk": "compatibility and source independence", "qualification": "Exact parameters and source lineage required."},
+    {"type": "network", "id": "horizen", "risk": "ended proof of work", "qualification": "Ended status, date/height note and sources required; never shown as currently mineable."},
+    {"type": "pool", "id": "zcash:viabtc.com:16", "risk": "multiple fee schemes", "qualification": "Scheme-specific fees retained; no single inferred fee."},
+    {"type": "pool", "id": "zcash:foundrydigital.com:94", "risk": "unknown fee and payout fields", "qualification": "Unknown values remain null and are not inferred."},
+    {"type": "pool", "id": "zcash:zecwec.com", "risk": "affiliated merged-mining claim", "qualification": "Direct source, field clocks and merged-mining note required."},
+    {"type": "pool", "id": "wcash:zecwec.com", "risk": "single listed pool and shared upstream", "qualification": "Single-source dependence and shared hashrate observation remain explicit."},
+    {"type": "miner", "id": "antminer-z15-pro", "risk": "manufacturer rating versus seller variant", "qualification": "Manufacturer specification remains separate from 860 kSol/s seller claims."},
+    {"type": "miner", "id": "antminer-z15k-565", "risk": "market-reported model", "qualification": "Market-reported basis and absence of manufacturer specification remain visible."},
+    {"type": "miner", "id": "antminer-z15", "risk": "legacy model specification", "qualification": "Manufacturer source, exact parameters, hashrate and watts required."},
+    {"type": "miner", "id": "innosilicon-a9pp-zmaster", "risk": "legacy third-party record", "qualification": "Source and basis required; missing facts remain unknown."},
+    {"type": "listing", "id": "bitmain-antminer-z15-pro-840", "risk": "manufacturer page sold out", "qualification": "Sold-out state cannot be normalized to current availability."},
+    {"type": "listing", "id": "tms-antminer-z15-pro-860", "risk": "exact variant, GBP and stock evidence", "qualification": "Variant, currency and availability must bind to one offer with separate clocks."},
+    {"type": "listing", "id": "ade-antminer-z15-pro-840", "risk": "future batch", "qualification": "Future batch remains preorder, not in stock."},
+    {"type": "listing", "id": "apexto-antminer-z15-pro-840", "risk": "availability conflict", "qualification": "Failed or expired evidence becomes unknown/historical and cannot win current ordering."},
+    {"type": "vendor", "id": "europe-netherlands-antminer-distribution-europe", "risk": "seller identity and time-sensitive offer", "qualification": "Identity and offer evidence stay separate."},
+    {"type": "vendor", "id": "asia-pacific-hong-kong-china-apexto-mining", "risk": "identity and availability conflict", "qualification": "Seller declaration is attributed and never treated as physical audit."},
+    {"type": "vendor", "id": "asia-pacific-china-singapore-bitmain-official-shop", "risk": "manufacturer-direct status", "qualification": "Direct status does not imply stock or shipping support."},
+    {"type": "vendor", "id": "public-warning-records-global-asicminers-shop-similarly-named-clone-stores", "risk": "public warning and defamation", "qualification": "Precisely attributed warning sources; no unsourced accusation or product link."}
+  ]
+}

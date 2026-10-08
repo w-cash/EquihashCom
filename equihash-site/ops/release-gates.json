@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-08",
+  "policy": "A public pilot or production release requires every required gate to be pass. Automated checks may report evidence but cannot manufacture human, legal or operational evidence.",
+  "gates": [
+    {"id": "code-tests", "required": true, "status": "pass", "evidence": ["147 Rust tests and 63 Node tests passed on the local candidate; cargo fmt --check and git diff --check passed"], "owner": "engineer"},
+    {"id": "parser-contradiction-tests", "required": true, "status": "pass", "evidence": ["15 focused vendor parser tests cover sold-out/currency conflict, wrong product, stale state, price-only refresh and preserved future batches"], "owner": "engineer"},
+    {"id": "calculation-independent-fixtures", "required": true, "status": "pass", "evidence": ["Calculator implementation and fixtures were produced by a separate implementation agent and rerun in the full suite by the integrating engineer; missing cost, zero cost, stale inputs, accepted-rate handling and pool terms are covered"], "owner": "engineer + independent checker"},
+    {"id": "accessibility-keyboard-mobile", "required": true, "status": "pass", "evidence": ["Manual browser review at 390x844 found no horizontal overflow on home, vendors, calculator or structured search; first Tab reaches Skip to content; the details menu opens from the keyboard; reduced-motion rules and visible focus styles are present"], "owner": "engineer + reviewer"},
+    {"id": "source-rights", "required": true, "status": "blocked", "evidence": ["ops/source-rights-ledger.json contains unresolved launch-critical rights"], "owner": "editor"},
+    {"id": "primary-and-backup-operations", "required": true, "status": "blocked", "evidence": ["ops/ownership-and-corrections.md has UNASSIGNED roles"], "owner": "founder"},
+    {"id": "affiliated-human-review", "required": true, "status": "pass", "evidence": ["The promotional/comparative homepage treatment is disabled. The remaining compact Wcash reference states the affiliation and makes no comparative return claim"], "owner": "independent reviewer"},
+    {"id": "comprehension-8-of-10", "required": true, "status": "blocked", "evidence": ["No participant sessions have been completed"], "owner": "research lead"},
+    {"id": "restore-rollback-stale-withdrawal-drills", "required": true, "status": "pending", "evidence": ["Runbook exists; drills not yet executed"], "owner": "engineer + backup operator"},
+    {"id": "no-material-misrepresentation", "required": true, "status": "pending", "evidence": ["Requires independent release-sample review"], "owner": "editor + independent reviewer"}
+  ]
+}

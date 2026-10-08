@@ -6,23 +6,26 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { fetchBounded } from "./source-policy.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = path.join(ROOT, "data", "hashpower.json");
 const API = "https://api2.nicehash.com/main/api/v2/hashpower/orderBook";
 const ALGORITHMS = "https://api2.nicehash.com/main/api/v2/mining/algorithms";
 const UA = "equihash.com data refresh (+https://equihash.com/sources)";
+const ALLOWED_HOSTS = ["api2.nicehash.com"];
 
 async function json(url) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 20_000);
-  try {
-    const res = await fetch(url, { headers: { Accept: "application/json", "User-Agent": UA }, signal: ctrl.signal });
-    if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
-    return await res.json();
-  } finally {
-    clearTimeout(timer);
-  }
+  const response = await fetchBounded(url, {
+    allowedHosts: ALLOWED_HOSTS,
+    accept: "application/json",
+    contentTypes: ["application/json"],
+    maxBytes: 4 * 1024 * 1024,
+    timeoutMs: 20_000,
+    userAgent: UA,
+  });
+  try { return JSON.parse(new TextDecoder().decode(response.body)); }
+  catch { throw new Error(`${url}: invalid JSON`); }
 }
 
 const number = (value, label) => {

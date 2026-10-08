@@ -422,7 +422,7 @@ Updated: {updated}
 
 - Pool and market figures are time-stamped snapshots from public project, pool and API sources.
 - Vendor records are alphabetical by default. Optional sorts disclose their single factor; paid listings and affiliate relationships cannot change the default order.
-- Availability is seller-declared unless expressly stated, third-party reviews are dated snapshots, and missing vendor facts remain blank rather than inferred.
+- Availability is seller-declared unless expressly stated. Third-party review profiles are linked, while copied scores and counts are not republished. Missing vendor facts remain blank rather than inferred.
 - equihash.com and Wcash share a maintainer. Wcash receives work only from participating merged-mining pools.
 - Mining estimates are not forecasts or financial advice.
 "#
@@ -1121,8 +1121,8 @@ mod tests {
         let directory = String::from_utf8(directory.to_vec()).unwrap();
         assert!(directory.contains("<h1>ASIC vendors</h1>"));
         assert!(directory.contains("85</dd>"));
-        assert!(directory.contains("49</dd>"));
-        assert!(directory.contains("26</dd>"));
+        assert!(directory.contains("32</dd>"));
+        assert!(directory.contains("Not published</dd>"));
         assert_eq!(directory.matches("vendor-directory-public-row").count(), 85);
         assert!(directory.contains("Sorted by: Alphabetical"));
         assert!(directory.contains("No Equihash.com recommendation or quality judgment is implied"));
@@ -1138,28 +1138,23 @@ mod tests {
         assert!(!directory.contains("delivery probability"));
         assert!(!directory.contains("No weak substitute was invented"));
         assert!(!directory.contains("No vetted local Z15 source identified"));
+        assert!(!directory.contains("Trustpilot rating"));
+        assert!(!directory.contains("Trustpilot review count"));
+        assert!(!directory.contains("/5 ·"));
 
-        let review_count = test::call_and_read_body(
+        let disabled_review_sort = test::call_and_read_body(
             &app,
             test::TestRequest::get()
                 .uri("/vendors?sort=review_count")
                 .to_request(),
         )
         .await;
-        let review_count = String::from_utf8(review_count.to_vec()).unwrap();
-        assert!(review_count.contains("Sorted by: Trustpilot review count"));
-        assert!(review_count.find("Mineshop.eu").unwrap() < review_count.find("21energy").unwrap());
-
-        let rating = test::call_and_read_body(
-            &app,
-            test::TestRequest::get()
-                .uri("/vendors?sort=review_rating_min_20")
-                .to_request(),
-        )
-        .await;
-        let rating = String::from_utf8(rating.to_vec()).unwrap();
-        assert!(rating.contains("Sorted by: Trustpilot rating (20+ reviews)"));
-        assert!(rating.contains("Insufficient sample for rating sort"));
+        let disabled_review_sort = String::from_utf8(disabled_review_sort.to_vec()).unwrap();
+        assert!(disabled_review_sort.contains("Sorted by: Alphabetical"));
+        assert!(
+            disabled_review_sort.find("21energy").unwrap()
+                < disabled_review_sort.find("21Mining").unwrap()
+        );
 
         let manufacturer = test::call_and_read_body(
             &app,
@@ -1231,7 +1226,7 @@ mod tests {
         .await;
         let search = String::from_utf8(search.to_vec()).unwrap();
         assert!(search.contains("Vendor directory"));
-        assert!(search.contains("March 2027"));
+        assert!(search.contains("Mineshop.eu"));
     }
 
     #[actix_web::test]

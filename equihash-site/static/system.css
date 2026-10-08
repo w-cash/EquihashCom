@@ -216,8 +216,12 @@ button, .btn, .ed-primary, .ed-dark-button, .ed-light-button, .buy-apply {
 .ed-snapshot dl dd { font-weight: 600; }
 .ed-workspace { padding-top: 62px; padding-bottom: 65px; }
 .ed-workspace-calc { border-radius: 0; background: #e4e7df; box-shadow: none; }
-.ed-merge { background: #151814; }
-.ed-merge h2, .ed-merge strong { color: #fff; }
+.ed-affiliated-reference { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 40px; align-items: end; margin-top: 10px; padding-top: 28px; padding-bottom: 28px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.ed-affiliated-reference h2 { margin-top: 4px; font-size: 29px; }
+.ed-affiliated-reference p:not(.ed-section-index) { max-width: 760px; margin: 8px 0 0; color: var(--ink-2); font-size: 14px; }
+.ed-affiliated-reference .ed-disclosure { margin-top: 12px; padding-top: 10px; border-color: var(--rule); color: var(--ink-3); font-size: 12px; }
+.ed-affiliated-reference nav { display: flex; gap: 22px; padding-bottom: 2px; white-space: nowrap; }
+.ed-affiliated-reference nav a { color: var(--ink); font-weight: 600; }
 .ed-directory { padding-top: 62px; padding-bottom: 64px; }
 .ed-contribute { margin-top: 48px; margin-bottom: 48px; border-color: var(--ink); background: #e5e8e0; }
 
@@ -466,6 +470,8 @@ body[data-page="home"] .foot {
 }
 
 @media (max-width: 760px) {
+  .ed-affiliated-reference { grid-template-columns: 1fr; gap: 18px; }
+  .ed-affiliated-reference nav { flex-wrap: wrap; white-space: normal; }
   .wrap { padding-inline: 18px; }
   .masthead-inner {
     display: grid;
@@ -487,8 +493,10 @@ body[data-page="home"] .foot {
     padding: 5px 0 6px;
     border-top: 1px solid #343731;
   }
-  .nav a { display: none; min-width: 0; min-height: 42px; align-items: center; padding: 5px 5px 4px 0; font-size: 12px; white-space: normal; }
-  .nav a.nav-primary { display: flex; }
+  .nav a,
+  body[data-page="home"] .nav a { display: none; min-width: 0; min-height: 42px; align-items: center; padding: 5px 5px 4px 0; font-size: 12px; white-space: normal; }
+  .nav a.nav-primary,
+  body[data-page="home"] .nav a.nav-primary { display: flex; }
   .nav-more { position: relative; display: block; grid-column: 2; grid-row: 1; justify-self: end; color: #f5f6f2; }
   .nav-more summary { display: flex; min-height: 40px; align-items: center; cursor: pointer; list-style: none; font-size: 12px; }
   .nav-more summary::-webkit-details-marker { display: none; }

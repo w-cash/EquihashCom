@@ -35,6 +35,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as snap from "./snapshot.mjs";
+import { fetchBounded } from "./source-policy.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // DATA_DIR overrides where data lives (e.g. /srv/equihash/data, shared by every release).
@@ -43,6 +44,11 @@ const UA =
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36";
 const MPS = "https://miningpoolstats.stream";
 const MPS_DATA = "https://data.miningpoolstats.stream/data";
+const SOURCE_HOSTS = [
+  "miningpoolstats.stream", "data.miningpoolstats.stream", "zpool.ca", "zergpool.com",
+  "pool.zecwec.com", "zec.2miners.com", "btg.2miners.com", "wcashexplorer.com",
+  "zprominers.com",
+];
 // Pages that are no longer in the MPS coin index but still have a page (PoW ended).
 const EXTRA_MPS_PAGES = ["horizen", "flux"];
 // These two left the miningpoolstats index when their PoW ended, so the index can't name them.
@@ -59,19 +65,21 @@ function addSource(id, label, url) {
 
 async function get(url, { referer, json = true, timeout = 25000, retries = 2 } = {}) {
   for (let attempt = 0; attempt <= retries; attempt++) {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), timeout);
     try {
-      const res = await fetch(url, {
-        headers: { "User-Agent": UA, Accept: json ? "application/json,*/*" : "text/html,*/*", ...(referer ? { Referer: referer } : {}) },
-        signal: ctrl.signal,
+      const response = await fetchBounded(url, {
+        allowedHosts: SOURCE_HOSTS,
+        accept: json ? "application/json,*/*" : "text/html,*/*",
+        contentTypes: json
+          ? ["application/json", "text/plain", "text/javascript", "application/javascript", "application/x-javascript"]
+          : ["text/html", "text/plain", "application/xhtml+xml", "text/javascript", "application/javascript"],
+        maxBytes: 12 * 1024 * 1024,
+        timeoutMs: timeout,
+        userAgent: UA,
+        headers: referer ? { referer } : {},
       });
-      clearTimeout(t);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
+      const text = new TextDecoder().decode(response.body);
       return { body: json ? JSON.parse(text) : text, fetched_at: nowIso() };
     } catch (e) {
-      clearTimeout(t);
       if (attempt === retries) throw new Error(`${url}: ${e.message}`);
       await sleep(1500 * (attempt + 1));
     }

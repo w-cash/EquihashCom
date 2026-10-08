@@ -116,16 +116,39 @@ def main() -> None:
     if any(vendor["domain_registered_year_verified"] is not None for vendor in vendors):
         raise SystemExit("domain-age sorting must remain disabled until the canonical policy changes")
 
+    # Publication gate: the source research may retain copied review statistics, but the public
+    # site ships ordinary profile links only until rights and review-integrity operations are
+    # evidenced. A neutral sort or disclaimer is not publication clearance.
+    for vendor in vendors:
+        vendor["review_rating"] = None
+        vendor["review_count"] = None
+    payload["methodology"]["review_rule"] = (
+        "Only ordinary third-party review-profile links and their check dates are published. "
+        "Copied scores, counts and related sorts remain disabled pending publication clearance."
+    )
+    payload["disclaimer"] = (
+        "Informational directory only. A listing, position, seller claim, profile link, or availability "
+        "label is not an endorsement or guarantee. Verify legal entity, stock, serials, invoice "
+        "beneficiary, taxes, warranty and delivery terms before payment."
+    )
+    coverage = payload["methodology"].get("field_coverage", {})
+    coverage.pop("trustpilot_snapshot_records", None)
+    coverage["third_party_review_profile_links"] = sum(
+        bool(vendor.get("review_source_url")) for vendor in vendors
+    )
+    payload["sort_modes"] = [
+        mode
+        for mode in payload.get("sort_modes", [])
+        if mode.get("id") not in {"review_count", "review_rating_min_20"}
+    ]
+
     args.destination.parent.mkdir(parents=True, exist_ok=True)
     args.destination.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-    eligible = sum(
-        vendor["review_rating"] is not None and (vendor["review_count"] or 0) >= 20
-        for vendor in vendors
-    )
-    print(f"Imported {len(vendors)} neutral vendor records ({eligible} eligible rating snapshots)")
+    profiles = sum(bool(vendor.get("review_source_url")) for vendor in vendors)
+    print(f"Imported {len(vendors)} neutral vendor records ({profiles} review-profile links)")
 
 
 if __name__ == "__main__":

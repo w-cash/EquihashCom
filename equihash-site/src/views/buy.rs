@@ -6,6 +6,7 @@ use crate::fmt;
 use crate::views::layout::{ext, layout, Page};
 use maud::{html, Markup};
 use serde::Deserialize;
+use std::cmp::Ordering;
 use std::collections::BTreeSet;
 
 #[derive(Debug, Deserialize, Default)]
@@ -461,17 +462,8 @@ fn vendor_product_market(d: &Data, v: &Vendor, rows: &[&Listing]) -> Markup {
     }
 }
 
-fn public_vendor_row(d: &Data, record: &VendorResearch, rating_sort: bool) -> Markup {
+fn public_vendor_row(d: &Data, record: &VendorResearch) -> Markup {
     let profile = profile_for_research(d, record);
-    let rating_eligible = record.review_rating.is_some() && record.review_count.unwrap_or(0) >= 20;
-    let review = match (record.review_rating, record.review_count) {
-        (Some(rating), Some(count)) => {
-            format!("{rating:.1}/5 · {} reviews", fmt::group(count as i128))
-        }
-        (None, Some(count)) => format!("{} reviews", fmt::group(count as i128)),
-        (Some(rating), None) => format!("{rating:.1}/5"),
-        _ => "—".into(),
-    };
     html! {
         tr id={"vendor-" (&record.id)} class="vendor-directory-public-row" data-vendor-record=(&record.id) {
             th scope="row" class="vendor-directory-name" {
@@ -484,10 +476,11 @@ fn public_vendor_row(d: &Data, record: &VendorResearch, rating_sort: bool) -> Ma
             }
             td data-label="Location" { strong { (&record.country) } small { (&record.region) } }
             td data-label="Declared availability" class="vendor-directory-availability" { (availability_label(&record.declared_availability)) }
-            td data-label="Trustpilot snapshot" class="vendor-directory-review" {
-                @if let Some(url) = &record.review_source_url { (ext(url, &review)) } @else { (review) }
-                @if rating_sort && !rating_eligible { small { "Insufficient sample for rating sort" } }
-                @else if let Some(date) = &record.review_snapshot_date { small { (record.review_platform.as_deref().unwrap_or("Third-party review")) " · " (date) } }
+            td data-label="Third-party review profile" class="vendor-directory-review" {
+                @if let Some(url) = &record.review_source_url {
+                    (ext(url, "Open profile ↗"))
+                    @if let Some(date) = &record.review_snapshot_date { small { (record.review_platform.as_deref().unwrap_or("Third-party review")) " · link checked " (date) } }
+                } @else { "—" }
             }
             td data-label="Verified company year" class="mono" {
                 @if let Some(year) = record.company_incorporated_year_verified { (year) }
@@ -525,12 +518,9 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
     let vendor_region = q.vendor_region.as_deref().unwrap_or("");
     let availability = q.availability.as_deref().unwrap_or("");
     let sort = match q.sort.as_deref().unwrap_or("alphabetical") {
-        "declared_availability"
-        | "review_count"
-        | "review_rating_min_20"
-        | "company_age"
-        | "manufacturer_direct"
-        | "last_verified" => q.sort.as_deref().unwrap(),
+        "declared_availability" | "company_age" | "manufacturer_direct" | "last_verified" => {
+            q.sort.as_deref().unwrap()
+        }
         _ => "alphabetical",
     };
     let legacy_filter =
@@ -572,27 +562,9 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             .then_with(|| a.id.cmp(&b.id))
     };
     visible.sort_by(|a, b| {
-        use std::cmp::Ordering;
         let primary = match sort {
             "declared_availability" => availability_rank(&a.declared_availability)
                 .cmp(&availability_rank(&b.declared_availability)),
-            "review_count" => match (a.review_count, b.review_count) {
-                (Some(a), Some(b)) => b.cmp(&a),
-                (Some(_), None) => Ordering::Less,
-                (None, Some(_)) => Ordering::Greater,
-                _ => Ordering::Equal,
-            },
-            "review_rating_min_20" => {
-                let a_ok = a.review_rating.is_some() && a.review_count.unwrap_or(0) >= 20;
-                let b_ok = b.review_rating.is_some() && b.review_count.unwrap_or(0) >= 20;
-                b_ok.cmp(&a_ok)
-                    .then_with(|| match (a.review_rating, b.review_rating) {
-                        (Some(a_rating), Some(b_rating)) if a_ok && b_ok => b_rating
-                            .total_cmp(&a_rating)
-                            .then_with(|| b.review_count.cmp(&a.review_count)),
-                        _ => Ordering::Equal,
-                    })
-            }
             "company_age" => match (
                 a.company_incorporated_year_verified,
                 b.company_incorporated_year_verified,
@@ -624,24 +596,13 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
         .iter()
         .filter(|record| record.record_type != "coverage_gap")
         .count();
-    let review_snapshots = d
+    let review_profiles = d
         .vendor_research
         .iter()
-        .filter(|record| record.record_type != "coverage_gap" && record.review_platform.is_some())
-        .count();
-    let rating_eligible = d
-        .vendor_research
-        .iter()
-        .filter(|record| {
-            record.record_type != "coverage_gap"
-                && record.review_rating.is_some()
-                && record.review_count.unwrap_or(0) >= 20
-        })
+        .filter(|record| record.record_type != "coverage_gap" && record.review_source_url.is_some())
         .count();
     let (sort_label, sort_rule) = match sort {
         "declared_availability" => ("Seller-declared availability", "Documented state order; seller/public claims first, unknown and non-current records later. No stock is physically audited unless expressly stated."),
-        "review_count" => ("Trustpilot review count", "Largest dated Trustpilot sample first; missing review counts last."),
-        "review_rating_min_20" => ("Trustpilot rating (20+ reviews)", "Highest dated Trustpilot rating first for samples of at least 20; review count breaks ties; smaller or missing samples appear last."),
         "company_age" => ("Verified company incorporation year", "Oldest verified incorporation year first; missing years last. Company age is not a quality guarantee."),
         "manufacturer_direct" => ("Manufacturer direct", "Manufacturer-operated shops first, then alphabetical. This does not imply current stock or destination support."),
         "last_verified" => ("Most recently verified", "Newest evidence date first; missing dates last."),
@@ -649,7 +610,7 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
     };
     layout(d, Page {
         title: "Equihash ASIC vendor directory",
-        description: "Alphabetical ASIC vendor directory with seller-attributed availability, dated Trustpilot snapshots, verified company years and transparent sorting rules.",
+        description: "Alphabetical ASIC vendor directory with seller-attributed availability, company records, source links and transparent sorting rules.",
         path: "/vendors",
         nav: "vendors",
     }, html! {
@@ -661,20 +622,21 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             }
             dl class="vendor-directory-stats" {
                 div { dt { "Public records" } dd { (public_records) } }
-                div { dt { "Trustpilot snapshots" } dd { (review_snapshots) } }
-                div { dt { "Rating-sort eligible" } dd { (rating_eligible) } }
+                div { dt { "Review profiles" } dd { (review_profiles) } }
+                div { dt { "Copied ratings" } dd { "Not published" } }
                 div { dt { "Evidence snapshot" } dd { (d.vendor_research_as_of.as_deref().unwrap_or("—")) } }
             }
             aside class="vendor-directory-notice" aria-labelledby="vendor-directory-notice-title" {
                 strong id="vendor-directory-notice-title" { "How this directory works" }
-                p { (d.vendor_research_disclaimer.as_deref().unwrap_or("Informational directory only. Inclusion, position, seller claims and third-party reviews are not endorsements or guarantees.")) }
+                p { (d.vendor_research_disclaimer.as_deref().unwrap_or("Informational directory only. Inclusion, position and seller claims are not endorsements or guarantees.")) }
+                p { "Review profile links are provided as external references. Scores, review counts and review-based sorting are not republished." }
                 p { "Availability is seller-declared unless expressly stated otherwise. Paid listings and affiliate relationships cannot influence the default order. " a href="/add-vendor#correction" { "Request a correction" } "." }
             }
             form class="filters vendor-directory-filters" action="/vendors" method="get" {
                 div class="f" { label for="vendor-q" { "Search" } input id="vendor-q" type="search" name="vendor_q" value=(q.vendor_q.as_deref().unwrap_or("")) placeholder="Vendor or country"; }
                 div class="f" { label for="vendor-region" { "Region" } select id="vendor-region" name="vendor_region" { option value="" selected[vendor_region.is_empty()] { "All regions" } @for item in &regions { option value=(item) selected[*item == vendor_region] { (item) } } } }
                 div class="f" { label for="vendor-availability" { "Declared availability" } select id="vendor-availability" name="availability" { option value="" selected[availability.is_empty()] { "All states" } @for item in ["seller_declared_spot_or_near_term", "preorder_or_future_batch", "historical_or_used", "unknown_or_quote_required", "sold_out_or_no_current_listing", "not_applicable_warning_record"] { option value=(item) selected[item == availability] { (availability_label(item)) } } } }
-                div class="f" { label for="vendor-sort" { "Sort by" } select id="vendor-sort" name="sort" { option value="alphabetical" selected[sort == "alphabetical"] { "Alphabetical" } option value="declared_availability" selected[sort == "declared_availability"] { "Seller-declared availability" } option value="review_count" selected[sort == "review_count"] { "Trustpilot review count" } option value="review_rating_min_20" selected[sort == "review_rating_min_20"] { "Trustpilot rating (20+ reviews)" } option value="company_age" selected[sort == "company_age"] { "Verified company age" } option value="domain_age" disabled { "Verified domain age — unavailable" } option value="manufacturer_direct" selected[sort == "manufacturer_direct"] { "Manufacturer direct" } option value="last_verified" selected[sort == "last_verified"] { "Most recently verified" } } }
+                div class="f" { label for="vendor-sort" { "Sort by" } select id="vendor-sort" name="sort" { option value="alphabetical" selected[sort == "alphabetical"] { "Alphabetical" } option value="declared_availability" selected[sort == "declared_availability"] { "Seller-declared availability" } option value="company_age" selected[sort == "company_age"] { "Verified company age" } option value="domain_age" disabled { "Verified domain age — unavailable" } option value="manufacturer_direct" selected[sort == "manufacturer_direct"] { "Manufacturer direct" } option value="last_verified" selected[sort == "last_verified"] { "Most recently verified" } } }
                 button class="buy-apply" type="submit" { "Apply" }
                 p class="buy-count" aria-live="polite" { (visible.len()) @if visible.len() == 1 { " record" } @else { " records" } }
             }
@@ -684,10 +646,10 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             @if !visible.is_empty() {
                 div class="vendor-market-table-wrap" {
                     table class="vendor-market-table" {
-                        thead { tr { th scope="col" { "Vendor" } th scope="col" { "Location" } th scope="col" { "Declared Equihash availability" } th scope="col" { "Trustpilot snapshot" } th scope="col" { "Verified company year" } th scope="col" { "Checked" } th scope="col" { "Record" } } }
+                        thead { tr { th scope="col" { "Vendor" } th scope="col" { "Location" } th scope="col" { "Declared Equihash availability" } th scope="col" { "Third-party review profile" } th scope="col" { "Verified company year" } th scope="col" { "Checked" } th scope="col" { "Record" } } }
                         tbody {
                             @for record in &visible {
-                                (public_vendor_row(d, record, sort == "review_rating_min_20"))
+                                (public_vendor_row(d, record))
                             }
                         }
                     }
@@ -831,7 +793,7 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
                                 div { dt { "Payments" } dd { (&record.payment_methods_and_protection) } }
                                 div { dt { "Shipping" } dd { (&record.shipping_customs) } }
                                 div { dt { "Warranty / RMA" } dd { (&record.warranty_rma) } }
-                                div { dt { "Trustpilot snapshot" } dd { @if let (Some(rating), Some(count)) = (record.review_rating, record.review_count) { (format!("{rating:.1}/5 · {} reviews", fmt::group(count as i128))) @if let Some(date) = &record.review_snapshot_date { " · " (date) } } @else { "—" } } }
+                                div { dt { "Review profile" } dd { @if let Some(url) = &record.review_source_url { (ext(url, "Open third-party profile ↗")) @if let Some(date) = &record.review_snapshot_date { " · link checked " (date) } } @else { "—" } } }
                                 div { dt { "Record checked" } dd { (record.last_verified.as_deref().unwrap_or("—")) } }
                             }
                         }

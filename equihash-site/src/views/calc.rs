@@ -188,6 +188,106 @@ pub struct Estimate {
     pub profit_day: Option<f64>,
 }
 
+/// Inputs copied from changing sources may describe a historical snapshot while looking current.
+/// These gates apply only to automatic values. A value explicitly entered by the user remains a
+/// scenario input, with no implied observation time.
+pub const PRICE_CURRENT_MAX_AGE_SECS: i64 = 30 * 60;
+pub const NETWORK_CURRENT_MAX_AGE_SECS: i64 = 15 * 60;
+pub const POOL_POLICY_MAX_AGE_SECS: i64 = 7 * 24 * 60 * 60;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SourceState {
+    Fresh,
+    Stale,
+    MissingTime,
+    FutureTime,
+    UserEntered,
+}
+
+impl SourceState {
+    pub fn usable(self) -> bool {
+        matches!(self, Self::Fresh | Self::UserEntered)
+    }
+}
+
+pub fn source_state(
+    observed_at: Option<&str>,
+    user_entered: bool,
+    now: chrono::DateTime<chrono::Utc>,
+    max_age_secs: i64,
+) -> SourceState {
+    if user_entered {
+        return SourceState::UserEntered;
+    }
+    let Some(at) = observed_at.and_then(|s| chrono::DateTime::parse_from_rfc3339(s).ok()) else {
+        return SourceState::MissingTime;
+    };
+    let age = (now - at.with_timezone(&chrono::Utc)).num_seconds();
+    if age < 0 {
+        SourceState::FutureTime
+    } else if age <= max_age_secs {
+        SourceState::Fresh
+    } else {
+        SourceState::Stale
+    }
+}
+
+/// Calculator result with missingness preserved. `Some(0)` is a real zero; `None` means the
+/// required input was not supplied. Electricity and operating margin therefore cannot silently
+/// become zero when watts or an electricity rate is unknown.
+pub struct ScenarioEstimate {
+    pub coins_day: Option<f64>,
+    pub revenue_day: Option<f64>,
+    pub power_day: Option<f64>,
+    pub profit_day: Option<f64>,
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn estimate_scenario(
+    hr_ksol: Option<f64>,
+    watts: Option<f64>,
+    power: Option<f64>,
+    fee: Option<f64>,
+    price: Option<f64>,
+    reward: Option<f64>,
+    net: Option<f64>,
+    bt: Option<f64>,
+) -> ScenarioEstimate {
+    let power_day = match (watts, power) {
+        (Some(w), Some(p)) if in_range("watts", w) && in_range("power", p) => {
+            Some(w / 1000.0 * 24.0 * p)
+        }
+        _ => None,
+    };
+    let coins_day = match (hr_ksol, fee, reward, net, bt) {
+        (Some(h), Some(f), Some(r), Some(n), Some(b))
+            if in_range("hashrate", h)
+                && in_range("fee", f)
+                && in_range("reward", r)
+                && in_range("nethash", n)
+                && in_range("blocktime", b) =>
+        {
+            let share = ((h * 1000.0) / n).min(1.0);
+            Some(share * (86400.0 / b) * r * (1.0 - f / 100.0))
+        }
+        _ => None,
+    };
+    let revenue_day = match (coins_day, price) {
+        (Some(c), Some(p)) if in_range("price", p) => Some(c * p),
+        _ => None,
+    };
+    let profit_day = match (revenue_day, power_day) {
+        (Some(r), Some(p)) => Some(r - p),
+        _ => None,
+    };
+    ScenarioEstimate {
+        coins_day,
+        revenue_day,
+        power_day,
+        profit_day,
+    }
+}
+
 fn in_range(name: &str, v: f64) -> bool {
     check(name, Some(&v.to_string()))
         .map(|x| x.is_some())
@@ -217,10 +317,19 @@ pub fn estimate(
     if !ok {
         return None;
     }
-    let share = ((hr_ksol * 1000.0) / net).min(1.0);
-    let coins_day = share * (86400.0 / bt) * reward * (1.0 - fee / 100.0);
-    let power_day = watts / 1000.0 * 24.0 * power;
-    let revenue_day = price.map(|p| coins_day * p);
+    let scenario = estimate_scenario(
+        Some(hr_ksol),
+        Some(watts),
+        Some(power),
+        Some(fee),
+        price,
+        Some(reward),
+        Some(net),
+        Some(bt),
+    );
+    let coins_day = scenario.coins_day?;
+    let power_day = scenario.power_day?;
+    let revenue_day = scenario.revenue_day;
     Some(Estimate {
         coins_day,
         revenue_day,
@@ -348,32 +457,60 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
         },
     );
     let watts = pick("watts", if z15 { pro.and_then(|m| m.watts) } else { None });
-    let power = pick("power", Some(0.08));
-    let fee = pick("fee", Some(1.0));
+    // Costs and pool terms have no honest universal default. Blank means unknown; an entered zero
+    // remains zero and is never replaced by a fallback.
+    let power = pick("power", None);
+    let fee = pick("fee", None);
     let price = pick("price", coin.price_usd);
     let reward = pick("reward", coin.block_reward_miner.as_ref().map(|r| r.value));
     let net = pick("nethash", coin.network.hashrate);
     let bt = pick("blocktime", coin.network.block_time_target_s);
-    let guard = match (hr, net) {
+    let now = chrono::Utc::now();
+    let was_entered = |raw: &Option<String>| {
+        raw.as_deref()
+            .map(str::trim)
+            .map(|s| !s.is_empty())
+            .unwrap_or(false)
+    };
+    let price_state = source_state(
+        coin.fetched_at.as_deref(),
+        was_entered(&q.price),
+        now,
+        PRICE_CURRENT_MAX_AGE_SECS,
+    );
+    let network_state = source_state(
+        coin.network.hashrate_observed_at.as_deref(),
+        was_entered(&q.nethash),
+        now,
+        NETWORK_CURRENT_MAX_AGE_SECS,
+    );
+    let price_for_economics = price_state.usable().then_some(price).flatten();
+    let net_for_economics = network_state.usable().then_some(net).flatten();
+    let guard = match (hr, net_for_economics) {
         (Some(h), Some(n)) if ck.errors.is_empty() => share_guard(h, n),
         _ => None,
     };
     let est = if ck.errors.is_empty() && guard.is_none() {
-        match (hr, reward, net, bt) {
-            (Some(h), Some(r), Some(n), Some(b)) => estimate(
-                h,
-                watts.unwrap_or(0.0),
-                power.unwrap_or(0.0),
-                fee.unwrap_or(0.0),
-                price,
-                r,
-                n,
-                b,
-            ),
-            _ => None,
-        }
+        estimate_scenario(
+            hr,
+            watts,
+            power,
+            fee,
+            price_for_economics,
+            reward,
+            net_for_economics,
+            bt,
+        )
     } else {
-        None
+        ScenarioEstimate {
+            coins_day: None,
+            revenue_day: None,
+            power_day: match (watts, power) {
+                (Some(w), Some(p)) => Some(w / 1000.0 * 24.0 * p),
+                _ => None,
+            },
+            profit_day: None,
+        }
     };
     // Show what the user typed back to them when it was rejected.
     let raw_of = |k: &str| -> Option<String> {
@@ -390,10 +527,36 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
     };
     let calc_json = serde_json::to_string(&coins_list.iter().map(|c| serde_json::json!({
         "id": c.id, "symbol": c.symbol, "label": c.label, "price": c.price_usd, "price_source": c.price_source,
+        "price_observed_at": c.fetched_at,
         "reward": c.block_reward_miner.as_ref().map(|r| r.value), "reward_source": c.block_reward_miner.as_ref().and_then(|r| r.source_url.clone()),
+        "reward_observed_at": c.block_reward_miner.as_ref().and_then(|r| r.fetched_at.clone()),
         "reward_note": c.block_reward_miner.as_ref().and_then(|r| r.note.clone()),
-        "nethash": c.network.hashrate, "nethash_source": c.network.hashrate_source, "nethash_blocks": c.network.hashrate_sample_blocks, "blocktime": c.network.block_time_target_s, "z15": c.z15_compatible, "source": c.source_url, "params": c.params(),
+        "nethash": c.network.hashrate, "nethash_source": c.network.hashrate_source,
+        "nethash_observed_at": c.network.hashrate_observed_at,
+        "nethash_blocks": c.network.hashrate_sample_blocks, "blocktime": c.network.block_time_target_s, "z15": c.z15_compatible, "source": c.source_url, "params": c.params(),
+        "rule_status": "dataset_snapshot_not_version_pinned",
+        "proposed_rules_included": false,
     })).collect::<Vec<_>>()).unwrap_or("[]".into());
+    let pool_json = serde_json::to_string(
+        &d.pools
+            .iter()
+            .filter(|p| p.active && !p.is_hashpower_marketplace())
+            .map(|p| serde_json::json!({
+                "id": p.id,
+                "coin": p.coin_id,
+                "name": p.name,
+                "fee": p.fee_pct,
+                "fee_observed_at": p.fee_observed_at,
+                "fee_source": p.fee_source,
+                "fee_max_age_seconds": POOL_POLICY_MAX_AGE_SECS,
+                "schemes": p.schemes.iter().map(|s| serde_json::json!({"name": s.scheme, "fee": s.fee_pct})).collect::<Vec<_>>(),
+                "payout_schemes": p.payout_schemes,
+                "minimum_payout": p.min_payout,
+                "minimum_payout_unit": p.min_payout_unit,
+            }))
+            .collect::<Vec<_>>(),
+    )
+    .unwrap_or("[]".into());
     let num_in = |name: &'static str, v: Option<f64>, unit: &str, hint: Markup| {
         let f = field(name);
         let err = ck.errors.get(name);
@@ -417,12 +580,30 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
         }
     };
     let e30 = |v: Option<f64>| v.map(|x| x * 30.0);
-    // Electricity doesn't depend on the share, so it still shows when the guard applies.
-    let power_day = est.as_ref().map(|e| e.power_day).or_else(|| {
-        guard
-            .as_ref()
-            .map(|_| watts.unwrap_or(0.0) / 1000.0 * 24.0 * power.unwrap_or(0.0))
-    });
+    let source_text = |state: SourceState, at: Option<&str>, limit: &str| match state {
+        SourceState::UserEntered => "User-entered scenario; source age is not asserted.".into(),
+        SourceState::Fresh => format!("Observed {} · current window {limit}.", fmt::date(at)),
+        SourceState::Stale => format!(
+            "Observed {} · outside the {limit} current-data window; current economics withheld.",
+            fmt::date(at)
+        ),
+        SourceState::MissingTime => {
+            "Observation time unavailable; current economics withheld.".into()
+        }
+        SourceState::FutureTime => {
+            "Observation time is in the future; current economics withheld.".into()
+        }
+    };
+    let missing_inputs = [
+        (hr.is_none(), "hashrate"),
+        (fee.is_none(), "pool fee"),
+        (reward.is_none(), "miner reward"),
+        (net_for_economics.is_none(), "current network hashrate"),
+        (bt.is_none(), "block time"),
+    ]
+    .into_iter()
+    .filter_map(|(missing, label)| missing.then_some(label))
+    .collect::<Vec<_>>();
     layout(d, Page { title: "Zcash and Equihash mining calculator", description: "Estimate Zcash and Equihash mining revenue, electricity cost and operating margin for a Z15 Pro or custom hashrate using sourced network data.", path: "/calculator", nav: "calculator" }, html! {
         div class="wrap page" {
             header class="page-head" {
@@ -440,6 +621,29 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
                                 }
                             }
                         }
+                    }
+                    div class="row" {
+                        label for="c-rate-basis" { "Hashrate basis" }
+                        select id="c-rate-basis" data-local-setup="rateBasis" {
+                            option value="nameplate" { "Manufacturer nameplate" }
+                            option value="active" { "Active-device average" }
+                            option value="accepted" { "Pool-accepted effective rate" }
+                        }
+                        p class="hint" { "Choose what the hashrate represents. Accepted effective rate already includes rejected or unavailable work; this calculator does not deduct it again. Electricity still follows the entered wall power." }
+                    }
+                    div class="row" {
+                        label for="c-pool" { "Pool" }
+                        select id="c-pool" data-local-setup="poolId" {
+                            option value="" { "No pool selected" }
+                        }
+                        p class="hint" id="h-pool" { "Optional. The choice stays in this browser and is not placed in the URL." }
+                    }
+                    div class="row" {
+                        label for="c-product" { "Pool product" }
+                        select id="c-product" data-local-setup="productId" disabled {
+                            option value="" { "Select a pool first" }
+                        }
+                        p class="hint" id="h-product" { "Payout scheme, fee and threshold are separate pool terms. Missing terms remain unknown." }
                     }
                     div class="presets" {
                         span { "Fill in a machine:" }
@@ -459,31 +663,76 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
                         (num_in("nethash", net, "Sol/s", nethash_hint(coin)))
                         (num_in("blocktime", bt, "s", html! { "Target block time" }))
                     }
+                    section class="calc-source-contract" aria-labelledby="calc-source-title" {
+                        h2 id="calc-source-title" { "Input status" }
+                        dl class="facts" {
+                            div { dt { "Price" } dd id="s-price" { (source_text(price_state, coin.fetched_at.as_deref(), "30-minute")) } }
+                            div { dt { "Network rate" } dd id="s-nethash" { (source_text(network_state, coin.network.hashrate_observed_at.as_deref(), "15-minute")) } }
+                            div { dt { "Pool fee" } dd id="s-fee" { @if fee.is_some() { "User-entered scenario; source age is not asserted." } @else { "Unknown until entered or a dated pool product is selected." } } }
+                            div { dt { "Rule basis" } dd id="s-rules" { "Dataset snapshot; no version-pinned consensus branch is asserted." } }
+                        }
+                        p class="small" { "Proposed rule changes are excluded. If an active branch or epoch cannot be established from reviewed protocol evidence, this remains a scenario rather than current chain accounting." }
+                    }
                     button class="btn nojs-only" type="submit" { "Calculate" }
                 }
                 section class="calc-out" id="calc-out" aria-live="polite" {
                     h2 { "Estimate for " span id="o-name" { (coin.label) } }
                     p class="calc-bad" id="o-bad" hidden[ck.errors.is_empty()] { "Some inputs are out of range. Fix the marked fields and the figures will come back." }
                     p class="calc-bad" id="o-guard" hidden[guard.is_none()] { (guard.clone().unwrap_or_default()) }
+                    p class="calc-bad" id="o-missing" hidden[missing_inputs.is_empty()] {
+                        "Estimate incomplete: " (missing_inputs.join(", ")) ". Unknown inputs are not treated as zero."
+                    }
                     table class="ledger" {
                         thead { tr { th {} th class="num" { "per day" } th class="num" { "per 30 days" } } }
                         tbody {
-                            tr { th { "Mined" } td class="num" { span id="o-coins" { (coins(est.as_ref().map(|e| e.coins_day))) } " " span class="sym" { (coin.symbol) } } td class="num" { span id="o-coins30" { (coins(e30(est.as_ref().map(|e| e.coins_day)))) } " " span class="sym" { (coin.symbol) } } }
-                            tr { th { "Revenue" } td class="num" id="o-rev" { (money(est.as_ref().and_then(|e| e.revenue_day))) } td class="num" id="o-rev30" { (money(e30(est.as_ref().and_then(|e| e.revenue_day)))) } }
-                            tr { th { "Electricity" } td class="num" id="o-pow" { (money(power_day.map(|p| -p))) } td class="num" id="o-pow30" { (money(e30(power_day.map(|p| -p)))) } }
-                            tr class="total" { th { "Estimated operating margin" } td class="num" id="o-profit" { (money(est.as_ref().and_then(|e| e.profit_day))) } td class="num" id="o-profit30" { (money(e30(est.as_ref().and_then(|e| e.profit_day)))) } }
+                            tr { th { "Expected pool-credit basis" } td class="num" { span id="o-coins" { (coins(est.coins_day)) } " " span class="sym" { (coin.symbol) } } td class="num" { span id="o-coins30" { (coins(e30(est.coins_day))) } " " span class="sym" { (coin.symbol) } } }
+                            tr { th { "Estimated revenue" } td class="num" id="o-rev" { (money(est.revenue_day)) } td class="num" id="o-rev30" { (money(e30(est.revenue_day))) } }
+                            tr { th { "Electricity" } td class="num" id="o-pow" { (money(est.power_day.map(|p| -p))) } td class="num" id="o-pow30" { (money(e30(est.power_day.map(|p| -p)))) } }
+                            tr class="total" { th { "Estimated operating margin" } td class="num" id="o-profit" { (money(est.profit_day)) } td class="num" id="o-profit30" { (money(e30(est.profit_day))) } }
                         }
                     }
                     dl class="facts" {
-                        div { dt { "Your share of the network" } dd id="o-share" { (match (hr, net) { (Some(h), Some(n)) if est.is_some() => fmt::pct(Some(h * 1000.0 / n * 100.0)), _ => fmt::NA.into() }) } }
-                        div { dt { "Break-even electricity price" } dd id="o-be" { (est.as_ref().and_then(|e| e.revenue_day).filter(|_| watts.unwrap_or(0.0) > 0.0).map(|r| format!("${:.3}/kWh", r / (watts.unwrap_or(1.0) / 1000.0 * 24.0))).unwrap_or(fmt::NA.into())) } }
+                        div { dt { "Your share of the network" } dd id="o-share" { (match (hr, net_for_economics) { (Some(h), Some(n)) if est.coins_day.is_some() => fmt::pct(Some(h * 1000.0 / n * 100.0)), _ => fmt::NA.into() }) } }
+                        div { dt { "Break-even electricity price" } dd id="o-be" { (match (est.revenue_day, watts) { (Some(r), Some(w)) if w > 0.0 => format!("${:.3}/kWh", r / (w / 1000.0 * 24.0)), _ => fmt::NA.into() }) } }
                     }
-                    p class="small" { "Mined per day = (your hashrate ÷ network hashrate) × (86,400 ÷ block time) × block reward × (1 − fee). Merged-mined aux coins are not included." }
+                    p class="small" { "Expected pool-credit basis = (your hashrate ÷ compatible network hashrate) × (86,400 ÷ target block time) × miner reward × (1 − selected pool fee). This steady-state model does not prove what a pool credited. Merged-mined auxiliary coins are excluded and electricity is counted once." }
                     p class="small" id="o-note" hidden[z15] { (coin.label) " uses Equihash " (coin.params()) ". The Antminer presets are 200,9 machines and won't mine it." }
+                    section class="calc-reconciliation" id="calc-reconciliation" aria-labelledby="reconciliation-title" {
+                        h2 id="reconciliation-title" { "Compare with a pool result" }
+                        p { "These optional amounts stay in this browser. Do not enter a wallet seed, private key, password or pool credential." }
+                        div class="row" {
+                            label for="c-period-days" { "Comparison period" }
+                            div class="input-unit" { input type="number" inputmode="decimal" id="c-period-days" min="0.0001" max="366" step="any" data-local-setup="periodDays"; span class="unit" { "days" } }
+                        }
+                        div class="row" {
+                            label for="c-credited" { "Credited by pool" }
+                            div class="input-unit" { input type="number" inputmode="decimal" id="c-credited" min="0" step="any" data-local-setup="credited"; span class="unit sym" { (coin.symbol) } }
+                        }
+                        div class="row" {
+                            label for="c-matured" { "Matured" }
+                            div class="input-unit" { input type="number" inputmode="decimal" id="c-matured" min="0" step="any" data-local-setup="matured"; span class="unit sym" { (coin.symbol) } }
+                        }
+                        div class="row" {
+                            label for="c-withdrawable" { "Withdrawable" }
+                            div class="input-unit" { input type="number" inputmode="decimal" id="c-withdrawable" min="0" step="any" data-local-setup="withdrawable"; span class="unit sym" { (coin.symbol) } }
+                        }
+                        dl class="facts" {
+                            div { dt { "Expected" } dd id="x-expected" { (fmt::NA) } }
+                            div { dt { "Credited" } dd id="x-credited" { (fmt::NA) } }
+                            div { dt { "Matured" } dd id="x-matured" { (fmt::NA) } }
+                            div { dt { "Withdrawable" } dd id="x-withdrawable" { (fmt::NA) } }
+                        }
+                        p class="calc-bad" id="x-attribution" { "Attribution unavailable: this page has no time-aligned historical network, accepted-work, pool-accounting or payout-window record for the entered period. A difference alone does not establish underpayment, fee error or pool fault." }
+                        p class="small" { strong { "Expected" } " is a model result. " strong { "Credited" } " is what the pool ledger assigned. " strong { "Matured" } " has passed the pool or chain's stated confirmation stage. " strong { "Withdrawable" } " also depends on threshold, settlement and account policy. These stages are not interchangeable." }
+                        button class="btn" type="button" id="clear-local-setup" { "Forget saved setup" }
+                        p class="small" id="setup-storage-status" { "Saved only in local browser storage; no account is created." }
+                    }
                 }
             }
         }
         script type="application/json" id="calc-data" { (PreEscaped(super::escape_script_json(&calc_json))) }
+        script type="application/json" id="calc-pool-data" { (PreEscaped(super::escape_script_json(&pool_json))) }
+        script src="/static/calc-workflow.js?v=1" defer {}
     })
 }
 
@@ -571,6 +820,73 @@ mod tests {
     fn empty_means_not_given() {
         assert_eq!(check("price", None).unwrap(), None);
         assert_eq!(check("price", Some("  ")).unwrap(), None);
+    }
+
+    #[test]
+    fn unknown_costs_do_not_become_zero_but_entered_zero_is_preserved() {
+        let unknown = estimate_scenario(
+            Some(840.0),
+            Some(2780.0),
+            None,
+            Some(0.0),
+            Some(100.0),
+            Some(1.25),
+            Some(30e9),
+            Some(75.0),
+        );
+        assert!(unknown.coins_day.is_some());
+        assert_eq!(unknown.power_day, None);
+        assert_eq!(unknown.profit_day, None);
+
+        let known_zero = estimate_scenario(
+            Some(840.0),
+            Some(2780.0),
+            Some(0.0),
+            Some(0.0),
+            Some(100.0),
+            Some(1.25),
+            Some(30e9),
+            Some(75.0),
+        );
+        assert_eq!(known_zero.power_day, Some(0.0));
+        assert_eq!(known_zero.profit_day, known_zero.revenue_day);
+    }
+
+    #[test]
+    fn automatic_input_age_has_an_inclusive_gate_and_future_is_invalid() {
+        let now = chrono::DateTime::parse_from_rfc3339("2026-10-08T12:00:00Z")
+            .unwrap()
+            .with_timezone(&chrono::Utc);
+        assert_eq!(
+            source_state(
+                Some("2026-10-08T11:30:00Z"),
+                false,
+                now,
+                PRICE_CURRENT_MAX_AGE_SECS
+            ),
+            SourceState::Fresh
+        );
+        assert_eq!(
+            source_state(
+                Some("2026-10-08T11:29:59Z"),
+                false,
+                now,
+                PRICE_CURRENT_MAX_AGE_SECS
+            ),
+            SourceState::Stale
+        );
+        assert_eq!(
+            source_state(Some("2026-10-08T12:00:01Z"), false, now, 900),
+            SourceState::FutureTime
+        );
+        assert_eq!(
+            source_state(None, false, now, 900),
+            SourceState::MissingTime
+        );
+        assert_eq!(
+            source_state(Some("old"), true, now, 900),
+            SourceState::UserEntered
+        );
     }
 
     #[test]
@@ -688,11 +1004,45 @@ mod tests {
             &q(&[
                 ("coin", "wcash"),
                 ("hashrate", "10"),
+                ("fee", "1"),
                 ("nethash", "522000"),
                 ("blocktime", "75"),
             ]),
         )
         .into_string();
         assert!(page.contains("id=\"o-guard\" hidden") && !page.contains("id=\"o-coins\">n/a<"));
+    }
+
+    #[test]
+    fn calculator_exposes_rule_and_balance_semantics_without_claiming_attribution() {
+        let d = crate::data::load(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("data"))
+            .unwrap();
+        let page = render(
+            &d,
+            &q(&[
+                ("coin", "zcash"),
+                ("hashrate", "840"),
+                ("watts", "2780"),
+                ("power", "0"),
+                ("fee", "0"),
+                ("price", "100"),
+                ("reward", "1.25"),
+                ("nethash", "30000000000"),
+                ("blocktime", "75"),
+            ]),
+        )
+        .into_string();
+        assert!(
+            page.contains("Known zero") || page.contains("Unknown inputs are not treated as zero")
+        );
+        assert!(page.contains("no version-pinned consensus branch is asserted"));
+        assert!(page.contains("Proposed rule changes are excluded"));
+        assert!(page.contains("Expected</strong>") && page.contains("Credited</strong>"));
+        assert!(page.contains("Attribution unavailable"));
+        assert!(page.contains("calc-workflow.js"));
+        assert!(
+            page.contains("id=\"o-pow\">$0.00<"),
+            "entered zero power rate is a known zero"
+        );
     }
 }

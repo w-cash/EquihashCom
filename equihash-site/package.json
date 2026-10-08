@@ -3,8 +3,11 @@
   "private": true,
   "description": "Data refresh tooling for equihash.com (no dependencies; Node 18+).",
   "scripts": {
+    "test": "node --test scripts/*.test.mjs",
     "refresh": "node scripts/refresh-data.mjs",
     "refresh:hashpower": "node scripts/refresh-hashpower.mjs",
-    "refresh:listings": "node scripts/refresh-vendor-listings.mjs"
+    "refresh:listings": "node scripts/refresh-vendor-listings.mjs",
+    "verify:gates": "node scripts/validate-release-gates.mjs",
+    "verify:release": "node scripts/validate-release-gates.mjs --release"
   }
 }

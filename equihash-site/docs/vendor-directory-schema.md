@@ -12,7 +12,8 @@
 | `company_incorporated_year_verified` | Incorporation year only when explicitly stated in the cited evidence; otherwise `null`. |
 | `public_operating_since_year` | Earliest explicitly stated founded/established/operating year; not necessarily the current legal entity's age. |
 | `domain_registered_year_verified` | Registry year only when checked; otherwise `null`. |
-| `review_platform`, `review_rating`, `review_count`, `review_snapshot_date`, `review_source_url` | Dated third-party review snapshot. Values from different platforms must not be mixed into one score. |
+| `review_platform`, `review_snapshot_date`, `review_source_url` | External review-profile link and the date the link was checked. |
+| `review_rating`, `review_count` | Reserved source fields. Public imports set both to `null`; the site does not republish or sort by them without publication clearance. |
 | `declared_availability` | Normalized state derived from the seller page, quote, or cited public record. It is not an inventory audit. |
 | `availability_basis` | Required attribution and verification limitation. |
 | `equihash_z15_claim` | Product, hashrate, price, stock, or batch language reported in the source research. |
@@ -29,12 +30,12 @@ The page heading must say `Sorted by: <label>` and show the direction and missin
 
 1. **Alphabetical** — default; Unicode-normalized vendor name ascending.
 2. **Seller-declared availability** — `seller_declared_spot_or_near_term`, `preorder_or_future_batch`, `historical_or_used`, `unknown_or_quote_required`, `sold_out_or_no_current_listing`, coverage/warning records. The label must retain “seller-declared.”
-3. **Trustpilot review count** — descending; null last; show platform and snapshot date.
-4. **Trustpilot rating** — descending only when `review_count >= 20`; tie-break by review count, then alphabetical. Profiles below the minimum appear as “insufficient sample,” not as zero.
-5. **Verified company incorporation year** — oldest first; null last. Explain that company age is not a quality guarantee.
-6. **Verified domain registration year** — oldest first; null last. This sort remains disabled while coverage is zero. When enabled, explain that domain age is not a quality guarantee and can outlive a change of ownership.
-7. **Manufacturer direct** — `true` first, then alphabetical. Explain that current stock and destination support still require checking.
-8. **Last verified** — newest date first, then alphabetical.
+3. **Verified company incorporation year** — oldest first; null last. Explain that company age is not a quality guarantee.
+4. **Verified domain registration year** — oldest first; null last. This sort remains disabled while coverage is zero. When enabled, explain that domain age is not a quality guarantee and can outlive a change of ownership.
+5. **Manufacturer direct** — `true` first, then alphabetical. Explain that current stock and destination support still require checking.
+6. **Last verified** — newest date first, then alphabetical.
+
+Review-count and review-rating sorts are disabled. They can return only after source rights, integrity checks, correction handling, and a documented publication decision are complete.
 
 Do not create a hidden composite of these fields. If Equihash.com later adds another sort, publish its exact formula and source.
 

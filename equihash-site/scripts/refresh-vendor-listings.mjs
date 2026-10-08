@@ -6,6 +6,7 @@
 import { open, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { fetchBounded, validateSourceUrl } from "./source-policy.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(ROOT, "data"));
@@ -14,6 +15,7 @@ const LISTINGS = path.join(DATA_DIR, "listings.json");
 const LOCK = path.join(DATA_DIR, ".vendor-listings-refresh.lock");
 const DRY_RUN = process.argv.includes("--dry-run");
 const MAX_BYTES = 3 * 1024 * 1024;
+export const CURRENT_AVAILABILITY_MAX_AGE_MS = 36 * 60 * 60 * 1000;
 
 export function decodeEntities(value = "") {
   return value
@@ -31,12 +33,7 @@ export function plainText(value = "") {
 
 export function assertPublicHttps(raw) {
   const url = new URL(raw);
-  if (url.protocol !== "https:" || url.username || url.password) throw new Error("source must be a credential-free HTTPS URL");
-  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
-  if (host === "localhost" || host.endsWith(".local") || host === "::1" || /^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host) || /^169\.254\./.test(host)) throw new Error("local/private source blocked");
-  const v4 = host.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/)?.slice(1).map(Number);
-  if (v4 && (v4.some((n) => n > 255) || v4[0] === 0 || v4[0] === 127 || v4[0] === 10 || (v4[0] === 172 && v4[1] >= 16 && v4[1] <= 31) || (v4[0] === 192 && v4[1] === 168))) throw new Error("local/private source blocked");
-  return url;
+  return validateSourceUrl(url.href, [url.hostname]);
 }
 
 function balancedJson(text, start) {
@@ -77,13 +74,77 @@ function money(value) {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+function jsonLd(html) {
+  const values = [];
+  for (const match of html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    try { values.push(JSON.parse(decodeEntities(match[1]))); } catch { /* malformed unrelated data is ignored */ }
+  }
+  return values;
+}
+
+function flattenJsonLd(value, out = []) {
+  if (Array.isArray(value)) for (const item of value) flattenJsonLd(item, out);
+  else if (value && typeof value === "object") {
+    out.push(value);
+    if (value["@graph"]) flattenJsonLd(value["@graph"], out);
+  }
+  return out;
+}
+
+function currenciesIn(text = "") {
+  const found = new Set();
+  const patterns = [
+    /(?:priceCurrency|currencyCode|currency|product:price:currency)["'\s:=]+(?:content=["'])?([A-Z]{3})\b/gi,
+    /<meta[^>]+content=["']([A-Z]{3})["'][^>]+(?:product:price:currency|price:currency)/gi,
+  ];
+  for (const pattern of patterns) for (const match of text.matchAll(pattern)) found.add(match[1].toUpperCase());
+  if (/£\s*\d/.test(text)) found.add("GBP");
+  if (/€\s*\d|\d\s*€/.test(text)) found.add("EUR");
+  if (/\$\s*\d/.test(text)) found.add("USD");
+  return found;
+}
+
+function availabilityIn(text = "") {
+  const normalized = plainText(text).toLowerCase();
+  // A negative statement wins over positive boilerplate on the same offer.
+  if (/\b(sold\s*out|out\s*of\s*stock|outofstock|unavailable|not\s*available)\b/.test(normalized)
+      || /"(?:available|is_in_stock)"\s*:\s*false/.test(text.toLowerCase())) return "sold_out";
+  if (/\bwait\s*list|\bwaitlist\b/.test(normalized)) return "waitlist";
+  if (/\bback[ -]?order/.test(normalized)) return "backorder";
+  if (/\bpre[ -]?order|\bbatch\b|\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+20\d{2}\b|\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/.test(normalized)) return "preorder";
+  if (/\bdispatch(?:es|ed)?\b|\bships?\s+(?:out|within|in)\b/.test(normalized)) return "dispatch_claim";
+  if (/\b(request (?:an? )?(?:offer|quote)|available deals?|contact (?:us|sales) for (?:a )?(?:price|quote))\b/.test(normalized)) return "quote";
+  if (/\bin\s*stock\b|\binstock\b|\bready\s*to\s*ship\b/.test(normalized)
+      || /"(?:available|is_in_stock)"\s*:\s*true/.test(text.toLowerCase())) return "in_stock";
+  return null;
+}
+
+function bindEvidence(html, source, offer) {
+  const evidence = String(offer.evidenceText || "");
+  const localCurrencies = currenciesIn(evidence);
+  const currencies = localCurrencies.size ? localCurrencies : currenciesIn(html);
+  if (!currencies.size) throw new Error("currency evidence not found for the matched offer");
+  if (currencies.size !== 1 || !currencies.has(source.currency)) {
+    throw new Error(`currency evidence contradicts ${source.currency}: ${[...currencies].sort().join(", ")}`);
+  }
+  const availability = availabilityIn(evidence);
+  if (!availability) throw new Error("availability evidence not found for the matched offer");
+  // A seller's backorder flag is a stricter, non-current form of a configured future batch.
+  // Preserve the exact observed state instead of upgrading it to the curated `preorder` label.
+  const conservativeFutureState = source.availability === "preorder" && availability === "backorder";
+  if (availability !== source.availability && !conservativeFutureState) {
+    throw new Error(`availability evidence contradicts ${source.availability}: ${availability}`);
+  }
+  return { currency: source.currency, availability };
+}
+
 function wooOffer(html, source) {
   const needle = source.variant_match.toLowerCase().replace(/\s+/g, " ");
   const candidates = wooVariations(html).filter((v) => JSON.stringify(v.attributes || v).toLowerCase().replace(/\s+/g, " ").includes(needle));
   if (candidates.length !== 1) throw new Error(`expected one WooCommerce variant for “${source.variant_match}”, found ${candidates.length}`);
   const v = candidates[0];
   const availabilityText = plainText(v.availability_html || "").toLowerCase();
-  return { price: money(v.display_price ?? v.display_regular_price), pageText: `${JSON.stringify(v.attributes || {})} ${availabilityText}` };
+  return { price: money(v.display_price ?? v.display_regular_price), evidenceText: `${JSON.stringify(v)} ${availabilityText}` };
 }
 
 function shopifyOffer(html, source) {
@@ -96,7 +157,7 @@ function shopifyOffer(html, source) {
   const v = candidates[0];
   const raw = v.price?.amount ?? v.price;
   const price = typeof raw === "number" && raw > 100000 ? raw / 100 : money(raw);
-  return { price, pageText: JSON.stringify(v) };
+  return { price, evidenceText: JSON.stringify(v) };
 }
 
 function adeOffer(html, source) {
@@ -106,7 +167,7 @@ function adeOffer(html, source) {
   const next = html.indexOf('id="product', start + marker.length);
   const block = html.slice(start, next > start ? next : start + 50000);
   const price = money(block.match(/data-excl-price=["']([^"']+)/i)?.[1] ?? block.match(/€\s*([\d.,]+)/)?.[1]);
-  return { price, pageText: plainText(block) };
+  return { price, evidenceText: block };
 }
 
 function hashlabsOffer(html, source) {
@@ -119,7 +180,7 @@ function hashlabsOffer(html, source) {
     && (!source.facility_match || attrs.facility?.toLowerCase() === source.facility_match.toLowerCase()));
   if (candidates.length === 1) {
     const selected = candidates[0];
-    return { price: money(selected.attrs.price), pageText: plainText(selected.body) };
+    return { price: money(selected.attrs.price), evidenceText: `${JSON.stringify(selected.attrs)} ${selected.body}` };
   }
   if (candidates.length > 1) throw new Error(`Hashlabs option is ambiguous: ${candidates.length} matches`);
   const facility = source.facility_match || "";
@@ -130,7 +191,7 @@ function hashlabsOffer(html, source) {
   const block = compact.slice(Math.max(0, pivot - 1500), pivot + 3000);
   const prices = [...block.matchAll(/(?:data-price=["']|"price"\s*:\s*|\$)"?([0-9]{4,5}(?:\.[0-9]+)?)/gi)].map((m) => money(m[1])).filter(Boolean);
   if (!prices.length) throw new Error("Hashlabs deal price not found near configured option");
-  return { price: prices[0], pageText: plainText(block) };
+  return { price: prices[0], evidenceText: block };
 }
 
 function metaPrice(html) {
@@ -146,13 +207,25 @@ function metaPrice(html) {
 function genericOffer(html, source) {
   const text = plainText(html);
   if (!text.toLowerCase().includes(source.name_match.toLowerCase())) throw new Error(`product name “${source.name_match}” not found`);
-  return { price: metaPrice(html), pageText: text };
+  const products = jsonLd(html).flatMap((value) => flattenJsonLd(value))
+    .filter((value) => String(value["@type"] || "").toLowerCase() === "product")
+    .filter((value) => String(value.name || "").toLowerCase().includes(source.name_match.toLowerCase()));
+  if (products.length > 1) throw new Error(`expected one structured product for “${source.name_match}”, found ${products.length}`);
+  if (products.length === 1) {
+    const offers = Array.isArray(products[0].offers) ? products[0].offers : [products[0].offers].filter(Boolean);
+    if (offers.length !== 1) throw new Error(`expected one offer for “${source.name_match}”, found ${offers.length}`);
+    return { price: money(offers[0].price ?? offers[0].lowPrice), evidenceText: JSON.stringify({ name: products[0].name, offer: offers[0] }) };
+  }
+  const headings = [...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)]
+    .filter((match) => plainText(match[1]).toLowerCase().includes(source.name_match.toLowerCase()));
+  if (headings.length !== 1) throw new Error(`unstructured page does not identify one “${source.name_match}” product`);
+  return { price: metaPrice(html), evidenceText: html };
 }
 
 function mineshopOffer(html, source) {
   const text = plainText(html);
   if (!text.toLowerCase().includes(source.batch_match.toLowerCase())) throw new Error(`batch “${source.batch_match}” not found`);
-  return { price: metaPrice(html), pageText: text };
+  return { price: metaPrice(html), evidenceText: html };
 }
 
 export function parseOffer(html, source) {
@@ -162,21 +235,25 @@ export function parseOffer(html, source) {
   if (!parser) throw new Error(`unknown parser: ${source.parser}`);
   const offer = parser(html, source);
   if (!offer.price || offer.price < source.min_price || offer.price > source.max_price) throw new Error(`price failed range check: ${offer.price}`);
-  return { price_amount: offer.price, price_currency: source.currency, availability: source.availability, availability_label: source.availability_label };
+  const evidence = bindEvidence(html, source, offer);
+  return {
+    price_amount: offer.price,
+    price_currency: evidence.currency,
+    availability: evidence.availability,
+    availability_label: source.availability_label,
+  };
 }
 
-async function fetchPage(raw) {
-  const url = assertPublicHttps(raw);
-  const response = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(25000), headers: { "user-agent": "equihash.com vendor research refresh/1.0 (+https://equihash.com/sources)", accept: "text/html,application/xhtml+xml" } });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  assertPublicHttps(response.url);
-  const type = response.headers.get("content-type") || "";
-  if (!/text\/html|application\/xhtml\+xml/i.test(type)) throw new Error(`unexpected content type: ${type || "missing"}`);
-  const declared = Number(response.headers.get("content-length"));
-  if (declared > MAX_BYTES) throw new Error("response exceeds size limit");
-  const bytes = new Uint8Array(await response.arrayBuffer());
-  if (bytes.byteLength > MAX_BYTES) throw new Error("response exceeds size limit");
-  return new TextDecoder().decode(bytes);
+async function fetchPage(raw, allowedHosts) {
+  const result = await fetchBounded(raw, {
+    allowedHosts,
+    accept: "text/html,application/xhtml+xml",
+    contentTypes: ["text/html", "application/xhtml+xml"],
+    maxBytes: MAX_BYTES,
+    timeoutMs: 25_000,
+    userAgent: "equihash.com vendor research refresh/1.0 (+https://equihash.com/sources)",
+  });
+  return new TextDecoder().decode(result.body);
 }
 
 async function pool(items, limit, job) {
@@ -188,7 +265,41 @@ async function pool(items, limit, job) {
 }
 
 export function applyOffer(listing, offer, observedAt) {
-  return { ...listing, ...offer, observed_at: observedAt };
+  const out = { ...listing };
+  if (offer.price_amount !== undefined) {
+    out.price_amount = offer.price_amount;
+    out.price_currency = offer.price_currency;
+    out.price_observed_at = observedAt;
+  }
+  if (offer.availability !== undefined) {
+    out.availability = offer.availability;
+    out.availability_label = offer.availability_label;
+    out.availability_observed_at = observedAt;
+    // Compatibility for clients that have not yet adopted the per-field clocks. It follows
+    // availability, never a price-only refresh, so price cannot make stock look freshly checked.
+    out.observed_at = observedAt;
+    delete out.last_known_availability;
+    delete out.last_known_availability_label;
+    delete out.availability_refresh_error_at;
+  }
+  return out;
+}
+
+export function expireCurrentAvailability(listing, attemptedAt, reason, maxAgeMs = CURRENT_AVAILABILITY_MAX_AGE_MS) {
+  if (!["in_stock", "dispatch_claim"].includes(listing.availability)) return listing;
+  const checkedAt = listing.availability_observed_at || listing.observed_at;
+  const age = checkedAt ? Date.parse(attemptedAt) - Date.parse(checkedAt) : Number.POSITIVE_INFINITY;
+  if (!reason && Number.isFinite(age) && age <= maxAgeMs) return listing;
+  const previous = listing.availability_label || listing.availability;
+  return {
+    ...listing,
+    last_known_availability: listing.availability,
+    last_known_availability_label: previous,
+    availability: "unknown",
+    availability_label: `Current availability unknown; last seller claim: ${previous}`,
+    availability_observed_at: checkedAt || null,
+    ...(reason ? { availability_refresh_error_at: attemptedAt } : {}),
+  };
 }
 
 async function main() {
@@ -198,31 +309,59 @@ async function main() {
     const [config, document] = await Promise.all([readFile(CONFIG, "utf8").then(JSON.parse), readFile(LISTINGS, "utf8").then(JSON.parse)]);
     const listings = new Map(document.listings.map((row) => [row.id, row]));
     const urls = [...new Set(config.sources.map((source) => assertPublicHttps(source.url).href))];
-    const fetched = await pool(urls, 4, async (url) => fetchPage(url));
+    const allowedHosts = [...new Set(urls.map((url) => new URL(url).hostname))];
+    const fetched = await pool(urls, 4, async (url) => fetchPage(url, allowedHosts));
     const pages = new Map(urls.map((url, i) => [url, fetched[i]]));
     const observedAt = new Date().toISOString();
-    const failures = [], changes = [];
+    const failures = [], changes = [], expired = [];
     for (const source of config.sources) {
       const listing = listings.get(source.listing_id);
-      if (!listing) { failures.push(`${source.listing_id}: listing is missing`); continue; }
+      if (!listing) { failures.push({ listing_id: source.listing_id, error: "listing is missing" }); continue; }
       const fetchedPage = pages.get(assertPublicHttps(source.url).href);
-      if (!fetchedPage?.ok) { failures.push(`${source.listing_id}: ${fetchedPage?.error?.message || "fetch failed"}`); continue; }
+      if (!fetchedPage?.ok) {
+        const error = fetchedPage?.error?.message || "fetch failed";
+        failures.push({ listing_id: source.listing_id, error });
+        const next = expireCurrentAvailability(listing, observedAt, error);
+        if (next !== listing) { listings.set(source.listing_id, next); expired.push(source.listing_id); }
+        continue;
+      }
       try {
         const offer = parseOffer(fetchedPage.value, source);
         listings.set(source.listing_id, applyOffer(listing, offer, observedAt));
         changes.push(`${source.listing_id}: ${offer.price_currency} ${offer.price_amount} · ${offer.availability_label}`);
-      } catch (error) { failures.push(`${source.listing_id}: ${error.message}`); }
+      } catch (error) {
+        failures.push({ listing_id: source.listing_id, error: error.message });
+        const next = expireCurrentAvailability(listing, observedAt, error.message);
+        if (next !== listing) { listings.set(source.listing_id, next); expired.push(source.listing_id); }
+      }
     }
-    if (!changes.length) throw new Error(`no approved listing passed validation; last good file preserved\n${failures.join("\n")}`);
-    const output = { ...document, verified_at: observedAt, listings: document.listings.map((row) => listings.get(row.id)) };
+    for (const [id, listing] of listings) {
+      const next = expireCurrentAvailability(listing, observedAt, null);
+      if (next !== listing) { listings.set(id, next); expired.push(id); }
+    }
+    const output = {
+      ...document,
+      ...(changes.length ? { verified_at: observedAt } : {}),
+      refresh: {
+        attempted_at: observedAt,
+        succeeded: changes.length,
+        failed: failures.length,
+        expired_current_availability: [...new Set(expired)].length,
+        errors: failures.map((failure) => ({ listing_id: failure.listing_id, error: String(failure.error).slice(0, 240) })),
+      },
+      listings: document.listings.map((row) => listings.get(row.id)),
+    };
     if (!DRY_RUN) {
       const tmp = `${LISTINGS}.tmp-${process.pid}`;
       await writeFile(tmp, `${JSON.stringify(output, null, 2)}\n`, { mode: 0o644 });
       await rename(tmp, LISTINGS);
     }
-    console.log(`${DRY_RUN ? "Checked" : "Updated"} ${changes.length}/${config.sources.length} approved variants; ${failures.length} preserved from the last good file.`);
+    console.log(`${DRY_RUN ? "Checked" : "Updated"} ${changes.length}/${config.sources.length} approved variants; ${failures.length} failures; ${[...new Set(expired)].length} current availability claims expired.`);
     for (const line of changes) console.log(`ok  ${line}`);
-    for (const line of failures) console.warn(`keep ${line}`);
+    for (const failure of failures) console.warn(`keep ${failure.listing_id}: ${failure.error}`);
+    if (!changes.length) {
+      throw new Error("no approved listing passed validation; offer values were preserved and the failed refresh was recorded");
+    }
   } finally {
     await lock?.close().catch(() => {});
     if (lock) await unlink(LOCK).catch(() => {});

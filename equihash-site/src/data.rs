@@ -608,6 +608,14 @@ pub struct Listing {
     pub image_license_note: Option<String>,
     pub sku: Option<String>,
     pub source_url: Option<String>,
+    /// Price and availability have independent evidence clocks. `observed_at` remains as a
+    /// compatibility field and follows availability, never a price-only refresh.
+    pub price_observed_at: Option<String>,
+    pub availability_observed_at: Option<String>,
+    /// When current eligibility expires, retain the seller's last observed claim as history.
+    pub last_known_availability: Option<String>,
+    pub last_known_availability_label: Option<String>,
+    pub availability_refresh_error_at: Option<String>,
     pub observed_at: Option<String>,
 }
 
@@ -882,6 +890,20 @@ fn read<T: for<'de> Deserialize<'de> + Default>(dir: &Path, file: &str) -> Resul
     let p = dir.join(file);
     let s = std::fs::read_to_string(&p).map_err(|e| format!("{}: {e}", p.display()))?;
     serde_json::from_str(&s).map_err(|e| format!("{}: {e}", p.display()))
+}
+
+/// Optional means absent, not malformed. A malformed optional file must fail the candidate load
+/// so the server keeps its last-good `Data` and exposes the reload error through `/healthz`.
+fn read_optional<T: for<'de> Deserialize<'de> + Default>(
+    dir: &Path,
+    file: &str,
+) -> Result<T, String> {
+    let p = dir.join(file);
+    match std::fs::read_to_string(&p) {
+        Ok(raw) => serde_json::from_str(&raw).map_err(|e| format!("{}: {e}", p.display())),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(T::default()),
+        Err(e) => Err(format!("{}: {e}", p.display())),
+    }
 }
 
 // ---------- published snapshots ----------
@@ -1451,6 +1473,7 @@ pub fn fingerprint(dir: &Path) -> Fingerprint {
 pub struct Reloader {
     dir: std::path::PathBuf,
     last: Fingerprint,
+    failed_candidate: bool,
 }
 
 impl Reloader {
@@ -1458,6 +1481,7 @@ impl Reloader {
         Reloader {
             dir: dir.to_path_buf(),
             last: fingerprint(dir),
+            failed_candidate: false,
         }
     }
     /// `None` when nothing changed. `Some(Ok)` with fresh data after a change.
@@ -1472,13 +1496,16 @@ impl Reloader {
         live: Option<&crate::live::LiveState>,
     ) -> Option<Result<Data, String>> {
         let now = fingerprint(&self.dir);
-        if now == self.last {
+        if now == self.last && !self.failed_candidate {
             return None;
         }
         let r = load_with_live(&self.dir, live);
         if r.is_ok() {
             // Re-read: a writer may have finished between the fingerprint and the load.
             self.last = now;
+            self.failed_candidate = false;
+        } else {
+            self.failed_candidate = true;
         }
         Some(r)
     }
@@ -1571,6 +1598,120 @@ pub fn load(dir: &Path) -> Result<Data, String> {
     load_with_live(dir, None)
 }
 
+/// Daily offer collection gets a half-day grace window. After that, a positive seller claim is
+/// retained as history but cannot remain eligible as current stock/near-term dispatch.
+const LISTING_CURRENT_MAX_AGE_SECS: i64 = 36 * 60 * 60;
+
+fn expire_listing_current_availability(l: &mut Listing, now: chrono::DateTime<chrono::Utc>) {
+    let current = matches!(
+        l.availability.as_deref(),
+        Some("in_stock" | "dispatch_claim")
+    );
+    if !current {
+        return;
+    }
+    let checked = l
+        .availability_observed_at
+        .clone()
+        .or_else(|| l.observed_at.clone());
+    let expired = age_secs(checked.as_deref(), now)
+        .map(|age| age > LISTING_CURRENT_MAX_AGE_SECS)
+        .unwrap_or(true);
+    if !expired {
+        return;
+    }
+    l.last_known_availability = l.availability.clone();
+    l.last_known_availability_label = l.availability_label.clone();
+    let previous = l
+        .availability_label
+        .clone()
+        .or_else(|| l.availability.clone())
+        .unwrap_or_else(|| "unavailable".into());
+    l.availability = Some("unknown".into());
+    l.availability_label = Some(format!(
+        "Current availability unknown; last seller claim: {previous}"
+    ));
+    l.availability_observed_at = checked.clone();
+    l.observed_at = checked;
+}
+
+fn website_host(raw: Option<&str>) -> Option<String> {
+    let safe = safe_url(raw?)?;
+    let rest = safe.split_once("://")?.1;
+    let authority = rest.split(['/', '?', '#']).next()?.to_ascii_lowercase();
+    let host = authority
+        .strip_prefix("www.")
+        .unwrap_or(&authority)
+        .split(':')
+        .next()
+        .unwrap_or("")
+        .trim_end_matches('.');
+    (!host.is_empty()).then(|| host.to_string())
+}
+
+/// A candidate directory summary cannot claim current availability when the site's exact, dated
+/// Equihash offers for that seller all say batch/waitlist, sold out, quote or unknown.
+fn reconcile_vendor_availability(
+    directory: &mut [VendorResearch],
+    vendors: &[Vendor],
+    listings: &[Listing],
+) {
+    for record in directory
+        .iter_mut()
+        .filter(|record| record.declared_availability == "seller_declared_spot_or_near_term")
+    {
+        let Some(host) = website_host(record.website.as_deref()) else {
+            continue;
+        };
+        let Some(vendor) = vendors
+            .iter()
+            .find(|vendor| website_host(vendor.url.as_deref()).as_deref() == Some(host.as_str()))
+        else {
+            continue;
+        };
+        let offers: Vec<&Listing> = listings
+            .iter()
+            .filter(|listing| {
+                listing.vendor_id == vendor.id && listing.availability_observed_at.is_some()
+            })
+            .collect();
+        if offers.is_empty()
+            || offers.iter().any(|listing| {
+                matches!(
+                    listing.availability.as_deref(),
+                    Some("in_stock" | "dispatch_claim")
+                )
+            })
+        {
+            continue;
+        }
+        let reconciled = if offers.iter().any(|listing| {
+            matches!(
+                listing.availability.as_deref(),
+                Some("preorder" | "backorder" | "waitlist")
+            )
+        }) {
+            "preorder_or_future_batch"
+        } else if offers
+            .iter()
+            .all(|listing| listing.availability.as_deref() == Some("sold_out"))
+        {
+            "sold_out_or_no_current_listing"
+        } else {
+            "unknown_or_quote_required"
+        };
+        record.declared_availability = reconciled.into();
+        if !record
+            .availability_basis
+            .contains("Reconciled against exact dated Equihash offers")
+        {
+            record.availability_basis.push_str(
+                " Reconciled against exact dated Equihash offers in the local listing record.",
+            );
+        }
+    }
+}
+
 /// Pool ÷ denominator as a percentage, never above 100. Returns (share, capped).
 pub fn share_pct(h: Option<f64>, denom: Option<f64>) -> (Option<f64>, bool) {
     match (h, denom) {
@@ -1595,17 +1736,34 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
     let mut meta: Meta = if snap.id.is_some() {
         snap.read("meta.json")?
     } else {
-        read(dir, "meta.json").unwrap_or_default()
+        read_optional(dir, "meta.json")?
     };
     let mut af: ArchiveFile = read(dir, "archive.json")?;
     let mut mf: MinersFile = read(dir, "miners.json")?;
-    let mut vf: VendorsFile = read(dir, "vendors.json").unwrap_or_default();
-    let mut vdf: VendorDirectoryFile = read(dir, "vendor-directory.json").unwrap_or_default();
-    let mut lf: ListingsFile = read(dir, "listings.json").unwrap_or_default();
-    let mut hf: HashpowerFile = read(dir, "hashpower.json").unwrap_or_default();
-    let mut rf: ResearchFile = read(dir, "research.json").unwrap_or_default();
-    let mut cypherpunk: CypherpunkReport = read(dir, "cypherpunk-zcash.json").unwrap_or_default();
-    let mut grayscale: GrayscaleReport = read(dir, "grayscale-zcash.json").unwrap_or_default();
+    let mut vf: VendorsFile = read_optional(dir, "vendors.json")?;
+    let mut vdf: VendorDirectoryFile = read_optional(dir, "vendor-directory.json")?;
+    let mut lf: ListingsFile = read_optional(dir, "listings.json")?;
+    let mut hf: HashpowerFile = read_optional(dir, "hashpower.json")?;
+    let mut rf: ResearchFile = read_optional(dir, "research.json")?;
+    let mut cypherpunk: CypherpunkReport = read_optional(dir, "cypherpunk-zcash.json")?;
+    let mut grayscale: GrayscaleReport = read_optional(dir, "grayscale-zcash.json")?;
+    for (file, present_but_empty) in [
+        ("vendors.json", vf.vendors.is_empty()),
+        ("vendor-directory.json", vdf.vendors.is_empty()),
+        ("listings.json", lf.listings.is_empty()),
+        (
+            "hashpower.json",
+            hf.nicehash.provider.is_empty() || hf.nicehash.algorithm.is_empty(),
+        ),
+        ("research.json", rf.items.is_empty() && rf.coins.is_empty()),
+    ] {
+        if dir.join(file).exists() && present_but_empty {
+            return Err(format!(
+                "{}: present optional data file has no usable records",
+                dir.join(file).display()
+            ));
+        }
+    }
     // Upstream URLs are rendered as links: only http(s) ones are kept (see safe_url).
     let mut dropped: Vec<String> = Vec::new();
     // Social/community links (written by a separate research step). Missing file = no links;
@@ -1953,6 +2111,15 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
             &format!("listing {} image_source_url", l.id),
             &mut dropped,
         );
+        // Legacy rows used one clock. Treat it as the initial per-field clock without making
+        // either field newer, then apply current-status expiry.
+        if l.price_observed_at.is_none() && l.price_amount.is_some() {
+            l.price_observed_at = l.observed_at.clone();
+        }
+        if l.availability_observed_at.is_none() && l.availability.is_some() {
+            l.availability_observed_at = l.observed_at.clone();
+        }
+        expire_listing_current_availability(l, chrono::Utc::now());
     }
     for (url, label) in [
         (&mut hf.nicehash.source_url, "hashpower source_url"),
@@ -1971,6 +2138,7 @@ pub fn load_with_live(dir: &Path, live: Option<&crate::live::LiveState>) -> Resu
         vf.vendors.iter().any(|v| v.id == l.vendor_id)
             && mf.miners.iter().any(|m| m.id == l.miner_id)
     });
+    reconcile_vendor_availability(&mut vdf.vendors, &vf.vendors, &lf.listings);
     for r in rf.items.iter_mut() {
         clean_url(
             &mut r.url,
@@ -2328,6 +2496,140 @@ mod tests {
         let d = r.poll().expect("change detected").expect("loads again");
         assert!(d.pools.iter().any(|p| p.name == "Fixed"));
         assert!(r.poll().is_none(), "settles once good");
+    }
+
+    #[test]
+    fn malformed_optional_files_are_rejected_independently_and_recover_atomically() {
+        for file in [
+            "vendors.json",
+            "vendor-directory.json",
+            "listings.json",
+            "hashpower.json",
+            "research.json",
+        ] {
+            let t = TempData::new(&format!("optional-{}", file.replace('.', "-")));
+            let baseline = load(&t.0).unwrap();
+            let path = t.0.join(file);
+            let original = std::fs::read(&path).unwrap();
+            let original_mtime = std::fs::metadata(&path).unwrap().modified().unwrap();
+            let mut reloader = Reloader::new(&t.0);
+
+            std::fs::write(&path, b"{}").unwrap();
+            let empty_error = reloader
+                .poll()
+                .expect("empty candidate change is noticed")
+                .unwrap_err();
+            assert!(empty_error.contains(file), "{file}: {empty_error}");
+
+            std::fs::write(&path, b"{ malformed optional JSON").unwrap();
+            let error = reloader
+                .poll()
+                .expect("candidate change is noticed")
+                .unwrap_err();
+            assert!(error.contains(file), "{file}: {error}");
+            // The caller only replaces its live Arc on Ok, so the last-good value remains usable.
+            assert!(
+                !baseline.coins.is_empty(),
+                "{file}: last-good data is intact"
+            );
+
+            std::fs::write(&path, &original).unwrap();
+            std::fs::File::options()
+                .write(true)
+                .open(&path)
+                .unwrap()
+                .set_modified(original_mtime)
+                .unwrap();
+            let recovered = reloader
+                .poll()
+                .expect("a failed candidate is retried even after exact restoration")
+                .unwrap();
+            assert_eq!(recovered.coins.len(), baseline.coins.len(), "{file}");
+            assert!(reloader.poll().is_none(), "{file}: settled after recovery");
+        }
+    }
+
+    #[test]
+    fn expired_positive_offer_is_historical_unknown_but_future_batch_is_preserved() {
+        let now = chrono::DateTime::parse_from_rfc3339("2026-10-08T12:00:00Z")
+            .unwrap()
+            .with_timezone(&chrono::Utc);
+        let mut spot = Listing {
+            availability: Some("in_stock".into()),
+            availability_label: Some("Seller said in stock".into()),
+            availability_observed_at: Some("2026-10-06T12:00:00Z".into()),
+            ..Default::default()
+        };
+        expire_listing_current_availability(&mut spot, now);
+        assert_eq!(spot.availability.as_deref(), Some("unknown"));
+        assert_eq!(spot.last_known_availability.as_deref(), Some("in_stock"));
+        assert_eq!(
+            spot.availability_observed_at.as_deref(),
+            Some("2026-10-06T12:00:00Z")
+        );
+
+        let mut batch = Listing {
+            availability: Some("preorder".into()),
+            availability_label: Some("March 2027 batch".into()),
+            availability_observed_at: Some("2026-01-01T00:00:00Z".into()),
+            ..Default::default()
+        };
+        expire_listing_current_availability(&mut batch, now);
+        assert_eq!(batch.availability.as_deref(), Some("preorder"));
+        assert!(batch.last_known_availability.is_none());
+    }
+
+    #[test]
+    fn exact_dated_offers_downgrade_conflicting_positive_directory_summaries() {
+        let vendors = vec![
+            Vendor {
+                id: "apexto-mining".into(),
+                url: Some("https://apextomining.com/".into()),
+                ..Default::default()
+            },
+            Vendor {
+                id: "bitmain".into(),
+                url: Some("https://shop.bitmain.com/".into()),
+                ..Default::default()
+            },
+        ];
+        let mut directory = vec![
+            VendorResearch {
+                id: "apexto-record".into(),
+                website: Some("https://www.apextomining.com/product/".into()),
+                declared_availability: "seller_declared_spot_or_near_term".into(),
+                ..Default::default()
+            },
+            VendorResearch {
+                id: "bitmain-record".into(),
+                website: Some("https://shop.bitmain.com/".into()),
+                declared_availability: "seller_declared_spot_or_near_term".into(),
+                ..Default::default()
+            },
+        ];
+        let listings = vec![
+            Listing {
+                vendor_id: "apexto-mining".into(),
+                availability: Some("waitlist".into()),
+                availability_observed_at: Some("2026-10-08T10:00:00Z".into()),
+                ..Default::default()
+            },
+            Listing {
+                vendor_id: "bitmain".into(),
+                availability: Some("sold_out".into()),
+                availability_observed_at: Some("2026-10-08T10:00:00Z".into()),
+                ..Default::default()
+            },
+        ];
+        reconcile_vendor_availability(&mut directory, &vendors, &listings);
+        assert_eq!(
+            directory[0].declared_availability,
+            "preorder_or_future_batch"
+        );
+        assert_eq!(
+            directory[1].declared_availability,
+            "sold_out_or_no_current_listing"
+        );
     }
 
     #[test]
