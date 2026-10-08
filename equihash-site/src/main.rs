@@ -1057,6 +1057,51 @@ mod tests {
     }
 
     #[actix_web::test]
+    async fn molepool_unpaid_promotion_is_disclosed_without_changing_other_hashrate_order() {
+        let s = state();
+        let app = app!(s);
+
+        let home =
+            test::call_and_read_body(&app, test::TestRequest::get().uri("/").to_request()).await;
+        let home = String::from_utf8(home.to_vec()).unwrap();
+        let workspace = home
+            .split(r#"class="ed-workspace-pools""#)
+            .nth(1)
+            .expect("homepage pool shortlist");
+        let via = workspace.find("ViaBTC").expect("ViaBTC in shortlist");
+        let foundry = workspace.find("Foundry").expect("Foundry in shortlist");
+        let f2pool = workspace.find("F2Pool").expect("F2Pool in shortlist");
+        let molepool = workspace
+            .find("molepool.com")
+            .expect("Molepool in shortlist");
+        assert!(via < foundry && foundry < f2pool && f2pool < molepool);
+        assert!(workspace[..molepool + "molepool.com".len()].contains("4"));
+        assert!(workspace.contains("Unpaid promotion"));
+
+        let pools = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/pools?coin=zcash")
+                .to_request(),
+        )
+        .await;
+        let pools = String::from_utf8(pools.to_vec()).unwrap();
+        let table = pools
+            .split(r#"id="pool-table""#)
+            .nth(1)
+            .expect("pool table");
+        let molepool = table
+            .find(r#"data-pool-id="zcash:molepool.com:70""#)
+            .expect("promoted Molepool row");
+        let via = table.find(r#"data-name="viabtc""#).expect("ViaBTC row");
+        let foundry = table.find(r#"data-name="foundry""#).expect("Foundry row");
+        let f2pool = table.find(r#"data-name="f2pool""#).expect("F2Pool row");
+        assert!(molepool < via && via < foundry && foundry < f2pool);
+        assert!(table.contains(r#"data-promotion="unpaid""#));
+        assert!(pools.contains("Every other row remains ordered by reported hashrate."));
+    }
+
+    #[actix_web::test]
     async fn sitemap_contains_only_canonical_working_pages() {
         let s = state();
         let app = app!(s.clone());

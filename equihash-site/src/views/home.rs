@@ -7,6 +7,12 @@ use crate::views::logo::{self, At};
 use maud::{html, Markup, PreEscaped};
 use serde::Deserialize;
 
+pub const UNPAID_PROMOTED_POOL_ID: &str = "zcash:molepool.com:70";
+
+fn unpaid_promoted_pool(p: &Pool) -> bool {
+    p.id == UNPAID_PROMOTED_POOL_ID
+}
+
 #[derive(Debug, Deserialize, Default, Clone)]
 #[serde(default)]
 pub struct Filters {
@@ -305,8 +311,9 @@ fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool) -> Markup {
     let unit = p.hashrate_unit.clone().unwrap_or("Sol/s".into());
     let share = p.network_share_pct;
     html! {
-        tr class={"pool-row" @if p.share_flag { " over" }} hidden[hidden]
+        tr class={"pool-row" @if p.share_flag { " over" } @if unpaid_promoted_pool(p) { " pool-promoted" }} hidden[hidden]
             data-slug=(p.slug) data-coin=(p.coin_id) data-pool-id=(p.id)
+            data-promotion=[unpaid_promoted_pool(p).then_some("unpaid")]
             data-schemes=(p.payout_schemes.join(",")) data-regions=(p.region_tags.join(","))
             data-fee=[p.min_fee()] data-hashrate=[p.hashrate] data-share=[share]
             data-miners=[p.miners.or(p.workers)] data-minpay=[p.min_payout] data-blocks=[p.blocks_last_1000]
@@ -317,6 +324,7 @@ fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool) -> Markup {
             td class="rank" { (rank) }
             td class="name" {
                 a class="pool-link" href={"/pool/" (p.slug)} { (logo::chip(&p.logo, &p.name, At::Row, rank > 12)) (p.name) }
+                @if unpaid_promoted_pool(p) { " " span class="pool-promotion-label" title="Pinned placement; Molepool did not pay for it" { "Unpaid promotion" } }
                 @if p.merged() { " " span class="mm" title=[p.merged_mining.note.clone()] { "+" (p.merged_mining.coins.join(", ")) } }
                 span class="host" title=(fmt::host(p.url.as_deref())) { (fmt::host(p.url.as_deref())) }
                 span class="m-meta" {
@@ -1098,7 +1106,15 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
         .filter(|p| coin == "all" || p.coin_id == coin)
         .cloned()
         .collect();
-    let rows = sort_pools(in_scope.clone(), &sort, &dir);
+    let mut rows = sort_pools(in_scope.clone(), &sort, &dir);
+    // Molepool is an expressly requested, unpaid editorial promotion. Pin it only in the
+    // default Zcash hashrate view; any user-selected sort remains a literal data sort.
+    if cur.map(|c| c.id.as_str()) == Some("zcash") && sort == "hashrate" && dir == "desc" {
+        if let Some(position) = rows.iter().position(|p| unpaid_promoted_pool(p)) {
+            let promoted = rows.remove(position);
+            rows.insert(0, promoted);
+        }
+    }
     let show_coin = cur.is_none();
     let help_coin: &Coin = cur.unwrap_or_else(|| {
         active_coins
@@ -1224,6 +1240,9 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                         }
                     }
                     p class="count" { span id="pool-count" { (visible) } " of " (in_scope.len()) " pool rows. Click a pool for every field and its source." }
+                    @if cur.map(|c| c.id.as_str()) == Some("zcash") && sort == "hashrate" && dir == "desc" && rows.iter().any(|p| unpaid_promoted_pool(p)) {
+                        p class="pool-promotion-note" { strong { "Unpaid promotion:" } " Molepool.com is pinned first. Every other row remains ordered by reported hashrate." }
+                    }
                     div class="table-scroll" {
                         table class={"pools-table" @if show_coin { " with-coin" }} id="pool-table" {
                             thead { tr {

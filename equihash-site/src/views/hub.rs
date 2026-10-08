@@ -4,6 +4,7 @@
 use crate::data::{Coin, Data, Miner, Pool};
 use crate::fmt;
 use crate::views::home::schemes_text;
+use crate::views::home::UNPAID_PROMOTED_POOL_ID;
 use crate::views::layout::{layout, Page};
 use crate::views::links;
 use crate::views::logo::{self, At};
@@ -177,7 +178,15 @@ pub fn index(d: &Data) -> Markup {
             .partial_cmp(&a.hashrate)
             .unwrap_or(std::cmp::Ordering::Equal)
     });
+    let promoted_pool = zcash_pools
+        .iter()
+        .find(|p| p.id == UNPAID_PROMOTED_POOL_ID)
+        .copied();
+    zcash_pools.retain(|p| p.id != UNPAID_PROMOTED_POOL_ID);
     zcash_pools.truncate(3);
+    if let Some(promoted) = promoted_pool {
+        zcash_pools.push(promoted);
+    }
     // This seller rates its current Z15 Pro offer at 860 kSol/s and 2,847 W. Keep it distinct
     // from BITMAIN's manufacturer specification (840 kSol/s typical), which is the next slide.
     let offer_860 = d
@@ -364,16 +373,20 @@ pub fn index(d: &Data) -> Markup {
                     div {
                         p class="ed-section-index" { "ZCASH / START HERE" }
                         h2 id="workspace-title" { "Choose a pool, then check the power cost." }
-                        p { "The three largest Zcash pool listings with reported hashrate. Check the full comparison before pointing your hardware." }
+                        p { "The three largest Zcash pool listings by reported hashrate, followed by one clearly labelled unpaid promotion. Check the full comparison before pointing your hardware." }
                     }
                     a href="/pools?coin=zcash#pools" { "Compare all Zcash pools →" }
                 }
                 div class="ed-workspace-grid" {
-                    div class="ed-workspace-pools" aria-label="Largest listed Zcash pool rows" {
+                    div class="ed-workspace-pools" aria-label="Largest listed Zcash pool rows and one unpaid promotion" {
                         @for (i, p) in zcash_pools.iter().enumerate() {
                             a href={"/pool/" (&p.slug)} {
                                 span class="ed-workspace-rank" { (i + 1) }
-                                span class="ed-workspace-name" { (logo::chip(&p.logo, &p.name, At::Row, true)) strong { (&p.name) } }
+                                span class="ed-workspace-name" {
+                                    (logo::chip(&p.logo, &p.name, At::Row, true))
+                                    strong { (&p.name) }
+                                    @if p.id == UNPAID_PROMOTED_POOL_ID { small class="pool-promotion-label" title="Molepool did not pay for this placement" { "Unpaid promotion" } }
+                                }
                                 span { small { "Hashrate" } b class="mono" { (fmt::hashrate(p.hashrate, p.hashrate_unit.as_deref().unwrap_or("Sol/s"))) } }
                                 span { small { "Fee" } b class="mono" { (fmt::fee(p.fee_range())) } }
                                 span { small { "Payout" } b { @if p.payout_schemes.is_empty() { "n/a" } @else { (p.payout_schemes.join(", ")) } } }

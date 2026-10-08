@@ -239,8 +239,17 @@
       const o = typeof va === "number" ? va - vb : va.localeCompare(vb);
       return dir === "asc" ? o : -o;
     };
-    // Sort inside each tbody so rows never cross parameter groups.
-    $$("tbody", table).forEach((tbody) => { $$("tr.pool-row", tbody).sort(cmp).forEach((r) => tbody.appendChild(r)); });
+    // Sort inside each tbody so rows never cross parameter groups. The requested Molepool
+    // editorial placement stays first only in the default Zcash hashrate view; every other
+    // selected sort is literal.
+    $$("tbody", table).forEach((tbody) => {
+      const rows = $$("tr.pool-row", tbody).sort(cmp);
+      if (key === "hashrate" && dir === "desc") {
+        const promoted = rows.find((r) => r.dataset.coin === "zcash" && r.dataset.promotion === "unpaid");
+        if (promoted) rows.unshift(rows.splice(rows.indexOf(promoted), 1)[0]);
+      }
+      rows.forEach((r) => tbody.appendChild(r));
+    });
     $$("th[data-sort]", table).forEach((th) => th.setAttribute("aria-sort", th.dataset.sort === key ? (dir === "asc" ? "ascending" : "descending") : "none"));
     const hs = form && $("input[name=sort]", form), hd = form && $("input[name=dir]", form);
     if (hs) hs.value = key; if (hd) hd.value = dir;
