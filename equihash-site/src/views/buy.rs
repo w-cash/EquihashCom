@@ -593,9 +593,9 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
     let state = q.state.as_deref().unwrap_or("");
     let needle = q.vendor_q.as_deref().unwrap_or("").trim().to_lowercase();
     let vendor_region = q.vendor_region.as_deref().unwrap_or("");
-    let catalog = match q.catalog.as_deref().unwrap_or("tracked") {
-        "all" => "all",
-        _ => "tracked",
+    let catalog = match q.catalog.as_deref().unwrap_or("all") {
+        "tracked" => "tracked",
+        _ => "all",
     };
     let availability = q.availability.as_deref().unwrap_or("");
     let sort = match q.sort.as_deref() {
@@ -723,6 +723,11 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
         .filter(|record| record.record_type != "coverage_gap")
         .filter(|record| vendor_listing_metrics(d, record).1 > 0)
         .count();
+    let tracked_visible = visible
+        .iter()
+        .filter(|record| vendor_listing_metrics(d, record).1 > 0)
+        .count();
+    let show_catalog_boundary = catalog == "all" && sort == "current_listings";
     let directory_disclaimer = d.vendor_research_disclaimer.as_deref().unwrap_or(
         "Informational directory only. Verify seller identity, stock, taxes, warranty and delivery terms before payment.",
     );
@@ -746,7 +751,7 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             header class="page-head buy-head" {
                 p class="eyebrow" { "EQUIHASH VENDOR DIRECTORY" }
                 h1 { "ASIC vendors" }
-                p class="lede" { "Start with vendors where we track specific Equihash offers. Open the full research directory when you need broader market coverage." }
+                p class="lede" { "All researched vendors in one directory. Vendors with tracked Equihash offers appear first; the remaining records follow below." }
             }
             dl class="vendor-directory-stats" {
                 div { dt { "Vendors with offers" } dd { (tracked_vendors) } }
@@ -756,12 +761,12 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             }
             aside class="vendor-directory-notice" aria-labelledby="vendor-directory-notice-title" {
                 strong id="vendor-directory-notice-title" { "How this directory works" }
-                p { "The default view includes only vendors with specific Equihash offers tracked by this site. Listing count and current-stock wording describe our records and seller claims; they are not an endorsement or quality score." }
+                p { "The default view keeps all vendor records visible and puts vendors with tracked Equihash offers first. Listing count and current-stock wording describe our records and seller claims; they are not an endorsement or quality score." }
                 p { "Third-party ratings and counts are attributed to the named platform and dated snapshot. Sorts never combine reviews, region, company age or availability into a hidden score. " a href="/add-vendor#correction" { "Request a correction" } "." }
             }
             form class="filters vendor-directory-filters" action="/vendors" method="get" {
                 div class="f" { label for="vendor-q" { "Search" } input id="vendor-q" type="search" name="vendor_q" value=(q.vendor_q.as_deref().unwrap_or("")) placeholder="Vendor or country"; }
-                div class="f" { label for="vendor-catalog" { "Equihash offers" } select id="vendor-catalog" name="catalog" { option value="tracked" selected[catalog == "tracked"] { "Tracked listings only" } option value="all" selected[catalog == "all"] { "All researched vendors" } } }
+                div class="f" { label for="vendor-catalog" { "Equihash offers" } select id="vendor-catalog" name="catalog" { option value="all" selected[catalog == "all"] { "All researched vendors" } option value="tracked" selected[catalog == "tracked"] { "Tracked listings only" } } }
                 div class="f" { label for="vendor-region" { "Vendor region" } select id="vendor-region" name="vendor_region" { option value="" selected[vendor_region.is_empty()] { "All regions" } @for item in &regions { option value=(item) selected[*item == vendor_region] { (item) } } } }
                 div class="f" { label for="vendor-availability" { "Declared availability" } select id="vendor-availability" name="availability" { option value="" selected[availability.is_empty()] { "All states" } @for item in ["seller_declared_spot_or_near_term", "preorder_or_future_batch", "historical_or_used", "unknown_or_quote_required", "sold_out_or_no_current_listing", "not_applicable_warning_record"] { option value=(item) selected[item == availability] { (availability_label(item)) } } } }
                 div class="f" { label for="vendor-sort" { "Sort by" } select id="vendor-sort" name="sort" { option value="current_listings" selected[sort == "current_listings"] { "Current tracked listings" } option value="review_count" selected[sort == "review_count"] { "Third-party review count" } option value="review_rating_min_20" selected[sort == "review_rating_min_20"] { "Third-party rating (20+ reviews)" } option value="alphabetical" selected[sort == "alphabetical"] { "Alphabetical" } option value="declared_availability" selected[sort == "declared_availability"] { "Seller-declared availability" } option value="company_age" selected[sort == "company_age"] { "Verified company age" } option value="domain_age" disabled { "Verified domain age — unavailable" } option value="manufacturer_direct" selected[sort == "manufacturer_direct"] { "Manufacturer direct" } option value="last_verified" selected[sort == "last_verified"] { "Most recently verified" } } }
@@ -776,7 +781,15 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
                     table class="vendor-market-table" {
                         thead { tr { th scope="col" { "Vendor" } th scope="col" { "Location" } th scope="col" { "Equihash catalog" } th scope="col" { "Third-party reviews" } th scope="col" { "Checked" } th scope="col" { "Record" } } }
                         tbody {
-                            @for record in &visible {
+                            @for (index, record) in visible.iter().enumerate() {
+                                @if show_catalog_boundary && index == tracked_visible {
+                                    tr class="vendor-directory-divider" {
+                                        th colspan="6" scope="rowgroup" {
+                                            "Additional researched vendors"
+                                            small { "No specific Equihash offer is currently tracked for the records below." }
+                                        }
+                                    }
+                                }
                                 (public_vendor_row(d, record))
                             }
                         }

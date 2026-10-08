@@ -1175,16 +1175,20 @@ mod tests {
         assert!(directory.contains("Tracked offers</dt><dd>34</dd>"));
         assert!(directory.contains("All vendor records</dt><dd>85</dd>"));
         assert!(directory.contains("85</dd>"));
-        assert_eq!(directory.matches("vendor-directory-public-row").count(), 9);
+        assert_eq!(directory.matches("vendor-directory-public-row").count(), 85);
         assert!(directory.contains("Sorted by: Current tracked listings"));
         assert!(directory.contains("This measures catalog coverage, not seller quality"));
+        assert!(directory.contains("Additional researched vendors"));
+        assert!(directory
+            .contains("No specific Equihash offer is currently tracked for the records below"));
         assert!(directory.contains("Domain-age sorting is disabled"));
         assert!(directory.contains("seller claims; they are not an endorsement or quality score"));
         assert!(directory.contains("6 models · 9 listings"));
         assert!(directory.contains("4.7/5"));
         assert!(directory.contains("720 reviews"));
-        assert!(!directory.contains("21energy"));
+        assert!(directory.contains("21energy"));
         assert!(directory.find("BT-Miners").unwrap() < directory.find("OneMiners").unwrap());
+        assert!(directory.find("The Bitcoin Miner").unwrap() < directory.find("21energy").unwrap());
         assert!(!directory.contains("Tier A"));
         assert!(!directory.contains("Strongest evidence"));
         assert!(!directory.contains("global rank"));
@@ -1197,7 +1201,7 @@ mod tests {
             directory
                 .matches(r#"class="vendor-directory-name"><a href="/vendors/"#)
                 .count(),
-            9,
+            85,
             "every vendor shown in the buying view must open an internal profile"
         );
 

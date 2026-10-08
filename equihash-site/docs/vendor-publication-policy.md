@@ -4,13 +4,13 @@ This is an editorial operating policy for Equihash.com. It is not a substitute f
 
 ## Short user-facing notice
 
-> **How this directory works:** The buying view starts with vendors for which Equihash.com tracks specific Equihash offers. Every sort states its exact factor. Third-party review figures show the platform and snapshot date; rating sorts require at least 20 reviews. Inclusion, position, seller claims, and third-party reviews are informational and are not an Equihash.com endorsement or guarantee. Availability is not physically audited unless expressly stated. Verify the legal seller, stock and serials, invoice beneficiary, taxes, warranty, delivery deadline, and refund remedy before payment.
+> **How this directory works:** The default view keeps every researched vendor visible and places vendors with specific tracked Equihash offers first. Every sort states its exact factor. Third-party review figures show the platform and snapshot date; rating sorts require at least 20 reviews. Inclusion, position, seller claims, and third-party reviews are informational and are not an Equihash.com endorsement or guarantee. Availability is not physically audited unless expressly stated. Verify the legal seller, stock and serials, invoice beneficiary, taxes, warranty, delivery deadline, and refund remedy before payment.
 
 Place this notice above the results or behind a clearly visible “How rankings work” link. On each results page show `Sorted by`, direction, evidence date, and how missing data is handled.
 
 ## Editorial rules
 
-1. **Default to useful catalog coverage.** The buying view includes vendors with tracked Equihash offers and sorts seller-declared current listings first. The full research directory remains available. State this rule and never describe it as “best,” “safest,” or “most trusted.”
+1. **Default to useful catalog coverage without hiding records.** Keep all researched vendors visible. Sort seller-declared current listings first, then other tracked offers, followed by research-only vendor records. State this rule and never describe it as “best,” “safest,” or “most trusted.”
 2. **Separate evidence types.** Label information as seller-declared, registry-verified, third-party review data, public allegation, regulator/court finding, or Equihash.com physical verification.
 3. **Attribute availability.** Use “seller declares in stock” or “seller advertises dispatch in three days.” Do not shorten either to “available now.”
 4. **Do not infer missing facts.** Unknown domain age, company age, authorization, stock, tax, or warranty fields remain null.

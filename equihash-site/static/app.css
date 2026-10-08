@@ -1507,6 +1507,8 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
 .vendor-market-table tbody tr:hover { background: #efebe1; }
 .vendor-directory .vendor-market-table { min-width: 1080px; }
 .vendor-directory-public-row { scroll-margin-top: 86px; }
+.vendor-directory-divider th { padding: 16px 13px 13px; border-top: 2px solid var(--ink); background: #e8e4d9; color: var(--ink); font: 600 12px/1.35 var(--sans); letter-spacing: .02em; text-transform: none; }
+.vendor-directory-divider th small { display: block; margin-top: 3px; color: var(--ink-3); font: 10.5px/1.4 var(--sans); letter-spacing: 0; text-transform: none; }
 .vendor-directory-public-row th { min-width: 215px; }
 .vendor-directory-public-row th a { color: var(--ink); font-weight: 650; }
 .vendor-directory-public-row th small, .vendor-directory-public-row td small { display: block; margin-top: 5px; color: var(--ink-3); font: 9.5px/1.35 var(--sans); }
