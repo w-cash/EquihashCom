@@ -188,11 +188,17 @@ table { border-collapse: collapse; width: 100%; }
 }
 .pools-table td.share .share-note { white-space: normal; display: inline-block; max-width: 7em; text-align: right; line-height: 1.3; }
 .pools-table .mm { font-size: 11.5px; font-family: var(--mono); color: var(--ink-2); border: 1px solid var(--rule); padding: 0 4px; border-radius: 2px; white-space: nowrap; }
-.pool-promotion-label { display: inline-block; margin-left: 6px; color: #6b5410; font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: .06em; line-height: 1.5; text-transform: uppercase; white-space: nowrap; }
-.pool-promotion-note { margin: 0 0 10px; padding: 8px 10px; border-left: 2px solid #8d6f17; background: #f0ead8; color: var(--ink-2); font-size: 12px; }
+.pool-promotion-note { margin: 0 0 10px; padding: 8px 10px; border-left: 2px solid #617886; background: #edf1f3; color: var(--ink-2); font-size: 12px; }
 .pool-promotion-note strong { color: var(--ink); }
-.pools-table tr.pool-promoted td { background: #f8f4e8; }
-.pools-table tr.pool-promoted:hover td { background: #eee6d0; }
+.pools-table tr.pool-promoted td { background: #f1f3f4; }
+.pools-table tr.pool-promoted:hover td { background: #e5ebee; }
+.pool-promoted-name { display: inline-grid; vertical-align: top; }
+.pool-promoted-primary, .pool-promoted-reveal { grid-area: 1 / 1; transition: opacity .16s ease, transform .16s ease; }
+.pool-promoted-reveal { color: #425d6b; font-size: 12px; font-weight: 600; letter-spacing: .035em; opacity: 0; transform: translateY(2px); white-space: nowrap; }
+.pool-promoted:hover .pool-promoted-primary,
+.pool-promoted:focus-within .pool-promoted-primary { opacity: 0; transform: translateY(-2px); }
+.pool-promoted:hover .pool-promoted-reveal,
+.pool-promoted:focus-within .pool-promoted-reveal { opacity: 1; transform: translateY(0); }
 .pools-table .m-meta, .pools-table .m-share { display: none; }
 .pools-table .dag { color: var(--ink-3); margin-left: 2px; }
 .pools-table td.share { min-width: 96px; }
@@ -1052,15 +1058,21 @@ body[data-page="home"] .foot a { color: #f0ede4; }
 .ed-workspace { padding-top: 58px; padding-bottom: 62px; }
 .ed-workspace-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, .65fr); gap: clamp(40px, 6vw, 82px); align-items: start; }
 .ed-workspace-pools { border-top: 1px solid var(--ink); }
-.ed-workspace-pools > a { display: grid; grid-template-columns: 30px minmax(180px, 1.35fr) minmax(118px, .8fr) minmax(70px, .45fr) minmax(120px, .8fr) 20px; gap: 13px; align-items: center; min-height: 70px; padding: 10px 0; border-bottom: 1px solid var(--rule); color: var(--ink); text-decoration: none; }
+.ed-workspace-pools > a { display: grid; grid-template-columns: 30px minmax(180px, 1.35fr) minmax(320px, 2.05fr) 20px; gap: 13px; align-items: center; min-height: 70px; padding: 10px 0; border-bottom: 1px solid var(--rule); color: var(--ink); text-decoration: none; }
 .ed-workspace-pools > a:hover { background: #ebe6da; }
 .ed-workspace-rank { color: var(--ink-3); font: 11px/1 var(--mono); text-align: center; }
 .ed-workspace-name { display: flex; gap: 9px; align-items: center; min-width: 0; }
 .ed-workspace-name .logo-chip { flex: none; }
-.ed-workspace-name strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ed-workspace-name strong { white-space: nowrap; }
+.ed-workspace-metrics { position: relative; display: grid; grid-template-columns: minmax(118px, .8fr) minmax(70px, .45fr) minmax(120px, .8fr); gap: 13px; align-items: center; }
+.ed-workspace-metric { transition: opacity .16s ease, transform .16s ease; }
+.ed-workspace-promotion { position: absolute; inset: 0; display: flex; align-items: center; color: #6b5410; font: 600 11px/1.2 var(--mono); letter-spacing: .065em; text-transform: uppercase; opacity: 0; transform: translateY(3px); transition: opacity .18s ease, transform .18s ease; }
+.ed-workspace-pools > a.is-promoted:hover .ed-workspace-metric,
+.ed-workspace-pools > a.is-promoted:focus-visible .ed-workspace-metric { opacity: 0; transform: translateY(-3px); }
+.ed-workspace-pools > a.is-promoted:hover .ed-workspace-promotion,
+.ed-workspace-pools > a.is-promoted:focus-visible .ed-workspace-promotion { opacity: 1; transform: translateY(0); }
 .ed-workspace-pools small { display: block; margin-bottom: 4px; color: var(--ink-3); font-size: 10px; text-transform: uppercase; letter-spacing: .055em; }
 .ed-workspace-pools b { display: block; font-size: 12.5px; font-weight: 500; }
-.ed-workspace-name .pool-promotion-label { display: block; margin: 3px 0 0 28px; }
 .ed-workspace-arrow { font-size: 19px; }
 .ed-workspace-calc { padding: 25px 27px 28px; border-top: 3px solid #806b28; background: #e5e1d6; }
 .ed-workspace-calc h3 { margin: 7px 0 13px; font-size: 29px; line-height: 1.08; }
@@ -1865,7 +1877,8 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
   .ed-hero-signal { grid-template-columns: 1fr 1fr; }
   .ed-hero-signal div:last-child { grid-column: 1 / -1; padding-left: 0; border-top: 1px solid #d0ccbf; border-left: 0; }
   .ed-workspace-pools > a { grid-template-columns: 28px minmax(0, 1fr) minmax(105px, auto) 20px; padding: 12px 0; }
-  .ed-workspace-pools > a > span:nth-child(4), .ed-workspace-pools > a > span:nth-child(5) { display: none; }
+  .ed-workspace-metrics { grid-template-columns: minmax(105px, auto); }
+  .ed-workspace-metric:nth-child(2), .ed-workspace-metric:nth-child(3) { display: none; }
   .industry-desk .industry-head { grid-template-columns: 1fr; gap: 9px; }
   .industry-desk .industry-head .eyebrow { grid-column: auto; }
   .industry-desk .industry-head .lede { padding-bottom: 0; }
@@ -1924,7 +1937,8 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
 @media (max-width: 420px) {
   .nav a { font-size: 12.5px; }
   .ed-workspace-pools > a { grid-template-columns: 25px minmax(0, 1fr) 20px; }
-  .ed-workspace-pools > a > span:nth-child(3) { display: none; }
+  .ed-workspace-metrics { display: none; }
+  .ed-workspace-name strong { overflow: hidden; text-overflow: ellipsis; }
   .ed-workspace-calc { padding: 22px 19px 24px; }
   .industry-machine { align-items: flex-start; }
   .industry-machine img { width: 96px; height: 94px; }

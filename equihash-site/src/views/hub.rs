@@ -373,23 +373,29 @@ pub fn index(d: &Data) -> Markup {
                     div {
                         p class="ed-section-index" { "ZCASH / START HERE" }
                         h2 id="workspace-title" { "Choose a pool, then check the power cost." }
-                        p { "The three largest Zcash pool listings by reported hashrate, followed by one clearly labelled unpaid promotion. Check the full comparison before pointing your hardware." }
+                        p { "The three largest Zcash pool listings by reported hashrate, followed by one unpaid promotional placement. Hover the fourth row for its disclosure." }
                     }
                     a href="/pools?coin=zcash#pools" { "Compare all Zcash pools →" }
                 }
                 div class="ed-workspace-grid" {
                     div class="ed-workspace-pools" aria-label="Largest listed Zcash pool rows and one unpaid promotion" {
                         @for (i, p) in zcash_pools.iter().enumerate() {
-                            a href={"/pool/" (&p.slug)} {
+                            @let promoted = p.id == UNPAID_PROMOTED_POOL_ID;
+                            a class=[promoted.then_some("is-promoted")] href={"/pool/" (&p.slug)}
+                                title=[promoted.then_some("Molepool did not pay for this placement")]
+                                aria-label=[promoted.then_some("molepool.com — unpaid promotional placement")]
+                            {
                                 span class="ed-workspace-rank" { (i + 1) }
                                 span class="ed-workspace-name" {
                                     (logo::chip(&p.logo, &p.name, At::Row, true))
                                     strong { (&p.name) }
-                                    @if p.id == UNPAID_PROMOTED_POOL_ID { small class="pool-promotion-label" title="Molepool did not pay for this placement" { "Unpaid promotion" } }
                                 }
-                                span { small { "Hashrate" } b class="mono" { (fmt::hashrate(p.hashrate, p.hashrate_unit.as_deref().unwrap_or("Sol/s"))) } }
-                                span { small { "Fee" } b class="mono" { (fmt::fee(p.fee_range())) } }
-                                span { small { "Payout" } b { @if p.payout_schemes.is_empty() { "n/a" } @else { (p.payout_schemes.join(", ")) } } }
+                                span class="ed-workspace-metrics" {
+                                    span class="ed-workspace-metric" { small { "Hashrate" } b class="mono" { (fmt::hashrate(p.hashrate, p.hashrate_unit.as_deref().unwrap_or("Sol/s"))) } }
+                                    span class="ed-workspace-metric" { small { "Fee" } b class="mono" { (fmt::fee(p.fee_range())) } }
+                                    span class="ed-workspace-metric" { small { "Payout" } b { @if p.payout_schemes.is_empty() { "n/a" } @else { (p.payout_schemes.join(", ")) } } }
+                                    @if promoted { span class="ed-workspace-promotion" aria-hidden="true" { "Unpaid promotional placement" } }
+                                }
                                 span class="ed-workspace-arrow" aria-hidden="true" { "→" }
                             }
                         }

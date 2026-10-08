@@ -1077,6 +1077,8 @@ mod tests {
         assert!(via < foundry && foundry < f2pool && f2pool < molepool);
         assert!(workspace[..molepool + "molepool.com".len()].contains("4"));
         assert!(workspace.contains("Unpaid promotion"));
+        assert!(workspace.contains("ed-workspace-promotion"));
+        assert!(!workspace.contains("pool-promotion-label"));
 
         let pools = test::call_and_read_body(
             &app,
@@ -1098,6 +1100,10 @@ mod tests {
         let f2pool = table.find(r#"data-name="f2pool""#).expect("F2Pool row");
         assert!(molepool < via && via < foundry && foundry < f2pool);
         assert!(table.contains(r#"data-promotion="unpaid""#));
+        assert!(
+            table.contains(r#"class="pool-promoted-reveal" aria-hidden="true">Unpaid promotion"#)
+        );
+        assert!(!table.contains("pool-promotion-label"));
         assert!(pools.contains("Every other row remains ordered by reported hashrate."));
     }
 

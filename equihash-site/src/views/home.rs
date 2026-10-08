@@ -323,8 +323,15 @@ fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool) -> Markup {
         {
             td class="rank" { (rank) }
             td class="name" {
-                a class="pool-link" href={"/pool/" (p.slug)} { (logo::chip(&p.logo, &p.name, At::Row, rank > 12)) (p.name) }
-                @if unpaid_promoted_pool(p) { " " span class="pool-promotion-label" title="Pinned placement; Molepool did not pay for it" { "Unpaid promotion" } }
+                a class="pool-link" href={"/pool/" (p.slug)} {
+                    (logo::chip(&p.logo, &p.name, At::Row, rank > 12))
+                    @if unpaid_promoted_pool(p) {
+                        span class="pool-promoted-name" {
+                            span class="pool-promoted-primary" { (p.name) }
+                            span class="pool-promoted-reveal" aria-hidden="true" { "Unpaid promotion" }
+                        }
+                    } @else { (p.name) }
+                }
                 @if p.merged() { " " span class="mm" title=[p.merged_mining.note.clone()] { "+" (p.merged_mining.coins.join(", ")) } }
                 span class="host" title=(fmt::host(p.url.as_deref())) { (fmt::host(p.url.as_deref())) }
                 span class="m-meta" {
