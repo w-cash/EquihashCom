@@ -3,7 +3,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static/app.css or static/app.js change so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "47";
+pub const ASSET_V: &str = "48";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -98,9 +98,8 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                 @for (href, title) in data_alternates(p.path) {
                     link rel="alternate" type="application/json" href=(href) title=(title);
                 }
-                meta name="theme-color" content="#f7f5ef" media="(prefers-color-scheme: light)";
-                meta name="theme-color" content="#161614" media="(prefers-color-scheme: dark)";
-                meta name="color-scheme" content="light dark";
+                meta name="theme-color" content="#11130f";
+                meta name="color-scheme" content="light";
                 meta property="og:type" content=(og_type);
                 meta property="og:locale" content="en_US";
                 meta property="og:site_name" content="equihash.com";
@@ -120,8 +119,10 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                 link rel="icon" href="/static/favicon.svg" type="image/svg+xml";
                 link rel="apple-touch-icon" href="/static/apple-touch-icon.png";
                 link rel="preload" href="/static/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin;
+                link rel="preload" href="/static/fonts/ibm-plex-sans-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin;
                 link rel="preload" href="/static/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin;
                 link rel="stylesheet" href={"/static/app.css?v=" (ASSET_V)};
+                link rel="stylesheet" href={"/static/system.css?v=" (ASSET_V)};
                 script { (PreEscaped(INLINE_SCRIPT)) }
                 script type="application/ld+json" {
                     (PreEscaped(json_ld))
