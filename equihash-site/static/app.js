@@ -564,6 +564,24 @@
       const region = (f.elements.region?.value || "").toLowerCase();
       const state = (f.elements.state?.value || "").toLowerCase();
       let vendors = 0, listings = 0;
+      const marketRows = $$(".vendor-market-row");
+      if (marketRows.length) {
+        const visibleVendors = new Set();
+        for (const row of marketRows) {
+          const machines = values(row.dataset.machine), regions = values(row.dataset.region);
+          const rowBase = (row.dataset.base || "").toLowerCase();
+          const rowState = (row.dataset.listingState || "").toLowerCase();
+          row.hidden = !!((machine && !machines.includes(machine)) || (base && rowBase !== base) || (region && !regions.includes("global") && !regions.includes(region)) || (state && rowState !== state));
+          if (!row.hidden) { listings++; visibleVendors.add(row.dataset.vendor); }
+        }
+        vendors = visibleVendors.size;
+        const out = $("#buy-count");
+        if (out) out.textContent = `${listings} listing${listings === 1 ? "" : "s"} · ${vendors} seller${vendors === 1 ? "" : "s"}`;
+        const qs = new URLSearchParams();
+        if (machine) qs.set("machine", machine); if (base) qs.set("base", f.elements.base.value); if (region) qs.set("region", f.elements.region.value); if (state) qs.set("state", state);
+        history.replaceState(null, "", qs.toString() ? "/vendors?" + qs : "/vendors");
+        return;
+      }
       for (const card of $$(".buy-card")) {
         const baseMatch = !base || (card.dataset.base || "").toLowerCase() === base;
         let visibleSnapshots = 0;

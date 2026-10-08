@@ -1529,6 +1529,114 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
   .vendor-product-method { padding-inline: 21px; text-align: left; }
 }
 
+/* ---------- Equihash miner market ---------- */
+.vendor-market-table-wrap { margin: 24px 0 0; overflow-x: auto; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper); }
+.vendor-market-table { width: 100%; min-width: 1080px; border-collapse: collapse; font-size: 12px; }
+.vendor-market-table thead { background: #e8e4d9; }
+.vendor-market-table th, .vendor-market-table td { padding: 14px 13px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: middle; }
+.vendor-market-table thead th { color: var(--ink-3); font: 600 9.5px/1.25 var(--sans); letter-spacing: .075em; text-transform: uppercase; }
+.vendor-market-table tbody tr:last-child th, .vendor-market-table tbody tr:last-child td { border-bottom: 0; }
+.vendor-market-table tbody tr:hover { background: #efebe1; }
+.vendor-market-rank { width: 28px; color: var(--ink-3); text-align: center !important; }
+.vendor-market-machine { display: flex; gap: 13px; align-items: center; min-width: 200px; font-weight: 600; }
+.vendor-market-machine img { flex: none; width: 60px; height: 46px; object-fit: contain; mix-blend-mode: multiply; }
+.vendor-market-machine span, .vendor-market-seller, .vendor-market-price { min-width: 0; }
+.vendor-market-machine small, .vendor-market-seller small, .vendor-market-price small { display: block; margin-top: 4px; color: var(--ink-3); font: 10px/1.3 var(--sans); }
+.vendor-market-seller a { color: var(--ink); font-weight: 600; }
+.vendor-market-price strong { font-size: 14px; }
+.vendor-market-row td:nth-child(5) { max-width: 210px; line-height: 1.4; }
+.vendor-market-row td:nth-child(5) > strong { display: block; font-weight: 500; }
+.vendor-market-state { display: inline-block; margin-top: 6px; padding: 3px 6px; border: 1px solid #b7b09e; color: var(--ink-2); font: 600 9px/1 var(--mono); letter-spacing: .045em; text-transform: uppercase; }
+.vendor-market-state.state-in_stock, .vendor-market-state.state-dispatch_claim { border-color: #879874; color: #435633; background: #edf1e7; }
+.vendor-market-state.state-sold_out { border-color: #c8c1b3; color: #777166; background: #efede7; }
+.vendor-market-disclosure { margin: 12px 0 52px; color: var(--ink-3); font-size: 11.5px; line-height: 1.5; }
+.vendor-directory-footer { display: flex; justify-content: space-between; gap: 20px; margin: 34px 0 0; padding: 18px 0; border-top: 1px solid var(--ink); color: var(--ink-3); font-size: 12px; }
+
+.vendor-global-directory, .vendor-warning-register { margin: 26px 0 0; padding: 0; border: 0; border-top: 1px solid var(--ink); background: transparent; }
+.vendor-global-directory > summary, .vendor-warning-register > summary { display: flex; justify-content: space-between; gap: 20px; align-items: baseline; padding: 18px 0; cursor: pointer; list-style: none; }
+.vendor-global-directory > summary::-webkit-details-marker, .vendor-warning-register > summary::-webkit-details-marker { display: none; }
+.vendor-global-directory > summary strong, .vendor-warning-register > summary strong { font: 600 20px/1.2 var(--serif); }
+.vendor-global-directory > summary span, .vendor-warning-register > summary span { color: var(--ink-3); font: 11px/1.3 var(--mono); }
+.vendor-global-directory > summary strong::after, .vendor-warning-register > summary strong::after { content: " +"; color: var(--ink-3); font-family: var(--mono); }
+.vendor-global-directory[open] > summary strong::after, .vendor-warning-register[open] > summary strong::after { content: " −"; }
+.vendor-register-body { padding: 0 0 32px; }
+.vendor-register-body .vendor-directory-section-head { margin-top: 20px; }
+.vendor-warning-register .vendor-register-body { padding: 1px 24px 28px; border-top: 3px solid #8b332b; background: #eee6df; }
+
+.vendor-profile-kicker { margin: 0 0 8px; color: var(--ink-3); font: 600 10px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.vendor-profile-actions { display: flex; gap: 20px; align-items: baseline; margin-top: 13px; font-size: 12px; }
+.vendor-profile-actions a:first-child { color: var(--ink); font-weight: 600; }
+.vendor-profile-actions .copy-link { padding: 0; border: 0; background: transparent; color: var(--link); font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.vendor-profile-metrics { display: grid; grid-template-columns: .55fr .55fr 1fr 1fr; margin: -1px 0 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
+.vendor-profile-metrics > div { min-width: 0; padding: 16px 18px; border-right: 1px solid var(--rule); }
+.vendor-profile-metrics > div:first-child { padding-left: 0; }
+.vendor-profile-metrics > div:last-child { border-right: 0; }
+.vendor-profile-metrics dt { color: var(--ink-3); font: 9.5px/1.2 var(--sans); letter-spacing: .07em; text-transform: uppercase; }
+.vendor-profile-metrics dd { margin: 6px 0 0; font: 500 17px/1.25 var(--mono); overflow-wrap: anywhere; }
+.vendor-profile-warning { display: grid; grid-template-columns: 160px 1fr; gap: 18px; margin: 28px 0; padding: 15px 17px; border-left: 3px solid #8b332b; background: #eee6df; }
+.vendor-profile-warning strong { font-size: 12px; text-transform: uppercase; letter-spacing: .055em; }
+.vendor-profile-warning p { margin: 0; color: var(--ink-2); font-size: 13px; }
+.vendor-profile-empty { margin: 36px 0; }
+
+.vendor-product-stage { margin-top: 38px; }
+.vendor-product-intro { margin-bottom: 0; }
+.vendor-product-intro h2 { margin-bottom: 0; }
+.vendor-offer-carousel { margin-bottom: 12px; }
+.vendor-offer-info nav { display: flex; flex-wrap: wrap; gap: 11px 25px; }
+.vendor-offer-table-wrap { max-width: 1120px; margin: 4px auto 0; padding: 0 28px; overflow-x: auto; }
+.vendor-offer-swipe { display: none; }
+.vendor-offer-table { width: 100%; min-width: 900px; border-collapse: collapse; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper); font-size: 11.5px; }
+.vendor-offer-table th, .vendor-offer-table td { padding: 12px 13px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+.vendor-offer-table thead th { color: var(--ink-3); background: #e8e4d9; font: 600 9px/1.2 var(--sans); letter-spacing: .07em; text-transform: uppercase; }
+.vendor-offer-model-row th { padding: 11px 13px; background: #f0ede5; font-size: 13px; }
+.vendor-offer-model-row span { margin-left: 12px; color: var(--ink-3); font: 10px/1.3 var(--mono); }
+.vendor-offer-table td:first-child { max-width: 270px; }
+.vendor-offer-table td strong { display: block; font-weight: 500; line-height: 1.35; }
+.vendor-offer-table td small { display: block; margin-top: 4px; color: var(--ink-3); font-size: 10px; }
+.vendor-offer-table details { margin-top: 6px; }
+.vendor-offer-table details summary { width: fit-content; cursor: pointer; color: var(--link); font-size: 10.5px; }
+.vendor-offer-table details p { max-width: 420px; margin: 7px 0 0; color: var(--ink-2); font-size: 10.5px; line-height: 1.45; }
+
+.vendor-profile-evidence { margin: 32px 0 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
+.vendor-profile-evidence > summary { padding: 17px 0; cursor: pointer; font-weight: 600; list-style-position: inside; }
+.vendor-profile-evidence-body { padding: 4px 0 26px; }
+.vendor-profile-evidence .vendor-dossier { margin-bottom: 20px; }
+.vendor-evidence-line { max-width: 880px; color: var(--ink-2); font-size: 12.5px; line-height: 1.5; }
+.vendor-research-facts { display: grid; grid-template-columns: 1fr 1fr; max-width: 980px; margin: 18px 0; border-top: 1px solid var(--rule); }
+.vendor-research-facts > div { padding: 13px 18px 13px 0; border-bottom: 1px solid var(--rule); }
+.vendor-research-facts > div:nth-child(even) { padding-left: 18px; border-left: 1px solid var(--rule); }
+.vendor-research-facts dt { color: var(--ink-3); font: 9.5px/1.2 var(--sans); letter-spacing: .06em; text-transform: uppercase; }
+.vendor-research-facts dd { margin: 5px 0 0; color: var(--ink-2); font-size: 12px; line-height: 1.48; }
+.vendor-profile-source-links { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 18px 0; font-size: 11.5px; }
+.vendor-profile-evidence .vendor-evidence-sources { max-width: 980px; padding-top: 14px; border-top: 1px solid var(--rule); }
+
+@media (max-width: 900px) {
+  .vendor-profile-metrics { grid-template-columns: repeat(2, 1fr); }
+  .vendor-profile-metrics > div:nth-child(2) { border-right: 0; }
+  .vendor-profile-metrics > div:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
+  .vendor-profile-metrics > div:nth-child(3) { padding-left: 0; }
+  .vendor-market-table-wrap { margin-inline: -10px; }
+}
+
+@media (max-width: 680px) {
+  .vendor-directory-stats dd { font: 500 16px/1.2 var(--mono); }
+  .vendor-directory-stats div:last-child dd { font-size: 12px; }
+  .vendor-market-table { min-width: 820px; }
+  .vendor-directory-footer { display: grid; }
+  .vendor-global-directory > summary, .vendor-warning-register > summary { align-items: center; }
+  .vendor-global-directory > summary span, .vendor-warning-register > summary span { max-width: 140px; text-align: right; }
+  .vendor-warning-register .vendor-register-body { padding-inline: 15px; }
+  .vendor-profile-actions { flex-wrap: wrap; }
+  .vendor-profile-metrics dd { font-size: 14px; }
+  .vendor-profile-warning { grid-template-columns: 1fr; gap: 6px; }
+  .buy-vendor-page .vendor-product-stage { margin-inline: 0; }
+  .vendor-offer-swipe { display: block; margin: 12px 21px 0; color: var(--ink-3); font: 10px/1.3 var(--mono); text-align: right; }
+  .vendor-offer-table-wrap { padding-inline: 21px; }
+  .vendor-offer-table { min-width: 760px; }
+  .vendor-research-facts { grid-template-columns: 1fr; }
+  .vendor-research-facts > div:nth-child(even) { padding-left: 0; border-left: 0; }
+}
+
 /* ---------- sourced network research ---------- */
 .ed-research-note { border-bottom: 1px solid #34342f; background: #20251f; color: #f4f1e8; }
 .ed-research-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(360px, .85fr) auto; gap: 44px; align-items: center; padding-top: 34px; padding-bottom: 36px; }

@@ -1059,9 +1059,12 @@ mod tests {
             test::call_and_read_body(&app, test::TestRequest::get().uri("/vendors").to_request())
                 .await;
         let directory = String::from_utf8(directory.to_vec()).unwrap();
-        assert!(directory.contains("85</dd>"));
+        assert!(directory.contains("Miner prices by seller"));
+        assert!(directory.contains("33</dd>"));
+        assert!(directory.contains("Bitmain Antminer Z11"));
+        assert!(directory.contains("Innosilicon A9++ ZMaster"));
         assert!(directory.contains("March 2027 batch — not immediate stock"));
-        assert!(directory.contains("16 records kept out of the trusted directory"));
+        assert!(directory.contains("16 excluded sellers"));
         assert!(!directory.contains("No weak substitute was invented"));
         assert!(!directory.contains("No vetted local Z15 source identified"));
 
@@ -1073,11 +1076,25 @@ mod tests {
         )
         .await;
         let vendor = String::from_utf8(vendor.to_vec()).unwrap();
-        assert!(vendor.contains("Compare without opening every shop page"));
-        assert!(vendor.contains("data-machine-carousel"));
-        assert_eq!(vendor.matches("data-machine-slide").count(), 3);
+        assert!(vendor.contains("1 miner · 3 listings"));
+        assert!(!vendor.contains("data-machine-carousel"));
+        assert_eq!(vendor.matches("data-machine-slide").count(), 1);
         assert!(vendor.contains("dispatch in seven days"));
         assert!(vendor.contains("Ships out in December"));
+        assert_eq!(vendor.matches("Seller pages can be stale").count(), 1);
+
+        let broad_catalog = test::call_and_read_body(
+            &app,
+            test::TestRequest::get()
+                .uri("/vendors/crypto-miner-bros")
+                .to_request(),
+        )
+        .await;
+        let broad_catalog = String::from_utf8(broad_catalog.to_vec()).unwrap();
+        assert!(broad_catalog.contains("6 miners · 9 listings"));
+        assert!(broad_catalog.contains("data-machine-carousel"));
+        assert_eq!(broad_catalog.matches("data-machine-slide").count(), 6);
+        assert!(broad_catalog.contains("Antminer Z9 Mini"));
 
         let warning = test::call_and_read_body(
             &app,
@@ -1088,8 +1105,8 @@ mod tests {
         .await;
         let warning = String::from_utf8(warning.to_vec()).unwrap();
         assert!(warning.contains("Warning record"));
-        assert!(warning.contains("Listing links withheld"));
-        assert!(!warning.contains("Observed listings"));
+        assert!(warning.contains("Product links are withheld"));
+        assert!(!warning.contains("vendor-offer-table"));
         assert!(!warning.contains("data-machine-carousel"));
 
         let search = test::call_and_read_body(

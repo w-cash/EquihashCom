@@ -422,6 +422,86 @@
       "min_price": 1000,
       "max_price": 30000,
       "batch_match": "March 2027"
+    },
+    {
+      "listing_id": "cmb-antminer-z15-420",
+      "url": "https://www.cryptominerbros.com/product/bitmain-antminer-z15-equihash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Antminer",
+        "Z15",
+        "420"
+      ],
+      "currency": "USD",
+      "availability": "sold_out",
+      "availability_label": "Sold out — page remains listed",
+      "min_price": 500,
+      "max_price": 10000,
+      "variant_match": "In Stock"
+    },
+    {
+      "listing_id": "cmb-innosilicon-a9pp-140",
+      "url": "https://www.cryptominerbros.com/product/innosilicon-a9-zmaster-equihash-algorithm/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Innosilicon",
+        "A9++",
+        "ZMaster"
+      ],
+      "currency": "USD",
+      "availability": "sold_out",
+      "availability_label": "Sold out — old batch page",
+      "min_price": 500,
+      "max_price": 10000,
+      "variant_match": "May 25 - June 5"
+    },
+    {
+      "listing_id": "cmb-antminer-z11-135-used",
+      "url": "https://www.cryptominerbros.com/product/bitmain-antminer-z11-equihash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Antminer",
+        "Z11",
+        "Equihash"
+      ],
+      "currency": "USD",
+      "availability": "sold_out",
+      "availability_label": "Sold out — second-hand option",
+      "min_price": 500,
+      "max_price": 10000,
+      "variant_match": "Second Hand - Instock"
+    },
+    {
+      "listing_id": "cmb-antminer-z9-40",
+      "url": "https://www.cryptominerbros.com/product/bitmain-antminer-z9-40-8-ksol-s-new-equihash-zcash-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Antminer",
+        "Z9",
+        "40.8"
+      ],
+      "currency": "USD",
+      "availability": "sold_out",
+      "availability_label": "Sold out — old batch page",
+      "min_price": 500,
+      "max_price": 10000,
+      "variant_match": "September Last Batch"
+    },
+    {
+      "listing_id": "cmb-antminer-z9-mini-10",
+      "url": "https://www.cryptominerbros.com/product/bitmain-antminer-z9-mini-equihash-algorithm-miner/",
+      "parser": "woo_variation",
+      "required_tokens": [
+        "Antminer",
+        "Z9 Mini",
+        "10 Ksol"
+      ],
+      "currency": "USD",
+      "availability": "sold_out",
+      "availability_label": "Sold out — page remains listed",
+      "min_price": 500,
+      "max_price": 10000,
+      "variant_match": "Instock"
     }
   ]
 }
