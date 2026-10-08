@@ -517,22 +517,65 @@ fn vendor_product_market(d: &Data, v: &Vendor, rows: &[&Listing]) -> Markup {
     }
 }
 
-fn market_offer_row(d: &Data, vendor: &Vendor, listing: &Listing, rank: usize) -> Markup {
-    let (image, width, height) = listing_image(listing);
-    let machine = machine_name(d, &listing.miner_id);
+fn vendor_directory_row(d: &Data, vendor: &Vendor, rows: &[&Listing], rank: usize) -> Markup {
+    let model_ids = rows
+        .iter()
+        .map(|row| row.miner_id.as_str())
+        .collect::<BTreeSet<_>>();
+    let model_names = model_ids
+        .iter()
+        .map(|id| machine_name(d, id))
+        .collect::<Vec<_>>();
+    let model_preview = match model_names.as_slice() {
+        [] => "No current models".into(),
+        [only] => only.clone(),
+        [first, second] => format!("{first}, {second}"),
+        [first, second, rest @ ..] => format!("{first}, {second} +{}", rest.len()),
+    };
+    let shipping = rows
+        .iter()
+        .flat_map(|row| row.shipping_regions.iter().map(String::as_str))
+        .collect::<BTreeSet<_>>();
+    let shipping_label = if shipping.contains("Global") {
+        "Global".into()
+    } else if shipping.is_empty() {
+        "Not stated".into()
+    } else {
+        shipping.iter().copied().collect::<Vec<_>>().join(", ")
+    };
+    let states = rows
+        .iter()
+        .filter_map(|row| row.availability.as_deref())
+        .collect::<Vec<_>>();
+    let latest_check = rows
+        .iter()
+        .filter_map(|row| row.observed_at.as_deref())
+        .max()
+        .or(vendor.observed_at.as_deref());
+    let research = research_for(d, vendor);
+    let tier = research.map(|record| format!("Tier {}", record.trust_tier));
+    let evidence = research
+        .map(|record| trust_label(&record.trust_tier))
+        .unwrap_or("Identity sources");
     html! {
-        tr class="vendor-market-row" data-machine=(&listing.miner_id) data-base=(seller_region(vendor)) data-region=(listing.shipping_regions.join(",")) data-listing-state=(listing.availability.as_deref().unwrap_or("unknown")) data-vendor=(&vendor.id) {
+        tr class="vendor-market-row vendor-directory-row" data-machine=(model_ids.iter().copied().collect::<Vec<_>>().join(",")) data-base=(seller_region(vendor)) data-region=(shipping.iter().copied().collect::<Vec<_>>().join(",")) data-listing-state=(states.join(",")) data-vendor=(&vendor.id) {
             td class="vendor-market-rank mono" { (rank) }
-            th scope="row" class="vendor-market-machine" {
-                img src=(image) alt="" width=(width) height=(height) loading="lazy" decoding="async";
-                span { a href={"/asics/" (&listing.miner_id)} { (&machine) } small { (fmt::opt_num(listing.shop_hashrate_ksol)) " kSol/s" } }
+            th scope="row" class="vendor-directory-entry" {
+                (vendor_mark(vendor, false))
+                span { a href={"/vendors/" (&vendor.slug)} { (&vendor.name) } small { (channel_label(vendor)) } }
             }
-            td data-label="Seller" class="vendor-market-seller" { a href={"/vendors/" (&vendor.slug)} { (&vendor.name) } small { (vendor.base_region.as_deref().unwrap_or("Base not stated")) } }
-            td data-label="Price" class="vendor-market-price mono" { strong { (currency(listing.price_amount, listing.price_currency.as_deref())) } @if listing.price_includes_vat == Some(false) { small { "ex VAT" } } }
-            td data-label="Seller status" { strong { (listing.availability_label.as_deref().unwrap_or("Not stated")) } span class={"vendor-market-state state-" (listing.availability.as_deref().unwrap_or("unknown"))} { (listing.availability.as_deref().unwrap_or("unknown").replace('_', " ")) } }
-            td data-label="Ships to" { (if listing.shipping_regions.is_empty() { "Not stated".into() } else { listing.shipping_regions.join(", ") }) }
-            td data-label="Checked" { time class="ago" datetime=[listing.observed_at.as_deref()] { (fmt::utc(listing.observed_at.as_deref())) } }
-            td data-label="Source" { @if let Some(url) = &listing.source_url { (ext(url, "Open ↗")) } @else { "—" } }
+            td data-label="Vendor base" { strong { (vendor.base_region.as_deref().unwrap_or("Not established")) } }
+            td data-label="Equihash catalog" class="vendor-directory-catalog" { strong { (model_ids.len()) @if model_ids.len() == 1 { " model" } @else { " models" } " · " (rows.len()) @if rows.len() == 1 { " listing" } @else { " listings" } } small { (model_preview) } }
+            td data-label="Listing state" class="vendor-directory-states" {
+                @for state in ["in_stock", "dispatch_claim", "quote", "backorder", "preorder", "waitlist", "sold_out"] {
+                    @let count = states.iter().filter(|seen| **seen == state).count();
+                    @if count > 0 { span class={"vendor-market-state state-" (state)} { (count) " " (state.replace('_', " ")) } }
+                }
+            }
+            td data-label="Ships to" { (shipping_label) }
+            td data-label="Evidence" class="vendor-directory-evidence" { strong { (tier.as_deref().unwrap_or("Profile")) } small { (evidence) } }
+            td data-label="Checked" { time class="ago" datetime=[latest_check] { (fmt::utc(latest_check)) } }
+            td data-label="Vendor" class="vendor-directory-action" { a href={"/vendors/" (&vendor.slug)} { "View →" } }
         }
     }
 }
@@ -551,7 +594,7 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
     let base = q.base.as_deref().unwrap_or("");
     let region = q.region.as_deref().unwrap_or("");
     let state = q.state.as_deref().unwrap_or("");
-    let visible: Vec<(&Vendor, Vec<&Listing>)> = d
+    let mut visible: Vec<(&Vendor, Vec<&Listing>)> = d
         .vendors
         .iter()
         .filter_map(|v| {
@@ -579,6 +622,18 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
             (!rows.is_empty()).then_some((v, rows))
         })
         .collect();
+    visible.sort_by(|(vendor_a, _), (vendor_b, _)| {
+        let key = |vendor: &Vendor| {
+            let maker = u8::from(vendor.channel.as_deref() != Some("manufacturer"));
+            let rank = research_for(d, vendor)
+                .and_then(|record| record.global_trust_rank)
+                .unwrap_or(u16::MAX);
+            (maker, rank)
+        };
+        key(vendor_a)
+            .cmp(&key(vendor_b))
+            .then_with(|| vendor_a.name.cmp(&vendor_b.name))
+    });
     let mut machines: Vec<_> = d
         .miners
         .iter()
@@ -605,27 +660,6 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
         .flat_map(|(_, rows)| rows.iter().map(|row| row.miner_id.as_str()))
         .collect::<BTreeSet<_>>()
         .len();
-    let mut market_rows: Vec<(&Vendor, &Listing)> = visible
-        .iter()
-        .flat_map(|(vendor, rows)| rows.iter().map(move |listing| (*vendor, *listing)))
-        .collect();
-    market_rows.sort_by(|(vendor_a, listing_a), (vendor_b, listing_b)| {
-        listing_priority(listing_a)
-            .cmp(&listing_priority(listing_b))
-            .then_with(|| {
-                listing_b
-                    .shop_hashrate_ksol
-                    .partial_cmp(&listing_a.shop_hashrate_ksol)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            })
-            .then_with(|| {
-                listing_a
-                    .price_amount
-                    .partial_cmp(&listing_b.price_amount)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            })
-            .then_with(|| vendor_a.name.cmp(&vendor_b.name))
-    });
     let published: Vec<_> = d
         .vendor_research
         .iter()
@@ -637,44 +671,44 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
         .filter(|record| record.trust_tier == "D")
         .collect();
     layout(d, Page {
-        title: "Equihash miner prices and vendors",
-        description: "Compare source-linked Equihash ASIC prices, seller status, delivery regions and checked dates across miner models and vendors.",
+        title: "Equihash ASIC vendor directory",
+        description: "Browse Equihash ASIC vendors by location, delivery region, current models, listing status and source-check date.",
         path: "/vendors",
         nav: "vendors",
     }, html! {
         div class="wrap page buy-page vendor-directory" {
             header class="page-head buy-head" {
-                p class="eyebrow" { "EQUIHASH MINER MARKET" }
-                h1 { "Miner prices by seller" }
-                p class="lede" { "Compare seller-listed price, batch, delivery region and source date across Equihash ASIC models." }
+                p class="eyebrow" { "EQUIHASH VENDOR DIRECTORY" }
+                h1 { "ASIC vendors" }
+                p class="lede" { "One record per vendor. Open a vendor to inspect its Equihash models, batches, prices and source checks." }
             }
             dl class="vendor-directory-stats" {
-                div { dt { "Sellers" } dd { (visible.len()) } }
+                div { dt { "Vendors" } dd { (visible.len()) } }
                 div { dt { "Listings" } dd { (offers) } }
                 div { dt { "Models" } dd { (offer_models) } }
                 div { dt { "Listings checked" } dd { (fmt::utc(d.listings_verified_at.as_deref())) } }
             }
             form class="filters buy-filters" id="buy-filters" action="/vendors" method="get" {
                 div class="f" { label for="buy-machine" { "Machine" } select id="buy-machine" name="machine" data-buy-filter="machine" { option value="" selected[machine.is_empty()] { "All machines" } @for m in &machines { option value=(m.id) selected[m.id == machine] { (m.maker) " " (m.model) } } } }
-                div class="f" { label for="buy-base" { "Seller base" } select id="buy-base" name="base" data-buy-filter="base" { option value="" selected[base.is_empty()] { "All seller regions" } @for r in SELLER_REGIONS { @if d.vendors.iter().any(|v| seller_region(v) == *r) { option value=(r) selected[*r == base] { (r) } } } } }
+                div class="f" { label for="buy-base" { "Vendor base" } select id="buy-base" name="base" data-buy-filter="base" { option value="" selected[base.is_empty()] { "All vendor regions" } @for r in SELLER_REGIONS { @if d.vendors.iter().any(|v| seller_region(v) == *r) { option value=(r) selected[*r == base] { (r) } } } } }
                 div class="f" { label for="buy-region" { "Ships to" } select id="buy-region" name="region" data-buy-filter="region" { option value="" selected[region.is_empty()] { "All destinations" } @for r in &destinations { option value=(r) selected[r == region] { (r) } } } }
                 div class="f" { label for="buy-state" { "Listing state" } select id="buy-state" name="state" data-buy-filter="state" { option value="" selected[state.is_empty()] { "All states" } @for s in &states { option value=(s) selected[s == state] { (s.replace('_', " ")) } } } }
                 button class="buy-apply" type="submit" { "Apply" }
-                p class="buy-count" id="buy-count" aria-live="polite" { (offers) @if offers == 1 { " listing" } @else { " listings" } " · " (visible.len()) @if visible.len() == 1 { " seller" } @else { " sellers" } }
+                p class="buy-count" id="buy-count" aria-live="polite" { (visible.len()) @if visible.len() == 1 { " vendor" } @else { " vendors" } }
             }
             @if visible.is_empty() { div class="empty-state" { h2 { "No vendor matches those filters" } p { "Clear a filter or send a public product page for review." } a href="/add-vendor" { "Add a vendor" } } }
-            @if !market_rows.is_empty() {
+            @if !visible.is_empty() {
                 div class="vendor-market-table-wrap" {
                     table class="vendor-market-table" {
-                        thead { tr { th scope="col" { "#" } th scope="col" { "Miner" } th scope="col" { "Seller" } th scope="col" { "Price" } th scope="col" { "Batch / status" } th scope="col" { "Ships to" } th scope="col" { "Checked" } th scope="col" { "Source" } } }
+                        thead { tr { th scope="col" { "#" } th scope="col" { "Vendor" } th scope="col" { "Vendor base" } th scope="col" { "Equihash catalog" } th scope="col" { "Listing state" } th scope="col" { "Ships to" } th scope="col" { "Evidence" } th scope="col" { "Checked" } th scope="col" { "" } } }
                         tbody {
-                            @for (index, (vendor, listing)) in market_rows.iter().enumerate() {
-                                (market_offer_row(d, vendor, listing, index + 1))
+                            @for (index, (vendor, rows)) in visible.iter().enumerate() {
+                                (vendor_directory_row(d, vendor, rows, index + 1))
                             }
                         }
                     }
                 }
-                p class="vendor-market-disclosure" { "Seller pages can be stale. We record page claims; we do not verify inventory or fulfillment. Check the source and date before paying." }
+                p class="vendor-market-disclosure" { "Each vendor appears once. Product offers and batch records are kept on the vendor profile and the relevant ASIC model page." }
             }
             details class="vendor-global-directory" {
                 summary { strong { "Vendor research" } span { (published.len()) " companies · checked " (d.vendor_research_as_of.as_deref().unwrap_or("n/a")) } }

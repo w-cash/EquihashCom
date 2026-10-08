@@ -1531,7 +1531,7 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
 
 /* ---------- Equihash miner market ---------- */
 .vendor-market-table-wrap { margin: 24px 0 0; overflow-x: auto; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper); }
-.vendor-market-table { width: 100%; min-width: 1080px; border-collapse: collapse; font-size: 12px; }
+.vendor-market-table { width: 100%; min-width: 1160px; border-collapse: collapse; font-size: 12px; }
 .vendor-market-table thead { background: #e8e4d9; }
 .vendor-market-table th, .vendor-market-table td { padding: 14px 13px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: middle; }
 .vendor-market-table thead th { color: var(--ink-3); font: 600 9.5px/1.25 var(--sans); letter-spacing: .075em; text-transform: uppercase; }
@@ -1546,6 +1546,18 @@ body[data-page="pools"] .home-grid { padding-top: 23px; }
 .vendor-market-price strong { font-size: 14px; }
 .vendor-market-row td:nth-child(5) { max-width: 210px; line-height: 1.4; }
 .vendor-market-row td:nth-child(5) > strong { display: block; font-weight: 500; }
+.vendor-directory-entry { display: flex; min-width: 225px; gap: 13px; align-items: center; }
+.vendor-directory-entry .vendor-logo { flex: none; width: 76px; height: 48px; padding: 6px 8px; border-radius: 0; }
+.vendor-directory-entry > span { min-width: 0; }
+.vendor-directory-entry a { color: var(--ink); font-size: 13px; font-weight: 600; }
+.vendor-directory-entry small, .vendor-directory-catalog small, .vendor-directory-evidence small { display: block; margin-top: 4px; color: var(--ink-3); font: 10px/1.35 var(--sans); }
+.vendor-directory-catalog { min-width: 185px; }
+.vendor-directory-catalog strong, .vendor-directory-evidence strong { display: block; font-weight: 600; }
+.vendor-directory-states { min-width: 155px; }
+.vendor-directory-states .vendor-market-state { margin: 2px 4px 2px 0; }
+.vendor-directory-evidence { min-width: 130px; }
+.vendor-directory-action { white-space: nowrap; }
+.vendor-directory-action a { font-weight: 600; }
 .vendor-market-state { display: inline-block; margin-top: 6px; padding: 3px 6px; border: 1px solid #b7b09e; color: var(--ink-2); font: 600 9px/1 var(--mono); letter-spacing: .045em; text-transform: uppercase; }
 .vendor-market-state.state-in_stock, .vendor-market-state.state-dispatch_claim { border-color: #879874; color: #435633; background: #edf1e7; }
 .vendor-market-state.state-sold_out { border-color: #c8c1b3; color: #777166; background: #efede7; }

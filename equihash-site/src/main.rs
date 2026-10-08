@@ -1126,11 +1126,14 @@ mod tests {
             test::call_and_read_body(&app, test::TestRequest::get().uri("/vendors").to_request())
                 .await;
         let directory = String::from_utf8(directory.to_vec()).unwrap();
-        assert!(directory.contains("Miner prices by seller"));
+        assert!(directory.contains("<h1>ASIC vendors</h1>"));
         assert!(directory.contains("33</dd>"));
-        assert!(directory.contains("Bitmain Antminer Z11"));
-        assert!(directory.contains("Innosilicon A9++ ZMaster"));
-        assert!(directory.contains("March 2027 batch — not immediate stock"));
+        assert_eq!(directory.matches("vendor-directory-row").count(), 10);
+        assert_eq!(directory.matches(r#"data-vendor="bt-miners""#).count(), 1);
+        assert_eq!(directory.matches(r#"data-vendor="805-mining""#).count(), 1);
+        assert!(directory.contains("6 models · 9 listings"));
+        assert!(directory.contains("Each vendor appears once"));
+        assert!(!directory.contains("March 2027 batch — not immediate stock"));
         assert!(directory.contains("16 excluded sellers"));
         assert!(!directory.contains("No weak substitute was invented"));
         assert!(!directory.contains("No vetted local Z15 source identified"));
