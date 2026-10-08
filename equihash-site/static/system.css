@@ -250,6 +250,9 @@ button, .btn, .ed-primary, .ed-dark-button, .ed-light-button, .buy-apply {
 .vendor-market-table th, .vendor-market-table td { padding-top: 11px; padding-bottom: 11px; }
 .vendor-market-machine img { background: #f3f4f0; }
 .vendor-market-state { border-radius: 0; }
+@media (min-width: 1180px) {
+  .vendor-directory.wrap { max-width: 1560px; padding-inline: 24px; }
+}
 .buy-vendor-page { --vendor-accent: #697068; --vendor-deep: #30352f; --vendor-tint: #e8ebe5; }
 .vendor-identity {
   position: relative;

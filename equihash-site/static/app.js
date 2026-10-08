@@ -553,6 +553,28 @@
   }
   if (liveEls().length) { setInterval(pollLive, 60000); document.addEventListener("visibilitychange", () => { if (!document.hidden) pollLive(); }); }
 
-  // Vendor filtering and sorting are server-rendered so every result has a stable URL.
+  // Vendor filtering and sorting stay server-rendered so every result has a stable URL, but the
+  // enhanced interface applies each choice immediately. The submit button remains for no-JS use.
+  const vendorFilters = $(".vendor-directory-filters");
+  if (vendorFilters) {
+    let vendorFilterTimer = null;
+    let vendorFiltersSubmitting = false;
+    const submitVendorFilters = () => {
+      if (vendorFiltersSubmitting) return;
+      vendorFiltersSubmitting = true;
+      if (typeof vendorFilters.requestSubmit === "function") vendorFilters.requestSubmit();
+      else vendorFilters.submit();
+    };
+    vendorFilters.addEventListener("change", (event) => {
+      if (!event.target.matches("select")) return;
+      clearTimeout(vendorFilterTimer);
+      submitVendorFilters();
+    });
+    vendorFilters.addEventListener("input", (event) => {
+      if (!event.target.matches('input[type="search"]')) return;
+      clearTimeout(vendorFilterTimer);
+      vendorFilterTimer = setTimeout(submitVendorFilters, 280);
+    });
+  }
 
 })();
