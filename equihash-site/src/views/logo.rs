@@ -33,6 +33,8 @@ pub struct LogoEntry {
     pub bg: Option<String>,
     /// "light" when the mark is white or near-white on transparent (it sits on a dark chip).
     pub ink: Option<String>,
+    /// Pool operator domain. Used to keep the logo when an upstream directory changes its row id.
+    pub domain: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Default)]
@@ -81,7 +83,15 @@ impl Logos {
         resolve(self.coins.get(id), name)
     }
     pub fn pool(&self, id: &str, name: &str) -> Logo {
-        resolve(self.pools.get(id), name)
+        let operator = id.split(':').nth(1);
+        let entry = self.pools.get(id).or_else(|| {
+            operator.and_then(|domain| {
+                self.pools
+                    .values()
+                    .find(|entry| entry.domain.as_deref() == Some(domain))
+            })
+        });
+        resolve(entry, name)
     }
     pub fn vendor(&self, id: &str, name: &str) -> Logo {
         resolve(self.vendors.get(id), name)
@@ -565,7 +575,7 @@ mod tests {
                 "fb": {"file": null, "kind": "fallback", "monogram": "SQ"}
             },
             "pools": {
-                "zcash:himpool.com:99": {"file": "pools/himpool.com.def.webp", "kind": "official", "bg": "tile"},
+                "zcash:himpool.com:99": {"file": "pools/himpool.com.def.webp", "kind": "official", "bg": "tile", "domain": "himpool.com"},
                 "zcash:fake.com:1": {"file": "pools/fake.png", "kind": "official"}
             }
         }));
@@ -576,6 +586,12 @@ mod tests {
         assert_eq!(z.kind, "official");
         let h = l.pool("zcash:himpool.com:99", "himpool.com");
         assert!(h.tile && h.src.as_deref() == Some("/static/logos/pools/himpool.com.def.webp"));
+        let renumbered = l.pool("zcash:himpool.com:7", "himpool.com");
+        assert_eq!(
+            renumbered.src.as_deref(),
+            Some("/static/logos/pools/himpool.com.def.webp"),
+            "operator-domain fallback survives an upstream row-id change"
+        );
         // Unsafe, escaping, misplaced, missing and mislabelled files all become monograms.
         for id in ["evil", "escape", "wrongdir", "missing", "renamed"] {
             let lg = l.coin(id, "Some Coin");

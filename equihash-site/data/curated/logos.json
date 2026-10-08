@@ -1,6 +1,6 @@
 {
   "_doc": "Written by scripts/fetch-logos.mjs (see README, 'Logos'). kind: official | repo | third_party | fallback. file is relative to static/logos/; fallback entries have file null and render as a monogram.",
-  "generated_at": "2026-10-08T10:54:06.000Z",
+  "generated_at": "2026-10-08T17:58:49Z",
   "coins": {
     "zcash": {
       "file": "coins/zcash.47590b6def.svg",
@@ -783,15 +783,15 @@
       "domain": "666pool.com"
     },
     "zcash:molepool.com:70": {
-      "file": "pools/molepool.com.5a0e3afb69.webp",
-      "source_url": "https://zec.molepool.com/apple-touch-icon.png",
-      "source_page": "https://zec.molepool.com",
-      "fetched_at": "2026-10-03T15:46:43.247Z",
+      "file": "pools/molepool.com.66ad0ebef1.svg",
+      "source_url": "https://molepool.com/",
+      "source_page": "https://molepool.com/",
+      "fetched_at": "2026-10-08T17:58:49Z",
       "kind": "official",
-      "license_note": "molepool.com's own logo, from its own website. Trademark of its owner; shown only to identify it.",
-      "format": "webp",
-      "bytes": 2058,
-      "source_px": "180x180",
+      "license_note": "Molepool logo supplied to Equihash.com for identification. Trademark of its owner; shown only to identify it.",
+      "format": "svg",
+      "bytes": 250,
+      "source_px": "64x64 viewBox",
       "domain": "molepool.com"
     },
     "zcash:fenixpool.com:128": {
