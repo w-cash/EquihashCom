@@ -1,5 +1,5 @@
 {
-  "_doc": "Public JSON endpoints polled server-side every poll_seconds (clamped to 30-60) and by scripts/refresh-data.mjs. target 'pool' feeds pool rows' hashrate (pool_ids, ids as in data/pools.json; one reading for all of them, so a merge-mining pool's ZEC and WEC rows always show the same value; a single pool_id still works); target 'network' feeds a coin's network hashrate (coin_id as in data/network.json). A reading is used only when the endpoint says available: true; otherwise the previous good reading is kept and its age shown. 'fields' maps the endpoint's field names (defaults: available, hashrate_sol_s, updated_at [unix seconds], window_seconds, sample_blocks, height); dotted paths such as all.solRate read nested JSON. Add another pool with a similar API by adding an entry here; no code change.",
+  "_doc": "Public JSON endpoints polled server-side every poll_seconds (clamped to 30-60) and by scripts/refresh-data.mjs. target 'pool' feeds pool rows' hashrate (pool_ids, ids as in data/pools.json; one reading for all of them, so a merge-mining pool's ZEC and WEC rows always show the same value; a single pool_id still works); target 'network' feeds a coin's network hashrate (coin_id as in data/network.json). A reading is used only when the endpoint says available: true; otherwise the previous good reading is kept and its age shown. 'fields' maps the endpoint's field names (defaults: available, hashrate_sol_s, updated_at [unix seconds], window_seconds, sample_blocks, height); dotted paths such as all.solRate read nested JSON. An explicitly empty updated_at mapping records the fetch time when an API publishes a current reading without its own timestamp. Add another pool with a similar API by adding an entry here; no code change.",
   "poll_seconds": 45,
   "stale_after_seconds": 600,
   "sources": [
@@ -13,6 +13,25 @@
       "url": "https://pool.zecwec.com/api/v1/hashrate/pool",
       "label": "ZecWec pool hashrate (accepted work, previous 1200 s; the same work mines ZEC and WEC)",
       "unit": "Sol/s"
+    },
+    {
+      "id": "molepool-zec-wec",
+      "target": "pool",
+      "pool_ids": [
+        "zcash:molepool.com:70",
+        "wcash:molepool.com"
+      ],
+      "url": "https://zec.molepool.com/api/v1/stats",
+      "label": "Molepool ZEC + WEC merged-mining hashrate (official pool API; one accepted-work stream)",
+      "unit": "Sol/s",
+      "fields": {
+        "available": "status",
+        "hashrate": "result.totalHashrate",
+        "updated_at": "",
+        "window_seconds": "",
+        "sample_blocks": "",
+        "height": ""
+      }
     },
     {
       "id": "zecwec-wcash-network",

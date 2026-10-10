@@ -106,7 +106,8 @@ pub fn read_config(dir: &Path) -> Result<Config, String> {
 #[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct Reading {
     pub hashrate: f64,
-    /// When the endpoint computed the figure (its `updated_at`), ISO 8601 UTC.
+    /// When the endpoint computed the figure, or when it was fetched if explicitly configured,
+    /// as ISO 8601 UTC.
     pub observed_at: String,
     pub window_seconds: Option<u64>,
     pub sample_blocks: Option<u64>,
@@ -140,8 +141,9 @@ fn uint(v: &serde_json::Value, k: &str) -> Option<u64> {
     })
 }
 
-/// Parse one response. Only `available: true` with a finite, non-negative hashrate and a sane
-/// `updated_at` (unix seconds, not in the future) counts as a reading.
+/// Parse one response. Only `available: true` with a finite, non-negative hashrate counts as a
+/// reading. An explicitly empty `updated_at` mapping uses the fetch time for APIs that publish a
+/// current figure without their own timestamp.
 pub fn parse(
     src: &Source,
     body: &serde_json::Value,
@@ -155,11 +157,15 @@ pub fn parse(
         .and_then(|x| x.as_f64())
         .filter(|h| h.is_finite() && *h >= 0.0)
         .ok_or_else(|| format!("{}: no valid {}", src.id, f.hashrate))?;
-    let ts = field(body, &f.updated_at)
-        .and_then(|x| x.as_i64())
-        .ok_or_else(|| format!("{}: no valid {}", src.id, f.updated_at))?;
-    let at = chrono::DateTime::from_timestamp(ts, 0)
-        .ok_or_else(|| format!("{}: bad {}", src.id, f.updated_at))?;
+    let at = if f.updated_at.is_empty() {
+        now
+    } else {
+        let ts = field(body, &f.updated_at)
+            .and_then(|x| x.as_i64())
+            .ok_or_else(|| format!("{}: no valid {}", src.id, f.updated_at))?;
+        chrono::DateTime::from_timestamp(ts, 0)
+            .ok_or_else(|| format!("{}: bad {}", src.id, f.updated_at))?
+    };
     if at > now + chrono::Duration::minutes(5) {
         return Err(format!("{}: {} is in the future", src.id, f.updated_at));
     }
@@ -483,6 +489,24 @@ mod tests {
         assert_eq!(r.hashrate, 0.0, "an explicit live zero is data, not n/a");
         assert_eq!(r.observed_at, "2026-10-03T11:09:23Z");
         assert_eq!(r.window_seconds, None);
+    }
+
+    #[test]
+    fn explicitly_empty_timestamp_mapping_uses_fetch_time() {
+        let mut s = src();
+        s.id = "molepool-zec-wec".into();
+        s.fields.available = "status".into();
+        s.fields.hashrate = "result.totalHashrate".into();
+        s.fields.updated_at = "".into();
+        let p = parse(
+            &s,
+            &json!({"status": true, "result": {"totalHashrate": 588440.421}}),
+            now(),
+        )
+        .unwrap();
+        let Parsed::Ok(r) = p else { panic!("{p:?}") };
+        assert_eq!(r.hashrate, 588440.421);
+        assert_eq!(r.observed_at, "2026-10-03T11:10:00Z");
     }
 
     #[test]

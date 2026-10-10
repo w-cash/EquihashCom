@@ -1909,6 +1909,18 @@
       "bytes": 823,
       "source_px": "vector",
       "domain": "zprominers.com"
+    },
+    "wcash:molepool.com": {
+      "file": "pools/molepool.com.66ad0ebef1.svg",
+      "source_url": "https://molepool.com/",
+      "source_page": "https://molepool.com/",
+      "fetched_at": "2026-10-08T17:58:49Z",
+      "kind": "official",
+      "license_note": "Molepool logo supplied to Equihash.com for identification. Trademark of its owner; shown only to identify it.",
+      "format": "svg",
+      "bytes": 250,
+      "source_px": "64x64 viewBox",
+      "domain": "molepool.com"
     }
   },
   "vendors": {

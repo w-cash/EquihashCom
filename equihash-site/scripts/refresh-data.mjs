@@ -47,7 +47,7 @@ const MPS_DATA = "https://data.miningpoolstats.stream/data";
 const SOURCE_HOSTS = [
   "miningpoolstats.stream", "data.miningpoolstats.stream", "zpool.ca", "zergpool.com",
   "pool.zecwec.com", "zec.2miners.com", "btg.2miners.com", "wcashexplorer.com",
-  "zprominers.com",
+  "zprominers.com", "zec.molepool.com",
 ];
 // Pages that are no longer in the MPS coin index but still have a page (PoW ended).
 const EXTRA_MPS_PAGES = ["horizen", "flux"];
@@ -517,7 +517,7 @@ async function refreshWcash(coins, zecwec) {
     data_url: `${base}/status`,
     fetched_at: null,
     status: "active",
-    status_note: "Not listed on miningpoolstats. The explorer publishes no network hashrate; the network estimate comes from ZecWec's public endpoint (previous 120 blocks). ZecWec is the only listed pool.",
+    status_note: "Not listed on miningpoolstats. The explorer publishes no network hashrate; the network estimate comes from ZecWec's public endpoint (previous 120 blocks). The pool directory includes public ZEC + WEC merged-mining connections.",
     status_sources: [{ label: "Wcash protocol specification", url: "https://w.cash/whitepaper" }],
     cross_checks: [],
     merged_mining_parent: "ZEC",
@@ -558,14 +558,16 @@ async function refreshWcash(coins, zecwec) {
 // ---------- live sources (data/curated/live-sources.json; the server polls the same list) ----------
 
 /** Parse one live-source response. Mirrors src/live.rs: only available === true with a finite,
- *  non-negative hashrate and a sane unix updated_at counts. */
+ *  non-negative hashrate counts. `updated_at: ""` explicitly records the fetch time for APIs
+ *  that publish a current reading without their own timestamp. */
 export function parseLiveReading(src, body, nowMs = Date.now()) {
   const f = { available: "available", hashrate: "hashrate_sol_s", updated_at: "updated_at", window_seconds: "window_seconds", sample_blocks: "sample_blocks", height: "height", ...(src.fields || {}) };
   const field = (path) => String(path || "").split(".").filter(Boolean).reduce((value, key) => value?.[key], body);
   if (!body || field(f.available) !== true) return { status: "unavailable" };
   const h = field(f.hashrate);
   if (typeof h !== "number" || !isFinite(h) || h < 0) return { status: "error", error: `${src.id}: no valid ${f.hashrate}` };
-  const ts = field(f.updated_at);
+  const usesFetchTime = f.updated_at === "";
+  const ts = usesFetchTime ? Math.floor(nowMs / 1000) : field(f.updated_at);
   if (typeof ts !== "number" || !isFinite(ts)) return { status: "error", error: `${src.id}: no valid ${f.updated_at}` };
   if (ts * 1000 > nowMs + 5 * 60 * 1000) return { status: "error", error: `${src.id}: ${f.updated_at} is in the future` };
   const u = (k) => { const v = field(k); return typeof v === "number" && isFinite(v) && v >= 0 ? Math.floor(v) : null; };
@@ -645,7 +647,10 @@ async function refreshLiveSources(coins, pools, previous) {
   const cfg = await readJson(path.join(DATA, "curated", "live-sources.json"), { sources: [] });
   for (const src of cfg.sources || []) {
     let res;
-    try { const { body } = await get(src.url, { retries: 1, timeout: 15000 }); res = parseLiveReading(src, body); }
+    try {
+      const { body, fetched_at } = await get(src.url, { retries: 1, timeout: 15000 });
+      res = parseLiveReading(src, body, Date.parse(fetched_at));
+    }
     catch (e) { res = { status: "error", error: `${src.id}: ${e.message}` }; }
     const { missing, kept } = applyLiveResult(src, res, coins, pools, previous);
     for (const id of missing) errors.push(`live ${src.id}: no ${src.target} ${id}`);

@@ -121,7 +121,8 @@
     "zcash:unmineable.com": "zcash-unmineable-unmineable-com",
     "zcash:zprominers.com": "zcash-zprominers-zprominers-com",
     "zcash:xppool.in:142": "zcash-xppool-in-zec-xppool-in",
-    "zcash:zprominers.com:144": "zcash-zprominers-com-zprominers-com"
+    "zcash:zprominers.com:144": "zcash-zprominers-com-zprominers-com",
+    "wcash:molepool.com": "wcash-molepool-com-zec-molepool-com"
   },
   "aliases": {
     "zcash-zprominers-zprominers-com": "zcash-zprominers-com-zprominers-com"

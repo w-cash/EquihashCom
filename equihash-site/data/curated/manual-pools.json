@@ -102,7 +102,7 @@
       "from_miningpoolstats": false,
       "verified_at": "2026-10-02T23:29:00.000Z",
       "live": "zecwec",
-      "notes": "Merge-mines ZEC and WEC with the same hashrate. Currently the only known public WEC pool, and the only one listed here. Hashrate is accepted work over the previous 1200 s from ZecWec's public /api/v1/hashrate/pool endpoint, refreshed by the server every 45 s. Fee (0 bps) comes from /api/v1/overview.",
+      "notes": "Merge-mines ZEC and WEC with the same hashrate. Hashrate is accepted work over the previous 1200 s from ZecWec's public /api/v1/hashrate/pool endpoint, refreshed by the server every 45 s. Fee (0 bps) comes from /api/v1/overview.",
       "hashrate_source": "https://pool.zecwec.com/api/v1/hashrate/pool",
       "basis": null,
       "fee_source": "https://pool.zecwec.com/api/v1/overview",
@@ -117,6 +117,126 @@
         "fee",
         "hashrate"
       ]
+    },
+    {
+      "id": "zcash:molepool.com:70",
+      "name": "molepool.com",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://zec.molepool.com/",
+      "hashrate": 591574.4211197627,
+      "hashrate_unit": "Sol/s",
+      "hashrate_is_reported": false,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 2,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": 2
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": null,
+      "regions": [],
+      "country_code": null,
+      "merged_mining": {
+        "supported": true,
+        "coins": [
+          "WEC"
+        ],
+        "note": "ZEC is the parent chain. The same accepted Equihash work also earns WEC when the miner password contains a Molepool WEC payout ID as aux=<id>."
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "Molepool official Zcash pool page and stats API",
+      "source_url": "https://zec.molepool.com/",
+      "data_url": "https://zec.molepool.com/api/v1/stats",
+      "from_miningpoolstats": false,
+      "verified_at": "2026-10-10T03:08:39Z",
+      "notes": "Molepool’s official pool declares WEC as an auxiliary coin and announces ZEC + WEC merged mining. The stats API supplies the shared accepted-work rate. The published 2% SOLO fee is the ZEC pool fee.",
+      "hashrate_source": "https://zec.molepool.com/api/v1/stats",
+      "hashrate_observed_at": "2026-10-10T03:10:33.044Z",
+      "basis": "pool_api",
+      "fee_source": "https://zec.molepool.com/api/v1/stats",
+      "fee_observed_at": "2026-10-10T03:08:39Z",
+      "miners_source": "https://zec.molepool.com/api/v1/stats",
+      "miners_observed_at": "2026-10-10T03:08:39Z",
+      "blocks_source": "https://zec.molepool.com/api/v1/blocks",
+      "blocks_observed_at": "2026-10-10T03:08:39Z",
+      "min_payout_source": "https://zec.molepool.com/help",
+      "min_payout_observed_at": "2026-10-10T03:08:39Z",
+      "live_fields": [
+        "hashrate"
+      ],
+      "live_source": "molepool-zec-wec"
+    },
+    {
+      "id": "wcash:molepool.com",
+      "name": "molepool.com",
+      "coin": "WEC",
+      "coin_id": "wcash",
+      "url": "https://zec.molepool.com/",
+      "hashrate": 591574.4211197627,
+      "hashrate_unit": "Sol/s",
+      "hashrate_is_reported": false,
+      "miners": null,
+      "workers": null,
+      "fee_pct": null,
+      "schemes": [
+        {
+          "scheme": "SOLO",
+          "fee_pct": null
+        }
+      ],
+      "payout_schemes": [
+        "SOLO"
+      ],
+      "min_payout": null,
+      "min_payout_unit": "WEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": null,
+      "regions": [],
+      "country_code": null,
+      "merged_mining": {
+        "supported": true,
+        "coins": [
+          "ZEC"
+        ],
+        "note": "WEC is the auxiliary chain. Keep the ZEC address and worker as the miner login, then add a Molepool WEC payout ID as aux=<id> in the password."
+      },
+      "solo": true,
+      "active": true,
+      "source_name": "Molepool official Zcash pool page and stats API",
+      "source_url": "https://zec.molepool.com/",
+      "data_url": "https://zec.molepool.com/api/v1/stats",
+      "from_miningpoolstats": false,
+      "verified_at": "2026-10-10T03:08:39Z",
+      "notes": "Molepool’s official pool declares WEC as an auxiliary coin. WEC rewards require a Molepool ID linked to a WEC address and aux=<id> in the miner password; direct-address mining receives ZEC only. The WEC fee and minimum payout are not separately stated, so they remain n/a.",
+      "hashrate_source": "https://zec.molepool.com/api/v1/stats",
+      "hashrate_observed_at": "2026-10-10T03:10:33.044Z",
+      "basis": "pool_api",
+      "fee_source": "https://zec.molepool.com/help",
+      "fee_observed_at": "2026-10-10T03:08:39Z",
+      "miners_source": "https://zec.molepool.com/api/v1/stats",
+      "miners_observed_at": "2026-10-10T03:08:39Z",
+      "blocks_source": "https://zec.molepool.com/api/v1/blocks",
+      "blocks_observed_at": "2026-10-10T03:08:39Z",
+      "min_payout_source": "https://zec.molepool.com/help",
+      "min_payout_observed_at": "2026-10-10T03:08:39Z",
+      "live_fields": [
+        "hashrate"
+      ],
+      "live_source": "molepool-zec-wec"
     },
     {
       "id": "zcash:zprominers.com:144",

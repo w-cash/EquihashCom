@@ -1652,6 +1652,17 @@ mod tests {
             })),
             now,
         );
+        st.record(
+            "molepool-zec-wec",
+            Ok(Parsed::Ok(Reading {
+                hashrate: 591_574.0,
+                observed_at: now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+                window_seconds: None,
+                sample_blocks: None,
+                height: None,
+            })),
+            now,
+        );
         let d = crate::data::load_with_live(&dir, Some(&st)).unwrap();
         let _ = std::fs::remove_dir_all(&dir);
         let w = d.coin("wcash").unwrap();
@@ -1661,7 +1672,7 @@ mod tests {
             "{pair}"
         );
         assert!(
-            pair.contains("554 kSol/s")
+            pair.contains("1.15 MSol/s")
                 && !pair.contains('†')
                 && !pair.contains('≥')
                 && !pair.contains("unavailable"),
@@ -1672,7 +1683,7 @@ mod tests {
             ..Default::default()
         };
         let page = render_at(&d, &f, now).into_string();
-        assert!(page.contains("only listed pool"));
+        assert!(!page.contains("only listed pool"));
         assert!(
             !page.contains("109.0%") && !page.contains("109."),
             "no share above 100%"
@@ -1680,6 +1691,7 @@ mod tests {
         assert!(
             page.contains("data-live-coin=\"wcash\"")
                 && page.contains("data-live-pool=\"wcash:zecwec.com\"")
+                && page.contains("data-live-pool=\"wcash:molepool.com\"")
         );
         assert!(page.contains("Live: ") && page.contains("data-live-age=\"zecwec-wcash-network\""));
         assert!(
@@ -1689,9 +1701,10 @@ mod tests {
         // /api/live carries the same figures, already formatted.
         let j = crate::views::live_json(&d, now);
         assert_eq!(j["pools"]["wcash:zecwec.com"]["hashrate"], 553_587.0);
+        assert_eq!(j["pools"]["wcash:molepool.com"]["hashrate"], 591_574.0);
         assert_eq!(
-            j["pools"]["wcash:zecwec.com"]["share_text"],
-            "only listed pool"
+            j["pools"]["wcash:zecwec.com"]["share_status"],
+            "pools_exceed_network"
         );
         assert_eq!(j["coins"]["wcash"]["network_text"], "508 kSol/s");
         assert_eq!(j["coins"]["wcash"]["reported_dagger"], false);

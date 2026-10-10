@@ -100,6 +100,16 @@ test("live source field mappings accept nested dotted paths and preserve an expl
   assert.deepEqual(out.reading, { hashrate: 0, observed_at: "2026-10-03T11:09:23Z", window_seconds: null, sample_blocks: null, height: null });
 });
 
+test("an explicitly empty timestamp mapping uses the fetch time", () => {
+  const src = {
+    id: "molepool-zec-wec",
+    fields: { available: "status", hashrate: "result.totalHashrate", updated_at: "" },
+  };
+  const out = parseLiveReading(src, { status: true, result: { totalHashrate: 588440.421 } }, NOW);
+  assert.equal(out.status, "ok");
+  assert.deepEqual(out.reading, { hashrate: 588440.421, observed_at: "2026-10-03T11:10:00Z", window_seconds: null, sample_blocks: null, height: null });
+});
+
 test("a live reading sets basis, source and its own time; the previous one survives an outage", () => {
   const row = { id: "wcash:zecwec.com", hashrate: null, basis: null, fee_observed_at: "2026-10-03T10:00:00Z" };
   const r = parseLiveReading(poolSrc, { available: true, hashrate_sol_s: 553587, window_seconds: 1200, updated_at: 1791025763 }, NOW).reading;

@@ -3508,9 +3508,9 @@ mod tests {
         assert_eq!(d.coin("zcash").unwrap().links.len(), 1);
     }
 
-    // ---- live sources (ZecWec hashrate endpoints) ----
+    // ---- live sources (merged-mining pool and Wcash network endpoints) ----
 
-    fn live_state(pool: f64, net: f64) -> crate::live::LiveState {
+    fn live_state(zecwec_pool: f64, molepool_pool: f64, net: f64) -> crate::live::LiveState {
         use crate::live::{Parsed, Reading};
         let now = chrono::Utc::now();
         // Stamped "now", so the reading is never older than what a refresh just wrote to the files.
@@ -3519,9 +3519,20 @@ mod tests {
         st.record(
             "zecwec-pool",
             Ok(Parsed::Ok(Reading {
-                hashrate: pool,
+                hashrate: zecwec_pool,
                 observed_at: at.clone(),
                 window_seconds: Some(1200),
+                sample_blocks: None,
+                height: None,
+            })),
+            now,
+        );
+        st.record(
+            "molepool-zec-wec",
+            Ok(Parsed::Ok(Reading {
+                hashrate: molepool_pool,
+                observed_at: at.clone(),
+                window_seconds: None,
                 sample_blocks: None,
                 height: None,
             })),
@@ -3549,7 +3560,7 @@ mod tests {
         assert_eq!(share_pct(Some(1.0), Some(0.0)), (None, false));
         // Every loaded row, live or not, stays at or below 100%.
         let t = TempData::new("cap");
-        let d = load_with_live(&t.0, Some(&live_state(553_587.0, 507_977.0))).unwrap();
+        let d = load_with_live(&t.0, Some(&live_state(553_587.0, 591_574.0, 507_977.0))).unwrap();
         assert!(d
             .pools
             .iter()
@@ -3557,9 +3568,9 @@ mod tests {
     }
 
     #[test]
-    fn only_listed_pool_above_the_network_shows_both_numbers() {
-        let t = TempData::new("solo");
-        let d = load_with_live(&t.0, Some(&live_state(553_587.0, 507_977.0))).unwrap();
+    fn multiple_listed_pools_above_the_network_use_the_listed_total() {
+        let t = TempData::new("merged-pools");
+        let d = load_with_live(&t.0, Some(&live_state(553_587.0, 591_574.0, 507_977.0))).unwrap();
         let w = d.coin("wcash").unwrap();
         assert_eq!(w.network.hashrate, Some(507_977.0));
         assert_eq!(w.network.basis.as_deref(), Some("network"));
@@ -3576,14 +3587,18 @@ mod tests {
             "the live figure replaces the operator-reported one"
         );
         assert_eq!(w.reported.operator_pools, 0, "no † on Wcash any more");
-        let note = p.share_note.as_deref().unwrap();
+        let molepool = d
+            .pools
+            .iter()
+            .find(|p| p.id == "wcash:molepool.com")
+            .unwrap();
+        assert_eq!(molepool.hashrate, Some(591_574.0));
+        assert_eq!(p.share_status, "pools_exceed_network");
+        assert_eq!(molepool.share_status, "pools_exceed_network");
+        assert!(p.share_note.is_none() && molepool.share_note.is_none());
         assert!(
-            note.contains("only listed pool")
-                && note.contains("20-minute")
-                && note.contains("554 kSol/s")
-                && note.contains("508 kSol/s")
-                && note.contains("120 blocks"),
-            "{note}"
+            (p.network_share_pct.unwrap() + molepool.network_share_pct.unwrap() - 100.0).abs()
+                < 0.01
         );
         assert!(!p.share_capped);
         // The fee keeps its own (refreshed) time; the row time stays the hand verification.
@@ -3612,12 +3627,13 @@ mod tests {
             .as_str()
             .map(String::from);
         assert_eq!(p.fetched_at, verified);
-        // Ranking still uses the pools' sum inside 200,9: Wcash stays between Pirate Chain and Kerrigan.
-        let g = &d.param_groups(true)[0].1;
-        let pos = |n: &str| g.iter().position(|c| c.name == n).unwrap();
-        assert!(pos("Pirate Chain") < pos("Wcash") && pos("Wcash") < pos("Kerrigan"));
-        // Below the network estimate it's a normal share.
-        let d = load_with_live(&t.0, Some(&live_state(400_000.0, 507_977.0))).unwrap();
+        assert_eq!(
+            w.reported.hashrate,
+            Some(553_587.0 + 591_574.0),
+            "both public WEC pool rows contribute to the listed total"
+        );
+        // When their combined work is below the network estimate it is a normal network share.
+        let d = load_with_live(&t.0, Some(&live_state(400_000.0, 50_000.0, 507_977.0))).unwrap();
         let p = d.pools.iter().find(|p| p.id == "wcash:zecwec.com").unwrap();
         assert!(p.share_note.is_none() && (p.network_share_pct.unwrap() - 78.74).abs() < 0.1);
     }
@@ -3777,7 +3793,7 @@ mod tests {
         };
         let pos = |v: &[String], id: &str| v.iter().position(|x| x == id).unwrap();
         for (pool, wcash_first) in [(kmd * 3.0, true), (kmd / 3.0, false)] {
-            let d = load_with_live(&t.0, Some(&live_state(pool, 500_000.0))).unwrap();
+            let d = load_with_live(&t.0, Some(&live_state(pool, 0.0, 500_000.0))).unwrap();
             let j = crate::views::live_json(&d, now);
             let v = ids(&j);
             // Exactly the order the server renders every list in (d.coins, sorted by rank_cmp).
@@ -3897,8 +3913,8 @@ mod tests {
                 t => panic!("{}: unknown target {t}", s.id),
             }
         }
-        // ZecWec stays the only listed WEC pool.
-        assert_eq!(d.pools.iter().filter(|p| p.coin_id == "wcash").count(), 1);
+        assert_eq!(d.pools.iter().filter(|p| p.coin_id == "wcash").count(), 2);
+        assert!(d.pools.iter().any(|p| p.id == "wcash:molepool.com"));
     }
 
     // ---- snapshots, permalinks ----

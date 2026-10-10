@@ -487,7 +487,7 @@ They cover:
   - Wcash shows the 120-block note with no † and no ≥;
   - `/api/live` carries the same figures;
   - there is no per-machine figure when one Z15 outweighs the network;
-  - the config points at real rows, and ZecWec is the only listed WEC pool;
+  - the config points at real rows, including both public WEC pool entries;
   - ZecWec's ZEC and WEC rows always show the same pool figure (files only, files that disagree, newer and older poller readings, no reading at all), in the server and in the refresh script.
 - **Hot reload:** a manual override wins; a reload picks up an edit; an older mtime, a same-size same-tick edit and a new file are all detected; a broken file keeps the last good data and is retried.
 - **Regions:** every value in `data/` maps to a bucket; RU, CA, IN and similar codes are handled; no substring false positives.

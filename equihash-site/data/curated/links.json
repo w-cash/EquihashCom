@@ -5061,6 +5061,24 @@
         "verified_at": "2026-10-03T10:50:50Z",
         "status": "verified"
       }
+    ],
+    "wcash:molepool.com": [
+      {
+        "kind": "website",
+        "url": "https://zec.molepool.com/",
+        "label": "Molepool ZEC + WEC pool",
+        "source_url": "https://zec.molepool.com/",
+        "verified_at": "2026-10-10T03:08:39Z",
+        "status": "verified"
+      },
+      {
+        "kind": "support",
+        "url": "https://zec.molepool.com/help",
+        "label": "Molepool merged-mining setup",
+        "source_url": "https://zec.molepool.com/",
+        "verified_at": "2026-10-10T03:08:39Z",
+        "status": "verified"
+      }
     ]
   }
 }

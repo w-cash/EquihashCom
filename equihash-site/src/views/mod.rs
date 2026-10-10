@@ -309,17 +309,10 @@ mod tests {
     fn network_estimate_is_the_upstream_figure_not_the_pool_total() {
         let t = Tmp::new("netest");
         const SRC: &str = "https://data.miningpoolstats.stream/data/zcash.js?t=1";
-        let pools: serde_json::Value =
-            serde_json::from_str(&std::fs::read_to_string(t.0.join("pools.json")).unwrap())
-                .unwrap();
-        let sum: f64 = pools["pools"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .filter(|r| r["coin_id"] == "zcash")
-            .filter_map(|r| r["hashrate"].as_f64())
-            .filter(|h| *h > 0.0)
-            .sum();
+        // Compute the listed total after curated overlays and shared live-source unification, the
+        // same data path the page uses. An official pool feed may supersede an upstream snapshot.
+        let loaded = crate::data::load(&t.0).unwrap();
+        let sum = loaded.coin("zcash").unwrap().reported.hashrate.unwrap();
         // Below the pools' total (shares fall back to the pools), and just above it (shares capped).
         for net in [sum * 0.897, sum * 1.013] {
             t.edit("network.json", |v| {
@@ -581,21 +574,22 @@ mod tests {
             .unwrap()
             .contains("only listed pool"));
 
-        // Network estimate below the pool: only listed pool, share_pct null (never a 100%).
+        // Network estimate below the two pools: shares use the listed-pool total, never a capped
+        // percentage of the smaller network estimate.
         t.set_network("wcash", Some(1.0));
         let d = crate::data::load(&t.0).unwrap();
         let j = live_json(&d, chrono::Utc::now());
         let p = &j["pools"]["wcash:zecwec.com"];
-        assert_eq!(p["share_status"], "only_listed_pool");
+        assert_eq!(p["share_status"], "pools_exceed_network");
         assert_eq!(p["share_basis"], "listed_pools");
-        assert!(p["share_pct"].is_null() && p["listed_share_pct"].is_null());
+        assert!(p["share_pct"].is_null() && p["listed_share_pct"].as_f64().unwrap() > 0.0);
         assert_eq!(p["share_denominator"]["basis"], "listed_pools");
-        assert_eq!(p["share_denominator"]["pools"], 1);
-        assert!(p["share_cell_html"]
+        assert_eq!(p["share_denominator"]["pools"], 2);
+        assert!(!p["share_cell_html"]
             .as_str()
             .unwrap()
             .contains("only listed pool"));
-        assert!(j["coins"]["wcash"]["split_html"]
+        assert!(!j["coins"]["wcash"]["split_html"]
             .as_str()
             .unwrap()
             .contains("split-note solo"));
