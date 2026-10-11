@@ -1151,7 +1151,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn molepool_unpaid_promotion_is_disclosed_without_changing_other_hashrate_order() {
+    async fn zecwec_unpaid_promotion_is_disclosed_without_changing_other_hashrate_order() {
         let s = state();
         let app = app!(s);
 
@@ -1165,11 +1165,9 @@ mod tests {
         let via = workspace.find("ViaBTC").expect("ViaBTC in shortlist");
         let foundry = workspace.find("Foundry").expect("Foundry in shortlist");
         let f2pool = workspace.find("F2Pool").expect("F2Pool in shortlist");
-        let molepool = workspace
-            .find("molepool.com")
-            .expect("Molepool in shortlist");
-        assert!(via < foundry && foundry < f2pool && f2pool < molepool);
-        assert!(workspace[..molepool + "molepool.com".len()].contains("4"));
+        let zecwec = workspace.find("ZecWec").expect("ZecWec in shortlist");
+        assert!(via < foundry && foundry < f2pool && f2pool < zecwec);
+        assert!(workspace[..zecwec + "ZecWec".len()].contains("4"));
         assert!(workspace.contains("Unpaid promotion"));
         assert!(workspace.contains("ed-workspace-promotion"));
         assert!(!workspace.contains("pool-promotion-label"));
@@ -1186,13 +1184,13 @@ mod tests {
             .split(r#"id="pool-table""#)
             .nth(1)
             .expect("pool table");
-        let molepool = table
-            .find(r#"data-pool-id="zcash:molepool.com:70""#)
-            .expect("promoted Molepool row");
+        let zecwec = table
+            .find(r#"data-pool-id="zcash:zecwec.com""#)
+            .expect("promoted ZecWec row");
         let via = table.find(r#"data-name="viabtc""#).expect("ViaBTC row");
         let foundry = table.find(r#"data-name="foundry""#).expect("Foundry row");
         let f2pool = table.find(r#"data-name="f2pool""#).expect("F2Pool row");
-        assert!(molepool < via && via < foundry && foundry < f2pool);
+        assert!(zecwec < via && via < foundry && foundry < f2pool);
         assert!(table.contains(r#"data-promotion="unpaid""#));
         assert!(
             table.contains(r#"class="pool-promoted-reveal" aria-hidden="true">Unpaid promotion"#)

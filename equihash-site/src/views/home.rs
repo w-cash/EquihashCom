@@ -7,7 +7,7 @@ use crate::views::logo::{self, At};
 use maud::{html, Markup, PreEscaped};
 use serde::Deserialize;
 
-pub const UNPAID_PROMOTED_POOL_ID: &str = "zcash:molepool.com:70";
+pub const UNPAID_PROMOTED_POOL_ID: &str = "zcash:zecwec.com";
 
 fn unpaid_promoted_pool(p: &Pool) -> bool {
     p.id == UNPAID_PROMOTED_POOL_ID
@@ -1114,7 +1114,7 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
         .cloned()
         .collect();
     let mut rows = sort_pools(in_scope.clone(), &sort, &dir);
-    // Molepool is an expressly requested, unpaid editorial promotion. Pin it only in the
+    // ZecWec is an expressly requested, unpaid editorial promotion. Pin it only in the
     // default Zcash hashrate view; any user-selected sort remains a literal data sort.
     if cur.map(|c| c.id.as_str()) == Some("zcash") && sort == "hashrate" && dir == "desc" {
         if let Some(position) = rows.iter().position(|p| unpaid_promoted_pool(p)) {
@@ -1252,7 +1252,7 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                     }
                     p class="count" { span id="pool-count" { (visible) } " of " (in_scope.len()) " pool rows. Click a pool for every field and its source." }
                     @if cur.map(|c| c.id.as_str()) == Some("zcash") && sort == "hashrate" && dir == "desc" && rows.iter().any(|p| unpaid_promoted_pool(p)) {
-                        p class="pool-promotion-note" { strong { "Unpaid promotion:" } " Molepool.com is pinned first. Every other row remains ordered by reported hashrate." }
+                        p class="pool-promotion-note" { strong { "Unpaid promotion:" } " ZecWec is pinned first. Every other row remains ordered by reported hashrate." }
                     }
                     div class="table-scroll" {
                         table class={"pools-table" @if show_coin { " with-coin" }} id="pool-table" {

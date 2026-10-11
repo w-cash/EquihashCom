@@ -397,8 +397,8 @@ pub fn index(d: &Data) -> Markup {
                         @for (i, p) in zcash_pools.iter().enumerate() {
                             @let promoted = p.id == UNPAID_PROMOTED_POOL_ID;
                             a class=[promoted.then_some("is-promoted")] href={"/pool/" (&p.slug)}
-                                title=[promoted.then_some("Molepool did not pay for this placement")]
-                                aria-label=[promoted.then_some("molepool.com — unpaid promotional placement")]
+                                title=[promoted.then(|| format!("{} did not pay for this placement", p.name))]
+                                aria-label=[promoted.then(|| format!("{} — unpaid promotional placement", p.name))]
                             {
                                 span class="ed-workspace-rank" { (i + 1) }
                                 span class="ed-workspace-name" {
