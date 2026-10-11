@@ -59,16 +59,31 @@ fn lead_coin_ids(group: &str) -> &'static [&'static str] {
     }
 }
 
+fn coin_network_rank_cmp(a: &Coin, b: &Coin) -> std::cmp::Ordering {
+    let positive = |c: &Coin| c.network.hashrate.filter(|h| h.is_finite() && *h > 0.0);
+    match (positive(a), positive(b)) {
+        (Some(x), Some(y)) => y.partial_cmp(&x).unwrap_or(std::cmp::Ordering::Equal),
+        (Some(_), None) => std::cmp::Ordering::Less,
+        (None, Some(_)) => std::cmp::Ordering::Greater,
+        (None, None) => std::cmp::Ordering::Equal,
+    }
+    .then_with(|| a.name.to_lowercase().cmp(&b.name.to_lowercase()))
+    .then_with(|| a.id.cmp(&b.id))
+}
+
 fn coin_group(group: &str, coins: &[&Coin]) -> Markup {
     let lead_ids = lead_coin_ids(group);
-    let mut lead: Vec<&Coin> = lead_ids
+    let mut ordered = coins.to_vec();
+    ordered.sort_by(|a, b| coin_network_rank_cmp(a, b));
+    let mut lead: Vec<&Coin> = ordered
         .iter()
-        .filter_map(|id| coins.iter().copied().find(|c| c.id == *id))
+        .copied()
+        .filter(|c| lead_ids.contains(&c.id.as_str()))
         .collect();
     if lead.is_empty() {
-        lead.extend(coins.iter().take(1).copied());
+        lead.extend(ordered.iter().take(1).copied());
     }
-    let other: Vec<&Coin> = coins
+    let other: Vec<&Coin> = ordered
         .iter()
         .copied()
         .filter(|c| !lead.iter().any(|shown| shown.id == c.id))
@@ -455,7 +470,7 @@ pub fn coins(d: &Data) -> Markup {
     }, html! {
         div class="wrap page directory-page" {
             header class="page-head split-head" {
-                div { p class="eyebrow" { "COIN DIRECTORY" } h1 { "Equihash coins" } p class="lede" { "Choose the parameter set first. Hardware built for 200,9 cannot mine a 144,5 or 192,7 network." } }
+                div { p class="eyebrow" { "COIN DIRECTORY" } h1 { "Equihash coins" } p class="lede" { "Choose the parameter set first. Within each set, coins are ordered by the network hashrate shown below. Hardware built for 200,9 cannot mine a 144,5 or 192,7 network." } }
                 (search_form("", "Search the directory"))
             }
             (coin_rows(d, false))
@@ -2061,6 +2076,57 @@ pub fn contribute(d: &Data) -> Markup {
             p class="small" { "Submissions are reviewed for relevance and verifiability. Listings are never sold and payment cannot change their order." }
         }
     })
+}
+
+#[cfg(test)]
+mod coin_directory_tests {
+    use super::*;
+
+    fn coin(id: &str, name: &str, network_hashrate: Option<f64>) -> Coin {
+        Coin {
+            id: id.into(),
+            name: name.into(),
+            symbol: id.to_uppercase(),
+            status: "active".into(),
+            equihash: Some(crate::data::Equihash {
+                n: Some(200),
+                k: Some(9),
+            }),
+            network: crate::data::NetworkStats {
+                hashrate: network_hashrate,
+                unit: Some("Sol/s".into()),
+                ..Default::default()
+            },
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn featured_200_9_coins_follow_the_visible_network_hashrate() {
+        let zcash = coin("zcash", "Zcash", Some(27.1e9));
+        let pirate = coin("piratechain", "Pirate Chain", Some(3.11e6));
+        let wcash = coin("wcash", "Wcash", Some(6.82e6));
+        let html = coin_group("Equihash 200,9", &[&zcash, &pirate, &wcash]).into_string();
+
+        let zcash_at = html.find("Zcash").unwrap();
+        let wcash_at = html.find("Wcash").unwrap();
+        let pirate_at = html.find("Pirate Chain").unwrap();
+        assert!(zcash_at < wcash_at && wcash_at < pirate_at, "{html}");
+    }
+
+    #[test]
+    fn unavailable_network_hashrate_sorts_after_positive_values() {
+        let unavailable = coin("alpha", "Alpha", None);
+        let zero = coin("beta", "Beta", Some(0.0));
+        let measured = coin("gamma", "Gamma", Some(1.0));
+        let mut rows = vec![&unavailable, &zero, &measured];
+        rows.sort_by(|a, b| coin_network_rank_cmp(a, b));
+
+        assert_eq!(
+            rows.iter().map(|c| c.id.as_str()).collect::<Vec<_>>(),
+            ["gamma", "alpha", "beta"]
+        );
+    }
 }
 
 #[cfg(test)]
