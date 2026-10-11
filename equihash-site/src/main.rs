@@ -1151,7 +1151,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn zecwec_unpaid_promotion_is_disclosed_without_changing_other_hashrate_order() {
+    async fn zecwec_unpaid_promotion_is_disclosed_and_keeps_its_ranked_row() {
         let s = state();
         let app = app!(s);
 
@@ -1184,19 +1184,51 @@ mod tests {
             .split(r#"id="pool-table""#)
             .nth(1)
             .expect("pool table");
-        let zecwec = table
-            .find(r#"data-pool-id="zcash:zecwec.com""#)
-            .expect("promoted ZecWec row");
+        let zecwec_rows: Vec<usize> = table
+            .match_indices(r#"data-pool-id="zcash:zecwec.com""#)
+            .map(|(position, _)| position)
+            .collect();
+        assert_eq!(zecwec_rows.len(), 2, "pinned and naturally ranked rows");
+        let zecwec = *zecwec_rows.first().expect("promoted ZecWec row");
         let via = table.find(r#"data-name="viabtc""#).expect("ViaBTC row");
         let foundry = table.find(r#"data-name="foundry""#).expect("Foundry row");
         let f2pool = table.find(r#"data-name="f2pool""#).expect("F2Pool row");
         assert!(zecwec < via && via < foundry && foundry < f2pool);
         assert!(table.contains(r#"data-promotion="unpaid""#));
+        let promoted_tag = &table[zecwec..table[zecwec..].find('>').unwrap() + zecwec];
+        let ranked = zecwec_rows[1];
+        let ranked_tag = &table[ranked..table[ranked..].find('>').unwrap() + ranked];
+        assert!(promoted_tag.contains(r#"data-promotion="unpaid""#));
+        assert!(!ranked_tag.contains("data-promotion"));
+
+        let mut previous_hashrate = f64::INFINITY;
+        let mut reached_unreported = false;
+        for row in table.split(r#"<tr class="pool-row"#).skip(1) {
+            let tag = row.split('>').next().expect("pool row start tag");
+            if tag.contains(r#"data-promotion="unpaid""#) {
+                continue;
+            }
+            if let Some(raw) = tag
+                .split(r#"data-hashrate=""#)
+                .nth(1)
+                .and_then(|value| value.split('"').next())
+            {
+                let hashrate: f64 = raw.parse().expect("numeric pool hashrate");
+                assert!(!reached_unreported, "reported row after an unreported row");
+                assert!(
+                    hashrate <= previous_hashrate,
+                    "natural rows must stay in descending hashrate order"
+                );
+                previous_hashrate = hashrate;
+            } else {
+                reached_unreported = true;
+            }
+        }
         assert!(
             table.contains(r#"class="pool-promoted-reveal" aria-hidden="true">Unpaid promotion"#)
         );
         assert!(!table.contains("pool-promotion-label"));
-        assert!(pools.contains("Every other row remains ordered by reported hashrate."));
+        assert!(pools.contains("again at its reported-hashrate position"));
     }
 
     #[actix_web::test]

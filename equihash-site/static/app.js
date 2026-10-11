@@ -198,15 +198,26 @@
   function applyFilters(push = true) {
     if (!table) return;
     const f = readFilters();
+    const s = sortState();
+    const showPromotion = s.key === "hashrate" && s.dir === "desc";
     let n = 0;
-    for (const tr of $$("tbody tr.pool-row", table)) { const ok = rowMatches(tr, f); tr.hidden = !ok; if (ok) n++; }
+    let promotionVisible = false;
+    for (const tr of $$("tbody tr.pool-row", table)) {
+      const promoted = tr.dataset.promotion === "unpaid";
+      const ok = rowMatches(tr, f) && (!promoted || showPromotion);
+      tr.hidden = !ok;
+      if (ok && !promoted) n++;
+      if (ok && promoted) promotionVisible = true;
+    }
     renumber();
     $("#pool-count").textContent = n;
     $("#empty").hidden = n > 0;
+    const promotionNote = $("#pool-promotion-note");
+    if (promotionNote) promotionNote.hidden = !promotionVisible;
     if (push) {
       const qs = new URLSearchParams();
       for (const [k, v] of Object.entries(f)) if (v) qs.set(k, v);
-      const s = sortState(); if (s.key !== "hashrate" || s.dir !== "desc") { qs.set("sort", s.key); qs.set("dir", s.dir); }
+      if (s.key !== "hashrate" || s.dir !== "desc") { qs.set("sort", s.key); qs.set("dir", s.dir); }
       history.replaceState(null, "", "/pools?" + qs.toString() + location.hash);
     }
   }
@@ -239,16 +250,14 @@
       const o = typeof va === "number" ? va - vb : va.localeCompare(vb);
       return dir === "asc" ? o : -o;
     };
-    // Sort inside each tbody so rows never cross parameter groups. The requested Molepool
-    // editorial placement stays first only in the default Zcash hashrate view; every other
-    // selected sort is literal.
+    // Sort inside each tbody so rows never cross parameter groups. The unpaid placement is
+    // an extra row in the default Zcash hashrate view; the ordinary row remains data-ranked.
     $$("tbody", table).forEach((tbody) => {
-      const rows = $$("tr.pool-row", tbody).sort(cmp);
-      if (key === "hashrate" && dir === "desc") {
-        const promoted = rows.find((r) => r.dataset.coin === "zcash" && r.dataset.promotion === "unpaid");
-        if (promoted) rows.unshift(rows.splice(rows.indexOf(promoted), 1)[0]);
-      }
+      const promoted = $("tr.pool-row[data-promotion=unpaid]", tbody);
+      const rows = $$("tr.pool-row:not([data-promotion])", tbody).sort(cmp);
+      if (promoted && key === "hashrate" && dir === "desc") tbody.appendChild(promoted);
       rows.forEach((r) => tbody.appendChild(r));
+      if (promoted && (key !== "hashrate" || dir !== "desc")) tbody.appendChild(promoted);
     });
     $$("th[data-sort]", table).forEach((th) => th.setAttribute("aria-sort", th.dataset.sort === key ? (dir === "asc" ? "ascending" : "descending") : "none"));
     const hs = form && $("input[name=sort]", form), hd = form && $("input[name=dir]", form);

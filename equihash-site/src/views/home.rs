@@ -307,13 +307,13 @@ fn region_short(r: &str) -> Markup {
     }
 }
 
-fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool) -> Markup {
+fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool, promoted: bool) -> Markup {
     let unit = p.hashrate_unit.clone().unwrap_or("Sol/s".into());
     let share = p.network_share_pct;
     html! {
-        tr class={"pool-row" @if p.share_flag { " over" } @if unpaid_promoted_pool(p) { " pool-promoted" }} hidden[hidden]
+        tr class={"pool-row" @if p.share_flag { " over" } @if promoted { " pool-promoted" }} hidden[hidden]
             data-slug=(p.slug) data-coin=(p.coin_id) data-pool-id=(p.id)
-            data-promotion=[unpaid_promoted_pool(p).then_some("unpaid")]
+            data-promotion=[promoted.then_some("unpaid")]
             data-schemes=(p.payout_schemes.join(",")) data-regions=(p.region_tags.join(","))
             data-fee=[p.min_fee()] data-hashrate=[p.hashrate] data-share=[share]
             data-miners=[p.miners.or(p.workers)] data-minpay=[p.min_payout] data-blocks=[p.blocks_last_1000]
@@ -325,7 +325,7 @@ fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool) -> Markup {
             td class="name" {
                 a class="pool-link" href={"/pool/" (p.slug)} {
                     (logo::chip(&p.logo, &p.name, At::Row, rank > 12))
-                    @if unpaid_promoted_pool(p) {
+                    @if promoted {
                         span class="pool-promoted-name" {
                             span class="pool-promoted-primary" { (p.name) }
                             span class="pool-promoted-reveal" aria-hidden="true" { "Unpaid promotion" }
@@ -1113,15 +1113,15 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
         .filter(|p| coin == "all" || p.coin_id == coin)
         .cloned()
         .collect();
-    let mut rows = sort_pools(in_scope.clone(), &sort, &dir);
-    // ZecWec is an expressly requested, unpaid editorial promotion. Pin it only in the
-    // default Zcash hashrate view; any user-selected sort remains a literal data sort.
-    if cur.map(|c| c.id.as_str()) == Some("zcash") && sort == "hashrate" && dir == "desc" {
-        if let Some(position) = rows.iter().position(|p| unpaid_promoted_pool(p)) {
-            let promoted = rows.remove(position);
-            rows.insert(0, promoted);
-        }
-    }
+    let rows = sort_pools(in_scope.clone(), &sort, &dir);
+    // The requested unpaid placement is an extra copy. Keep the ordinary ZecWec row in
+    // the data-ranked list so readers can also find it at its reported-hashrate position.
+    let pinned_promoted_pool =
+        if cur.map(|c| c.id.as_str()) == Some("zcash") && sort == "hashrate" && dir == "desc" {
+            rows.iter().copied().find(|p| unpaid_promoted_pool(p))
+        } else {
+            None
+        };
     let show_coin = cur.is_none();
     let help_coin: &Coin = cur.unwrap_or_else(|| {
         active_coins
@@ -1251,8 +1251,8 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                         }
                     }
                     p class="count" { span id="pool-count" { (visible) } " of " (in_scope.len()) " pool rows. Click a pool for every field and its source." }
-                    @if cur.map(|c| c.id.as_str()) == Some("zcash") && sort == "hashrate" && dir == "desc" && rows.iter().any(|p| unpaid_promoted_pool(p)) {
-                        p class="pool-promotion-note" { strong { "Unpaid promotion:" } " ZecWec is pinned first. Every other row remains ordered by reported hashrate." }
+                    @if pinned_promoted_pool.is_some() {
+                        p class="pool-promotion-note" id="pool-promotion-note" { strong { "Unpaid promotion:" } " ZecWec is shown first as a placement and again at its reported-hashrate position. The directory remains ordered by reported hashrate." }
                     }
                     div class="table-scroll" {
                         table class={"pools-table" @if show_coin { " with-coin" }} id="pool-table" {
@@ -1272,9 +1272,15 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                             } }
                             @for (label, rs) in &groups {
                                 @let shown = rs.iter().filter(|p| matches(p, f)).count();
+                                @let rank_offset = usize::from(label.is_empty() && pinned_promoted_pool.is_some());
                                 tbody class="pool-group" hidden[shown == 0] {
                                     @if !label.is_empty() { tr class="group-row" { th colspan="12" scope="rowgroup" { (label) " " span { (group_hint(label)) } } } }
-                                    @for (i, p) in rs.iter().enumerate() { (pool_row(p, i + 1, !matches(p, f), show_coin)) }
+                                    @if label.is_empty() {
+                                        @if let Some(p) = pinned_promoted_pool {
+                                            (pool_row(p, 1, !matches(p, f), show_coin, true))
+                                        }
+                                    }
+                                    @for (i, p) in rs.iter().enumerate() { (pool_row(p, i + 1 + rank_offset, !matches(p, f), show_coin, false)) }
                                 }
                             }
                         }
@@ -1518,11 +1524,11 @@ mod tests {
             hashrate: Some(0.0),
             ..Default::default()
         };
-        let zero = pool_row(&p, 1, false, false).into_string();
+        let zero = pool_row(&p, 1, false, false, false).into_string();
         assert!(zero.contains("0 Sol/s"), "{zero}");
         assert!(zero.contains("data-hashrate=\"0\""));
         p.hashrate = None;
-        let na = pool_row(&p, 1, false, false).into_string();
+        let na = pool_row(&p, 1, false, false, false).into_string();
         assert!(
             !na.contains("0 Sol/s") && !na.contains("data-hashrate"),
             "{na}"
