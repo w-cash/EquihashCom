@@ -82,9 +82,10 @@ pub fn render(d: &Data) -> Markup {
                     "The miner keeps hashing normally; the pool handles the Wcash commitment and tracks ZEC and WEC rewards separately."
                 }
                 p class="disclosure" {
-                    (ext("https://w.cash", "Wcash")) " is its own network, with its own blocks, rules and WEC rewards. In this pairing, Zcash is the parent chain and Wcash is the auxiliary chain. "
-                    "Think Litecoin and Dogecoin: a supporting pool tests the same work against both networks instead of splitting the miner's hashrate" (cite(7)) ". A qualifying result can earn a reward on either chain, or both. "
-                    "The analogy stops at the mining model—Wcash uses its own AuxPoW v2 format and validation rules."
+                    "Zcash and " (ext("https://w.cash", "Wcash")) " are separate networks. In merged mining, Zcash is the parent and Wcash is the auxiliary chain. "
+                    "A supporting pool can submit the same Equihash work to both, so miners do not split their hashrate. "
+                    "This is the same basic model used by Litecoin and Dogecoin: one stream of work, with separate rewards from each network" (cite(7)) ". "
+                    "Wcash uses its own AuxPoW v2 format and validation rules."
                 }
                 p class="disclosure" {
                     strong { "Sources. " }
