@@ -6,6 +6,8 @@ const WP: &str = "https://w.cash/whitepaper";
 const AUX: &str = "https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-zcash-aux/README.md";
 const MM: &str = "https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/wcash-merge-miner/README.md";
 const ZIP244: &str = "https://zips.z.cash/zip-0244";
+const DOGE_AUXPOW: &str =
+    "https://github.com/dogecoin/dogecoin/blob/master/doc/bips.md#from-litecoin";
 /// Coinbase-script length rule as enforced by the pinned Zebra code in the Wcash source tree.
 const CBLEN_SRC: &str = "https://github.com/w-cash/wolf/blob/3e6b8044eac789e6e6289772a80e996cb94eb43d/zebra-chain/src/transparent/serialize.rs#L66-L106";
 /// The consensus rule itself, in the Zcash protocol specification.
@@ -76,14 +78,18 @@ pub fn render(d: &Data) -> Markup {
                 p class="kicker" { "For miners and pool operators" }
                 h1 { "Merged mining on Equihash" }
                 p class="lede" {
-                    "A participating pool can reuse the work from an Equihash 200,9 miner for both Zcash and Wcash. "
-                    "Miners keep the same ASIC and do not divide their Zcash hashrate; the pool adds the auxiliary-chain work and separate WEC accounting."
+                    "A pool that supports ZEC + WEC can submit the same Equihash 200,9 work to both networks. "
+                    "The miner keeps hashing normally; the pool handles the Wcash commitment and tracks ZEC and WEC rewards separately."
                 }
                 p class="disclosure" {
-                    "The worked example is " (ext("https://w.cash", "Wcash")) " (WEC), an independent Zcash-derived chain merged-mined with Zcash as the "
-                    em { "parent" } " through AuxPoW v2. Every Wcash detail below comes from its "
-                    (ext(WP, "protocol specification")) (cite(1)) " and the pinned source READMEs it references" (cite(2)) (cite(3)) "; all of it was checked against those documents on 3 October 2026, and the coinbase-script limit against the pinned source code and the Zcash protocol specification" (cite(5)) (cite(6)) ". "
-                    "The maintainer of this site also builds Wcash (see " a href="/about" { "About" } "). The flow is the general AuxPoW pattern; other aux chains define their own commitment details."
+                    (ext("https://w.cash", "Wcash")) " is its own network, with its own blocks, rules and WEC rewards. In this pairing, Zcash is the parent chain and Wcash is the auxiliary chain. "
+                    "Think Litecoin and Dogecoin: a supporting pool tests the same work against both networks instead of splitting the miner's hashrate" (cite(7)) ". A qualifying result can earn a reward on either chain, or both. "
+                    "The analogy stops at the mining model—Wcash uses its own AuxPoW v2 format and validation rules."
+                }
+                p class="disclosure" {
+                    strong { "Sources. " }
+                    "The Wcash details below come from its " (ext(WP, "protocol specification")) (cite(1)) " and pinned implementation guides" (cite(2)) (cite(3)) ". "
+                    "They were checked on 3 October 2026. The coinbase-script limit was also checked against the pinned source and the Zcash protocol specification" (cite(5)) (cite(6)) "."
                 }
             }
             section id="miners" class="merge-start" {
@@ -301,6 +307,7 @@ pub fn render(d: &Data) -> Markup {
                         li id="ref-4" { (ext(ZIP244, "ZIP-244: Transaction Identifier Non-Malleability")) }
                         li id="ref-5" { (ext(CBLEN_SRC, "zebra-chain/src/transparent/serialize.rs @ 3e6b8044, lines 66–106")) ": " code { "parse_coinbase_height" } " quotes the rule and rejects coinbase scripts shorter than " code { "MIN_COINBASE_SCRIPT_LEN" } " or longer than " code { "MAX_COINBASE_SCRIPT_LEN" } }
                         li id="ref-6" { (ext(ZPROTO_TXN, "Zcash Protocol Specification (v2026.7.0), §7.1.2 Transaction Consensus Rules")) ": “A coinbase transaction script MUST have length in {2 .. 100} bytes.”" }
+                        li id="ref-7" { (ext(DOGE_AUXPOW, "Dogecoin Core: implemented BIPs")) ": Dogecoin records merged mining (AuxPoW) as inherited from Litecoin." }
                     }
                 }
             }
