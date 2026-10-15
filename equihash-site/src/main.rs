@@ -462,7 +462,7 @@ Updated: {updated}
 - Pool and market figures are time-stamped snapshots from public project, pool and API sources.
 - Vendor records default to current Trustpilot review count, highest first. Vendors without a sourced Trustpilot profile count as zero. The only alternative order is oldest verified domain-registration date first.
 - Availability is seller-declared unless expressly stated. Review counts are attributed and dated snapshots. Domain dates come from registry RDAP or WHOIS evidence; unavailable creation dates remain unknown.
-- equihash.com and Wcash share a maintainer. Wcash receives work only from participating merged-mining pools.
+- equihash.com is maintained by the Equihash.com team with principal support from Wcash Foundation. That support cannot influence listings or ordering, and Wcash receives work only from participating merged-mining pools.
 - Mining estimates are not forecasts or financial advice.
 "#
     );
@@ -1068,6 +1068,19 @@ mod tests {
             1,
             "WebSite is declared once on the homepage"
         );
+        let publisher = nodes
+            .iter()
+            .find(|node| node["@id"] == "https://equihash.com/#publisher")
+            .expect("publisher organization");
+        assert_eq!(publisher["name"], "Equihash.com team");
+        assert_eq!(
+            publisher["sponsor"]["@id"],
+            "https://wcash.foundation/#organization"
+        );
+        assert!(nodes.iter().any(|node| {
+            node["@id"] == "https://wcash.foundation/#organization"
+                && node["name"] == "Wcash Foundation"
+        }));
 
         let asics =
             test::call_and_read_body(&app, test::TestRequest::get().uri("/asics").to_request())
@@ -1148,6 +1161,30 @@ mod tests {
                 "{path} must stay out of search results"
             );
         }
+    }
+
+    #[actix_web::test]
+    async fn institutional_attribution_is_consistent() {
+        let s = state();
+        let app = app!(s);
+
+        for path in ["/", "/about", "/coin/wcash"] {
+            let body =
+                test::call_and_read_body(&app, test::TestRequest::get().uri(path).to_request())
+                    .await;
+            let body = String::from_utf8(body.to_vec()).unwrap();
+            assert!(body.contains("Equihash.com team"), "{path}");
+            assert!(body.contains("Wcash Foundation"), "{path}");
+            assert!(!body.to_ascii_lowercase().contains("mykyta"), "{path}");
+        }
+
+        let llms =
+            test::call_and_read_body(&app, test::TestRequest::get().uri("/llms.txt").to_request())
+                .await;
+        let llms = String::from_utf8(llms.to_vec()).unwrap();
+        assert!(llms.contains("Equihash.com team"));
+        assert!(llms.contains("Wcash Foundation"));
+        assert!(!llms.to_ascii_lowercase().contains("mykyta"));
     }
 
     #[actix_web::test]

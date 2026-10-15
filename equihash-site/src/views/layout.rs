@@ -217,7 +217,9 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                         p class="foot-owner" {
                             strong { "equihash.com" }
                             " · 2026 · "
-                            a href="mailto:mykyta@equihash.com" { "mykyta@equihash.com" }
+                            "Equihash.com team"
+                            " · Supported by "
+                            a href="https://wcash.foundation/" rel="noopener" { "Wcash Foundation" }
                             " · "
                             a href="https://x.com/EquihashCom" rel="me noopener" { "X" }
                         }
@@ -290,6 +292,7 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
 
     let website_id = format!("{SITE}/#website");
     let publisher_id = format!("{SITE}/#publisher");
+    let foundation_id = "https://wcash.foundation/#organization";
     let webpage_id = format!("{canonical}#webpage");
     let page_type = match p.path {
         "/coins" | "/asics" | "/vendors" | "/guides" | "/archive" | "/industry" => "CollectionPage",
@@ -308,13 +311,23 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
         _ => "WebPage",
     };
 
-    let mut graph = vec![json!({
-        "@type": "Organization",
-        "@id": publisher_id,
-        "name": "equihash.com",
-        "url": "https://equihash.com/about",
-        "sameAs": ["https://x.com/EquihashCom"]
-    })];
+    let mut graph = vec![
+        json!({
+            "@type": "Organization",
+            "@id": publisher_id,
+            "name": "Equihash.com team",
+            "alternateName": "equihash.com",
+            "url": "https://equihash.com/about",
+            "sameAs": ["https://x.com/EquihashCom"],
+            "sponsor": {"@id": foundation_id}
+        }),
+        json!({
+            "@type": "Organization",
+            "@id": foundation_id,
+            "name": "Wcash Foundation",
+            "url": "https://wcash.foundation/"
+        }),
+    ];
     if p.path == "/" {
         graph.insert(0, json!({
             "@type": "WebSite",
@@ -325,6 +338,7 @@ fn structured_data(d: &Data, p: &Page<'_>, full_title: &str, canonical: &str) ->
             "description": "Source-backed Equihash mining directory for Zcash and other Equihash networks, pools, ASIC hardware, sellers, calculators and guides.",
             "inLanguage": "en",
             "publisher": {"@id": publisher_id},
+            "sponsor": {"@id": foundation_id},
             "potentialAction": {
                 "@type": "SearchAction",
                 "target": {"@type": "EntryPoint", "urlTemplate": format!("{SITE}/search?q={{search_term_string}}")},

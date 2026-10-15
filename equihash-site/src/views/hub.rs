@@ -433,7 +433,7 @@ pub fn index(d: &Data) -> Markup {
                     p class="ed-section-index" { "MERGED-MINING REFERENCE" }
                     h2 id="merge-reference-title" { "Zcash + Wcash" }
                     p { (merged_pools) @if merged_pools == 1 { " listed Zcash pool declares merged-mining support." } @else { " listed Zcash pools declare merged-mining support." } " Pool support and WEC payouts depend on that pool's published terms." }
-                    p class="ed-disclosure" { "Affiliation: Wcash and equihash.com share a maintainer. This is a factual protocol reference; no comparative return claim is made." }
+                    p class="ed-disclosure" { "Affiliation: Wcash Foundation is the principal supporter of equihash.com. Wcash is covered under the same evidence and ordering rules as every other network; this reference makes no comparative return claim." }
                 }
                 nav aria-label="Merged-mining references" {
                     a href="/pools?coin=zcash&merged=1#pools" { "Pool records →" }
@@ -521,7 +521,7 @@ pub fn coin(d: &Data, c: &Coin) -> Markup {
                     div class="entity-title" { (logo::chip(&c.logo, &c.name, At::Head, false)) div { h1 { (c.label) " " span class="sym" { (c.symbol) } } p { "Equihash " span class="mono" { (c.params()) } " · " (status(c)) } } }
                     (links::render(&c.links, &format!("{} official and community links", c.name), "coin-links"))
                     @if is_zcash { p { "New to Zcash proof of work? " a href="/zcash-mining" { "Read the mining setup, pool and privacy guide" } "." } }
-                    @if is_wcash { p class="disclosure" { strong { "Disclosure: " } "equihash.com and Wcash share a maintainer. Wcash receives merged-mined work only through pools that explicitly support it; the pool directory uses the same source and ordering rules for every coin." } }
+                    @if is_wcash { p class="disclosure" { strong { "Disclosure: " } "Wcash Foundation is the principal supporter of equihash.com. Wcash receives merged-mined work only through pools that explicitly support it, and its coverage follows the same source, disclosure and ordering rules as every other coin." } }
                 }
 
                 dl class="fact-strip" {
