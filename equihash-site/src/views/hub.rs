@@ -327,18 +327,6 @@ pub fn index(d: &Data) -> Markup {
                 }
             }
 
-            nav class="wrap news-sections" aria-label="Equihash desks" {
-                a href="/industry" { "Latest" }
-                a href="/coin/zcash" { "Zcash" }
-                a href="/asics" { "ASICs" }
-                a href="/pools" { "Pools" }
-                a href="/vendors" { "Vendors" }
-                a href="/merged-mining" { "Merged mining" }
-                a href="/guides" { "Guides" }
-                a href="/calculator" { "Calculator" }
-                span { "Selected by Equihash.com · no ad slots" }
-            }
-
             section class="wrap news-front" aria-labelledby="news-front-title" {
                 article class="news-lead" {
                     a class="news-lead-media" href="/industry/cypherpunk-zcash-mining" aria-label="Read the Cypherpunk Zcash mining fleet briefing" {
