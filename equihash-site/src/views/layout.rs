@@ -3,7 +3,7 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static CSS or JavaScript changes so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "65";
+pub const ASSET_V: &str = "67";
 
 /// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
@@ -143,6 +143,31 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
         "website"
     };
     let json_ld = structured_data(d, &p, &full_title, &canonical);
+    let (desk_section, desk_note) = match p.path {
+        "/search" => ("SEARCH", "Coins, pools, ASICs and vendors"),
+        "/contribute" | "/add-vendor" => ("CONTRIBUTE", "Listings and corrections"),
+        "/404" => ("NOT FOUND", "Return to the directory"),
+        path if path.starts_with("/sources") => ("SOURCE LEDGER", "Feeds and verification"),
+        _ => match p.nav {
+            "coins" => ("COIN DIRECTORY", "Networks and parameters"),
+            "pools" => ("POOL DIRECTORY", "Hashrate, fees and payout"),
+            "merged-mining" => ("MERGED MINING", "Parent and auxiliary work"),
+            "hashpower" => ("HASHPOWER MARKET", "Orders and mining routes"),
+            "industry" => ("INDUSTRY DESK", "Companies and capital"),
+            "asics" => ("ASIC INDEX", "Machines and economics"),
+            "vendors" => ("VENDOR DIRECTORY", "Offers and seller records"),
+            "guides" => ("FIELD GUIDES", "Setup and operations"),
+            "calculator" => ("MINING ECONOMICS", "Revenue and power cost"),
+            "archive" => ("ARCHIVE", "Retired and historical records"),
+            "about" => ("ABOUT THE DESK", "Scope and disclosures"),
+            _ => ("EQUIHASH DESK", "Mining data and reference"),
+        },
+    };
+    let public_vendor_count = d
+        .vendor_research
+        .iter()
+        .filter(|record| record.record_type != "coverage_gap")
+        .count();
     html! {
         (DOCTYPE)
         html lang="en" class="no-js" {
@@ -201,13 +226,27 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                         details class="nav-more" {
                             summary { "Menu" }
                             nav aria-label="More destinations" {
-                                a href="/search" { "Search" }
+                                a href="/search" aria-current=[(p.nav == "search").then_some("page")] { "Search" }
                                 @for (key, href, label) in NAV {
                                     @if !matches!(*key, "coins" | "pools" | "merged-mining" | "calculator") {
                                         a href=(href) aria-current=[(*key == p.nav).then_some("page")] { (label) }
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+                @if p.path != "/" {
+                    section class="desk-rail" aria-label="Equihash directory coverage" {
+                        div class="wrap desk-rail-grid" {
+                            div class="desk-rail-section" {
+                                strong { (desk_section) }
+                                span { (desk_note) }
+                            }
+                            div { strong class="mono" { (d.coins.len()) } span { "coin records" } }
+                            div { strong class="mono" { (d.pools.len()) } span { "pool records" } }
+                            div { strong class="mono" { (d.miners.len()) } span { "ASIC models" } }
+                            div { strong class="mono" { (public_vendor_count) } span { "vendor records" } }
                         }
                     }
                 }

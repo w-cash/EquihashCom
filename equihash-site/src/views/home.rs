@@ -1201,7 +1201,10 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
     let body = html! {
         div class="wrap home" {
             header class="intro" {
-                    h1 { (page_h1) }
+                    div class="pool-intro-title" {
+                        p class="eyebrow" { "LIVE POOL DIRECTORY" }
+                        h1 { (page_h1) }
+                    }
                     p class="lede" {
                         @if let Some(c) = cur {
                             "Compare " (c.label) " pools by reported hashrate, payout method, fee, minimum payout, region and source age. There is no universal best pool: fixed-share schemes trade steadier accounting for different fees, while PPLNS and solo results vary with pool or miner luck. "

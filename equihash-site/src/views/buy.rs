@@ -278,7 +278,7 @@ fn channel_label(v: &Vendor) -> &str {
         Some("manufacturer") => "Manufacturer",
         Some("broker_hosting") => "Broker & hosting",
         Some("marketplace") => "Marketplace",
-        Some("warning_record") => "Reference record",
+        Some("warning_record") => "Public warning record",
         _ => "Independent retailer",
     }
 }
@@ -683,16 +683,18 @@ pub fn index(d: &Data, q: &BuyQuery) -> Markup {
         nav: "vendors",
     }, html! {
         div class="wrap page buy-page vendor-directory" {
-            header class="page-head buy-head" {
-                p class="eyebrow" { "EQUIHASH VENDOR DIRECTORY" }
-                h1 { "ASIC vendors" }
-                p class="lede" { "All researched vendors in one directory, ordered by current Trustpilot review count." }
-            }
-            dl class="vendor-directory-stats" {
-                div { dt { "Vendors with offers" } dd { (tracked_vendors) } }
-                div { dt { "All vendor records" } dd { (public_records) } }
-                div { dt { "Trustpilot profiles" } dd { (trustpilot_profiles) } }
-                div { dt { "Verified domain dates" } dd { (verified_domain_dates) } }
+            section class="vendor-directory-front" {
+                header class="page-head buy-head" {
+                    p class="eyebrow" { "EQUIHASH VENDOR DIRECTORY" }
+                    h1 { "ASIC vendors" }
+                    p class="lede" { "All researched vendors in one directory, ordered by current Trustpilot review count." }
+                }
+                dl class="vendor-directory-stats" {
+                    div { dt { "Vendors with offers" } dd { (tracked_vendors) } }
+                    div { dt { "All vendor records" } dd { (public_records) } }
+                    div { dt { "Trustpilot profiles" } dd { (trustpilot_profiles) } }
+                    div { dt { "Verified domain dates" } dd { (verified_domain_dates) } }
+                }
             }
             aside class="vendor-directory-notice" aria-labelledby="vendor-directory-notice-title" {
                 strong id="vendor-directory-notice-title" { "How this directory works" }
@@ -807,7 +809,7 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
             nav: "vendors",
         },
         html! {
-            div class="wrap page buy-page buy-vendor-page" data-brand-shape=(theme.shape) data-vendor-record=(correction_record) style=(theme_style) {
+            div class={"wrap page buy-page buy-vendor-page" @if warning { " is-warning" }} data-brand-shape=(theme.shape) data-vendor-record=(correction_record) style=(theme_style) {
                 p class="crumb" { a href="/vendors" { "Vendor directory" } }
                 section class="vendor-identity" aria-labelledby="vendor-name" {
                     (vendor_brand_field(v))
@@ -823,6 +825,9 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
                             }
                         }
                     }
+                    @if warning {
+                        aside class="vendor-profile-warning" { strong { "Public warning record" } p { "Product links are withheld. This record remains public so readers can identify the names and domains in the supporting evidence before sending payment." } }
+                    }
                     dl class="vendor-profile-metrics" {
                         div { dt { "Models" } dd { (model_count) } }
                         div { dt { "Listings" } dd { (rows.len()) } }
@@ -833,9 +838,6 @@ pub fn vendor_page(d: &Data, v: &Vendor) -> Markup {
                 aside class="vendor-profile-directory-note" {
                     strong { "Seller record" }
                     p { "Prices, stock, batches and delivery wording below are seller-declared page claims captured on the shown date. Inclusion is not an endorsement or a fulfillment guarantee." }
-                }
-                @if warning {
-                    aside class="vendor-profile-warning" { strong { "Warning record" } p { "Product links are withheld. This entry is kept so readers can identify the seller and inspect the evidence." } }
                 }
                 @if !warning && !rows.is_empty() { (vendor_product_market(d, v, &rows)) }
                 @if !warning && rows.is_empty() {

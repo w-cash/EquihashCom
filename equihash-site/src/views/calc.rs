@@ -648,7 +648,8 @@ pub fn render(d: &Data, q: &CalcQuery) -> Markup {
     .collect::<Vec<_>>();
     layout(d, Page { title: "Zcash and Equihash mining calculator", description: "Estimate Zcash and Equihash mining revenue, electricity cost and operating margin for a Z15 Pro or custom hashrate using sourced network data.", path: "/calculator", nav: "calculator" }, html! {
         div class="wrap page" {
-            header class="page-head" {
+            header class="page-head calculator-head" {
+                p class="eyebrow" { "MINING ECONOMICS" }
                 h1 { "Zcash and Equihash mining calculator" }
                 p class="lede" { "Estimate revenue, electricity cost and operating margin for one machine or a farm. It assumes the selected network hashrate, price and average luck hold, and excludes hardware cost, tax, downtime, stale shares, payout variance, hosting and import charges." }
                 @if let Some(example) = &example {

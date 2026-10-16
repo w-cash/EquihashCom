@@ -122,7 +122,7 @@ pub fn pool_page(d: &Data, p: &Pool) -> Markup {
             nav: "pools",
         },
         html! {
-            div class="wrap page narrow" {
+            div class="wrap page pool-record-page" {
                 p class="crumb" { a href={"/pools?coin=" (p.coin_id) "#pools"} { "All " (p.coin_label) " pools" } }
                 header class="page-head" {
                     div class="title-row" {
@@ -132,14 +132,17 @@ pub fn pool_page(d: &Data, p: &Pool) -> Markup {
                     (links::render(&p.links, &format!("{} links", p.name), "pool-links"))
                     @if p.share_flag { p class="alert" { strong { "Concentration. " } "This pool has more than 30% of the hashrate on " (p.coin_label) "." } }
                 }
-                (pool_fields(d, p))
-                div class="pool-next" {
-                    h2 { "Next steps" }
-                    div class="card-actions" {
-                        a href={"/coin/" (p.coin_id)} { "Open " (p.coin_label) " overview" }
-                        a href={"/calculator?coin=" (p.coin_id)} { "Calculate mining output" }
-                        a href={"/pools?coin=" (p.coin_id) "#pools"} { "Compare with other pools" }
-                        a href="/contribute#pool" { "Correct this listing" }
+                div class="pool-record-layout" {
+                    div class="pool-record-data" { (pool_fields(d, p)) }
+                    aside class="pool-next" {
+                        p class="eyebrow" { "USE THIS RECORD" }
+                        h2 { "Next steps" }
+                        div class="card-actions" {
+                            a href={"/coin/" (p.coin_id)} { "Open " (p.coin_label) " overview" }
+                            a href={"/calculator?coin=" (p.coin_id)} { "Calculate mining output" }
+                            a href={"/pools?coin=" (p.coin_id) "#pools"} { "Compare with other pools" }
+                            a href="/contribute#pool" { "Correct this listing" }
+                        }
                     }
                 }
             }
@@ -239,7 +242,7 @@ pub fn sources(d: &Data) -> Markup {
             description:
                 "Where every number on equihash.com comes from, and what could not be verified.",
             path: "/sources",
-            nav: "",
+            nav: "sources",
         },
         html! {
             div class="wrap page narrow prose" {
@@ -338,7 +341,7 @@ pub fn miningpoolstats_source(d: &Data) -> Markup {
             title: "MiningPoolStats.stream data on Equihash.com",
             description: "How Equihash.com uses MiningPoolStats.stream pool data, what it checks directly, and what the unpaid acknowledgement means.",
             path: "/sources/miningpoolstats",
-            nav: "",
+            nav: "sources",
         },
         html! {
             article class="mps-page" {
@@ -417,7 +420,7 @@ pub fn not_found(d: &Data) -> Markup {
             title: "Not found",
             description: "Page not found.",
             path: "/404",
-            nav: "",
+            nav: "not-found",
         },
         html! {
             div class="wrap page narrow prose" {

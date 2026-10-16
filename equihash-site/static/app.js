@@ -35,7 +35,7 @@
       const peekNext = $('[data-machine-peek-next]', machineCarousel);
       const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
       const noun = machineCarousel.dataset.carouselNoun || 'machine';
-      const firstDelay = Math.max(1500, Number(machineCarousel.dataset.carouselFirstDelay) || 1500);
+      const firstDelay = Math.max(3500, Number(machineCarousel.dataset.carouselFirstDelay) || 4500);
       const repeatDelay = Math.max(4000, Number(machineCarousel.dataset.carouselDelay) || 6500);
       let index = 0, timer = null, paused = reduceMotion.matches, hovering = false, quickStart = true, visible = false;
       controls.hidden = false;

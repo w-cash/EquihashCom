@@ -2153,7 +2153,7 @@ pub fn search(d: &Data, q: &SearchQuery) -> Markup {
     apply_continuity(d, &mut hits, &parsed);
     let understood = interpretation(&parsed);
     let visible_count = hits.len();
-    layout(d, Page { title: "Search Equihash coins, pools, hardware, vendors and industry briefings", description: "Search the equihash.com directory for coins, mining pools, hardware, vendors, guides and sourced industry briefings.", path: "/search", nav: "" }, html! {
+    layout(d, Page { title: "Search Equihash coins, pools, hardware, vendors and industry briefings", description: "Search the equihash.com directory for coins, mining pools, hardware, vendors, guides and sourced industry briefings.", path: "/search", nav: "search" }, html! {
         div class="wrap page search-page" {
             header class="page-head" { h1 { "Search equihash.com" } (search_form(raw, "Coin, pool, hardware, vendor, country or payout")) }
             @if raw.is_empty() {
@@ -2193,7 +2193,7 @@ pub fn contribute(d: &Data) -> Markup {
     let pool = "Type: pool listing or correction\nPool name:\nWebsite:\nCoin(s) and exact Equihash parameters:\nStratum hosts, ports and regions:\nPayout schemes and fee for each:\nMinimum payout:\nMerged-mined coins, if any:\nPublic stats page or JSON API:\nContact for verification:\n";
     let project = "Type: coin or hardware listing/correction\nName and symbol/model:\nOfficial website:\nExact Equihash parameters:\nPublic specification or source:\nWhat should be added or corrected:\nContact for verification:\n";
     let question = "Type: question or guide correction\nPage or entity:\nQuestion/correction:\nPublic source, if applicable:\nHow may we credit you? (optional):\n";
-    layout(d, Page { title: "Add a listing, correction or question", description: "Submit an Equihash pool, coin, hardware listing, correction or community question to equihash.com.", path: "/contribute", nav: "" }, html! {
+    layout(d, Page { title: "Add a listing, correction or question", description: "Submit an Equihash pool, coin, hardware, vendor or industry correction to equihash.com.", path: "/contribute", nav: "contribute" }, html! {
         div class="wrap page narrow prose contribute-page" {
             header class="page-head" { p class="eyebrow" { "CONTRIBUTE" } h1 { "Add what miners need" } p class="lede" { "Listings are free. Public evidence is required for factual claims, and accepted fields keep their source. Send a completed template to " a href="https://x.com/EquihashCom" rel="noopener" { "@EquihashCom on X" } "." } }
             nav class="contribute-nav" aria-label="Contribution types" { a href="#pool" { "Pool" } a href="#project" { "Coin or hardware" } a href="/add-vendor" { "Vendor" } a href="#question" { "Question or correction" } }
