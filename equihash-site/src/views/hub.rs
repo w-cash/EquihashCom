@@ -184,6 +184,22 @@ pub fn index(d: &Data) -> Markup {
         .and_then(|c| c.network.hashrate_observed_at.as_deref())
         .map(|v| fmt::utc(Some(v)))
         .unwrap_or_else(|| "n/a".into());
+    let zcash_price = zcash
+        .map(|c| fmt::price(c.price_usd))
+        .unwrap_or_else(|| "n/a".into());
+    let fleet_hashrate = d
+        .cypherpunk
+        .reported_hashrate_gsol
+        .map(|v| format!("{v:.1} GSol/s"))
+        .unwrap_or_else(|| "n/a".into());
+    let fleet_machines = d
+        .cypherpunk
+        .machine_count
+        .map(|v| fmt::group(v as i128))
+        .unwrap_or_else(|| "n/a".into());
+    let fleet_share = crate::views::research::current_equivalent(d)
+        .map(|(share, _, _)| format!("{share:.1}%"))
+        .unwrap_or_else(|| "n/a".into());
     let mut zcash_pools: Vec<&Pool> = d
         .live_pools()
         .filter(|p| p.coin_id == "zcash" && p.hashrate.unwrap_or(0.0) > 0.0)
@@ -276,37 +292,130 @@ pub fn index(d: &Data) -> Markup {
     .collect();
     let slide_count = featured.len() + usize::from(offer_860.is_some());
     layout(d, Page {
-        title: "Equihash mining: coins, pools, hardware and guides · equihash.com",
-        description: "Look up Equihash coins and mining pools, see which networks support a Z15 Pro, and estimate mining costs and output.",
+        title: "Equihash mining news, Zcash pools, ASICs and data · equihash.com",
+        description: "Zcash and Equihash mining news, network data, pool comparisons, ASIC specifications, vendor records and mining calculators.",
         path: "/",
         nav: "home",
     }, html! {
         div class="ed-home" {
-            section class="ed-hero" aria-labelledby="ed-title" {
+            section class="news-wire" aria-label="Latest Equihash market figures" {
+                div class="wrap news-wire-grid" {
+                    a class="news-wire-brand" href="/industry" {
+                        span { "EQUIHASH DESK" }
+                        strong { "News and mining data" }
+                    }
+                    a href="/coin/zcash" {
+                        span { "ZEC NETWORK" }
+                        strong class="mono" { (&zcash_network) }
+                    }
+                    a href="/pools?coin=zcash#pools" {
+                        span { "LISTED POOLS" }
+                        strong class="mono" { (&zcash_reported) }
+                    }
+                    a href="/coin/zcash" {
+                        span { "ZEC PRICE" }
+                        strong class="mono" { (&zcash_price) }
+                    }
+                    a href="/asics/antminer-z15-pro" {
+                        span { "Z15 PRO" }
+                        strong class="mono" { "840 kSol/s" }
+                    }
+                    a href="/sources" {
+                        span { "DATA CHECKED" }
+                        strong class="mono" { (&zcash_observed) }
+                    }
+                }
+            }
+
+            nav class="wrap news-sections" aria-label="Equihash desks" {
+                a href="/industry" { "Latest" }
+                a href="/coin/zcash" { "Zcash" }
+                a href="/asics" { "ASICs" }
+                a href="/pools" { "Pools" }
+                a href="/vendors" { "Vendors" }
+                a href="/merged-mining" { "Merged mining" }
+                a href="/guides" { "Guides" }
+                a href="/calculator" { "Calculator" }
+                span { "Selected by Equihash.com · no ad slots" }
+            }
+
+            section class="wrap news-front" aria-labelledby="news-front-title" {
+                article class="news-lead" {
+                    a class="news-lead-media" href="/industry/cypherpunk-zcash-mining" aria-label="Read the Cypherpunk Zcash mining fleet briefing" {
+                        img src="/static/shop/machines/antminer-z15-pro-860.811ddcd13a.webp" alt="Bitmain Antminer Z15 Pro mining machine" width="1200" height="1200" decoding="async";
+                        span class="news-lead-number" { b { (&fleet_hashrate) } small { "company-reported fleet" } }
+                    }
+                    div class="news-lead-copy" {
+                        p class="news-kicker" { "MINING FLEET · CYPHERPUNK · 7 OCT 2026" }
+                        h1 id="news-front-title" { a href="/industry/cypherpunk-zcash-mining" { "4,902 Z15 Pro miners put a public number on industrial Zcash mining" } }
+                        p { "Cypherpunk reports " (&fleet_hashrate) " across three U.S. sites. The disclosed fleet equals about " strong { (&fleet_share) } " of the latest Zcash network estimate shown here." }
+                        div class="news-lead-meta" {
+                            span { "Company disclosures" }
+                            a href="/industry/cypherpunk-zcash-mining" { "Read the record →" }
+                        }
+                    }
+                }
+                aside class="news-latest" aria-labelledby="news-latest-title" {
+                    header {
+                        p class="news-kicker" { "LATEST BRIEFINGS" }
+                        h2 id="news-latest-title" { "Zcash industry" }
+                        a href="/industry" { "All briefings →" }
+                    }
+                    article {
+                        p { "FUND · 7 OCT 2026" }
+                        h3 { a href="/industry/grayscale-zcash-etf" { "ZCSH is trading on NYSE Arca" } }
+                        small { "Grayscale’s listing, fee, holdings and custody records." }
+                    }
+                    article {
+                        p { "FILING · 6 OCT 2026" }
+                        h3 { a href="/industry/winklevoss-zcash-etf" { "WINK is filed, not launched" } }
+                        small { "What the preliminary Winklevoss Zcash ETF filing says." }
+                    }
+                    article {
+                        p { "PROTOCOL · UPDATED 11 OCT 2026" }
+                        h3 { a href="/merged-mining" { "Zcash work can also secure Wcash" } }
+                        small { "The pool adds the AuxPoW v2 commitment; the miner keeps mining Zcash." }
+                    }
+                    dl class="news-latest-facts" {
+                        div { dt { "Reported fleet" } dd class="mono" { (&fleet_hashrate) } }
+                        div { dt { "Machines" } dd class="mono" { (&fleet_machines) } }
+                    }
+                }
+            }
+
+            section class="news-tools" aria-labelledby="news-tools-title" {
+                div class="wrap news-tools-grid" {
+                    div {
+                        p class="news-kicker" { "LOOK UP A RECORD" }
+                        h2 id="news-tools-title" { "Coins, pools, ASICs and sellers." }
+                    }
+                    (search_form("", "Search a coin, pool, ASIC or vendor"))
+                    nav aria-label="Common research paths" {
+                        a href="/pools?coin=zcash#pools" { "Compare Zcash pools" }
+                        a href="/asics" { "Rank Equihash ASICs" }
+                        a href="/calculator?hashrate=840&watts=2780" { "Run Z15 Pro numbers" }
+                    }
+                }
+            }
+
+            section class="ed-hero ed-asic-desk" aria-labelledby="asic-desk-title" {
                 div class="wrap ed-hero-grid" {
                     div class="ed-hero-copy" {
-                        p class="ed-edition" { "COINS / POOLS / HARDWARE / MERGED MINING" }
-                        h1 id="ed-title" { "Equihash mining." }
-                        p class="ed-lede" { "Find coins your hardware can mine, compare pools, estimate electricity costs and check current Z15 Pro offers." }
+                        p class="ed-edition" { "ASIC DESK / EQUIHASH 200,9" }
+                        h2 id="asic-desk-title" { "Compare the machine before the offer." }
+                        p class="ed-lede" { "Check manufacturer hashrate and power figures, calculate electricity cost, then open the vendor records for the same model." }
                         dl class="ed-hero-signal" aria-label="Latest Zcash mining snapshot" {
                             div { dt { "Zcash network" } dd { (&zcash_network) } }
                             div { dt { "Listed pools report" } dd { (&zcash_reported) } }
                             div { dt { "Observed" } dd { (&zcash_observed) } }
                         }
-                        (search_form("", "Search coins, pools or hardware"))
                         div class="ed-hero-links" {
-                            a class="ed-primary" href="/pools" { "Compare pools" }
-                            a href="/zcash-mining" { "Zcash mining guide" }
-                            a href="/hashpower" { "Hashpower market" }
+                            a class="ed-primary" href="/asics" { "Compare all ASICs" }
+                            a href="/calculator?hashrate=840&watts=2780" { "Calculate Z15 Pro" }
                             a href="/asics/antminer-z15-pro" { "Z15 Pro profile" }
                             a href="/vendors" { "Vendor directory" }
                         }
-                        p class="ed-method" {
-                            "Pool figures from "
-                            a href="https://miningpoolstats.stream/zcash" rel="noopener" { "MiningPoolStats.stream" }
-                            ", pool APIs and project pages · no paid listings · "
-                            a href="/about" { "ownership and method" }
-                        }
+                        p class="ed-method" { "Manufacturer specifications stay separate from seller-listed overclocks, prices and shipping claims." }
                     }
                     aside class="ed-hero-machine" data-machine-carousel role="region" aria-roledescription="carousel" aria-label="Featured Equihash hardware" {
                         @if slide_count > 1 {
@@ -455,8 +564,6 @@ pub fn index(d: &Data) -> Markup {
             }
 
             (crate::views::hashpower::home_market(d))
-
-            (crate::views::research::home_note(d))
 
             aside class="wrap ed-contribute" {
                 div { h2 { "Run a pool, coin project or ASIC shop?" } p { "Send a public page or API. Listings and corrections are free." } }

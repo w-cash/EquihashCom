@@ -588,43 +588,6 @@ pub fn grayscale(d: &Data) -> Markup {
     )
 }
 
-pub fn home_note(d: &Data) -> Markup {
-    let share = current_equivalent(d)
-        .map(|(p, _, _)| format!("{p:.1}%"))
-        .unwrap_or_else(|| "n/a".into());
-    html! {
-        section class="ed-research-note industry-home" aria-labelledby="industry-home-title" {
-            div class="wrap" {
-                header class="industry-home-head" {
-                    div {
-                        p class="ed-section-index" { "INDUSTRY / COMPANIES AND CAPITAL" }
-                        h2 id="industry-home-title" { "Equihash industry" }
-                        p { "Mining fleets, company filings and investment products connected to Zcash." }
-                    }
-                    a class="ed-light-button" href=(INDUSTRY_PATH) { "View all Industry briefings" }
-                }
-                div class="industry-home-grid" {
-                    a href=(CYPHERPUNK_PATH) {
-                        span { "MINING FLEET · CYPHERPUNK" }
-                        strong { "4.2 GSol/s and 4,902 Z15 Pro miners" }
-                        small { "Share if the reported fleet remains online: " (share) }
-                    }
-                    a href=(GRAYSCALE_PATH) {
-                        span { "FUND BRIEF · GRAYSCALE" }
-                        strong { "ZCSH is trading on NYSE Arca" }
-                        small { "Listing, fee, holdings and custody" }
-                    }
-                    a href=(WINK_PATH) {
-                        span { "FILING BRIEF · WINKLEVOSS" }
-                        strong { "WINK is filed, not launched" }
-                        small { "What the preliminary Zcash ETF prospectus says" }
-                    }
-                }
-            }
-        }
-    }
-}
-
 pub fn coin_note(d: &Data) -> Markup {
     let share = current_equivalent(d)
         .map(|(p, _, _)| format!("{p:.1}%"))
