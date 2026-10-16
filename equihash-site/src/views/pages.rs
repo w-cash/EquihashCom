@@ -330,6 +330,86 @@ pub fn sources(d: &Data) -> Markup {
     )
 }
 
+pub fn miningpoolstats_source(d: &Data) -> Markup {
+    let m = &d.meta;
+    layout(
+        d,
+        Page {
+            title: "MiningPoolStats.stream data on Equihash.com",
+            description: "How Equihash.com uses MiningPoolStats.stream pool data, what it checks directly, and what the unpaid acknowledgement means.",
+            path: "/sources/miningpoolstats",
+            nav: "",
+        },
+        html! {
+            article class="mps-page" {
+                header class="mps-page-head" {
+                    div class="wrap mps-page-head-grid" {
+                        div {
+                            p class="ed-section-index" { "SOURCE ACKNOWLEDGEMENT / POOL DIRECTORY" }
+                            h1 { "MiningPoolStats" wbr; ".stream" }
+                            p class="mps-page-deck" { "A long-running public directory behind much of Equihash.com’s pool coverage." }
+                        }
+                        a class="mps-page-mark" href="https://miningpoolstats.stream/zcash" rel="noopener" aria-label="Open MiningPoolStats.stream's Zcash directory" {
+                            img src="/static/partners/miningpoolstats.webp" alt="" width="487" height="80" decoding="async";
+                        }
+                    }
+                }
+
+                div class="wrap" {
+                    dl class="mps-page-facts" aria-label="Current MiningPoolStats contribution" {
+                        div { dt { "Rows from MiningPoolStats" } dd { (m.mps_pool_count) } }
+                        div { dt { "Checked directly" } dd { (m.non_mps_pool_count) } }
+                        div { dt { "Snapshot generated" } dd { time datetime=[m.generated_at.as_deref()] { (fmt::utc(m.generated_at.as_deref())) } } }
+                        div { dt { "Relationship" } dd { "Unpaid acknowledgement" } }
+                    }
+
+                    div class="mps-page-body" {
+                        div class="mps-page-copy" {
+                            section aria-labelledby="mps-why" {
+                                h2 id="mps-why" { "Why Equihash acknowledges it" }
+                                p { "MiningPoolStats.stream has tracked mining pools across the industry for years. Its public feeds are the starting point for " strong { (m.mps_pool_count) } " of the " strong { (m.pool_count) } " pool rows in the current snapshot. We appreciate the work required to keep that directory public." }
+                            }
+                            section aria-labelledby="mps-use" {
+                                h2 id="mps-use" { "How the data is used" }
+                                p { "Equihash.com reads the public coin and pool feeds, keeps the source and observation time attached to each figure, and adds direct pool or project records where the directory has no row. Missing values stay missing." }
+                            }
+                            section aria-labelledby="mps-relationship" {
+                                h2 id="mps-relationship" { "What the acknowledgement means" }
+                                p { "This acknowledgement is unpaid. MiningPoolStats does not determine which pools appear on Equihash.com, how they are ordered, or what Equihash.com concludes from the published figures. This page does not claim a commercial partnership or endorsement." }
+                            }
+                        }
+
+                        aside class="mps-page-scope" aria-label="Data responsibilities" {
+                            div {
+                                h2 { "From MiningPoolStats" }
+                                ul {
+                                    li { "The Equihash coin and pool starting list" }
+                                    li { "Pool and network fields published in its public feeds" }
+                                    li { "Algorithm labels and price inputs when available" }
+                                }
+                            }
+                            div {
+                                h2 { "Added by Equihash.com" }
+                                ul {
+                                    li { "Direct pool and project checks" }
+                                    li { "Field-level source and time labels" }
+                                    li { "Parameter grouping, presentation and ordering rules" }
+                                }
+                            }
+                        }
+                    }
+
+                    footer class="mps-page-actions" {
+                        a class="ed-dark-button" href="https://miningpoolstats.stream/zcash" rel="noopener" { "Open Zcash on MiningPoolStats ↗" }
+                        a href="/sources" { "Full sources and method →" }
+                        a href="/data/pools.json" { "Pool data JSON →" }
+                    }
+                }
+            }
+        },
+    )
+}
+
 pub fn not_found(d: &Data) -> Markup {
     layout(
         d,

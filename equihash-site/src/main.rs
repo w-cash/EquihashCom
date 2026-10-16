@@ -191,6 +191,9 @@ async fn about(s: web::Data<AppState>) -> impl Responder {
 async fn sources(s: web::Data<AppState>) -> impl Responder {
     html(views::pages::sources(&s.get()))
 }
+async fn miningpoolstats_source(s: web::Data<AppState>) -> impl Responder {
+    html(views::pages::miningpoolstats_source(&s.get()))
+}
 async fn guides(s: web::Data<AppState>) -> impl Responder {
     html(views::hub::guides(&s.get()))
 }
@@ -443,6 +446,7 @@ Updated: {updated}
 - [Grayscale ZCSH]({site}/industry/grayscale-zcash-etf): filed timeline and structure of the NYSE Arca-traded ZEC product.
 - [Winklevoss WINK filing]({site}/industry/winklevoss-zcash-etf): what the preliminary Zcash ETF filing says and does not establish.
 - [Sources and method]({site}/sources): provenance, refresh method and known limits.
+- [MiningPoolStats source acknowledgement]({site}/sources/miningpoolstats): how its public feeds contribute to the pool directory and what the unpaid acknowledgement means.
 
 ## Machine-readable data
 
@@ -534,6 +538,7 @@ async fn sitemap(s: web::Data<AppState>) -> HttpResponse {
         ("/archive".into(), data_updated.clone()),
         ("/about".into(), Some("2026-10-07".into())),
         ("/sources".into(), Some("2026-10-07".into())),
+        ("/sources/miningpoolstats".into(), Some("2026-10-16".into())),
     ];
     urls.extend(
         d.coins
@@ -698,6 +703,7 @@ fn routes(cfg: &mut web::ServiceConfig, sdir: PathBuf) {
     .service(web::resource("/add-pool").route(get_head().to(add_pool_legacy)))
     .service(web::resource("/about").route(get_head().to(about)))
     .service(web::resource("/sources").route(get_head().to(sources)))
+    .service(web::resource("/sources/miningpoolstats").route(get_head().to(miningpoolstats_source)))
     .service(web::resource("/api/live").route(get_head().to(api_live)))
     .service(web::resource("/healthz").route(get_head().to(healthz)))
     .service(web::resource("/data/{file}").route(get_head().to(data_file)))
@@ -909,6 +915,7 @@ mod tests {
             "/merged-mining".into(),
             "/about".into(),
             "/sources".into(),
+            "/sources/miningpoolstats".into(),
             "/api/live".into(),
             "/data/pools.json".into(),
             "/data/miners.json".into(),

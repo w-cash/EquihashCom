@@ -301,7 +301,12 @@ pub fn index(d: &Data) -> Markup {
                             a href="/asics/antminer-z15-pro" { "Z15 Pro profile" }
                             a href="/vendors" { "Vendor directory" }
                         }
-                        p class="ed-method" { "Figures from public pool and project pages · no paid listings · " a href="/about" { "ownership and method" } }
+                        p class="ed-method" {
+                            "Pool figures from "
+                            a href="https://miningpoolstats.stream/zcash" rel="noopener" { "MiningPoolStats.stream" }
+                            ", pool APIs and project pages · no paid listings · "
+                            a href="/about" { "ownership and method" }
+                        }
                     }
                     aside class="ed-hero-machine" data-machine-carousel role="region" aria-roledescription="carousel" aria-label="Featured Equihash hardware" {
                         @if slide_count > 1 {
@@ -456,6 +461,33 @@ pub fn index(d: &Data) -> Markup {
             aside class="wrap ed-contribute" {
                 div { h2 { "Run a pool, coin project or ASIC shop?" } p { "Send a public page or API. Listings and corrections are free." } }
                 div { a class="ed-dark-button" href="/contribute" { "Send a listing or correction" } }
+            }
+
+            @if d.meta.mps_pool_count > 0 {
+                aside class="ed-source-ack" aria-labelledby="pool-source-title" {
+                    div class="wrap ed-source-ack-grid" {
+                        div class="ed-source-identity" {
+                            p class="ed-section-index" { "PRIMARY POOL-DIRECTORY SOURCE" }
+                            h2 id="pool-source-title" {
+                                a href="https://miningpoolstats.stream/zcash" rel="noopener" aria-label="Open MiningPoolStats.stream's Zcash directory" {
+                                    img src="/static/partners/miningpoolstats.webp" alt="MiningPoolStats.stream" width="487" height="80" loading="lazy" decoding="async";
+                                }
+                            }
+                        }
+                        div class="ed-source-copy" {
+                            p {
+                                "MiningPoolStats.stream has tracked mining pools across the industry for years. Its public feeds supply " strong { (d.meta.mps_pool_count) }
+                                " of the " strong { (d.meta.pool_count) } " pool rows here; Equihash.com adds " strong { (d.meta.non_mps_pool_count) }
+                                " records checked against pool or project APIs."
+                            }
+                            p class="ed-source-disclosure" { "With thanks to the MiningPoolStats team. This is an unpaid acknowledgement; source status does not affect inclusion or ordering." }
+                        }
+                        nav class="ed-source-links" aria-label="MiningPoolStats source links" {
+                            a href="https://miningpoolstats.stream/zcash" rel="noopener" { "View Zcash on MiningPoolStats ↗" }
+                            a href="/sources/miningpoolstats" { "How Equihash uses the feed →" }
+                        }
+                    }
+                }
             }
         }
     })
