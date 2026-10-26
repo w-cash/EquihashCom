@@ -295,7 +295,7 @@ pub fn sources(d: &Data) -> Markup {
                 }
                 h2 { "Method" }
                 ul {
-                    li { "miningpoolstats: the coin page is loaded to read its current data timestamp, then " code { "data.miningpoolstats.stream/data/<coin>.js?t=<ts>" } " is fetched with a browser User-Agent and Referer." }
+                    li { "MiningPoolStats: each official page identifies its current JSON feed and cache token. We fetch that feed from a reviewed MiningPoolStats host; each record links to the URL used." }
                     li { "miningpoolstats marks unknown or hidden values as −1 or −2. Those become n/a." }
                     li { "Share = pool hashrate ÷ the coin's network hashrate from the same file. On small coins the network estimate is sometimes below the sum of what pools report; then shares are of the listed pools' total, and the page says so." }
                     li { "Equihash parameters come from the miningpoolstats label. Plain \"Equihash\" is 200,9." }

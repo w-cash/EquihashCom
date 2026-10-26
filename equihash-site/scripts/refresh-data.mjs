@@ -36,6 +36,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as snap from "./snapshot.mjs";
 import { fetchBounded } from "./source-policy.mjs";
+import { MPS_FEED_HOSTS, resolveMpsFeed, mpsPriceUrl } from "./mps-source.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // DATA_DIR overrides where data lives (e.g. /srv/equihash/data, shared by every release).
@@ -43,9 +44,8 @@ const DATA = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.jo
 const UA =
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36";
 const MPS = "https://miningpoolstats.stream";
-const MPS_DATA = "https://data.miningpoolstats.stream/data";
 const SOURCE_HOSTS = [
-  "miningpoolstats.stream", "data.miningpoolstats.stream", "zpool.ca", "zergpool.com",
+  "miningpoolstats.stream", ...MPS_FEED_HOSTS, "zpool.ca", "zergpool.com",
   "pool.zecwec.com", "zec.2miners.com", "btg.2miners.com", "wcashexplorer.com",
   "zprominers.com", "zec.molepool.com",
 ];
@@ -174,17 +174,64 @@ function parseRegion(country) {
   return { region: label ? label.replace(/\s+,\s+/g, ", ").trim() : null, regions, country_code: code || null };
 }
 
+/** Convert one fetched MiningPoolStats feed without changing native hashrate units or stable IDs. */
+export function parseMpsPools(page, d, dataUrl, fetched_at) {
+  const netHash = mpsNum(d.hashrate);
+  return (d.data || []).map((p) => {
+    const hr = mpsNum(p.hashrate);
+    const schemes = parseSchemes(p.feetype, p.fee);
+    const reg = parseRegion(p.country);
+    const lbt = num(p.lastblocktime);
+    const row = {
+      id: `${page}:${p.pool_id || hostOf(p.url)}:${p.id ?? p.url}`,
+      name: prettyName(p),
+      coin: d.symbol,
+      coin_id: page,
+      url: p.url,
+      hashrate: hr,
+      hashrate_unit: d.unit ?? "Sol/s",
+      network_share_pct: hr !== null && netHash ? (hr / netHash) * 100 : null,
+      miners: mpsNum(p.miners),
+      workers: mpsNum(p.workers),
+      fee_pct: num(p.fee) ?? (schemes.length === 1 ? schemes[0].fee_pct : null),
+      schemes,
+      payout_schemes: [...new Set(schemes.map((s) => s.scheme))],
+      min_payout: mpsNum(p.minpay),
+      min_payout_unit: d.symbol,
+      blocks_last_1000: mpsNum(p.blocks_1000),
+      last_block_height: mpsNum(p.lastblock),
+      last_block_time: lbt ? new Date(lbt * 1000).toISOString() : null,
+      ...reg,
+      // MPS "merge" = merged coin(s); "mergetype" alone (e.g. "DUAL") names no coin, so it isn't treated as merged mining.
+      merged_mining: p.merge
+        ? { supported: true, coins: String(p.merge).split(/[,|\s]+/).filter(Boolean), note: `as reported by miningpoolstats${p.mergetype ? ` (type ${p.mergetype})` : ""}` }
+        : { supported: null, coins: [], note: p.mergetype ? `miningpoolstats lists merge type "${p.mergetype}" with no merged coin` : null },
+      solo: schemes.some((s) => s.scheme === "SOLO") || /solo/i.test(p.url),
+      active: hr !== null && hr > 0,
+      source_name: "miningpoolstats.stream",
+      source_url: `${MPS}/${page}`,
+      data_url: dataUrl,
+      from_miningpoolstats: true,
+      fetched_at,
+      notes: hr === null ? "Hashrate not published (MPS reports it as hidden/unknown)." : null,
+    };
+    for (const f of POOL_FIELDS) stamp(row, f, dataUrl, fetched_at);
+    row.basis = hashrateBasis(row);
+    return row;
+  });
+}
+
 async function mpsPage(page) {
   const { body: html } = await get(`${MPS}/${page}`, { json: false });
-  const lt = html.match(/var last_time = "(\d+)"/);
+  const feed = resolveMpsFeed(html, page);
   const grp = html.match(/var coin_grup = "([^"]*)"/);
-  return { last_time: lt ? lt[1] : null, coin_group: grp ? grp[1] : null };
+  return { feed_url: feed.url, coin_group: grp ? grp[1] : null };
 }
 
 async function refreshMps() {
   addSource("mps", "miningpoolstats.stream (pool + network JSON)", `${MPS}/`);
   const home = await mpsPage("");
-  const { body: coinsIdx, fetched_at: idxAt } = await get(`${MPS_DATA}/coins_data.js?t=${home.last_time}`, { referer: `${MPS}/` });
+  const { body: coinsIdx, fetched_at: idxAt } = await get(home.feed_url, { referer: `${MPS}/` });
   const eqCoins = coinsIdx.data.filter((c) => /equihash/i.test(String(c.algo)));
   const pages = [...new Set([...eqCoins.map((c) => c.page), ...EXTRA_MPS_PAGES])];
   const coins = [];
@@ -194,11 +241,12 @@ async function refreshMps() {
       const meta = await mpsPage(page);
       await sleep(400);
       const ref = `${MPS}/${page}`;
-      const { body: d, fetched_at } = await get(`${MPS_DATA}/${page}.js?t=${meta.last_time}`, { referer: ref });
+      const { body: d, fetched_at } = await get(meta.feed_url, { referer: ref });
       await sleep(400);
       let price = null;
+      const priceUrl = mpsPriceUrl(meta.feed_url, page);
       try {
-        const { body: p } = await get(`${MPS_DATA}/price/${page}.js?t=${meta.last_time}`, { referer: ref });
+        const { body: p } = await get(priceUrl, { referer: ref });
         price = num(p.price_USD);
       } catch (e) { errors.push(`price ${page}: ${e.message}`); }
       await sleep(400);
@@ -230,18 +278,18 @@ async function refreshMps() {
         },
         price_usd: price ?? (num(d.price) || null),
         // Price file first; otherwise the "price" field in the coin's own pool file.
-        price_source: price !== null ? `${MPS_DATA}/price/${page}.js` : num(d.price) ? `${MPS_DATA}/${page}.js` : null,
+        price_source: price !== null ? priceUrl : num(d.price) ? meta.feed_url : null,
         block_reward_miner: null,
         mps_pool_count: Array.isArray(d.data) ? d.data.length : 0,
         source_url: ref,
-        data_url: `${MPS_DATA}/${page}.js?t=${meta.last_time}`,
+        data_url: meta.feed_url,
         fetched_at,
         status: "active",
         status_note: null,
         status_sources: [],
         cross_checks: [],
       };
-      const ndu = `${MPS_DATA}/${page}.js?t=${meta.last_time}`;
+      const ndu = meta.feed_url;
       const nw = coin.network;
       stamp(nw, "hashrate", nw.hashrate !== null ? ndu : null, nw.hashrate !== null ? fetched_at : null);
       nw.basis = nw.hashrate !== null ? "network" : null;
@@ -249,48 +297,7 @@ async function refreshMps() {
       stamp(nw, "height", nw.height !== null ? ndu : null, nw.height !== null ? fetched_at : null);
       stamp(nw, "block_time", nw.block_time_avg_s !== null ? ndu : null, nw.block_time_avg_s !== null ? fetched_at : null);
       coins.push(coin);
-      for (const p of d.data || []) {
-        const hr = mpsNum(p.hashrate);
-        const schemes = parseSchemes(p.feetype, p.fee);
-        const reg = parseRegion(p.country);
-        const lbt = num(p.lastblocktime);
-        pools.push({
-          id: `${page}:${p.pool_id || hostOf(p.url)}:${p.id ?? p.url}`,
-          name: prettyName(p),
-          coin: d.symbol,
-          coin_id: page,
-          url: p.url,
-          hashrate: hr,
-          hashrate_unit: d.unit ?? "Sol/s",
-          network_share_pct: hr !== null && netHash ? (hr / netHash) * 100 : null,
-          miners: mpsNum(p.miners),
-          workers: mpsNum(p.workers),
-          fee_pct: num(p.fee) ?? (schemes.length === 1 ? schemes[0].fee_pct : null),
-          schemes,
-          payout_schemes: [...new Set(schemes.map((s) => s.scheme))],
-          min_payout: mpsNum(p.minpay),
-          min_payout_unit: d.symbol,
-          blocks_last_1000: mpsNum(p.blocks_1000),
-          last_block_height: mpsNum(p.lastblock),
-          last_block_time: lbt ? new Date(lbt * 1000).toISOString() : null,
-          ...reg,
-          // MPS "merge" = merged coin(s); "mergetype" alone (e.g. "DUAL") names no coin, so it isn't treated as merged mining.
-          merged_mining: p.merge
-            ? { supported: true, coins: String(p.merge).split(/[,|\s]+/).filter(Boolean), note: `as reported by miningpoolstats${p.mergetype ? ` (type ${p.mergetype})` : ""}` }
-            : { supported: null, coins: [], note: p.mergetype ? `miningpoolstats lists merge type "${p.mergetype}" with no merged coin` : null },
-          solo: schemes.some((s) => s.scheme === "SOLO") || /solo/i.test(p.url),
-          active: hr !== null && hr > 0,
-          source_name: "miningpoolstats.stream",
-          source_url: ref,
-          data_url: `${MPS_DATA}/${page}.js`,
-          from_miningpoolstats: true,
-          fetched_at,
-          notes: hr === null ? "Hashrate not published (MPS reports it as hidden/unknown)." : null,
-        });
-        const row = pools[pools.length - 1];
-        for (const f of POOL_FIELDS) stamp(row, f, `${MPS_DATA}/${page}.js`, fetched_at);
-        row.basis = hashrateBasis(row);
-      }
+      pools.push(...parseMpsPools(page, d, meta.feed_url, fetched_at));
       console.log(`  mps ${page}: ${d.data?.length ?? 0} pools`);
     } catch (e) {
       // A coin page is a critical source (its pool rows would vanish); pages kept only for coins

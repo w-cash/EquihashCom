@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-08",
+  "updated_at": "2026-10-26",
   "rule": "Each permission is independent. Unknown is a release blocker for the affected display or workflow; it is never treated as permission.",
   "sources": [
     {
       "id": "miningpoolstats",
       "operator": "MiningPoolStats",
-      "hosts": ["miningpoolstats.stream", "data.miningpoolstats.stream"],
+      "hosts": ["miningpoolstats.stream", "server.miningpoolstats.stream", "data.miningpoolstats.stream"],
       "fields": ["pool identity", "pool hashrate", "network hashrate", "fee", "miners", "blocks"],
       "rights": {"display": "unresolved", "retention": "unresolved", "derived_use": "unresolved", "export": "unresolved", "commercial_use": "unresolved"},
       "cadence": "configured refresh job",

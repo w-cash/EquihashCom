@@ -307,6 +307,21 @@ fn region_short(r: &str) -> Markup {
     }
 }
 
+fn secondary_pool(p: &Pool) -> bool {
+    !p.hashrate
+        .map(|h| h.is_finite() && h > 0.0)
+        .unwrap_or(false)
+}
+
+/// A deliberate filter or another ordering should expose every matching record.
+fn reveal_secondary_pools(f: &Filters) -> bool {
+    [&f.q, &f.scheme, &f.region, &f.fee, &f.hr, &f.merged]
+        .iter()
+        .any(|v| v.as_deref().map(|s| !s.trim().is_empty()).unwrap_or(false))
+        || f.sort.as_deref().map(|s| s != "hashrate").unwrap_or(false)
+        || f.dir.as_deref() == Some("asc")
+}
+
 fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool, promoted: bool) -> Markup {
     let unit = p.hashrate_unit.clone().unwrap_or("Sol/s".into());
     let share = p.network_share_pct;
@@ -314,6 +329,7 @@ fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool, promoted: bool
         tr class={"pool-row" @if p.share_flag { " over" } @if promoted { " pool-promoted" }} hidden[hidden]
             data-slug=(p.slug) data-coin=(p.coin_id) data-pool-id=(p.id)
             data-promotion=[promoted.then_some("unpaid")]
+            data-pool-secondary=[(!promoted && secondary_pool(p)).then_some("1")]
             data-schemes=(p.payout_schemes.join(",")) data-regions=(p.region_tags.join(","))
             data-fee=[p.min_fee()] data-hashrate=[p.hashrate] data-share=[share]
             data-miners=[p.miners.or(p.workers)] data-minpay=[p.min_payout] data-blocks=[p.blocks_last_1000]
@@ -340,8 +356,8 @@ fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool, promoted: bool
                 }
             }
             @if show_coin { td class="coin" { (p.coin) } }
-            td class="num hash" title=(hashrate_title(p)) data-live-pool=[p.live_source.as_ref().map(|_| &p.id)] {
-                @if p.hashrate.is_some() { span data-f="hashrate" { (fmt::hashrate(p.hashrate, &unit)) } } @else { span class="na" { "n/a" } }
+            td class="num hash" title=(hashrate_title(p)) data-live-pool=(p.id) {
+                span class=[p.hashrate.is_none().then_some("na")] data-f="hashrate" { (fmt::hashrate(p.hashrate, &unit)) }
                 @if p.operator_reported() { span class="dag" { "†" } }
                 span class="m-share" { (m_share(p)) }
             }
@@ -1170,6 +1186,11 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
         ..f.clone()
     };
     let visible = rows.iter().filter(|p| matches(p, f)).count();
+    let reveal_secondary = reveal_secondary_pools(f);
+    let initially_shown = rows
+        .iter()
+        .filter(|p| matches(p, f) && (reveal_secondary || !secondary_pool(p)))
+        .count();
     // All-coins view: one table section per parameter set, ranked inside it.
     let groups: Vec<(String, Vec<&Pool>)> = if cur.is_some() {
         vec![(String::new(), rows.clone())]
@@ -1253,7 +1274,7 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                             a class="reset" href={"/pools?coin=" (coin) "#pools"} { "Clear" }
                         }
                     }
-                    p class="count" { span id="pool-count" { (visible) } " of " (in_scope.len()) " pool rows. Click a pool for every field and its source." }
+                    p class="count" { span id="pool-count" { (visible) } " of " (in_scope.len()) " pool rows match. " span class="js-only" { span id="pool-shown-count" { (initially_shown) } " shown. " } "Click a pool for every field and its source." }
                     @if pinned_promoted_pool.is_some() {
                         p class="pool-promotion-note" id="pool-promotion-note" { strong { "Unpaid promotion:" } " ZecWec is shown first as a placement and again at its reported-hashrate position. The directory remains ordered by reported hashrate." }
                     }
@@ -1273,10 +1294,12 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                                 (th(f, "region", "Region", "region", None))
                                 th class="src" scope="col" title="Where the figures come from" { "Data" }
                             } }
-                            @for (label, rs) in &groups {
+                            @for (group_index, (label, rs)) in groups.iter().enumerate() {
                                 @let shown = rs.iter().filter(|p| matches(p, f)).count();
+                                @let secondary_count = rs.iter().filter(|p| matches(p, f) && secondary_pool(p)).count();
+                                @let group_id = format!("pool-group-{group_index}");
                                 @let rank_offset = usize::from(label.is_empty() && pinned_promoted_pool.is_some());
-                                tbody class="pool-group" hidden[shown == 0] {
+                                tbody class="pool-group" id=(group_id) data-pool-expanded=(if reveal_secondary { "true" } else { "false" }) hidden[shown == 0] {
                                     @if !label.is_empty() { tr class="group-row" { th colspan="12" scope="rowgroup" { (label) " " span { (group_hint(label)) } } } }
                                     @if label.is_empty() {
                                         @if let Some(p) = pinned_promoted_pool {
@@ -1284,6 +1307,14 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                                         }
                                     }
                                     @for (i, p) in rs.iter().enumerate() { (pool_row(p, i + 1 + rank_offset, !matches(p, f), show_coin, false)) }
+                                    tr class="pool-more-control" hidden {
+                                        td colspan=(if show_coin { 12 } else { 11 }) {
+                                            button type="button" class="pool-more-button" data-pool-more aria-controls=(group_id) aria-expanded="false" {
+                                                "Show " (secondary_count) " more " @if secondary_count == 1 { "pool" } @else { "pools" }
+                                                span { " · zero or unavailable hashrate" }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1536,7 +1567,7 @@ mod tests {
             !na.contains("0 Sol/s") && !na.contains("data-hashrate"),
             "{na}"
         );
-        assert!(na.contains("<span class=\"na\">n/a</span>"));
+        assert!(na.contains("class=\"na\" data-f=\"hashrate\">n/a</span>"));
         // Coin totals: n/a when nothing is published, 0 when zero is.
         let mut c = crate::data::Coin::default();
         assert_eq!(fmt::reported(&c).0, "n/a");
@@ -1551,6 +1582,151 @@ mod tests {
                 "n/a"
             }
         );
+    }
+
+    fn disclosure_fixture() -> Data {
+        let mut d = snap();
+        let base = d
+            .pools
+            .iter()
+            .find(|p| p.coin_id == "zcash")
+            .unwrap()
+            .clone();
+        d.pools = [
+            ("positive-test", Some(1234.5)),
+            ("zero-test", Some(0.0)),
+            ("unknown-test", None),
+        ]
+        .into_iter()
+        .map(|(name, hashrate)| Pool {
+            id: name.into(),
+            name: name.into(),
+            slug: name.into(),
+            hashrate,
+            ..base.clone()
+        })
+        .collect();
+        d
+    }
+
+    #[test]
+    fn pool_disclosure_preserves_zero_and_unknown_records_for_no_js() {
+        let d = disclosure_fixture();
+        let html = render_at(&d, &Filters::default(), at("2026-10-03T00:00:00Z")).into_string();
+        let table = html
+            .split("id=\"pool-table\"")
+            .nth(1)
+            .unwrap()
+            .split("</table>")
+            .next()
+            .unwrap();
+        assert!(table.contains("data-pool-expanded=\"false\""));
+        for (id, secondary) in [
+            ("positive-test", false),
+            ("zero-test", true),
+            ("unknown-test", true),
+        ] {
+            let row = table
+                .split("<tr")
+                .find(|row| {
+                    row.split('>')
+                        .next()
+                        .unwrap()
+                        .contains(&format!("data-pool-id=\"{id}\""))
+                })
+                .unwrap();
+            let tag = row.split('>').next().unwrap();
+            assert_eq!(
+                tag.contains("data-pool-secondary=\"1\""),
+                secondary,
+                "{tag}"
+            );
+            assert!(
+                !tag.contains(" hidden"),
+                "no-JS visitors retain every matching row: {tag}"
+            );
+        }
+        assert!(table.contains("Show 2 more pools"));
+        assert!(table.contains("aria-controls=\"pool-group-0\""));
+        assert!(table.contains("zero or unavailable hashrate"));
+    }
+
+    #[test]
+    fn explicit_filters_and_alternative_sorting_reveal_secondary_records() {
+        let d = disclosure_fixture();
+        for filter in [
+            Filters {
+                q: Some("zero-test".into()),
+                ..Default::default()
+            },
+            Filters {
+                region: Some("Europe".into()),
+                ..Default::default()
+            },
+            Filters {
+                sort: Some("fee".into()),
+                ..Default::default()
+            },
+            Filters {
+                sort: Some("hashrate".into()),
+                dir: Some("asc".into()),
+                ..Default::default()
+            },
+        ] {
+            assert!(reveal_secondary_pools(&filter));
+            let html = render_at(&d, &filter, at("2026-10-03T00:00:00Z")).into_string();
+            let table = html
+                .split("id=\"pool-table\"")
+                .nth(1)
+                .unwrap()
+                .split("</table>")
+                .next()
+                .unwrap();
+            assert!(table.contains("data-pool-expanded=\"true\""));
+        }
+    }
+
+    #[test]
+    fn zero_hashrate_promotion_stays_visible_and_keeps_its_ordinary_record() {
+        let mut d = disclosure_fixture();
+        d.pools[1].id = UNPAID_PROMOTED_POOL_ID.into();
+        let html = render_at(&d, &Filters::default(), at("2026-10-03T00:00:00Z")).into_string();
+        let table = html
+            .split("id=\"pool-table\"")
+            .nth(1)
+            .unwrap()
+            .split("</table>")
+            .next()
+            .unwrap();
+        let rows: Vec<&str> = table
+            .split("<tr")
+            .filter(|row| {
+                row.split('>')
+                    .next()
+                    .unwrap()
+                    .contains("data-pool-id=\"zcash:zecwec.com\"")
+            })
+            .collect();
+        assert_eq!(
+            rows.len(),
+            2,
+            "one placement plus its ordinary ranked record"
+        );
+        assert!(rows[0]
+            .split('>')
+            .next()
+            .unwrap()
+            .contains("data-promotion=\"unpaid\""));
+        assert!(!rows[0]
+            .split('>')
+            .next()
+            .unwrap()
+            .contains("data-pool-secondary"));
+        assert!(rows[1]
+            .split('>')
+            .next()
+            .unwrap()
+            .contains("data-pool-secondary=\"1\""));
     }
 
     #[test]

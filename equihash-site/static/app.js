@@ -186,13 +186,16 @@
     if (f.q && !d.search.includes(f.q.toLowerCase())) return false;
     return true;
   }
-  // Ranks restart in every parameter group (one tbody each): hashrates on different
-  // Equihash parameters are never ranked against each other.
+  const openPoolGroups = new Set();
+  const secondaryPool = (tr) => !(Number.isFinite(Number(tr.dataset.hashrate)) && Number(tr.dataset.hashrate) > 0);
+  const revealSecondaryPools = (f, sort) => ["q", "scheme", "region", "fee", "hr", "merged"].some((key) => !!f[key]) || sort.key !== "hashrate" || sort.dir !== "desc";
+  // Ranks restart in every parameter group; the disclosure never consumes a rank.
   function renumber() {
     $$("tbody", table).forEach((tb) => {
       let i = 0;
       $$("tr.pool-row", tb).forEach((tr) => { if (!tr.hidden) $(".rank", tr).textContent = ++i; });
-      if (tb.classList.contains("pool-group")) tb.hidden = i === 0;
+      const more = $("tr.pool-more-control", tb);
+      if (tb.classList.contains("pool-group")) tb.hidden = i === 0 && (!more || more.hidden);
     });
   }
   function applyFilters(push = true) {
@@ -200,17 +203,38 @@
     const f = readFilters();
     const s = sortState();
     const showPromotion = s.key === "hashrate" && s.dir === "desc";
-    let n = 0;
-    let promotionVisible = false;
-    for (const tr of $$("tbody tr.pool-row", table)) {
-      const promoted = tr.dataset.promotion === "unpaid";
-      const ok = rowMatches(tr, f) && (!promoted || showPromotion);
-      tr.hidden = !ok;
-      if (ok && !promoted) n++;
-      if (ok && promoted) promotionVisible = true;
+    const reveal = revealSecondaryPools(f, s);
+    let n = 0, shown = 0, promotionVisible = false;
+    for (const group of $$("tbody", table)) {
+      const expanded = reveal || openPoolGroups.has(group.id);
+      group.dataset.poolExpanded = String(expanded);
+      let secondaryCount = 0;
+      for (const tr of $$("tr.pool-row", group)) {
+        const promoted = tr.dataset.promotion === "unpaid";
+        const ok = rowMatches(tr, f) && (!promoted || showPromotion);
+        const secondary = !promoted && secondaryPool(tr);
+        if (secondary) tr.dataset.poolSecondary = "1";
+        else delete tr.dataset.poolSecondary;
+        tr.hidden = !ok || (secondary && !expanded);
+        if (ok && !promoted) {
+          n++;
+          if (secondary) secondaryCount++;
+          if (!tr.hidden) shown++;
+        }
+        if (ok && promoted) promotionVisible = true;
+      }
+      const control = $("tr.pool-more-control", group);
+      const button = $("[data-pool-more]", group);
+      if (control && button) {
+        control.hidden = secondaryCount === 0 || reveal;
+        button.setAttribute("aria-expanded", String(expanded));
+        button.innerHTML = `${expanded ? "Hide" : "Show"} ${secondaryCount} ${expanded ? "" : "more "}pool${secondaryCount === 1 ? "" : "s"}<span> · zero or unavailable hashrate</span>`;
+      }
     }
     renumber();
     $("#pool-count").textContent = n;
+    const shownCount = $("#pool-shown-count");
+    if (shownCount) shownCount.textContent = shown;
     $("#empty").hidden = n > 0;
     const promotionNote = $("#pool-promotion-note");
     if (promotionNote) promotionNote.hidden = !promotionVisible;
@@ -258,12 +282,40 @@
       if (promoted && key === "hashrate" && dir === "desc") tbody.appendChild(promoted);
       rows.forEach((r) => tbody.appendChild(r));
       if (promoted && (key !== "hashrate" || dir !== "desc")) tbody.appendChild(promoted);
+      const more = $("tr.pool-more-control", tbody);
+      if (more) tbody.appendChild(more);
     });
     $$("th[data-sort]", table).forEach((th) => th.setAttribute("aria-sort", th.dataset.sort === key ? (dir === "asc" ? "ascending" : "descending") : "none"));
     const hs = form && $("input[name=sort]", form), hd = form && $("input[name=dir]", form);
     if (hs) hs.value = key; if (hd) hd.value = dir;
   }
+  // Refresh both copies of a promoted pool and the sort/filter values, including zero transitions.
+  function applyPoolReadings(payload) {
+    if (!table) return;
+    for (const tr of $$("tr.pool-row", table)) {
+      const reading = payload.pools?.[tr.dataset.poolId];
+      if (!reading || !("hashrate" in reading)) continue;
+      if (reading.hashrate == null) delete tr.dataset.hashrate;
+      else tr.dataset.hashrate = String(reading.hashrate);
+      const value = $('[data-f="hashrate"]', tr);
+      if (value && reading.hashrate_text) {
+        value.textContent = reading.hashrate_text;
+        value.classList.toggle("na", reading.hashrate == null);
+      }
+    }
+    const sort = sortState();
+    sortBy(sort.key, sort.dir);
+    applyFilters(false);
+  }
   if (table) {
+    $$("[data-pool-more]", table).forEach((button) => button.addEventListener("click", () => {
+      const group = button.closest("tbody");
+      if (!group) return;
+      if (openPoolGroups.has(group.id)) openPoolGroups.delete(group.id);
+      else openPoolGroups.add(group.id);
+      applyFilters(false);
+    }));
+    applyFilters(false);
     $$("th[data-sort] a", table).forEach((a) => a.addEventListener("click", (e) => {
       e.preventDefault();
       const th = a.closest("th"); const key = th.dataset.sort;
@@ -648,6 +700,7 @@
       const n = $('[data-f="network"]', el); if (n) { n.textContent = c.network_text; n.classList.toggle("na", c.network_hashrate == null); }
       const r = $('[data-f="reported"]', el); if (r) r.firstChild.textContent = c.reported_text;
     }
+    applyPoolReadings(j);
     applyRanking(j.ranking);
     for (const el of $$("[data-live-age]")) {
       const src = (j.sources || []).find((s) => s.id === el.dataset.liveAge); if (!src?.reading) continue;

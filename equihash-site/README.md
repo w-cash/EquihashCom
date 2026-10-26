@@ -20,7 +20,7 @@ v2 is a full visual redesign. The research behind it (reference screenshots plus
 The short version is a printed ledger kept by a miner:
 - **Colours:** paper `#f7f5ef` and ink `#1d1c19`, hairline rules, one link blue, and red only for a pool above 30%. A warm dark mode follows `prefers-color-scheme`.
 - **Restraint:** radii of 2px at most, no gradients, shadows or animation.
-- **The pool table is the page:** dense, mono numbers, sorted by hashrate.
+- **The pool table is the page:** dense, mono numbers, sorted by hashrate. Positive readings are visible by default; zero and unavailable readings remain behind a counted "Show more pools" control. Searching, filtering or selecting another sort exposes matching records. Without JavaScript, every matching row stays visible.
 - **Prose** is plain and written for miners, starting with "How to pick a pool".
 
 Fonts are self-hosted in `static/fonts/` (woff2, latin and latin-ext subsets, from Fontsource). All are SIL Open Font License 1.1, and the licence texts sit next to the files:
@@ -144,7 +144,7 @@ DATA_DIR=/srv/equihash/data node scripts/refresh-data.mjs   # data somewhere els
 
 What it does, in order:
 
-1. **miningpoolstats.** It reads the coin index (`coins_data.js`) and keeps every algorithm containing "Equihash", plus `horizen` and `flux`, which are tracked as ended coins. For each coin it fetches the pool JSON and price JSON from `data.miningpoolstats.stream`. These files need the page's own `last_time` token and a browser-like Referer. Without them the server returns 403.
+1. **MiningPoolStats.** It reads the coin index (`coins_data.js`) and keeps every algorithm containing "Equihash", plus `horizen` and `flux`, which are tracked as ended coins. The official page's JSON preload selects the feed URL and cache token, constrained to reviewed HTTPS hosts (`server.miningpoolstats.stream` and the legacy `data.miningpoolstats.stream`). Pages without a matching preload use the current reviewed server host and their `last_time` token. Price requests use the same feed origin and token; records retain the exact source URL. Requests include a browser-like User-Agent and Referer. This covers the October 2026 feed-host migration that made the legacy host return HTTP 403 and stopped full refreshes.
 2. **2Miners public APIs.** It cross-checks network hashrate, difficulty and height for ZEC and BTG, and reads the block reward credited to miners from the matured block lists.
 3. **zpool and ZergPool public APIs.** These are optional extra pool sources. Rows that miningpoolstats already lists are skipped as duplicates.
 4. **`data/curated/coins.json` and `manual-pools.json`.** It adds coins and pools that miningpoolstats does not cover. Rows marked `"live": "zecwec"` get their fees from the ZecWec public overview API.
@@ -504,9 +504,9 @@ They cover:
 
 | What | Source |
 |---|---|
-| Coin list, pools, network stats | https://miningpoolstats.stream (JSON at https://data.miningpoolstats.stream/data/{coin}.js and `coins_data.js`) |
+| Coin list, pools, network stats | https://miningpoolstats.stream (current JSON preload under https://server.miningpoolstats.stream/data/; legacy reviewed host: data.miningpoolstats.stream) |
 | Equihash hashpower market | NiceHash public EQUIHASH order book and algorithm metadata at https://api2.nicehash.com |
-| Prices (coin header, network table, ASIC index, calculator) | https://data.miningpoolstats.stream/data/price/{coin}.js; when that fails, the `price` field of the coin file https://data.miningpoolstats.stream/data/{coin}.js (the price source URL says which) |
+| Prices (coin header, network table, ASIC index, calculator) | `/data/price/{coin}.js` on the selected MiningPoolStats feed host; when that fails, the `price` field of the coin feed (the price source URL says which) |
 | ZEC / BTG cross-checks and block reward | https://zec.2miners.com/api/stats, `/api/blocks`; https://btg.2miners.com/api/stats, `/api/blocks` |
 | zpool | https://zpool.ca/api/currencies, https://zpool.ca/api/status |
 | ZergPool (optional) | https://zergpool.com/api/currencies |
