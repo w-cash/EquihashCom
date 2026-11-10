@@ -189,13 +189,19 @@
   const openPoolGroups = new Set();
   const secondaryPool = (tr) => !(Number.isFinite(Number(tr.dataset.hashrate)) && Number(tr.dataset.hashrate) > 0);
   const revealSecondaryPools = (f, sort) => ["q", "scheme", "region", "fee", "hr", "merged"].some((key) => !!f[key]) || sort.key !== "hashrate" || sort.dir !== "desc";
-  // Ranks restart in every parameter group; the disclosure never consumes a rank.
+  // Ranks restart in every parameter group; placements and disclosures never consume a rank.
   function renumber() {
     $$("tbody", table).forEach((tb) => {
-      let i = 0;
-      $$("tr.pool-row", tb).forEach((tr) => { if (!tr.hidden) $(".rank", tr).textContent = ++i; });
+      let i = 0, visible = 0;
+      $$("tr.pool-row", tb).forEach((tr) => {
+        const promoted = tr.dataset.promotion === "unpaid";
+        if (promoted) $(".rank", tr).textContent = "—";
+        if (tr.hidden) return;
+        visible++;
+        if (!promoted) $(".rank", tr).textContent = ++i;
+      });
       const more = $("tr.pool-more-control", tb);
-      if (tb.classList.contains("pool-group")) tb.hidden = i === 0 && (!more || more.hidden);
+      if (tb.classList.contains("pool-group")) tb.hidden = visible === 0 && (!more || more.hidden);
     });
   }
   function applyFilters(push = true) {
@@ -274,14 +280,26 @@
       const o = typeof va === "number" ? va - vb : va.localeCompare(vb);
       return dir === "asc" ? o : -o;
     };
-    // Sort inside each tbody so rows never cross parameter groups. The unpaid placement is
-    // an extra row in the default Zcash hashrate view; the ordinary row remains data-ranked.
+    // Sort inside each tbody so rows never cross parameter groups. Unpaid placements are
+    // extra rows in the default Zcash hashrate view; ordinary copies remain data-ranked.
     $$("tbody", table).forEach((tbody) => {
-      const promoted = $("tr.pool-row[data-promotion=unpaid]", tbody);
+      const reported = (row) => {
+        const raw = row.dataset.hashrate;
+        const rate = raw === undefined ? NaN : Number(raw);
+        return Number.isFinite(rate) && rate >= 0 ? rate : null;
+      };
+      const promoted = $$("tr.pool-row[data-promotion=unpaid]", tbody).sort((a, b) => {
+        const x = reported(a), y = reported(b);
+        if (x == null && y != null) return 1;
+        if (x != null && y == null) return -1;
+        const rateOrder = x == null ? 0 : y - x;
+        return rateOrder || (a.dataset.name || "").localeCompare(b.dataset.name || "")
+          || (a.dataset.poolId || "").localeCompare(b.dataset.poolId || "");
+      });
       const rows = $$("tr.pool-row:not([data-promotion])", tbody).sort(cmp);
-      if (promoted && key === "hashrate" && dir === "desc") tbody.appendChild(promoted);
+      if (key === "hashrate" && dir === "desc") promoted.forEach((row) => tbody.appendChild(row));
       rows.forEach((r) => tbody.appendChild(r));
-      if (promoted && (key !== "hashrate" || dir !== "desc")) tbody.appendChild(promoted);
+      if (key !== "hashrate" || dir !== "desc") promoted.forEach((row) => tbody.appendChild(row));
       const more = $("tr.pool-more-control", tbody);
       if (more) tbody.appendChild(more);
     });

@@ -3,8 +3,7 @@
 
 use crate::data::{Coin, Data, Miner, Pool};
 use crate::fmt;
-use crate::views::home::schemes_text;
-use crate::views::home::UNPAID_PROMOTED_POOL_ID;
+use crate::views::home::{promoted_pools, schemes_text};
 use crate::views::layout::{layout, Page};
 use crate::views::links;
 use crate::views::logo::{self, At};
@@ -209,15 +208,16 @@ pub fn index(d: &Data) -> Markup {
             .partial_cmp(&a.hashrate)
             .unwrap_or(std::cmp::Ordering::Equal)
     });
-    let promoted_pool = zcash_pools
-        .iter()
-        .find(|p| p.id == UNPAID_PROMOTED_POOL_ID)
-        .copied();
-    zcash_pools.retain(|p| p.id != UNPAID_PROMOTED_POOL_ID);
     zcash_pools.truncate(3);
-    if let Some(promoted) = promoted_pool {
-        zcash_pools.push(promoted);
-    }
+    let zcash_pool_rows: Vec<(&Pool, bool)> = zcash_pools
+        .into_iter()
+        .map(|pool| (pool, false))
+        .chain(
+            promoted_pools(d.live_pools())
+                .into_iter()
+                .map(|pool| (pool, true)),
+        )
+        .collect();
     // This seller rates its current Z15 Pro offer at 860 kSol/s and 2,847 W. Keep it distinct
     // from BITMAIN's manufacturer specification (840 kSol/s typical), which is the next slide.
     let offer_860 = d
@@ -490,19 +490,20 @@ pub fn index(d: &Data) -> Markup {
                     div {
                         p class="ed-section-index" { "ZCASH / START HERE" }
                         h2 id="workspace-title" { "Choose a pool, then check the power cost." }
-                        p { "The three largest Zcash pool listings by reported hashrate, followed by one unpaid promotional placement. Hover the fourth row for its disclosure." }
+                        p { "The three largest Zcash pool listings by reported hashrate, followed by unpaid placements for Molepool and ZecWec. Both also appear at their reported-hashrate positions in the full comparison." }
                     }
                     a href="/pools?coin=zcash#pools" { "Compare all Zcash pools →" }
                 }
                 div class="ed-workspace-grid" {
-                    div class="ed-workspace-pools" aria-label="Largest listed Zcash pool rows and one unpaid promotion" {
-                        @for (i, p) in zcash_pools.iter().enumerate() {
-                            @let promoted = p.id == UNPAID_PROMOTED_POOL_ID;
+                    div class="ed-workspace-pools" aria-label="Largest listed Zcash pool rows and unpaid placements" {
+                        @for (i, (p, promoted)) in zcash_pool_rows.iter().enumerate() {
+                            @let promoted = *promoted;
                             a class=[promoted.then_some("is-promoted")] href={"/pool/" (&p.slug)}
+                                data-pool-id=(p.id) data-promotion=[promoted.then_some("unpaid")]
                                 title=[promoted.then(|| format!("{} did not pay for this placement", p.name))]
                                 aria-label=[promoted.then(|| format!("{} — unpaid promotional placement", p.name))]
                             {
-                                span class="ed-workspace-rank" { (i + 1) }
+                                span class="ed-workspace-rank" { @if promoted { "—" } @else { (i + 1) } }
                                 span class="ed-workspace-name" {
                                     (logo::chip(&p.logo, &p.name, At::Row, true))
                                     strong { (&p.name) }

@@ -3,11 +3,11 @@ use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub const SITE: &str = "https://equihash.com";
 /// Bump when static CSS or JavaScript changes so browsers don't keep a stale copy.
-pub const ASSET_V: &str = "68";
+pub const ASSET_V: &str = "74";
 
-/// The one inline script (swaps the no-js class before first paint). Its SHA-256 is allowed by
+/// The one inline script enhances the page and chooses a promo side before first paint. Its SHA-256 is allowed by
 /// the Content-Security-Policy (see `csp`), so no other inline script can run.
-pub const INLINE_SCRIPT: &str = "document.documentElement.classList.replace('no-js','js');";
+pub const INLINE_SCRIPT: &str = "document.documentElement.classList.replace('no-js','js');document.documentElement.dataset.promoSide=Math.random()<0.5?'left':'right';";
 
 fn base64(bytes: &[u8]) -> String {
     const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -213,7 +213,7 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                     (PreEscaped(json_ld))
                 }
             }
-            body data-page=(p.nav) {
+            body data-page=(p.nav) class=[(p.path == "/vendors").then_some("has-wide-directory")] {
                 a class="skip" href="#main" { "Skip to content" }
                 header class="masthead" {
                     div class="wrap masthead-inner" {
@@ -251,6 +251,7 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                     }
                 }
                 main id="main" { (body) }
+                (directory_promotions())
                 footer class="foot" {
                     div class="wrap foot-inner" {
                         p class="foot-owner" {
@@ -273,6 +274,47 @@ pub fn layout_at(d: &Data, p: Page, body: Markup, _now: chrono::DateTime<chrono:
                 script src={"/static/shared.js?v=" (ASSET_V)} defer {}
                 script src={"/static/app.js?v=" (ASSET_V)} defer {}
             }
+        }
+    }
+}
+
+/// These links use the outer margins; narrower screens get one in-flow link instead.
+fn directory_promotions() -> Markup {
+    html! {
+        aside class="directory-promos" aria-label="Zec.Info" {
+            a class="directory-promo" href="https://zec.info/" target="_blank" rel="noopener" aria-label="Visit Zec.Info (opens in a new tab)" {
+                span class="directory-promo-cover" {
+                    (zec_info_brand())
+                }
+                span class="directory-promo-index" {
+                    span { "Wallets" }
+                    span { "Exchanges" }
+                    span { "Swaps" }
+                    span { "Explorers" }
+                    span { "Mining" }
+                }
+                span class="directory-promo-bottom" {
+                    span class="directory-promo-action" { "Visit Zec.Info" span aria-hidden="true" { "↗" } }
+                }
+            }
+            div class="wrap directory-promo-inline-wrap" {
+                a class="directory-promo-inline" href="https://zec.info/" target="_blank" rel="noopener" aria-label="Visit Zec.Info (opens in a new tab)" {
+                    span class="directory-promo-inline-copy" {
+                        (zec_info_brand())
+                        span class="directory-promo-inline-summary" { "Wallets · Exchanges · Swaps · Explorers · Mining" }
+                    }
+                    span class="directory-promo-inline-action" { "Visit Zec.Info" span aria-hidden="true" { "↗" } }
+                }
+            }
+        }
+    }
+}
+
+/// The supplied Zec.Info artwork is kept intact; CSS frames its original wordmark.
+fn zec_info_brand() -> Markup {
+    html! {
+        span class="directory-promo-lockup" {
+            img src="/static/zec-info-brand.png" width="1500" height="500" alt="Zec.Info";
         }
     }
 }

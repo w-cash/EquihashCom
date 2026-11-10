@@ -7,10 +7,28 @@ use crate::views::logo::{self, At};
 use maud::{html, Markup, PreEscaped};
 use serde::Deserialize;
 
-pub const UNPAID_PROMOTED_POOL_ID: &str = "zcash:zecwec.com";
+pub const UNPAID_PROMOTED_POOL_IDS: &[&str] = &["zcash:molepool.com:70", "zcash:zecwec.com"];
 
-fn unpaid_promoted_pool(p: &Pool) -> bool {
-    p.id == UNPAID_PROMOTED_POOL_ID
+pub fn promoted_pools<'a>(pools: impl IntoIterator<Item = &'a Pool>) -> Vec<&'a Pool> {
+    let mut featured: Vec<_> = pools
+        .into_iter()
+        .filter(|pool| UNPAID_PROMOTED_POOL_IDS.contains(&pool.id.as_str()))
+        .collect();
+    let reported = |pool: &Pool| {
+        pool.hashrate
+            .filter(|rate| rate.is_finite() && *rate >= 0.0)
+    };
+    featured.sort_by(|a, b| {
+        match (reported(a), reported(b)) {
+            (Some(x), Some(y)) => y.partial_cmp(&x).unwrap_or(std::cmp::Ordering::Equal),
+            (Some(_), None) => std::cmp::Ordering::Less,
+            (None, Some(_)) => std::cmp::Ordering::Greater,
+            (None, None) => std::cmp::Ordering::Equal,
+        }
+        .then_with(|| a.name.to_lowercase().cmp(&b.name.to_lowercase()))
+        .then_with(|| a.id.cmp(&b.id))
+    });
+    featured
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
@@ -337,7 +355,7 @@ fn pool_row(p: &Pool, rank: usize, hidden: bool, show_coin: bool, promoted: bool
             data-search=(search_text(p))
             data-name=(p.name.to_lowercase()) data-coinlabel=(p.coin_label.to_lowercase()) data-region=(p.region.clone().unwrap_or_default().to_lowercase())
         {
-            td class="rank" { (rank) }
+            td class="rank" { @if promoted { "—" } @else { (rank) } }
             td class="name" {
                 a class="pool-link" href={"/pool/" (p.slug)} {
                     (logo::chip(&p.logo, &p.name, At::Row, rank > 12))
@@ -1130,13 +1148,12 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
         .cloned()
         .collect();
     let rows = sort_pools(in_scope.clone(), &sort, &dir);
-    // The requested unpaid placement is an extra copy. Keep the ordinary ZecWec row in
-    // the data-ranked list so readers can also find it at its reported-hashrate position.
-    let pinned_promoted_pool =
+    // Unpaid placements are extra copies. Keep each ordinary pool row in the data-ranked list.
+    let pinned_promoted_pools: Vec<&Pool> =
         if cur.map(|c| c.id.as_str()) == Some("zcash") && sort == "hashrate" && dir == "desc" {
-            rows.iter().copied().find(|p| unpaid_promoted_pool(p))
+            promoted_pools(rows.iter().copied())
         } else {
-            None
+            Vec::new()
         };
     let show_coin = cur.is_none();
     let help_coin: &Coin = cur.unwrap_or_else(|| {
@@ -1275,8 +1292,8 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                         }
                     }
                     p class="count" { span id="pool-count" { (visible) } " of " (in_scope.len()) " pool rows match. " span class="js-only" { span id="pool-shown-count" { (initially_shown) } " shown. " } "Click a pool for every field and its source." }
-                    @if pinned_promoted_pool.is_some() {
-                        p class="pool-promotion-note" id="pool-promotion-note" { strong { "Unpaid promotion:" } " ZecWec is shown first as a placement and again at its reported-hashrate position. The directory remains ordered by reported hashrate." }
+                    @if !pinned_promoted_pools.is_empty() {
+                        p class="pool-promotion-note" id="pool-promotion-note" { strong { "Featured rows are unpaid placements." } " Each pool also appears at its reported-hashrate position; numbered rows follow reported hashrate." }
                     }
                     div class="table-scroll" {
                         table class={"pools-table" @if show_coin { " with-coin" }} id="pool-table" {
@@ -1298,15 +1315,14 @@ pub fn render_at(d: &Data, f: &Filters, now: chrono::DateTime<chrono::Utc>) -> M
                                 @let shown = rs.iter().filter(|p| matches(p, f)).count();
                                 @let secondary_count = rs.iter().filter(|p| matches(p, f) && secondary_pool(p)).count();
                                 @let group_id = format!("pool-group-{group_index}");
-                                @let rank_offset = usize::from(label.is_empty() && pinned_promoted_pool.is_some());
                                 tbody class="pool-group" id=(group_id) data-pool-expanded=(if reveal_secondary { "true" } else { "false" }) hidden[shown == 0] {
                                     @if !label.is_empty() { tr class="group-row" { th colspan="12" scope="rowgroup" { (label) " " span { (group_hint(label)) } } } }
                                     @if label.is_empty() {
-                                        @if let Some(p) = pinned_promoted_pool {
-                                            (pool_row(p, 1, !matches(p, f), show_coin, true))
+                                        @for p in &pinned_promoted_pools {
+                                            (pool_row(p, 0, !matches(p, f), show_coin, true))
                                         }
                                     }
-                                    @for (i, p) in rs.iter().enumerate() { (pool_row(p, i + 1 + rank_offset, !matches(p, f), show_coin, false)) }
+                                    @for (i, p) in rs.iter().enumerate() { (pool_row(p, i + 1, !matches(p, f), show_coin, false)) }
                                     tr class="pool-more-control" hidden {
                                         td colspan=(if show_coin { 12 } else { 11 }) {
                                             button type="button" class="pool-more-button" data-pool-more aria-controls=(group_id) aria-expanded="false" {
@@ -1687,9 +1703,55 @@ mod tests {
     }
 
     #[test]
+    fn unpaid_placements_follow_numeric_hashrate_in_both_views() {
+        let mut d = real();
+        let [molepool, zecwec] = [UNPAID_PROMOTED_POOL_IDS[0], UNPAID_PROMOTED_POOL_IDS[1]];
+        for (mole_rate, zec_rate, first, last) in [
+            (Some(1_000_000.0), Some(20_000_000.0), zecwec, molepool),
+            (Some(30_000_000.0), Some(20_000_000.0), molepool, zecwec),
+            (Some(0.0), None, molepool, zecwec),
+            (None, Some(0.0), zecwec, molepool),
+            (None, None, molepool, zecwec),
+        ] {
+            for (id, rate) in [(molepool, mole_rate), (zecwec, zec_rate)] {
+                d.pools
+                    .iter_mut()
+                    .find(|pool| pool.id == id)
+                    .unwrap()
+                    .hashrate = rate;
+            }
+            let ordered: Vec<_> = promoted_pools(d.live_pools())
+                .into_iter()
+                .map(|pool| pool.id.as_str())
+                .collect();
+            assert_eq!(
+                ordered,
+                [first, last],
+                "placement membership must not fix order"
+            );
+            for (surface, html) in [
+                ("homepage", crate::views::hub::index(&d).into_string()),
+                (
+                    "pool table",
+                    render_at(&d, &Filters::default(), at("2026-10-03T00:00:00Z")).into_string(),
+                ),
+            ] {
+                let first = html.find(&format!("data-pool-id=\"{first}\"")).unwrap();
+                let last = html.find(&format!("data-pool-id=\"{last}\"")).unwrap();
+                assert!(
+                    first < last,
+                    "{surface} placements must follow descending numeric hashrate"
+                );
+            }
+        }
+    }
+
+    #[test]
     fn zero_hashrate_promotion_stays_visible_and_keeps_its_ordinary_record() {
         let mut d = disclosure_fixture();
-        d.pools[1].id = UNPAID_PROMOTED_POOL_ID.into();
+        for (i, id) in UNPAID_PROMOTED_POOL_IDS.iter().enumerate() {
+            d.pools[i + 1].id = (*id).into();
+        }
         let html = render_at(&d, &Filters::default(), at("2026-10-03T00:00:00Z")).into_string();
         let table = html
             .split("id=\"pool-table\"")
@@ -1698,35 +1760,38 @@ mod tests {
             .split("</table>")
             .next()
             .unwrap();
-        let rows: Vec<&str> = table
-            .split("<tr")
-            .filter(|row| {
-                row.split('>')
-                    .next()
-                    .unwrap()
-                    .contains("data-pool-id=\"zcash:zecwec.com\"")
-            })
-            .collect();
-        assert_eq!(
-            rows.len(),
-            2,
-            "one placement plus its ordinary ranked record"
-        );
-        assert!(rows[0]
-            .split('>')
-            .next()
-            .unwrap()
-            .contains("data-promotion=\"unpaid\""));
-        assert!(!rows[0]
-            .split('>')
-            .next()
-            .unwrap()
-            .contains("data-pool-secondary"));
-        assert!(rows[1]
-            .split('>')
-            .next()
-            .unwrap()
-            .contains("data-pool-secondary=\"1\""));
+        for id in UNPAID_PROMOTED_POOL_IDS {
+            let rows: Vec<&str> = table
+                .split("<tr")
+                .filter(|row| {
+                    row.split('>')
+                        .next()
+                        .unwrap()
+                        .contains(&format!("data-pool-id=\"{id}\""))
+                })
+                .collect();
+            assert_eq!(
+                rows.len(),
+                2,
+                "one placement plus its ordinary ranked record: {id}"
+            );
+            assert!(rows[0]
+                .split('>')
+                .next()
+                .unwrap()
+                .contains("data-promotion=\"unpaid\""));
+            assert!(rows[0].contains("<td class=\"rank\">—</td>"));
+            assert!(!rows[0]
+                .split('>')
+                .next()
+                .unwrap()
+                .contains("data-pool-secondary"));
+            assert!(rows[1]
+                .split('>')
+                .next()
+                .unwrap()
+                .contains("data-pool-secondary=\"1\""));
+        }
     }
 
     #[test]
