@@ -7,7 +7,11 @@ use crate::views::logo::{self, At};
 use maud::{html, Markup, PreEscaped};
 use serde::Deserialize;
 
-pub const UNPAID_PROMOTED_POOL_IDS: &[&str] = &["zcash:molepool.com:70", "zcash:zecwec.com"];
+pub const UNPAID_PROMOTED_POOL_IDS: &[&str] = &[
+    "zcash:molepool.com:70",
+    "zcash:zecwec.com",
+    "zcash:coolmine.top",
+];
 
 pub fn promoted_pools<'a>(pools: impl IntoIterator<Item = &'a Pool>) -> Vec<&'a Pool> {
     let mut featured: Vec<_> = pools
@@ -1705,15 +1709,29 @@ mod tests {
     #[test]
     fn unpaid_placements_follow_numeric_hashrate_in_both_views() {
         let mut d = real();
-        let [molepool, zecwec] = [UNPAID_PROMOTED_POOL_IDS[0], UNPAID_PROMOTED_POOL_IDS[1]];
-        for (mole_rate, zec_rate, first, last) in [
-            (Some(1_000_000.0), Some(20_000_000.0), zecwec, molepool),
-            (Some(30_000_000.0), Some(20_000_000.0), molepool, zecwec),
-            (Some(0.0), None, molepool, zecwec),
-            (None, Some(0.0), zecwec, molepool),
-            (None, None, molepool, zecwec),
+        let ids = [
+            "zcash:molepool.com:70",
+            "zcash:zecwec.com",
+            "zcash:coolmine.top",
+        ];
+        let [molepool, zecwec, coolmine] = ids;
+        for (rates, expected) in [
+            (
+                [Some(1_000_000.0), Some(20_000_000.0), Some(5_000_000.0)],
+                [zecwec, coolmine, molepool],
+            ),
+            (
+                [Some(30_000_000.0), Some(20_000_000.0), Some(40_000_000.0)],
+                [coolmine, molepool, zecwec],
+            ),
+            (
+                [Some(0.0), None, Some(10_000_000.0)],
+                [coolmine, molepool, zecwec],
+            ),
+            ([None, Some(0.0), None], [zecwec, coolmine, molepool]),
+            ([None, None, None], [coolmine, molepool, zecwec]),
         ] {
-            for (id, rate) in [(molepool, mole_rate), (zecwec, zec_rate)] {
+            for (id, rate) in ids.into_iter().zip(rates) {
                 d.pools
                     .iter_mut()
                     .find(|pool| pool.id == id)
@@ -1724,11 +1742,7 @@ mod tests {
                 .into_iter()
                 .map(|pool| pool.id.as_str())
                 .collect();
-            assert_eq!(
-                ordered,
-                [first, last],
-                "placement membership must not fix order"
-            );
+            assert_eq!(ordered, expected, "placement membership must not fix order");
             for (surface, html) in [
                 ("homepage", crate::views::hub::index(&d).into_string()),
                 (
@@ -1736,10 +1750,10 @@ mod tests {
                     render_at(&d, &Filters::default(), at("2026-10-03T00:00:00Z")).into_string(),
                 ),
             ] {
-                let first = html.find(&format!("data-pool-id=\"{first}\"")).unwrap();
-                let last = html.find(&format!("data-pool-id=\"{last}\"")).unwrap();
+                let positions =
+                    expected.map(|id| html.find(&format!("data-pool-id=\"{id}\"")).unwrap());
                 assert!(
-                    first < last,
+                    ascending(&positions),
                     "{surface} placements must follow descending numeric hashrate"
                 );
             }
@@ -1749,6 +1763,9 @@ mod tests {
     #[test]
     fn zero_hashrate_promotion_stays_visible_and_keeps_its_ordinary_record() {
         let mut d = disclosure_fixture();
+        let mut third_pool = d.pools[2].clone();
+        third_pool.slug = "second-unknown-test".into();
+        d.pools.push(third_pool);
         for (i, id) in UNPAID_PROMOTED_POOL_IDS.iter().enumerate() {
             d.pools[i + 1].id = (*id).into();
         }

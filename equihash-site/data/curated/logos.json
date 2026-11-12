@@ -379,6 +379,30 @@
       "domain": "poolin.com",
       "archived": true
     },
+    "zcash:coolmine.top": {
+      "file": "pools/coolmine.top.ccff3389c8.webp",
+      "source_url": "https://coolmine.top/favicon.png",
+      "source_page": "https://coolmine.top/?coin=6",
+      "fetched_at": "2026-10-03T15:46:52.632Z",
+      "kind": "official",
+      "license_note": "coolmine.top's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "webp",
+      "bytes": 4302,
+      "source_px": "400x400",
+      "domain": "coolmine.top"
+    },
+    "wcash:coolmine.top": {
+      "file": "pools/coolmine.top.ccff3389c8.webp",
+      "source_url": "https://coolmine.top/favicon.png",
+      "source_page": "https://coolmine.top/?coin=6",
+      "fetched_at": "2026-10-03T15:46:52.632Z",
+      "kind": "official",
+      "license_note": "coolmine.top's own logo, from its own website. Trademark of its owner; shown only to identify it.",
+      "format": "webp",
+      "bytes": 4302,
+      "source_px": "400x400",
+      "domain": "coolmine.top"
+    },
     "zcash:zecwec.com": {
       "file": null,
       "source_url": null,

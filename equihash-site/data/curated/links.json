@@ -2054,6 +2054,26 @@
         "status": "verified"
       }
     ],
+    "zcash:coolmine.top": [
+      {
+        "kind": "website",
+        "url": "https://coolmine.top/pools/zecwec/pplns/",
+        "label": "CoolMine ZEC + WEC pool",
+        "source_url": "https://coolmine.top/pools/zecwec/pplns/",
+        "verified_at": "2026-11-12T10:19:32Z",
+        "status": "verified"
+      }
+    ],
+    "wcash:coolmine.top": [
+      {
+        "kind": "website",
+        "url": "https://coolmine.top/pools/zecwec/pplns/",
+        "label": "CoolMine ZEC + WEC pool",
+        "source_url": "https://coolmine.top/pools/zecwec/pplns/",
+        "verified_at": "2026-11-12T10:19:32Z",
+        "status": "verified"
+      }
+    ],
     "zcash:zecwec.com": [
       {
         "kind": "website",

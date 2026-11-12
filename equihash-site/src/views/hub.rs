@@ -490,7 +490,7 @@ pub fn index(d: &Data) -> Markup {
                     div {
                         p class="ed-section-index" { "ZCASH / START HERE" }
                         h2 id="workspace-title" { "Choose a pool, then check the power cost." }
-                        p { "The three largest Zcash pool listings by reported hashrate, followed by unpaid placements for Molepool and ZecWec. Both also appear at their reported-hashrate positions in the full comparison." }
+                        p { "The three largest Zcash pools by reported hashrate, followed by unpaid placements. Each featured pool also appears in the full hashrate ranking." }
                     }
                     a href="/pools?coin=zcash#pools" { "Compare all Zcash pools →" }
                 }

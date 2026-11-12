@@ -47,7 +47,7 @@ const MPS = "https://miningpoolstats.stream";
 const SOURCE_HOSTS = [
   "miningpoolstats.stream", ...MPS_FEED_HOSTS, "zpool.ca", "zergpool.com",
   "pool.zecwec.com", "zec.2miners.com", "btg.2miners.com", "wcashexplorer.com",
-  "zprominers.com", "zec.molepool.com",
+  "zprominers.com", "zec.molepool.com", "coolmine.top",
 ];
 // Pages that are no longer in the MPS coin index but still have a page (PoW ended).
 const EXTRA_MPS_PAGES = ["horizen", "flux"];

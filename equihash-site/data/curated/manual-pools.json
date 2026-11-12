@@ -239,6 +239,124 @@
       "live_source": "molepool-zec-wec"
     },
     {
+      "id": "zcash:coolmine.top",
+      "name": "CoolMine",
+      "coin": "ZEC",
+      "coin_id": "zcash",
+      "url": "https://coolmine.top/pools/zecwec/pplns/",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "hashrate_is_reported": false,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 0,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 0.01,
+      "min_payout_unit": "ZEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "Europe, Asia",
+      "regions": [
+        "Europe",
+        "Asia"
+      ],
+      "country_code": null,
+      "merged_mining": {
+        "supported": true,
+        "coins": [
+          "WEC"
+        ],
+        "note": "ZEC is the parent chain. A saved WEC address is required before accumulated WEC rewards can be paid out."
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "CoolMine ZEC + WEC pool and public APIs",
+      "source_url": "https://coolmine.top/pools/zecwec/pplns/",
+      "data_url": "https://coolmine.top/api/zecwec/v1/overview",
+      "from_miningpoolstats": false,
+      "verified_at": "2026-11-12T10:19:32Z",
+      "notes": "CoolMine uses one Equihash 200,9 connection for both chains. The 0% PPLNS pool fee is separate from network fees on payouts.",
+      "hashrate_source": "https://coolmine.top/api/zecwec/v1/hashrate/pool",
+      "hashrate_observed_at": null,
+      "basis": null,
+      "fee_source": "https://coolmine.top/api/zecwec/v1/overview",
+      "fee_observed_at": "2026-11-12T10:19:32Z",
+      "min_payout_source": "https://coolmine.top/pools/zecwec/pplns/",
+      "min_payout_observed_at": "2026-11-12T10:19:32Z",
+      "live_fields": [
+        "hashrate"
+      ],
+      "live_source": "coolmine-zec-wec"
+    },
+    {
+      "id": "wcash:coolmine.top",
+      "name": "CoolMine",
+      "coin": "WEC",
+      "coin_id": "wcash",
+      "url": "https://coolmine.top/pools/zecwec/pplns/",
+      "hashrate": null,
+      "hashrate_unit": "Sol/s",
+      "hashrate_is_reported": false,
+      "miners": null,
+      "workers": null,
+      "fee_pct": 0,
+      "schemes": [
+        {
+          "scheme": "PPLNS",
+          "fee_pct": 0
+        }
+      ],
+      "payout_schemes": [
+        "PPLNS"
+      ],
+      "min_payout": 1,
+      "min_payout_unit": "WEC",
+      "blocks_last_1000": null,
+      "last_block_height": null,
+      "last_block_time": null,
+      "region": "Europe, Asia",
+      "regions": [
+        "Europe",
+        "Asia"
+      ],
+      "country_code": null,
+      "merged_mining": {
+        "supported": true,
+        "coins": [
+          "ZEC"
+        ],
+        "note": "WEC is the auxiliary chain. Mining starts with a saved ZEC address. WEC rewards accrue before a WEC payout address is added."
+      },
+      "solo": false,
+      "active": true,
+      "source_name": "CoolMine ZEC + WEC pool and public APIs",
+      "source_url": "https://coolmine.top/pools/zecwec/pplns/",
+      "data_url": "https://coolmine.top/api/zecwec/v1/overview",
+      "from_miningpoolstats": false,
+      "verified_at": "2026-11-12T10:19:32Z",
+      "notes": "CoolMine uses one Equihash 200,9 connection for both chains. The 0% PPLNS pool fee is separate from network fees on payouts.",
+      "hashrate_source": "https://coolmine.top/api/zecwec/v1/hashrate/pool",
+      "hashrate_observed_at": null,
+      "basis": null,
+      "fee_source": "https://coolmine.top/api/zecwec/v1/overview",
+      "fee_observed_at": "2026-11-12T10:19:32Z",
+      "min_payout_source": "https://coolmine.top/pools/zecwec/pplns/",
+      "min_payout_observed_at": "2026-11-12T10:19:32Z",
+      "live_fields": [
+        "hashrate"
+      ],
+      "live_source": "coolmine-zec-wec"
+    },
+    {
       "id": "zcash:zprominers.com:144",
       "name": "ZProMiners",
       "coin": "ZEC",

@@ -1195,7 +1195,12 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn molepool_and_zecwec_promotions_keep_their_hashrate_ranked_rows() {
+    async fn three_unpaid_promotions_keep_their_hashrate_ranked_rows() {
+        let promoted_ids = [
+            "zcash:molepool.com:70",
+            "zcash:zecwec.com",
+            "zcash:coolmine.top",
+        ];
         let s = state();
         let app = app!(s);
 
@@ -1212,13 +1217,13 @@ mod tests {
         let via = workspace.find("ViaBTC").expect("ViaBTC in shortlist");
         let foundry = workspace.find("Foundry").expect("Foundry in shortlist");
         let f2pool = workspace.find("F2Pool").expect("F2Pool in shortlist");
-        let molepool = workspace
-            .find("molepool.com")
-            .expect("Molepool in shortlist");
-        let zecwec = workspace.find("ZecWec").expect("ZecWec in shortlist");
-        assert!(via < foundry && foundry < f2pool && f2pool < molepool && f2pool < zecwec);
-        assert_eq!(workspace.matches(r#"data-promotion="unpaid""#).count(), 2);
-        for id in views::home::UNPAID_PROMOTED_POOL_IDS {
+        assert!(via < foundry && foundry < f2pool);
+        assert_eq!(
+            workspace.matches(r#"data-promotion="unpaid""#).count(),
+            promoted_ids.len()
+        );
+        for id in promoted_ids {
+            assert!(f2pool < workspace.find(&format!(r#"data-pool-id="{id}""#)).unwrap());
             let featured = workspace
                 .split("<a ")
                 .find(|row| row.contains(&format!(r#"data-pool-id="{id}""#)))
@@ -1249,38 +1254,32 @@ mod tests {
             .split("</table>")
             .next()
             .unwrap();
-        let molepool_rows: Vec<usize> = table
-            .match_indices(r#"data-pool-id="zcash:molepool.com:70""#)
-            .map(|(position, _)| position)
-            .collect();
-        assert_eq!(
-            molepool_rows.len(),
-            2,
-            "pinned and naturally ranked Molepool rows"
-        );
-        let zecwec_rows: Vec<usize> = table
-            .match_indices(r#"data-pool-id="zcash:zecwec.com""#)
-            .map(|(position, _)| position)
-            .collect();
-        assert_eq!(
-            zecwec_rows.len(),
-            2,
-            "pinned and naturally ranked ZecWec rows"
-        );
-        let molepool = *molepool_rows.first().expect("promoted Molepool row");
-        let zecwec = *zecwec_rows.first().expect("promoted ZecWec row");
         let via = table.find(r#"data-name="viabtc""#).expect("ViaBTC row");
         let foundry = table.find(r#"data-name="foundry""#).expect("Foundry row");
         let f2pool = table.find(r#"data-name="f2pool""#).expect("F2Pool row");
-        assert!(molepool < via && zecwec < via && via < foundry && foundry < f2pool);
-        assert_eq!(table.matches(r#"data-promotion="unpaid""#).count(), 2);
-        for positions in [&molepool_rows, &zecwec_rows] {
-            let promoted = positions[0];
-            let promoted_tag = &table[promoted..table[promoted..].find('>').unwrap() + promoted];
-            let ranked = positions[1];
-            let ranked_tag = &table[ranked..table[ranked..].find('>').unwrap() + ranked];
-            assert!(promoted_tag.contains(r#"data-promotion="unpaid""#));
-            assert!(!ranked_tag.contains("data-promotion"));
+        assert!(via < foundry && foundry < f2pool);
+        assert_eq!(
+            table.matches(r#"data-promotion="unpaid""#).count(),
+            promoted_ids.len()
+        );
+        for id in promoted_ids {
+            let marker = format!(r#"data-pool-id="{id}""#);
+            let positions: Vec<_> = table
+                .match_indices(&marker)
+                .map(|(position, _)| position)
+                .collect();
+            assert_eq!(
+                positions.len(),
+                2,
+                "one placement and one ranked row for {id}"
+            );
+            assert!(
+                positions[0] < via,
+                "featured row must precede ordinary ranks: {id}"
+            );
+            let row_tag = |position: usize| table[position..].split('>').next().unwrap();
+            assert!(row_tag(positions[0]).contains(r#"data-promotion="unpaid""#));
+            assert!(!row_tag(positions[1]).contains("data-promotion"));
         }
 
         let mut previous_hashrate = f64::INFINITY;
@@ -1341,20 +1340,20 @@ mod tests {
             let body = String::from_utf8(body.to_vec()).unwrap();
             assert!(!body.contains(r#"data-promotion="unpaid""#), "{path}");
             assert!(!body.contains(r#"id="pool-promotion-note""#), "{path}");
-            if path.contains("coin=wcash") {
-                assert!(body.contains(r#"data-pool-id="wcash:molepool.com""#));
-                assert!(body.contains(r#"data-pool-id="wcash:zecwec.com""#));
+            let ids = if path.contains("coin=wcash") {
+                [
+                    "wcash:molepool.com",
+                    "wcash:zecwec.com",
+                    "wcash:coolmine.top",
+                ]
             } else {
+                promoted_ids
+            };
+            for id in ids {
                 assert_eq!(
-                    body.matches(r#"data-pool-id="zcash:molepool.com:70""#)
-                        .count(),
+                    body.matches(&format!(r#"data-pool-id="{id}""#)).count(),
                     1,
-                    "{path}"
-                );
-                assert_eq!(
-                    body.matches(r#"data-pool-id="zcash:zecwec.com""#).count(),
-                    1,
-                    "{path}"
+                    "{path}: {id}"
                 );
             }
         }

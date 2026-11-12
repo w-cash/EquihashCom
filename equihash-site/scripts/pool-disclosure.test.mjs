@@ -186,7 +186,7 @@ test("both unpaid placements stay unnumbered and follow numeric hashrate through
   assert.deepEqual(ranks(), [["zecwec", "—"], ["molepool", "—"], ["viabtc", 1], ["zecwec", 2], ["molepool", 3]]);
 });
 
-test("live updates refresh both placements and both naturally ranked copies without inflating ranks or counts", () => {
+test("live updates refresh three placements and their naturally ranked copies without inflating ranks or counts", () => {
   const x = setup([
     pool("molepool", 20, { promotion: true }),
     pool("zecwec", 50, { promotion: true }),
@@ -194,6 +194,8 @@ test("live updates refresh both placements and both naturally ranked copies with
     pool("zecwec", 50),
     pool("molepool", 20),
     pool("unknown", null),
+    pool("coolmine", 35, { promotion: true }),
+    pool("coolmine", 35),
   ]);
   const ranks = () => x.group.children
     .filter((row) => row.classList.contains("pool-row") && !row.hidden)
@@ -201,41 +203,61 @@ test("live updates refresh both placements and both naturally ranked copies with
   x.context.update = { pools: {
     molepool: { hashrate: 2000, hashrate_text: "2 kSol/s" },
     zecwec: { hashrate: 3000, hashrate_text: "3 kSol/s" },
+    coolmine: { hashrate: 2500, hashrate_text: "2.5 kSol/s" },
   } };
   x.run("applyPoolReadings(update)");
-  assert.deepEqual(ranks(), [["zecwec", "—"], ["molepool", "—"], ["zecwec", 1], ["molepool", 2], ["viabtc", 3]]);
-  for (const [index, text] of [[0, "2 kSol/s"], [1, "3 kSol/s"], [3, "3 kSol/s"], [4, "2 kSol/s"]]) {
+  assert.deepEqual(ranks(), [
+    ["zecwec", "—"], ["coolmine", "—"], ["molepool", "—"],
+    ["zecwec", 1], ["coolmine", 2], ["molepool", 3], ["viabtc", 4],
+  ]);
+  for (const [index, text] of [
+    [0, "2 kSol/s"], [1, "3 kSol/s"], [3, "3 kSol/s"], [4, "2 kSol/s"],
+    [6, "2.5 kSol/s"], [7, "2.5 kSol/s"],
+  ]) {
     assert.equal(x.rows[index].querySelector('[data-f="hashrate"]').textContent, text);
   }
-  assert.equal(x.root.querySelector("#pool-count").textContent, 4);
-  assert.equal(x.root.querySelector("#pool-shown-count").textContent, 3);
+  assert.equal(x.root.querySelector("#pool-count").textContent, 5);
+  assert.equal(x.root.querySelector("#pool-shown-count").textContent, 4);
 
   x.context.update = { pools: {
     molepool: { hashrate: 4000, hashrate_text: "4 kSol/s" },
     zecwec: { hashrate: 500, hashrate_text: "500 Sol/s" },
+    coolmine: { hashrate: 1500, hashrate_text: "1.5 kSol/s" },
   } };
   x.run("applyPoolReadings(update)");
-  assert.deepEqual(ranks(), [["molepool", "—"], ["zecwec", "—"], ["molepool", 1], ["viabtc", 2], ["zecwec", 3]], "both featured and ordinary rows must change order when their hashrates cross");
+  assert.deepEqual(ranks(), [
+    ["molepool", "—"], ["coolmine", "—"], ["zecwec", "—"],
+    ["molepool", 1], ["coolmine", 2], ["viabtc", 3], ["zecwec", 4],
+  ], "featured and ordinary rows must change order when their hashrates cross");
 
   x.context.update = { pools: {
     molepool: { hashrate: 0, hashrate_text: "0 Sol/s" },
     zecwec: { hashrate: null, hashrate_text: "n/a" },
   } };
   x.run("applyPoolReadings(update)");
-  assert.deepEqual(ranks(), [["molepool", "—"], ["zecwec", "—"], ["viabtc", 1]]);
+  assert.deepEqual(ranks(), [
+    ["coolmine", "—"], ["molepool", "—"], ["zecwec", "—"],
+    ["coolmine", 1], ["viabtc", 2],
+  ]);
   assert.equal(x.rows[0].dataset.hashrate, "0");
   assert.equal(x.rows[1].dataset.hashrate, undefined);
   assert.equal(x.rows[3].hidden, true);
   assert.equal(x.rows[4].hidden, true);
-  assert.equal(x.root.querySelector("#pool-count").textContent, 4);
-  assert.equal(x.root.querySelector("#pool-shown-count").textContent, 1);
+  assert.equal(x.root.querySelector("#pool-count").textContent, 5);
+  assert.equal(x.root.querySelector("#pool-shown-count").textContent, 2);
   x.button.click();
-  assert.deepEqual(ranks(), [["molepool", "—"], ["zecwec", "—"], ["viabtc", 1], ["molepool", 2], ["zecwec", 3], ["unknown", 4]]);
+  assert.deepEqual(ranks(), [
+    ["coolmine", "—"], ["molepool", "—"], ["zecwec", "—"],
+    ["coolmine", 1], ["viabtc", 2], ["molepool", 3], ["zecwec", 4], ["unknown", 5],
+  ]);
 
   x.context.update = { pools: {
     molepool: { hashrate: null, hashrate_text: "n/a" },
     zecwec: { hashrate: 0, hashrate_text: "0 Sol/s" },
   } };
   x.run("applyPoolReadings(update)");
-  assert.deepEqual(ranks(), [["zecwec", "—"], ["molepool", "—"], ["viabtc", 1], ["zecwec", 2], ["molepool", 3], ["unknown", 4]], "a reported zero must sort ahead of unknown hashrate");
+  assert.deepEqual(ranks(), [
+    ["coolmine", "—"], ["zecwec", "—"], ["molepool", "—"],
+    ["coolmine", 1], ["viabtc", 2], ["zecwec", 3], ["molepool", 4], ["unknown", 5],
+  ], "a reported zero must sort ahead of unknown hashrate");
 });

@@ -3913,8 +3913,17 @@ mod tests {
                 t => panic!("{}: unknown target {t}", s.id),
             }
         }
-        assert_eq!(d.pools.iter().filter(|p| p.coin_id == "wcash").count(), 2);
+        assert_eq!(d.pools.iter().filter(|p| p.coin_id == "wcash").count(), 3);
         assert!(d.pools.iter().any(|p| p.id == "wcash:molepool.com"));
+        let coolmine = cfg
+            .sources
+            .iter()
+            .find(|s| s.id == "coolmine-zec-wec")
+            .unwrap();
+        assert_eq!(
+            coolmine.pool_ids(),
+            ["zcash:coolmine.top", "wcash:coolmine.top"]
+        );
     }
 
     // ---- snapshots, permalinks ----
